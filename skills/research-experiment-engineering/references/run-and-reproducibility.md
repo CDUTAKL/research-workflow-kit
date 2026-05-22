@@ -19,7 +19,7 @@ Every important run should record:
 | Output directory | stable artifact path |
 | Checkpoint path | checkpoint used for evaluation |
 | Prediction file | predictions or residuals when applicable |
-| Execution target | `local_mac`, `cloud_autodl`, or other named target |
+| Execution target | `local_mac`, `remote_desktop_4060`, `cloud_autodl`, or other named target |
 | Known limitations | missing baseline, small scope, failed runs, unstable results |
 
 ## Execution Targets
@@ -28,14 +28,16 @@ Use these target labels consistently:
 
 | Target | Meaning |
 |---|---|
-| `local_mac` | this Mac; use CPU / Apple Silicon / MPS when supported for debugging and smoke tests |
-| `cloud_autodl` | AutoDL remote GPU instance; use for formal training when access is provided |
+| `local_mac` | this Mac; use CPU / Apple Silicon / MPS when supported for orchestration, debugging, and smoke tests only |
+| `remote_desktop_4060` | the user's desktop with RTX 4060; primary formal GPU experiment target |
+| `cloud_autodl` | AutoDL remote GPU instance; stronger fallback when the desktop 4060 is unavailable or insufficient |
 | `cloud_other` | RunPod, Colab, Kaggle, school server, or another remote target |
 
 Default policy:
 
-- Run `local_mac` smoke tests before paid cloud training.
-- Use AutoDL for formal runs only after the command, config, outputs, and data paths are known.
+- Run `local_mac` CPU-only smoke tests before any long-running remote GPU training.
+- Use `remote_desktop_4060` as the default formal GPU target after the command, config, outputs, and data paths are known.
+- Use `cloud_autodl` for formal runs only when the desktop 4060 is unavailable, insufficient, or explicitly bypassed.
 - Keep secrets out of repository files.
 
 ## Output Directory Checklist
@@ -67,28 +69,28 @@ During or immediately after a run, check:
 - evaluation uses the intended split.
 - failures are recorded rather than silently ignored.
 
-## AutoDL Run Record
+## Remote Desktop 4060 Run Record
 
-When using AutoDL, record these fields in `experiment-runbook.md` and `reproducibility-checklist.md`:
+When using the desktop RTX 4060, record these fields in `experiment-runbook.md` and `reproducibility-checklist.md`:
 
 | Field | Record |
 |---|---|
 | SSH reference | SSH alias or host label; do not store password |
 | Username/port | only if needed for reconnection |
 | Private key | local file path only, never key contents |
-| GPU model | for example RTX 4090, RTX 3090, A100 |
-| Remote project path | code directory on AutoDL |
-| Remote data path | dataset directory on AutoDL |
+| GPU model | RTX 4060, with VRAM when known |
+| Remote project path | code directory on the desktop |
+| Remote data path | dataset directory on the desktop |
 | Remote env | conda/env activation command |
 | Remote command | train/evaluate command |
 | Remote log path | log file or directory |
 | Remote output path | metrics/checkpoints/predictions directory |
 | Download destination | local artifact path after training |
-| Shutdown policy | whether to stop/release instance after artifacts are recovered |
+| Recovery policy | whether to sync outputs back to the Mac and where |
 
-Use macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync` for AutoDL handoff. Do not assume MobaXterm on this Mac.
+Use macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync` for remote desktop handoff. Do not assume MobaXterm on this Mac.
 
-AutoDL execution sequence:
+Remote GPU execution sequence:
 
 ```text
 1. Confirm SSH access and GPU.
@@ -99,8 +101,12 @@ AutoDL execution sequence:
 6. Verify metrics, logs, checkpoints, and predictions exist.
 7. Download or sync required artifacts.
 8. Update thesis console records.
-9. Stop or release the instance if the user requested shutdown.
+9. Stop temporary jobs or free cloud instances if the fallback cloud target was used.
 ```
+
+## AutoDL Fallback Run Record
+
+When `cloud_autodl` is used instead of `remote_desktop_4060`, record the same remote fields plus the AutoDL instance/image, billed resource, and shutdown/release policy. Treat AutoDL as a fallback target, not the default path.
 
 ## Paper Mapping
 
@@ -129,5 +135,5 @@ Use these status labels:
 | `reviewed` | outputs are traceable and safe for result analysis |
 | `needs_rerun` | run failed, scope changed, or evidence is insufficient |
 | `not_reproducible` | required reproduction information is missing |
-| `cloud_running` | remote cloud run is active |
-| `cloud_recovered` | remote artifacts were downloaded or synced locally |
+| `remote_running` | remote desktop or cloud run is active |
+| `remote_recovered` | remote artifacts were downloaded or synced locally |

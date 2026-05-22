@@ -5,6 +5,7 @@
 - Use this file before submission, defense, export, or major supervisor review.
 - Record issues by priority and close them only after checking the manuscript or source file.
 - Link each serious issue to the affected claim, section, figure, table, citation, or experiment.
+- Stages 11-12 are intended to be finished on the user's laptop; record the laptop artifact path or version when final production moves off the Mac research console.
 
 ## Priority Legend
 
@@ -57,6 +58,7 @@
 | Appendix and acknowledgements are complete | pending |  |
 | Defense slides align with supported claims | pending |  |
 | Backup evidence files are traceable | pending |  |
+| Final laptop artifact paths or versions are recorded | pending |  |
 
 ## Nature-Derived Enhancement Audit
 

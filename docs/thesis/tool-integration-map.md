@@ -13,6 +13,10 @@
 | Notion | 1, 3, 4-6, 12 | task board, weekly plan, supervisor feedback, progress dashboard | `task-board-sync.md` | Does not replace `docs/thesis/` evidence files |
 | GitHub | 4-6, 12 | code versioning, issue/PR review, branch/commit traceability | `git-version-log.md` | Formal experiments should record branch/commit |
 | Superpowers | 5, 6 | planning, TDD, systematic debugging, verification, code review | linked tasks in `task-board-sync.md` or `git-version-log.md` | Engineering method layer, not evidence source |
+| `local_mac` | 1-10 | research console, literature/writing/remote-run control, CPU-only smoke tests | `experiment-runbook.md`, `reproducibility-checklist.md` | Do not assume local GPU |
+| `remote_desktop_4060` | 5-8 | primary CUDA/GPU experiment target | `experiment-runbook.md`, `reproducibility-checklist.md`, `experiment-registry.md` | Use for training, evaluation, tuning, and reproducibility artifacts |
+| `cloud_autodl` | 6-8 optional | stronger fallback GPU target | `experiment-runbook.md`, `reproducibility-checklist.md` | Use only when desktop 4060 is unavailable or insufficient |
+| Laptop finalization | 11-12 | final DOCX/optional Word/optional LaTeX/PDF production and defense finishing | `final-audit.md`, `defense-prep.md` | Separate from Mac research-console workflow |
 | Spreadsheets | 2, 7-9, 12 | export literature matrices, result tables, claim maps, audit tables | `spreadsheet-exports.md` | Use for reviewable tables; keep source records in Markdown/CSV |
 | Documents | 10, 11 | DOCX thesis drafting, editing, and formatting | `writing-outline.md`, `final-audit.md` | In Codex plugin contexts this is `documents:documents`; Pages or Microsoft Word are optional local review tools |
 | PDF | 11, 12 | rendered PDF checks | `final-audit.md` | Use for final visual/layout audit |
@@ -33,14 +37,14 @@
 | 2. Literature discovery and review | `$semanticscholar-skill`, `$research-literature-review`, Zotero, Scite | Spreadsheets for reviewable matrix exports |
 | 3. Experiment question definition | `$research-paper-plan`, `$research-experiment-engineering` | Notion for task planning |
 | 4. Experiment architecture planning | `$research-experiment-engineering` | GitHub issues/branches when useful |
-| 5. Research code implementation | Codex coding, Superpowers | GitHub commits and code review |
-| 6. Experiment run and monitoring | `$research-experiment-engineering` | GitHub commit trace, `local_mac` smoke tests, AutoDL over macOS Terminal / VS Code SSH / `ssh` / `scp` / `rsync`, Notion progress |
+| 5. Research code implementation | Codex coding, Superpowers | Mac research console, GitHub commits and code review; heavy tests can run on `remote_desktop_4060` |
+| 6. Experiment run and monitoring | `$research-experiment-engineering` | GitHub commit trace, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback, macOS Terminal / VS Code SSH / `ssh` / `scp` / `rsync`, Notion progress |
 | 7. Experiment recording and result scan | `$jupyter-notebook`, `$research-results-analysis` | Spreadsheets for result tables |
 | 8. Results analysis and claim mapping | `$research-results-analysis` | Scite for citation support, Spreadsheets for claim tables |
 | 9. Figure and table planning | `$research-paper-figures`, Image Gen visual reference, nature-figure source, Figma/BioRender/PPTX/SVG/TikZ/Python formal redraw | Image Gen for attractive reference; Spreadsheets for table exports; Figma/BioRender/PPTX for model diagram redraw/refinement; Presentations for PPTX refinement |
 | 10. Paper writing | `$research-paper-writing`, nature-polishing source, Documents | Zotero for citations |
-| 11. DOCX / optional Word / optional LaTeX / PDF production | Documents, LaTeX doctor before LaTeX compile, PDF | Zotero/BibTeX; Pages or Microsoft Word optional for local review |
-| 12. Final audit and defense preparation | `$research-final-audit`, Presentations, nature-paper2ppt source | Notion tasks, Figma/BioRender optional, Canva optional only if available |
+| 11. Laptop DOCX / optional Word / optional LaTeX / PDF production | Documents, LaTeX doctor before LaTeX compile, PDF | Move final production to laptop; Zotero/BibTeX; Pages or Microsoft Word optional for local review |
+| 12. Laptop final audit and defense preparation | `$research-final-audit`, Presentations, nature-paper2ppt source | Move final finishing to laptop; Notion tasks, Figma/BioRender optional, Canva optional only if available |
 
 ## Non-Replacement Rules
 

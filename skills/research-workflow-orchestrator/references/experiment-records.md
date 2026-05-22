@@ -11,7 +11,7 @@ Recommended thesis notebook index:
 
 ## Experiment Engineering Role
 
-Use `$research-experiment-engineering` before result analysis when the work involves architecture planning, data pipeline design, model or algorithm module boundaries, training/evaluation entrypoints, config management, `local_mac` smoke tests, AutoDL/cloud formal training, logging/output conventions, artifact recovery, or reproducibility.
+Use `$research-experiment-engineering` before result analysis when the work involves architecture planning, data pipeline design, model or algorithm module boundaries, training/evaluation entrypoints, config management, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback training, logging/output conventions, artifact recovery, or reproducibility.
 
 Engineering console files:
 
@@ -25,11 +25,12 @@ Execution target policy:
 
 | Target | Role |
 |---|---|
-| `local_mac` | Mac CPU / Apple Silicon / MPS smoke test, small sample, output-format check |
-| `cloud_autodl` | formal full-data training, baselines, ablations, multi-seed runs |
+| `local_mac` | Mac research console, CPU-only smoke test, small sample, output-format check |
+| `remote_desktop_4060` | primary formal GPU target on the user's RTX 4060 desktop |
+| `cloud_autodl` | stronger fallback GPU target when the desktop 4060 is unavailable or insufficient |
 | `cloud_other` | RunPod, Colab, Kaggle, school server, or another remote target |
 
-For AutoDL, record only SSH alias/host label, remote paths, environment, GPU, result recovery path, and shutdown policy. Do not record passwords, token values, or private-key contents.
+For remote targets, record only SSH alias/host label, remote paths, environment, GPU, result recovery path, and shutdown/release policy when relevant. Do not record passwords, token values, or private-key contents.
 
 ## Experiment Registry
 
@@ -48,8 +49,8 @@ Status values:
 - `not-comparable`
 - `ready-to-run`
 - `completed-unreviewed`
-- `cloud-running`
-- `cloud-recovered`
+- `remote-running`
+- `remote-recovered`
 
 ## Result Handoff
 
@@ -57,12 +58,13 @@ After experiment code is planned and runs are recorded:
 
 1. Use `$research-experiment-engineering` to define architecture, execution target, run commands, outputs, and reproducibility checks.
 2. Use Codex coding workflows to implement or refactor the data/model/train/evaluate code.
-3. Run `local_mac` smoke tests before paid or long-running cloud training.
-4. Use AutoDL/cloud only after command, config, data path, output path, and recovery plan are known.
-5. Use `$jupyter-notebook` for reproducible exploratory checks when needed.
-6. Use `$research-results-analysis` to normalize metrics and identify supported claims.
-7. Use `$research-paper-figures` to plan and generate visuals from the same traceable data.
-8. Update the claim-evidence map before drafting result prose.
+3. Run `local_mac` CPU-only smoke tests before long-running remote GPU training.
+4. Use `remote_desktop_4060` as the primary formal GPU target only after command, config, data path, output path, and recovery plan are known.
+5. Use `cloud_autodl` only as a fallback when the desktop 4060 is unavailable or insufficient.
+6. Use `$jupyter-notebook` for reproducible exploratory checks when needed.
+7. Use `$research-results-analysis` to normalize metrics and identify supported claims.
+8. Use `$research-paper-figures` to plan and generate visuals from the same traceable data.
+9. Update the claim-evidence map before drafting result prose.
 
 ## Minimum Reproducibility Notes
 
@@ -76,6 +78,6 @@ Each important result should have:
 - execution target and hardware
 - code version when available
 - output path
-- remote path and recovered artifact path for cloud runs
+- remote path and recovered artifact path for desktop or cloud GPU runs
 - date or run identifier
 - known limitations

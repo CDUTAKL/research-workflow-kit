@@ -5,6 +5,7 @@
 - Use this file to prepare the defense narrative, slides, evidence backups, and likely Q&A.
 - Every slide claim must trace to `claim-evidence-map.md`, `figure-plan.md`, or `final-audit.md`.
 - Use Presentations for PPTX creation/editing. Use nature-paper2ppt-derived structure when converting a paper or thesis chapter into a Chinese academic deck. Use Figma or BioRender for visual refinement when useful. Canva is optional only when available.
+- Final stage 11-12 production is intended to happen on the user's laptop; keep slide/evidence versions traceable back to the Mac `docs/thesis/` console.
 
 ## Defense Narrative
 

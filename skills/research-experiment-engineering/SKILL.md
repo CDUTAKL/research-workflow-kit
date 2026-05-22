@@ -14,7 +14,7 @@ Use this skill before result analysis when a research project needs experiment c
 - Prefer the existing repo style and minimal dependencies over importing a full MLOps stack.
 - Require machine-readable outputs for important runs: config, metrics, predictions when applicable, logs, and artifacts.
 - Map every important run to an experiment ID in `docs/thesis/experiment-registry.md`.
-- Use `local_mac` runs for debugging and smoke tests on this Mac; use AutoDL or another cloud GPU for formal training only when the user provides access and asks for remote execution.
+- Use `local_mac` for orchestration and CPU-only smoke tests on this Mac; use `remote_desktop_4060` as the primary formal GPU experiment target; use `cloud_autodl` or another cloud target only as a fallback when the desktop 4060 is unavailable or insufficient.
 - Never write SSH passwords, private-key contents, or long-lived credentials into project files.
 - Hand completed outputs to `$research-results-analysis`; do not make final paper claims inside this skill.
 
@@ -28,7 +28,7 @@ Read `references/workflow.md` for the six-stage engineering flow. Read `referenc
 4. Define the model or algorithm module contract.
 5. Define train, evaluate, and predict script interfaces.
 6. Define config, run naming, logging, metrics, checkpoints, predictions, and artifact outputs.
-7. Choose execution target: `local_mac` for smoke tests/debugging, `cloud_autodl` for formal training, or another cloud target when specified.
+7. Choose execution target: `local_mac` for smoke tests/debugging, `remote_desktop_4060` for primary formal GPU training/evaluation, `cloud_autodl` as fallback, or another cloud target when specified.
 8. Define reproducibility requirements and remote result recovery.
 9. Map runs to `docs/thesis` experiment IDs and runbook entries.
 10. Route code implementation, testing, and debugging through normal Codex coding workflows.
@@ -45,9 +45,9 @@ Always include:
 - training/evaluation/prediction entrypoints
 - config and run naming convention
 - logging and output directory convention
-- execution target plan: `local_mac` smoke test, AutoDL formal training, or both
+- execution target plan: `local_mac` smoke test, `remote_desktop_4060` formal training, `cloud_autodl` fallback, or a documented combination
 - reproducibility checklist
-- result recovery and shutdown/release policy for cloud runs
+- result recovery and shutdown/release policy for remote or cloud runs
 - thesis console files to update
 - risks, blockers, and next implementation tasks
 

@@ -10,14 +10,14 @@
 
 | Experiment ID | Target | Environment | GPU / Hardware | Data Split | Seed | Config | Code Version | Metrics | Artifacts | Rerun Command | Claim Mapping | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| EXP-001 | local_mac/cloud_autodl | TBD | TBD | TBD | TBD | TBD | branch/commit/TBD | TBD | TBD | TBD | CLM-001/TBD | pending |
+| EXP-001 | local_mac/remote_desktop_4060/cloud_autodl | TBD | TBD | TBD | TBD | TBD | branch/commit/TBD | TBD | TBD | TBD | CLM-001/TBD | pending |
 
 ## Required Evidence
 
 | Evidence | Required For | Example |
 |---|---|---|
 | Environment | rerun and debugging | `requirements.txt`, conda env, uv lock, package list |
-| GPU / Hardware | interpret runtime and reproducibility | local Mac CPU / Apple Silicon / MPS when available, AutoDL RTX 4090, A100 |
+| GPU / Hardware | interpret runtime and reproducibility | local Mac CPU-only smoke test, remote desktop RTX 4060, AutoDL RTX 4090/A100 fallback |
 | Data split | fair comparison | split file, seed, stratification rule |
 | Config | method identity | `configs/experiment/EXP-001.yaml` |
 | Resolved config | exact run state | `outputs/EXP-001/config_resolved.json` |
@@ -26,23 +26,37 @@
 | Code version | traceability | git branch/commit if available |
 | Rerun command | reproduction | command from `experiment-runbook.md` |
 
-## AutoDL Reproducibility Evidence
+## Remote Desktop 4060 Reproducibility Evidence
 
 | Evidence | Value | Status | Notes |
 |---|---|---|---|
-| AutoDL instance / GPU | TBD | pending | record GPU model; instance ID optional |
-| Remote project path | TBD | pending | no credentials |
-| Remote data path | TBD | pending |  |
+| Desktop host label | TBD | pending | no password or private key contents |
+| GPU / VRAM | RTX 4060/TBD | pending | record exact output from `nvidia-smi` when available |
+| Remote project path | TBD | pending | code directory on desktop |
+| Remote data path | TBD | pending | dataset directory on desktop |
 | Remote environment | TBD | pending | conda/env activation command |
 | CUDA / PyTorch version | TBD | pending | record when available |
 | Remote output path | TBD | pending |  |
 | Local recovered artifact path | TBD | pending | metrics/logs/checkpoints/predictions |
+
+## AutoDL Fallback Reproducibility Evidence
+
+| Evidence | Value | Status | Notes |
+|---|---|---|---|
+| AutoDL instance / GPU | TBD | pending | use only when desktop 4060 is unavailable or insufficient |
+| Remote project path | TBD | pending | no credentials |
+| Remote data path | TBD | pending |  |
+| Remote environment | TBD | pending | conda/env activation command |
+| Remote output path | TBD | pending |  |
+| Local recovered artifact path | TBD | pending | metrics/logs/checkpoints/predictions |
 | Shutdown/release status | TBD | pending | only after user instruction |
 
-## macOS Local And Remote Notes
+## Device Workflow Notes
 
-- `local_mac` means local CPU, Apple Silicon acceleration when the project supports it, and short smoke tests for shapes, configs, and output files.
-- `cloud_autodl` is the default label for formal CUDA/GPU training when the user provides temporary access.
+- `local_mac` is the main research console for stages 1-10 and may run CPU-only smoke tests for shapes, configs, and output files.
+- `remote_desktop_4060` is the primary formal experiment target for CUDA/GPU training, evaluation, tuning, and reproducibility artifacts.
+- `cloud_autodl` is a fallback for runs that exceed or cannot use the desktop 4060.
+- Stages 11-12 are intended for the user's laptop: final DOCX/optional Word/optional LaTeX/PDF production, final audit, and defense finishing.
 - Use macOS Terminal, VS Code SSH, `ssh`, `scp`, or `rsync` for remote upload/run/download workflows. Do not assume MobaXterm on this Mac.
 
 ## Status Legend
@@ -55,5 +69,5 @@
 | `reviewed` | outputs are traceable and safe for result analysis |
 | `needs_rerun` | result must be rerun or scope changed |
 | `not_reproducible` | required reproduction information is missing |
-| `cloud_running` | AutoDL or other remote run is active |
-| `cloud_recovered` | remote artifacts have been downloaded or synced |
+| `remote_running` | desktop or cloud remote run is active |
+| `remote_recovered` | remote artifacts have been downloaded or synced |

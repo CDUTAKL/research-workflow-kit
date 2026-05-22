@@ -22,7 +22,7 @@
 
 - Before a large code change, inspect `git status`.
 - After a coherent implementation, create a clear commit if the user asks or commit workflow is approved.
-- Before AutoDL or other formal cloud training, record branch and commit.
+- Before `remote_desktop_4060` or fallback cloud formal training, record branch and commit.
 - If the tree is dirty during a formal run, record the changed files or avoid using the result as final evidence.
 - Use GitHub issues/PRs when changes are broad, reviewable, or need remote backup.
 

@@ -11,6 +11,10 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 | Notion | task boards, weekly planning, supervisor feedback, progress dashboards | `docs/thesis/task-board-sync.md` |
 | GitHub | repository state, issues, PRs, CI, code review, version traceability | `docs/thesis/git-version-log.md` |
 | Superpowers | TDD, systematic debugging, verification, code review, implementation discipline | linked task or git log |
+| `local_mac` | stages 1-10 research console, literature/writing/remote-run control, CPU-only smoke tests | `docs/thesis/experiment-runbook.md`, `docs/thesis/reproducibility-checklist.md` |
+| `remote_desktop_4060` | primary RTX 4060 GPU target for training, evaluation, tuning, and reproducibility artifacts | `docs/thesis/experiment-runbook.md`, `docs/thesis/experiment-registry.md` |
+| `cloud_autodl` | fallback GPU target when the desktop 4060 is unavailable or insufficient | `docs/thesis/reproducibility-checklist.md` |
+| Laptop finalization | stage 11-12 final DOCX/optional Word/optional LaTeX/PDF production and defense finishing | `docs/thesis/final-audit.md`, `docs/thesis/defense-prep.md` |
 | Spreadsheets | reviewable literature/result/claim/audit tables | `docs/thesis/spreadsheet-exports.md` |
 | Image Gen Skill | mandatory visual reference for model architecture, method overview, workflow, and schematic figures when visual quality matters | `docs/thesis/figure-plan.md`, `figures/references/` |
 | Figma | formal redraw and refinement of architecture/method diagrams after Image Gen reference and source-of-truth records exist | `docs/thesis/network-architecture-figures.md` |
@@ -25,13 +29,14 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 ## Stage Rules
 
 - Stage 1 planning: Notion can mirror tasks, but `thesis-brief.md` remains the local source of evidence.
-- Stages 4-6 engineering: GitHub and Superpowers should be considered for major code changes, debugging, and formal experiment traceability.
+- Stages 4-6 engineering: GitHub and Superpowers should be considered for major code changes, debugging, and formal experiment traceability. Use `local_mac` for CPU-only smoke tests, `remote_desktop_4060` for primary GPU runs, and `cloud_autodl` only as fallback.
 - Stages 7-9 tables: Spreadsheets can export review-friendly tables from Markdown/CSV/notebook outputs.
 - Stage 9 figures: `nature-figure` rules can be used when a visual needs publication-grade panel logic, editable vector export, and source-data traceability.
 - Stage 9 visual reference: use Image Gen Skill first for model architecture, method overview, workflow, and schematic figures when visual quality matters; store reference assets under `figures/references/`.
 - Stage 9 formal redraw: check the Image Gen reference for content accuracy, then redraw with Figma/PPTX/SVG/TikZ/Python from source-of-truth records.
 - Stage 9 model diagrams: keep `.network.json`, `model.py`, paper source, or manual architecture spec as topology source of truth; generated references are not topology truth.
 - Stage 10 writing: `nature-polishing` rules can be used for the final wording pass after claims, evidence, and citations are already stable.
+- Stage 11-12 laptop finalization: move final DOCX/optional Word/optional LaTeX/PDF production and defense finishing to the user's laptop; keep artifact paths or versions traceable in `final-audit.md` and `defense-prep.md`.
 - Stage 12 defense: Presentations handles PPTX work; `nature-paper2ppt` supplies paper-to-slide structure; Figma/BioRender handle visual refinement when useful; Canva is optional only when available.
 
 ## Safety Rules

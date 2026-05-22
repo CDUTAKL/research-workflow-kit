@@ -101,14 +101,15 @@ Run naming rules:
 - Record seed, split, config, and output path in `experiment-registry.md`.
 - Keep comparable runs under consistent config and output conventions.
 
-## 4F. Local Smoke Test And AutoDL Formal Training
+## 4F. Local Smoke Test And Remote GPU Formal Training
 
-Use a two-level execution strategy when this Mac is only suitable for smoke tests and the user has access to AutoDL.
+Use a three-device execution strategy when this Mac is the research console, the user's desktop has an RTX 4060, and AutoDL is only a stronger fallback.
 
 | Target | Role | Typical scope | Record |
 |---|---|---|---|
-| `local_mac` | debug and smoke test | CPU / Apple Silicon / MPS when supported, small sample, 1 epoch, short run, output-format check | local command, local output path, known failures |
-| `cloud_autodl` | formal training | full dataset, full epochs, baselines, ablations, multi-seed runs | SSH alias, remote paths, GPU/env, run command, result recovery |
+| `local_mac` | research console, debug, and smoke test | CPU-only small sample, 1 epoch, short run, output-format check | local command, local output path, known failures |
+| `remote_desktop_4060` | primary formal GPU execution target | full dataset when feasible, full epochs, baselines, ablations, multi-seed runs | SSH alias, remote paths, RTX 4060/env, run command, result recovery |
+| `cloud_autodl` | fallback formal GPU execution target | larger runs when the desktop 4060 is unavailable or insufficient | AutoDL instance/image, remote paths, GPU/env, run command, result recovery, shutdown policy |
 
 Local smoke test must verify:
 
@@ -117,18 +118,18 @@ Local smoke test must verify:
 - forward/backward or evaluation step runs.
 - loss and metrics are finite.
 - output directory, log, and metrics files are created.
-- the command is ready to move to AutoDL.
+- the command is ready to move to `remote_desktop_4060`.
 
-AutoDL formal training must record:
+Remote GPU formal training must record:
 
 - SSH alias or host label, not the password or private-key contents.
-- GPU model and AutoDL image/environment when available.
+- GPU model and remote environment when available.
 - remote project path and remote data path.
 - conda/env activation command.
 - exact train/evaluate command.
 - remote log path and remote output path.
 - artifact download destination.
-- shutdown/release policy after completion.
+- shutdown/release policy after completion when a cloud fallback target is used.
 
 Safe credential rule:
 
@@ -154,7 +155,8 @@ Handoff sequence:
 $research-experiment-engineering
   -> code implementation/debugging with Codex
   -> local_mac smoke test
-  -> AutoDL formal training when needed
+  -> remote_desktop_4060 formal GPU training when needed
+  -> cloud_autodl fallback only when the desktop 4060 is unavailable or insufficient
   -> result download/recovery
   -> run outputs and registry updates
   -> $research-results-analysis
@@ -169,7 +171,8 @@ $research-experiment-engineering
 - Metrics are machine-readable.
 - Config and seed are recorded.
 - Data split and metric definitions are visible.
-- Local smoke test passes before paid cloud training.
-- AutoDL runs have remote paths, result recovery, and shutdown policy recorded.
+- Local CPU-only smoke test passes before remote GPU training.
+- Remote desktop 4060 runs have remote paths, result recovery, and GPU environment recorded.
+- AutoDL fallback runs have remote paths, result recovery, and shutdown policy recorded.
 - Reproducibility risks are explicit.
 - Completed outputs are ready for `$research-results-analysis`.
