@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Paper Plan"
+  short_description: "Plan research papers and thesis structure"
+  default_prompt: "Use $research-paper-plan to plan my research paper."

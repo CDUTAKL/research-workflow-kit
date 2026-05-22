@@ -1,0 +1,26 @@
+{
+  "figure_id": "Fig-template-log-bar",
+  "template": "log_bar",
+  "title": "Log-scale bar template",
+  "claim": "The compared quantities differ by orders of magnitude, which requires a log-scale view.",
+  "caption": "Figure X. Log-scale comparison of demo quantities. Bars show positive values on a logarithmic y-axis; labels report exact values. This template uses demo data only.",
+  "data": {
+    "categories": ["Model A", "Model B", "Model C", "Model D"],
+    "values": [0.018, 0.21, 3.6, 42.0],
+    "ylabel": "Runtime (s)"
+  },
+  "style": {
+    "figsize": [6.4, 4.0],
+    "font_size": 9,
+    "palette": "family",
+    "annotate": true,
+    "fmt": "{:.3g}",
+    "x_rotation": 20
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment output before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "demo runtime",
+    "experiment_id": "DEMO"
+  }
+}

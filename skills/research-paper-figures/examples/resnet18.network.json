@@ -1,0 +1,91 @@
+{
+  "model": "ResNet-18",
+  "layout": "linear",
+  "title": "ResNet-18 architecture",
+  "subtitle": "Feature-map stack view showing spatial downsampling, channel expansion and residual stages.",
+  "core_conclusion": "ResNet-18 reduces spatial resolution while increasing channel depth through four residual stages.",
+  "source_note": "Sources: He et al., Deep Residual Learning for Image Recognition; torchvision.models.resnet18.",
+  "input": {
+    "name": "Input",
+    "shape": "224 x 224 x 3",
+    "color_role": "input",
+    "planes": 3
+  },
+  "operations": [
+    {"after": "Input", "label": "7x7 conv\\n64, s=2", "color_role": "stem"},
+    {"after": "Stem", "label": "maxpool\\n3x3, s=2", "color_role": "stem"}
+  ],
+  "stages": [
+    {
+      "name": "Stem",
+      "shape": "56 x 56 x 64",
+      "color_role": "stem",
+      "planes": 7
+    },
+    {
+      "name": "layer1",
+      "shape": "56 x 56 x 64",
+      "color_role": "stage1",
+      "planes": 7,
+      "repeat": "x2",
+      "block": "BasicBlock"
+    },
+    {
+      "name": "layer2",
+      "shape": "28 x 28 x 128",
+      "color_role": "stage2",
+      "planes": 9,
+      "repeat": "x2",
+      "block": "BasicBlock",
+      "downsample": "s=2"
+    },
+    {
+      "name": "layer3",
+      "shape": "14 x 14 x 256",
+      "color_role": "stage3",
+      "planes": 11,
+      "repeat": "x2",
+      "block": "BasicBlock",
+      "downsample": "s=2"
+    },
+    {
+      "name": "layer4",
+      "shape": "7 x 7 x 512",
+      "color_role": "stage4",
+      "planes": 12,
+      "repeat": "x2",
+      "block": "BasicBlock",
+      "downsample": "s=2"
+    }
+  ],
+  "head": [
+    {"name": "GAP", "shape": "1 x 1 x 512"},
+    {"name": "FC", "shape": "512 -> 1000"},
+    {"name": "logits", "shape": "1000 classes"}
+  ],
+  "connections": [
+    {"from": "layer1", "to": "layer1", "type": "residual", "label": "identity", "offset": 1.0},
+    {"from": "layer2", "to": "layer2", "type": "residual", "label": "projection", "offset": 1.12},
+    {"from": "layer3", "to": "layer3", "type": "residual", "label": "projection", "offset": 1.24},
+    {"from": "layer4", "to": "layer4", "type": "residual", "label": "projection", "offset": 1.36}
+  ],
+  "panels": [
+    {"type": "main", "role": "representation flow"},
+    {"type": "inset", "role": "residual block internals"},
+    {"type": "shape-scale", "role": "spatial-size guide"}
+  ],
+  "audit": {
+    "source_paper": "He et al., Deep Residual Learning for Image Recognition",
+    "implementation_source": "torchvision.models.resnet18",
+    "caption_safe_note": "This diagram describes model topology and tensor-scale changes only; it does not report performance.",
+    "claim_boundary": "architecture-only"
+  },
+  "insets": [
+    {
+      "type": "residual-basicblock",
+      "title": "Residual BasicBlock",
+      "subtitle": "repeated twice per residual stage"
+    }
+  ],
+  "caption": "Figure X. Architecture of ResNet-18. The diagram shows representation flow from a 224 x 224 RGB image through a convolutional stem and four residual stages. Spatial resolution decreases from 224 to 7 while channel depth increases from 3 to 512. The inset illustrates the repeated residual BasicBlock. This schematic describes model structure only and does not report performance."
+}

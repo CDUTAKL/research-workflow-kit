@@ -1,0 +1,29 @@
+{
+  "figure_id": "Fig-template-confusion-heatmap",
+  "template": "confusion_heatmap",
+  "title": "Confusion heatmap template",
+  "claim": "The classifier's error structure is concentrated in specific class pairs rather than uniformly distributed.",
+  "caption": "Figure X. Demo confusion matrix with row-normalized proportions. Rows denote true labels and columns denote predicted labels. This template uses demo data only.",
+  "data": {
+    "labels": ["Class A", "Class B", "Class C", "Class D"],
+    "matrix": [
+      [48, 4, 1, 2],
+      [6, 42, 5, 1],
+      [2, 7, 39, 4],
+      [1, 2, 5, 46]
+    ]
+  },
+  "style": {
+    "figsize": [5.8, 4.8],
+    "font_size": 9,
+    "normalize": "row",
+    "fmt": "{:.2f}",
+    "cbar_label": "Row proportion"
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment output before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "demo row-normalized confusion matrix",
+    "experiment_id": "DEMO"
+  }
+}

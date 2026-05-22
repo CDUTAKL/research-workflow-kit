@@ -1,0 +1,28 @@
+{
+  "figure_id": "Fig-template-radar",
+  "template": "radar",
+  "title": "Radar profile template",
+  "claim": "The radar plot summarizes a balanced multi-metric profile, but area should not be interpreted as a statistical effect.",
+  "caption": "Figure X. Demo radar profile across four normalized metrics. Values are normalized per axis using the displayed metric ranges. This template uses demo data only.",
+  "data": {
+    "labels": ["Accuracy", "F1", "Speed", "Calibration"],
+    "bounds": [[0.70, 0.90], [0.65, 0.88], [20, 80], [0.50, 0.85]],
+    "series": [
+      {"name": "Baseline", "values": [0.78, 0.72, 60, 0.62]},
+      {"name": "Proposed", "values": [0.86, 0.83, 48, 0.78]}
+    ]
+  },
+  "style": {
+    "figsize": [6.2, 5.6],
+    "font_size": 9,
+    "palette": "family",
+    "rmin": 0,
+    "rmax": 1
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment output before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "demo normalized multi-metric profile",
+    "experiment_id": "DEMO"
+  }
+}

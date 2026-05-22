@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Final Audit"
+  short_description: "Audit papers before submission or defense"
+  default_prompt: "Use $research-final-audit to audit my thesis before submission."

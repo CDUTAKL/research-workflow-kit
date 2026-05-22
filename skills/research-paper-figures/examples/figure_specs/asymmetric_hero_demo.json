@@ -1,0 +1,73 @@
+{
+  "figure_id": "Fig-template-asymmetric-hero",
+  "template": "asymmetric_hero",
+  "title": "Asymmetric hero layout template",
+  "claim": "The main comparison is supported by threshold, confusion, and tradeoff evidence without repeating the same panel.",
+  "caption": "Figure X. Demo asymmetric multi-panel layout. Panel a gives the main comparison, panels b-e provide supporting trend, confusion, ablation, and relationship evidence. This template uses demo data only.",
+  "panels": [
+    {
+      "template": "grouped_bar",
+      "title": "Main comparison",
+      "data": {
+        "categories": ["A", "B", "C"],
+        "ylabel": "Score",
+        "series": [
+          {"name": "Proposed", "values": [0.81, 0.84, 0.86]}
+        ]
+      }
+    },
+    {
+      "template": "threshold_curve",
+      "title": "Threshold",
+      "data": {
+        "x": [0.1, 0.2, 0.3, 0.4, 0.5],
+        "series": [
+          {"name": "Score", "values": [0.72, 0.79, 0.84, 0.83, 0.80]}
+        ]
+      }
+    },
+    {
+      "template": "confusion_heatmap",
+      "title": "Errors",
+      "data": {
+        "matrix": [
+          [0.90, 0.05, 0.05],
+          [0.08, 0.84, 0.08],
+          [0.04, 0.11, 0.85]
+        ]
+      }
+    },
+    {
+      "template": "ablation_barh",
+      "title": "Ablation",
+      "data": {
+        "labels": ["Full", "-A", "-B"],
+        "values": [0.86, 0.82, 0.79]
+      }
+    },
+    {
+      "template": "scatter",
+      "title": "Tradeoff",
+      "data": {
+        "x": [12, 18, 25, 32, 38],
+        "y": [0.71, 0.76, 0.80, 0.83, 0.85],
+        "xlabel": "Runtime",
+        "ylabel": "Score"
+      }
+    }
+  ],
+  "style": {
+    "figsize": [7.2, 5.6],
+    "font_size": 8,
+    "palette": "family"
+  },
+  "data": {
+    "source": "demo inline panel data"
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment output before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "mixed demo evidence",
+    "experiment_id": "DEMO"
+  }
+}

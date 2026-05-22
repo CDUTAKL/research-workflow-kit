@@ -1,0 +1,47 @@
+{
+  "thesis-clean": {
+    "description": "Clean thesis style with restrained colors and dense labels.",
+    "pptx_default": "image-backed",
+    "figure_size": [12.5, 5.2],
+    "dpi": 300,
+    "palette": {
+      "input": "#E8EDF2",
+      "stem": "#BFD7EA",
+      "stage1": "#CDE5D2",
+      "stage2": "#EFD8B8",
+      "stage3": "#E4CAD6",
+      "stage4": "#D4C9E8",
+      "head": "#EBC5C1"
+    }
+  },
+  "nature-minimal": {
+    "description": "Minimal manuscript style with lighter labels and less saturation.",
+    "pptx_default": "image-backed",
+    "figure_size": [12.5, 5.0],
+    "dpi": 450,
+    "palette": {
+      "input": "#ECEFF3",
+      "stem": "#C7D8E8",
+      "stage1": "#D5E7D4",
+      "stage2": "#EAD9B7",
+      "stage3": "#E4CED8",
+      "stage4": "#D5CBE4",
+      "head": "#E8C9C5"
+    }
+  },
+  "ppt-template-rich": {
+    "description": "Editable PPT-template-inspired style with richer feature-map stacks.",
+    "pptx_default": "native-shape",
+    "figure_size": [13.4, 6.0],
+    "dpi": 450,
+    "palette": {
+      "input": "#E8EDF2",
+      "stem": "#7EAFD2",
+      "stage1": "#91C7A3",
+      "stage2": "#E9B36A",
+      "stage3": "#D79AB0",
+      "stage4": "#A997CF",
+      "head": "#D8837B"
+    }
+  }
+}

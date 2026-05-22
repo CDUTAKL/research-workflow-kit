@@ -1,0 +1,24 @@
+﻿{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Write",
+      "PowerShell",
+      "WebFetch",
+      "Bash(python:*)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/audit_claim_evidence.py --quiet"
+          }
+        ]
+      }
+    ]
+  }
+}

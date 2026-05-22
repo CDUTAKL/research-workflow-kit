@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Experiment Engineering"
+  short_description: "Plan and implement reproducible research experiment code"
+  default_prompt: "Use $research-experiment-engineering to plan my experiment code architecture."

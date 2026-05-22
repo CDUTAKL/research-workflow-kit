@@ -1,0 +1,28 @@
+{
+  "figure_id": "Fig-template-distribution",
+  "template": "distribution",
+  "title": "Distribution template",
+  "claim": "The distribution plot shows spread across repeated runs rather than only a single best value.",
+  "caption": "Figure X. Demo score distributions across repeated runs. Violins show distribution shape, boxes show median and quartiles, and points show individual runs. This template uses demo data only.",
+  "data": {
+    "ylabel": "Score",
+    "groups": [
+      {"name": "Baseline", "values": [0.72, 0.74, 0.73, 0.75, 0.71, 0.76]},
+      {"name": "Variant", "values": [0.77, 0.78, 0.79, 0.76, 0.80, 0.78]},
+      {"name": "Proposed", "values": [0.82, 0.83, 0.81, 0.85, 0.84, 0.83]}
+    ]
+  },
+  "style": {
+    "figsize": [6.2, 4.2],
+    "font_size": 9,
+    "palette": "family",
+    "strip": true,
+    "strip_size": 18
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment output before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "demo repeated-run scores",
+    "experiment_id": "DEMO"
+  }
+}

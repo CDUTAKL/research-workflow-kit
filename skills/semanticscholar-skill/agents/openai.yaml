@@ -1,0 +1,4 @@
+interface:
+  display_name: "Semantic Scholar"
+  short_description: "Search papers, citations, authors, and BibTeX"
+  default_prompt: "Use $semanticscholar-skill to find relevant papers for my literature review."

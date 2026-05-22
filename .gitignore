@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.key
+*.ppk
+id_rsa*
+id_ed25519*
+*_token*
+*secret*
+*password*
+cookies.*
+
+# Research data and generated outputs
+data/
+datasets/
+outputs/
+output/
+experiments/checkpoints/
+checkpoints/
+artifacts/
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.tar.gz
+*.zip
+*.7z
+
+# Local generated documents
+doc_outputs/
+tmp/
+temp/
+*.tmp
+

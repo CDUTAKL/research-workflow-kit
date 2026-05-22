@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Literature Review"
+  short_description: "Build literature matrices and related work"
+  default_prompt: "Use $research-literature-review to build a literature matrix for my topic."

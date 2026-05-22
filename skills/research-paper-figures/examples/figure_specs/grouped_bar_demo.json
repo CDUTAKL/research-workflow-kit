@@ -1,0 +1,31 @@
+{
+  "figure_id": "Fig-template-grouped-bar",
+  "template": "grouped_bar",
+  "title": "Grouped bar comparison template",
+  "claim": "The hero method improves the main metric compared with baselines under the same protocol.",
+  "caption": "Figure X. Grouped bar comparison across three evaluation settings. Bars show mean values and error bars denote standard deviation across repeated runs. This template uses demo data only.",
+  "data": {
+    "categories": ["Setting A", "Setting B", "Setting C"],
+    "ylabel": "Score",
+    "series": [
+      {"name": "Baseline-1", "values": [0.71, 0.74, 0.76], "errors": [0.02, 0.015, 0.018]},
+      {"name": "Baseline-2", "values": [0.75, 0.77, 0.79], "errors": [0.015, 0.017, 0.016]},
+      {"name": "Proposed", "values": [0.81, 0.84, 0.86], "errors": [0.012, 0.014, 0.011]}
+    ]
+  },
+  "style": {
+    "palette": "family",
+    "figsize": [7.2, 4.2],
+    "font_size": 9,
+    "ylabel": "Macro F1",
+    "tight_y": true,
+    "annotate": true,
+    "legend_loc": "lower right"
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment CSV before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "demo metric",
+    "experiment_id": "DEMO"
+  }
+}

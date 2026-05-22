@@ -1,0 +1,26 @@
+{
+  "figure_id": "Fig-template-ablation-barh",
+  "template": "ablation_barh",
+  "title": "Horizontal ablation template",
+  "claim": "Incrementally adding components improves the demo score under a controlled ablation protocol.",
+  "caption": "Figure X. Horizontal ablation chart for progressively added components. Bars show mean demo score and error bars denote standard deviation. This template uses demo data only.",
+  "data": {
+    "labels": ["Full model", "- attention", "- augmentation", "- pretraining", "baseline"],
+    "values": [0.862, 0.834, 0.811, 0.785, 0.742],
+    "errors": [0.009, 0.011, 0.012, 0.014, 0.018],
+    "xlabel": "Macro F1"
+  },
+  "style": {
+    "figsize": [6.8, 4.2],
+    "font_size": 9,
+    "annotate": true,
+    "fmt": "{:.3f}",
+    "top_is_full": true
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment output before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "demo ablation score",
+    "experiment_id": "DEMO"
+  }
+}

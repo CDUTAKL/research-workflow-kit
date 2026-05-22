@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Workflow Orchestrator"
+  short_description: "Coordinate thesis and research workflows"
+  default_prompt: "Use $research-workflow-orchestrator to plan my next research steps."

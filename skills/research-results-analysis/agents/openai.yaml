@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Results Analysis"
+  short_description: "Analyze experiments and supported claims"
+  default_prompt: "Use $research-results-analysis to summarize my experiment results."

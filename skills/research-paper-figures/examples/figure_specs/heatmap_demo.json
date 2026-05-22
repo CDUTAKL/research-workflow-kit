@@ -1,0 +1,31 @@
+{
+  "figure_id": "Fig-template-heatmap",
+  "template": "heatmap",
+  "title": "Metric matrix heatmap template",
+  "claim": "The heatmap identifies which methods are consistently strong across multiple metrics.",
+  "caption": "Figure X. Heatmap of method-by-metric scores. Cell values are shown directly, and color intensity provides a visual guide only. This template uses demo data only.",
+  "data": {
+    "x_labels": ["Accuracy", "Macro F1", "AUC", "Calibration"],
+    "y_labels": ["Baseline-1", "Baseline-2", "Proposed-A", "Proposed-B"],
+    "matrix": [
+      [0.76, 0.71, 0.80, 0.62],
+      [0.79, 0.74, 0.83, 0.67],
+      [0.84, 0.81, 0.88, 0.73],
+      [0.86, 0.83, 0.90, 0.77]
+    ]
+  },
+  "style": {
+    "figsize": [6.4, 4.6],
+    "font_size": 9,
+    "cmap": "magma",
+    "annotate": true,
+    "fmt": "{:.2f}",
+    "cbar_label": "Score"
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment CSV before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "demo metric matrix",
+    "experiment_id": "DEMO"
+  }
+}

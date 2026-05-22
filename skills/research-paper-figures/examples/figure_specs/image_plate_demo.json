@@ -1,0 +1,26 @@
+{
+  "figure_id": "Fig-template-image-plate",
+  "template": "image_plate",
+  "title": "Image plate template",
+  "claim": "The image plate shows qualitative examples only and must not replace quantitative evidence.",
+  "caption": "Figure X. Demo image plate with generated placeholder images. Labels identify cases and the scale bar is illustrative only. This template uses demo data only.",
+  "data": {
+    "rows": 2,
+    "cols": 3,
+    "labels": ["case 1", "case 2", "case 3", "case 4", "case 5", "case 6"]
+  },
+  "style": {
+    "figsize": [7.2, 4.4],
+    "font_size": 8,
+    "cmap": "magma",
+    "scale_bar": true,
+    "scale_label": "demo",
+    "seed": 18
+  },
+  "audit": {
+    "source_data": "demo generated image data; replace with real case images before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "qualitative demo plate",
+    "experiment_id": "DEMO"
+  }
+}

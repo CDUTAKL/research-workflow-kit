@@ -1,0 +1,60 @@
+{
+  "figure_id": "Fig-template-multi-panel",
+  "template": "multi_panel",
+  "title": "Multi-panel result story template",
+  "claim": "The figure combines a main comparison, trend evidence, error structure, and relationship analysis without repeating the same evidence.",
+  "caption": "Figure X. Multi-panel result template. Panel a shows the main comparison, panel b shows a trend, panel c shows a metric matrix, and panel d shows a relationship between two variables. This template uses demo data only.",
+  "panels": [
+    {
+      "template": "grouped_bar",
+      "title": "Main comparison",
+      "data": {
+        "categories": ["A", "B", "C"],
+        "ylabel": "Score",
+        "series": [
+          {"name": "Proposed", "values": [0.81, 0.84, 0.86]}
+        ]
+      }
+    },
+    {
+      "template": "line_trend",
+      "title": "Threshold trend",
+      "data": {
+        "x": [0.1, 0.2, 0.3, 0.4, 0.5],
+        "series": [
+          {"name": "Score", "values": [0.72, 0.79, 0.84, 0.83, 0.80]}
+        ]
+      }
+    },
+    {
+      "template": "heatmap",
+      "title": "Class matrix",
+      "data": {
+        "matrix": [
+          [0.90, 0.05, 0.05],
+          [0.08, 0.84, 0.08],
+          [0.04, 0.11, 0.85]
+        ]
+      }
+    },
+    {
+      "template": "scatter",
+      "title": "Speed vs score",
+      "data": {
+        "x": [12, 18, 25, 32, 38, 45],
+        "y": [0.71, 0.76, 0.80, 0.83, 0.85, 0.86]
+      }
+    }
+  ],
+  "style": {
+    "figsize": [7.2, 5.4],
+    "font_size": 8,
+    "palette": "family"
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment outputs before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "mixed demo metrics",
+    "experiment_id": "DEMO"
+  }
+}

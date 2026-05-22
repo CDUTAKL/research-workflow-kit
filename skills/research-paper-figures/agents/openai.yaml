@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Paper Figures"
+  short_description: "Plan and design publication figures"
+  default_prompt: "Use $research-paper-figures to plan figures for my thesis."

@@ -1,0 +1,28 @@
+{
+  "figure_id": "Fig-template-forest",
+  "template": "forest",
+  "title": "Forest interval template",
+  "claim": "Estimated improvements vary by setting and should be interpreted with interval uncertainty.",
+  "caption": "Figure X. Demo forest plot of estimated improvements with intervals. The dashed line marks no improvement. This template uses demo data only.",
+  "data": {
+    "labels": ["Setting A", "Setting B", "Setting C", "Setting D", "Setting E"],
+    "estimates": [0.030, 0.055, 0.018, 0.072, 0.041],
+    "ci_low": [0.012, 0.030, -0.006, 0.045, 0.016],
+    "ci_high": [0.049, 0.080, 0.040, 0.100, 0.066],
+    "xlabel": "Improvement over baseline"
+  },
+  "style": {
+    "figsize": [6.2, 4.2],
+    "font_size": 9,
+    "reference": 0.0,
+    "reference_label": "no improvement",
+    "sort": "desc",
+    "palette": "family"
+  },
+  "audit": {
+    "source_data": "demo inline data; replace with experiment output before thesis use",
+    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "metric_definition": "demo effect estimate and interval",
+    "experiment_id": "DEMO"
+  }
+}
