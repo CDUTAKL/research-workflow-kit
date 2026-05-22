@@ -90,5 +90,5 @@ For final thesis or paper figures, record:
 | missing source data | `$research-results-analysis` or experiment registry update |
 | unsupported caption | `$research-paper-writing` and `$research-paper-figures` |
 | misleading plot type | `$research-paper-figures` |
-| unreadable rendering | `$pdf`, `$doc`, or final manuscript preview |
+| unreadable rendering | `$pdf`, Documents plugin, or final manuscript preview |
 | model topology uncertainty | `network-architecture-figure.md` and `.network.json` update |

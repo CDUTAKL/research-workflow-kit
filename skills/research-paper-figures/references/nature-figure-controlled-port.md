@@ -11,7 +11,7 @@ Move from "figure advice" to a local figure production layer:
 ```text
 figure claim
 -> figure spec JSON or data table
--> scripts/nature_plot_templates.py
+-> skills/research-paper-figures/scripts/nature_plot_templates.py
 -> SVG/PDF/PNG
 -> figure QA notes
 -> docs/thesis/figure-plan.md
@@ -64,7 +64,7 @@ If removing a panel does not remove a unique piece of evidence, drop or replace 
 
 ## Spec Fields
 
-`scripts/nature_plot_templates.py` accepts a JSON spec with these fields:
+`skills/research-paper-figures/scripts/nature_plot_templates.py` accepts a JSON spec with these fields:
 
 | Field | Meaning |
 |---|---|
@@ -93,4 +93,4 @@ When producing a figure from this controlled port, return:
 
 ## Provenance
 
-This reference is derived from the current local `nature-figure` candidate repository, especially its chart atlas, common patterns, design theory, and tutorials. It is rewritten for Windows + Codex + `docs/thesis/` use. Do not copy original gallery images or paid/commercial template assets.
+This reference is derived from the current local `nature-figure` candidate repository, especially its chart atlas, common patterns, design theory, and tutorials. It is rewritten for macOS/Codex + `docs/thesis/` use. Do not copy original gallery images or paid/commercial template assets.

@@ -28,8 +28,8 @@ python ~/.codex/skills/research-results-analysis/scripts/scan_results.py --root 
 
 For local development before global sync, use:
 
-```powershell
-python tools\skills\research-results-analysis\scripts\scan_results.py --root . --out-dir docs\thesis
+```bash
+python skills/research-results-analysis/scripts/scan_results.py --root . --out-dir docs/thesis
 ```
 
 The scanner recursively inspects `.json`, `.csv`, `.tsv`, `.txt`, and `.log` files. It extracts common fields such as `accuracy`, `acc`, `f1`, `macro_f1`, `macro avg`, `precision`, `recall`, `loss`, `auc`, `rmse`, `mae`, and `r2`.
@@ -60,7 +60,7 @@ python ~/.codex/skills/research-results-analysis/scripts/result_scan_to_registry
 For local development before global sync, use:
 
 ```bash
-python tools/skills/research-results-analysis/scripts/result_scan_to_registry.py --scan-table docs/thesis/result-scan-table.csv --registry docs/thesis/experiment-registry.md
+python skills/research-results-analysis/scripts/result_scan_to_registry.py --scan-table docs/thesis/result-scan-table.csv --registry docs/thesis/experiment-registry.md
 ```
 
 The converter:

@@ -4,7 +4,7 @@
 
 - Add a runbook entry before running important experiments.
 - Keep exact commands copyable on Windows PowerShell when possible.
-- Use local runs for debug/smoke tests and AutoDL for formal training when remote access is provided.
+- Use `local_mac` runs for debug/smoke tests and AutoDL for formal training when remote access is provided.
 - Record SSH alias, remote paths, and environment details only; do not record passwords, token values, or private-key contents.
 - After the run, update actual outputs, status, and handoff target.
 
@@ -12,7 +12,7 @@
 
 | Experiment ID | Target | Purpose | Command | Config | Expected Outputs | Monitoring Checklist | Success Criteria | Failure Handling | Result Recovery | Next Handoff | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| EXP-001 | local/cloud_autodl | TBD | TBD | TBD | metrics, logs, checkpoint, predictions/TBD | logs finite, output dir exists | TBD | record failure and rerun plan | TBD | `$research-results-analysis` | planned |
+| EXP-001 | local_mac/cloud_autodl | TBD | TBD | TBD | metrics, logs, checkpoint, predictions/TBD | logs finite, output dir exists | TBD | record failure and rerun plan | TBD | `$research-results-analysis` | planned |
 
 ## Command Template
 
@@ -27,7 +27,7 @@ Adapt these commands to the project. Do not invent entrypoints when reviewing an
 
 | Target | Role | Use For | Do Not Use For |
 |---|---|---|---|
-| `local` | debug and smoke test | 1 epoch, small sample, output-format check, bug fixing | final thesis metrics when runtime is too slow |
+| `local_mac` | debug and smoke test on this Mac | CPU / Apple Silicon / MPS when available, 1 epoch, small sample, output-format check, bug fixing | final thesis metrics when runtime is too slow |
 | `cloud_autodl` | formal training | full data, full epochs, baselines, ablations, multi-seed runs | debugging unknown code from scratch |
 | `cloud_other` | fallback cloud | RunPod, Colab, Kaggle, school server | unspecified credentials or unrecorded environments |
 
@@ -55,7 +55,7 @@ Record connection metadata here only after the user provides access. Do not stor
 |---|---|---|---|
 | 1 | Confirm SSH login and GPU visibility | pending | `nvidia-smi` or equivalent |
 | 2 | Confirm project, data, and environment paths | pending |  |
-| 3 | Run local smoke test or verify one already passed | pending |  |
+| 3 | Run `local_mac` smoke test or verify one already passed | pending |  |
 | 4 | Run remote smoke test if environment is new | pending |  |
 | 5 | Start formal training in a persistent session | pending | tmux/screen/nohup/platform default |
 | 6 | Monitor logs and GPU usage | pending |  |

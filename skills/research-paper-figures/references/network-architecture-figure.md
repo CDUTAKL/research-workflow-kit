@@ -14,7 +14,7 @@ Use a structure specification instead of improvising the figure each time.
 architecture source or model.py
 -> .network.json structure spec
 -> preset selection
--> scripts/render_network_architecture.py
+-> skills/research-paper-figures/scripts/render_network_architecture.py
 -> SVG/PDF/PNG and optional PPTX
 -> QA report
 -> figure-plan.md and network-architecture-figures.md
@@ -23,8 +23,8 @@ architecture source or model.py
 Default command:
 
 ```powershell
-python tools\skills\research-paper-figures\scripts\render_network_architecture.py `
-  --spec tools\skills\research-paper-figures\examples\resnet18.network.json `
+python skills\research-paper-figures\scripts\render_network_architecture.py `
+  --spec skills\research-paper-figures\examples\resnet18.network.json `
   --preset ppt-template-rich `
   --out figures\architecture\resnet18_architecture `
   --formats svg,pdf,png,pptx `

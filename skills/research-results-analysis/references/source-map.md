@@ -24,7 +24,7 @@ This skill is a lightweight Codex-native synthesis for empirical result analysis
 ## Local Adaptation Notes
 
 - No source scripts were copied in this first version.
-- `scripts/scan_results.py` is a local standard-library utility for lightweight metric inventory and traceability.
-- `scripts/result_scan_to_registry.py` is a local standard-library utility for turning scan output into review-only experiment registry candidates.
+- `skills/research-results-analysis/scripts/scan_results.py` is a local standard-library utility for lightweight metric inventory and traceability.
+- `skills/research-results-analysis/scripts/result_scan_to_registry.py` is a local standard-library utility for turning scan output into review-only experiment registry candidates.
 - Keep the workflow file project-agnostic.
 - Add project-specific parsers later only after real result formats stabilize.

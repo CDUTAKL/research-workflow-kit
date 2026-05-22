@@ -24,7 +24,7 @@ Project setup
 - If a claim lacks evidence, return to `$research-results-analysis` or experiment design.
 - If a result is important but hard to see, return to `$research-paper-figures`.
 - If a section is vague or overclaims, return to `$research-paper-writing`.
-- If submission artifacts are inconsistent, return to `$research-final-audit`, `$doc`, `$pdf`, or LaTeX compilation.
+- If submission artifacts are inconsistent, return to `$research-final-audit`, the Documents plugin, `$pdf`, or doctor-first LaTeX compilation.
 
 ## Two-Week Planning Template
 

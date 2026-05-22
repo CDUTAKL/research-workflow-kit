@@ -19,7 +19,7 @@ Every important run should record:
 | Output directory | stable artifact path |
 | Checkpoint path | checkpoint used for evaluation |
 | Prediction file | predictions or residuals when applicable |
-| Execution target | `local`, `cloud_autodl`, or other named target |
+| Execution target | `local_mac`, `cloud_autodl`, or other named target |
 | Known limitations | missing baseline, small scope, failed runs, unstable results |
 
 ## Execution Targets
@@ -28,13 +28,13 @@ Use these target labels consistently:
 
 | Target | Meaning |
 |---|---|
-| `local` | user's local machine; use for debugging and smoke tests |
+| `local_mac` | this Mac; use CPU / Apple Silicon / MPS when supported for debugging and smoke tests |
 | `cloud_autodl` | AutoDL remote GPU instance; use for formal training when access is provided |
 | `cloud_other` | RunPod, Colab, Kaggle, school server, or another remote target |
 
 Default policy:
 
-- Run local smoke tests before paid cloud training.
+- Run `local_mac` smoke tests before paid cloud training.
 - Use AutoDL for formal runs only after the command, config, outputs, and data paths are known.
 - Keep secrets out of repository files.
 
@@ -85,6 +85,8 @@ When using AutoDL, record these fields in `experiment-runbook.md` and `reproduci
 | Remote output path | metrics/checkpoints/predictions directory |
 | Download destination | local artifact path after training |
 | Shutdown policy | whether to stop/release instance after artifacts are recovered |
+
+Use macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync` for AutoDL handoff. Do not assume MobaXterm on this Mac.
 
 AutoDL execution sequence:
 

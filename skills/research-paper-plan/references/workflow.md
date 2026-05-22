@@ -33,14 +33,14 @@ Console handoff:
 
 Use the helper script when a structured first draft is useful:
 
-```powershell
-python tools\skills\research-paper-plan\scripts\generate_topic_intake.py --title "advisor title here" --out-dir docs\thesis
+```bash
+python skills/research-paper-plan/scripts/generate_topic_intake.py --title "advisor title here" --out-dir docs/thesis
 ```
 
 For Chinese or other non-ASCII titles, prefer a UTF-8 title file when shell encoding is uncertain:
 
-```powershell
-python tools\skills\research-paper-plan\scripts\generate_topic_intake.py --title-file title.txt --out-dir docs\thesis
+```bash
+python skills/research-paper-plan/scripts/generate_topic_intake.py --title-file title.txt --out-dir docs/thesis
 ```
 
 The script scaffolds the console. The skill must still reason about the title and fill or revise the generated sections.

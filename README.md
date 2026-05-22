@@ -40,12 +40,37 @@ research-final-audit
 
 ## Install Skills On A New Computer
 
-### macOS / Linux
+### macOS / Codex
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python install_skills.py --overwrite
+```
+
+This installs the bundled research skills into `~/.codex/skills`. The repository
+`.venv` is used for local script execution and keeps dependencies out of the
+system Python and Codex runtime cache.
+
+Recommended verification:
+
+```bash
+.venv/bin/python -c "import requests, matplotlib, pandas, pptx, numpy"
+test -f ~/.codex/skills/research-workflow-orchestrator/SKILL.md
+test -f ~/.codex/skills/semanticscholar-skill/s2.py
+```
+
+### macOS / Linux Manual Copy
 
 ```bash
 mkdir -p ~/.codex/skills
 cp -R skills/* ~/.codex/skills/
 ```
+
+Use the installer above when possible because it copies each skill directory
+including internal `references/`, `scripts/`, `examples/`, `presets/`, and
+assets.
 
 ### Windows PowerShell
 
@@ -59,7 +84,7 @@ Copy-Item -Recurse -Force .\skills\* "$env:USERPROFILE\.codex\skills\"
 ### macOS / Linux
 
 ```bash
-python init_research_workflow.py --project "/path/to/my-research-project"
+.venv/bin/python init_research_workflow.py --project "/path/to/my-research-project"
 ```
 
 ### Windows PowerShell
@@ -93,10 +118,25 @@ The workflow has 12 stages:
 8. Results analysis and claim mapping
 9. Figure, table, and model diagram production
 10. Paper writing and polishing
-11. Word / LaTeX / PDF production
+11. DOCX / optional Word / optional LaTeX / PDF production
 12. Final audit and defense preparation
 
 `docs/thesis/` is the project evidence source of truth. Notion or other task tools should be used for progress tracking only, not as the primary evidence archive.
+
+## macOS Toolchain Notes
+
+- Local smoke tests use `local_mac`: CPU, Apple Silicon acceleration when the project supports it, and small-sample shape/output checks. Formal CUDA training should run on `cloud_autodl` or another remote GPU target.
+- Remote training uses macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync`; MobaXterm is a Windows-only convenience and is not assumed.
+- DOCX work uses the Documents plugin and local `.docx` files. Pages can open or review documents locally; Microsoft Word is optional when installed.
+- LaTeX is optional. Run the LaTeX doctor first, then compile only when a TeX runtime is available.
+- Defense and diagram polish use Presentations, Figma, and BioRender when available. Canva is not assumed on this Mac.
+
+## Script Locations
+
+- Project bootstrap scripts live in root `scripts/`.
+- Result scanning lives in `skills/research-results-analysis/scripts/scan_results.py` and `skills/research-results-analysis/scripts/result_scan_to_registry.py`.
+- Figure rendering lives in `skills/research-paper-figures/scripts/nature_plot_templates.py` and `skills/research-paper-figures/scripts/render_network_architecture.py`.
+- Root `scripts/render_network_architecture.py` is a legacy placeholder; use the skill-local renderer for formal architecture figures.
 
 ## Figure Workflow
 

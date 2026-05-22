@@ -161,8 +161,8 @@ Do not treat candidate citation batches as final references. Important citations
 
 ## Compile/Export Advice
 
-- For LaTeX: use LaTeX Tectonic or the local project compile command, then inspect warnings about missing refs/citations.
-- For Word: use `$doc` for DOCX inspection/editing and inspect generated PDF after export, not only the DOCX.
+- For LaTeX: run the LaTeX doctor first, then use the LaTeX compile skill or local project compile command only when a TeX runtime is available; inspect warnings about missing refs/citations.
+- For DOCX: use the Documents plugin (`documents:documents` in Codex plugin contexts) for DOCX inspection/editing and inspect generated PDF after export, not only the DOCX. Pages or Microsoft Word are optional local review tools.
 - For PDF: use `$pdf` when rendering, extraction, or layout review matters.
 - For figures: verify final PDF/Word rendering, not only source images.
 - For bibliography: check both source `.bib` and rendered references.
@@ -173,9 +173,9 @@ Use this sequence for final documents:
 
 ```text
 $research-final-audit for scientific and submission risk
-  -> $doc for Word template, DOCX layout, and visual rendering checks
+  -> Documents plugin for DOCX template, layout, and visual rendering checks
   -> $pdf for final PDF rendering and extraction checks
--> LaTeX Tectonic for LaTeX compilation when applicable
+-> LaTeX doctor, then LaTeX compile only when a TeX runtime is available
 ```
 
 ## Audit-to-Revision Loop
@@ -191,9 +191,9 @@ Audit output must route each issue to the next corrective skill.
 | missing task/progress sync | Notion or `$research-workflow-orchestrator` |
 | missing code version trace | GitHub or `$research-experiment-engineering` |
 | stale spreadsheet export | Spreadsheets or `$research-results-analysis` |
-| DOCX layout problem | `$doc` or Documents plugin |
+| DOCX layout problem | Documents plugin |
 | PDF rendering problem | `$pdf` |
-| LaTeX compile/citation warning | LaTeX Tectonic |
+| LaTeX compile/citation warning | LaTeX doctor, then LaTeX compile |
 | defense slide gap | Presentations or `$research-paper-figures` |
 | paper-to-PPT structure gap | Presentations, `nature-paper2ppt` reference rules, or `$research-final-audit` |
 

@@ -4,7 +4,7 @@
 
 - Use this file to prepare the defense narrative, slides, evidence backups, and likely Q&A.
 - Every slide claim must trace to `claim-evidence-map.md`, `figure-plan.md`, or `final-audit.md`.
-- Use Presentations for PPTX creation/editing. Use nature-paper2ppt-derived structure when converting a paper or thesis chapter into a Chinese academic deck. Use Canva only for optional visual polish.
+- Use Presentations for PPTX creation/editing. Use nature-paper2ppt-derived structure when converting a paper or thesis chapter into a Chinese academic deck. Use Figma or BioRender for visual refinement when useful. Canva is optional only when available.
 
 ## Defense Narrative
 
@@ -53,6 +53,7 @@ Use this when building a PPTX from the thesis, a paper draft, or a source paper.
 
 - Use Presentations for creating, editing, rendering, and verifying `.pptx`.
 - Use nature-paper2ppt-derived rules to choose a small number of evidence-bearing figures instead of copying every figure.
-- Use Canva only when a polished visual design or poster-style asset is needed.
+- Use Figma or BioRender when a slide needs visual refinement beyond PPTX layout.
+- Use Canva only when it is available and a polished visual design or poster-style asset is needed.
 - Do not create slide claims that are stronger than the audited thesis claims.
 - Keep backup evidence paths visible in speaker notes or this file.

@@ -95,12 +95,12 @@ Record the route in `docs/thesis/figure-plan.md`:
 
 ## Nature-Style Template Handoff
 
-Use `nature-figure-controlled-port.md` and `scripts/nature_plot_templates.py` for common result figures:
+Use `nature-figure-controlled-port.md` and `skills/research-paper-figures/scripts/nature_plot_templates.py` for common result figures:
 
 ```text
 figure claim
 -> figure spec JSON
--> nature_plot_templates.py
+-> skills/research-paper-figures/scripts/nature_plot_templates.py
 -> SVG/PDF/PNG
 -> .qa.md report
 -> docs/thesis/figure-plan.md
@@ -108,11 +108,11 @@ figure claim
 
 Default command:
 
-```powershell
-python tools\skills\research-paper-figures\scripts\nature_plot_templates.py `
-  --spec tools\skills\research-paper-figures\examples\figure_specs\grouped_bar_demo.json `
-  --out figures\templates\grouped_bar_demo `
-  --formats svg,pdf,png `
+```bash
+python skills/research-paper-figures/scripts/nature_plot_templates.py \
+  --spec skills/research-paper-figures/examples/figure_specs/grouped_bar_demo.json \
+  --out figures/templates/grouped_bar_demo \
+  --formats svg,pdf,png \
   --qa-report
 ```
 

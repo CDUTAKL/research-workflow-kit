@@ -1,8 +1,18 @@
 """
-Stress-test all 14 nature_plot_templates with extreme mock data.
-6 test types per template: long labels, many categories, extreme values,
-few data points, many data points, missing/bad data.
+Legacy stress-test scaffold for the old function-based nature_plot_templates API.
+
+The current workflow uses JSON figure specs rendered by:
+skills/research-paper-figures/scripts/nature_plot_templates.py
+
+Keep this file only as a historical note until it is rewritten against the
+current JSON-spec renderer.
 """
+raise SystemExit(
+    "Legacy stress_test_templates.py is not compatible with the current JSON-spec "
+    "renderer. Use skills/research-paper-figures/scripts/nature_plot_templates.py "
+    "with examples/figure_specs/*.json instead."
+)
+
 import sys
 sys.path.insert(0, str(__import__('pathlib').Path(__file__).parent))
 

@@ -5,6 +5,8 @@
 - Every thesis claim must map to at least one experiment, figure/table, literature source, or explicit limitation.
 - Do not promote a claim to the manuscript until its status is `supported` or the wording is weakened.
 - Use this file as the bridge between experiment results, literature review, figures, and writing.
+- Use `CLM-*` for thesis claims and `EXP-*` / `EXP-AUTO-*` for experiment evidence references.
+- Claim audits read `Experiment Evidence` from this file and check it against `experiment-registry.md`.
 
 ## Claim Status Legend
 

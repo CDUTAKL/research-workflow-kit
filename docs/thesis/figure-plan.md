@@ -5,16 +5,16 @@
 - Use this file to plan figures and tables before polishing visual style.
 - Every figure/table should identify its purpose, input data, supported claim, and caption-safe wording.
 - For model architecture, method overview, workflow, and schematic figures, create or select a visual reference first. Image Gen Skill is the preferred reference generator when visual quality matters.
-- Reference images are not final thesis figures. Check reference content accuracy, then redraw the final figure from source-of-truth records with Figma, PPTX, SVG, TikZ, Python, or an approved project renderer.
+- Reference images are not final thesis figures. Check reference content accuracy, then redraw the final figure from source-of-truth records with Figma, BioRender, PPTX, SVG, TikZ, Python, or an approved project renderer.
 - Use `network-architecture-figures.md` for model structure diagrams; do not manage them as generic result plots.
 - Run the Nature-derived `figure-audit-standard.md` before marking final thesis, advisor-facing, or publication-ready figures as ready.
-- Use `nature_plot_templates.py` for common result figures when no project-specific plotting script already exists.
+- Use `skills/research-paper-figures/scripts/nature_plot_templates.py` for common result figures when no project-specific plotting script already exists.
 
 ## Visual Reference To Formal Redraw Register
 
 | Figure ID | visual_reference | reference_source | reference_accuracy_check | style_to_reuse | source_of_truth | formal_redraw_tool | final_export_path | metadata_check | Status |
 |---|---|---|---|---|---|---|---|---|---|
-| Arch-001 | `figures/references/Arch-001_reference.png` | imagegen/TBD | pending | layout/palette/panel hierarchy/TBD | `.network.json` / model.py / paper source | Figma/PPTX/SVG/TikZ/Python/TBD | `figures/final/Arch-001.*` | pending | planned |
+| Arch-001 | `figures/references/Arch-001_reference.png` | imagegen/TBD | pending | layout/palette/panel hierarchy/TBD | `.network.json` / model.py / paper source | Figma/BioRender/PPTX/SVG/TikZ/Python/TBD | `figures/final/Arch-001.*` | pending | planned |
 
 Rules:
 
@@ -29,8 +29,8 @@ Rules:
 | ID | Type | Purpose | figure_claim | panel_role | source_data | script_or_notebook | Recommended Form | Caption Draft | export_status | audit_status | revision_needed | Status | Export Target |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Fig-001 | figure | TBD | CLM-001/TBD | hero/support/TBD | TBD | TBD | flowchart/line/bar/heatmap/TBD | TBD | planned | pending | TBD | planned | PDF/SVG/PNG/TBD |
-| Table-001 | table | TBD | CLM-001/TBD | table/TBD | TBD | TBD | metric table/ablation table/TBD | TBD | planned | pending | TBD | planned | DOCX/LaTeX/TBD |
-| Arch-001 | network architecture | explain model topology | method clarity | architecture main + inset | `.network.json` / model.py / paper source | render_network_architecture.py | feature-map stack diagram | structure-only caption | planned | pending | TBD | planned | SVG/PDF/PNG/PPTX |
+| Table-001 | table | TBD | CLM-001/TBD | table/TBD | TBD | TBD | metric table/ablation table/TBD | TBD | planned | pending | TBD | planned | DOCX/optional LaTeX/TBD |
+| Arch-001 | network architecture | explain model topology | method clarity | architecture main + inset | `.network.json` / model.py / paper source | skills/research-paper-figures/scripts/render_network_architecture.py | feature-map stack diagram | structure-only caption | planned | pending | TBD | planned | SVG/PDF/PNG/PPTX |
 
 ## Publication-Grade Figure Contract
 
@@ -50,7 +50,7 @@ Use this section when a figure needs Nature-style or high-impact-journal polish.
 
 | Figure ID | Template | Spec File | Generated Outputs | QA Report | Source Data | Status |
 |---|---|---|---|---|---|---|
-| Fig-template-001 | grouped_bar/line_trend/heatmap/scatter/radar/distribution/forest/multi_panel/log_bar/ablation_barh/threshold_curve/confusion_heatmap/asymmetric_hero/image_plate | tools/skills/research-paper-figures/examples/figure_specs/TBD.json | SVG/PDF/PNG/TBD | TBD.qa.md | demo/experiment CSV/TBD | planned |
+| Fig-template-001 | grouped_bar/line_trend/heatmap/scatter/radar/distribution/forest/multi_panel/log_bar/ablation_barh/threshold_curve/confusion_heatmap/asymmetric_hero/image_plate | skills/research-paper-figures/examples/figure_specs/TBD.json | SVG/PDF/PNG/TBD | TBD.qa.md | demo/experiment CSV/TBD | planned |
 
 ## Template Library Coverage
 
@@ -85,7 +85,7 @@ Use this section when a figure needs Nature-style or high-impact-journal polish.
 | Claim wording is supported by evidence | pending |  |
 | Units, sample counts, and conditions are clear | pending |  |
 | Figure source file is traceable | pending |  |
-| Export format is suitable for Word/LaTeX | pending |  |
+| Export format is suitable for DOCX / optional Word / optional LaTeX | pending |  |
 | Editable vector or raster reason is recorded | pending |  |
 | Multi-panel layout has no redundant panels | pending |  |
 | Figure conclusion does not exceed evidence | pending |  |

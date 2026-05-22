@@ -5,9 +5,10 @@ Run before any writing phase (Stage 10). Exit code != 0 means blocking issues
 that must be resolved before proceeding to paper writing.
 
 Checks performed:
-  1. Every claim must reference at least one piece of evidence.
-  2. Every evidence reference must correspond to a real experiment entry.
-  3. A claim backed only by failed experiments is unsupported.
+  1. Every CLM-* claim must reference at least one experiment when experiment
+     evidence is expected.
+  2. Every EXP-* reference must correspond to a real experiment registry entry.
+  3. A claim backed only by failed or invalid experiments is unsupported.
   4. (Best-effort) Numeric consistency between claimed numbers and experiment results.
 
 Usage:
@@ -31,30 +32,64 @@ THESIS_DIR = Path("docs/thesis")
 def parse_claim_evidence_map(text: str) -> list[dict]:
     """Extract all claims and their evidence references from claim-evidence-map.md.
 
-    Expected table format:
-        | claim_id | claim_text | evidence_refs | status |
-    where evidence_refs may contain one or more comma-separated references like
-    "E3.1, E3.2" or experiment IDs like "EXP-001, EXP-002".
+    Preferred table format:
+        | Claim ID | Claim Draft | Status | Experiment Evidence | ... |
+        | CLM-001 | ...         | ...    | EXP-001, EXP-AUTO-002 |
+
+    Legacy C1.1 rows are also accepted when they contain EXP-* references.
     """
     claims: list[dict] = []
-    pattern = re.compile(
-        r'^\|\s*(C\d+\.\d+)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|',
-        re.MULTILINE,
-    )
-    for match in pattern.finditer(text):
-        claim_id = match.group(1).strip()
-        claim_text = match.group(2).strip()
-        evidence_refs = [
-            e.strip() for e in match.group(3).split(",") if e.strip()
-        ]
-        claims.append(
-            {
-                "id": claim_id,
-                "text": claim_text,
-                "evidence_refs": evidence_refs,
-            }
-        )
+    for cells in iter_markdown_rows(text):
+        if not cells:
+            continue
+        claim_id = cells[0].strip()
+        if not re.fullmatch(r"(?:CLM-\d+|C\d+\.\d+)", claim_id):
+            continue
+        claim_text = cells[1].strip() if len(cells) > 1 else ""
+        evidence_text = cells[3] if len(cells) > 3 else ""
+        evidence_refs = extract_experiment_refs(evidence_text)
+        claims.append({"id": claim_id, "text": claim_text, "evidence_refs": evidence_refs})
     return claims
+
+
+def iter_markdown_rows(text: str) -> list[list[str]]:
+    rows: list[list[str]] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|") or not stripped.endswith("|"):
+            continue
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        if not cells or all(set(cell) <= {"-", ":"} for cell in cells):
+            continue
+        if cells[0].lower() in {"claim id", "experiment id"}:
+            continue
+        rows.append(cells)
+    return rows
+
+
+def extract_experiment_refs(text: str) -> list[str]:
+    return re.findall(r"\bEXP-(?:AUTO-)?[A-Za-z0-9.-]+\b", text)
+
+
+def is_success_status(status: str) -> bool:
+    status_lower = status.lower()
+    failed_markers = ("fail", "failed", "失败", "invalid", "blocked", "not_reproducible")
+    if any(marker in status_lower for marker in failed_markers):
+        return False
+    return status_lower not in {"", "unknown"}
+
+
+def parse_experiment_registry(text: str) -> dict[str, dict]:
+    """Extract experiment IDs and status from experiment-registry.md."""
+    experiments: dict[str, dict] = {}
+    for cells in iter_markdown_rows(text):
+        exp_id = cells[0].strip()
+        if not re.fullmatch(r"EXP-(?:AUTO-)?[A-Za-z0-9.-]+", exp_id):
+            continue
+        status = cells[7].strip() if len(cells) > 7 else "unknown"
+        raw = " | ".join(cells)
+        experiments[exp_id] = {"success": is_success_status(status), "raw": raw}
+    return experiments
 
 
 def parse_experiment_log(text: str) -> dict[str, dict]:
@@ -72,7 +107,7 @@ def parse_experiment_log(text: str) -> dict[str, dict]:
         )
         status = status_match.group(1).strip() if status_match else "unknown"
         experiments[exp_id] = {
-            "success": "[成功]" in status,
+            "success": "[成功]" in status or is_success_status(status),
             "raw": block,
         }
     return experiments
@@ -192,6 +227,7 @@ def main() -> None:
     warnings: list[str] = []
 
     cmap_path = THESIS_DIR / "claim-evidence-map.md"
+    registry_path = THESIS_DIR / "experiment-registry.md"
     elog_path = THESIS_DIR / "experiment-log.md"
 
     # --- In quiet mode, silently skip if claim-evidence-map doesn't exist yet ---
@@ -204,13 +240,19 @@ def main() -> None:
     claims_text = cmap_path.read_text(encoding="utf-8")
     claims = parse_claim_evidence_map(claims_text)
 
-    # --- Load experiment log ---
+    # --- Load experiment registry first; keep experiment-log.md as legacy fallback ---
     experiments: dict[str, dict] = {}
+    if registry_path.exists():
+        experiments.update(parse_experiment_registry(registry_path.read_text(encoding="utf-8")))
     if elog_path.exists():
-        experiments = parse_experiment_log(elog_path.read_text(encoding="utf-8"))
-    else:
-        msg = f"{elog_path} not found — skipping experiment-level checks"
+        for exp_id, exp in parse_experiment_log(elog_path.read_text(encoding="utf-8")).items():
+            experiments.setdefault(exp_id, exp)
+    if not registry_path.exists() and not elog_path.exists():
+        msg = f"{registry_path} not found and legacy {elog_path} not found — skipping experiment-level checks"
         warnings.append(msg)
+    else:
+        if not registry_path.exists():
+            warnings.append(f"{registry_path} not found — using legacy {elog_path}")
 
     # --- Run checks ---
     orphans = check_orphan_claims(claims, experiments)

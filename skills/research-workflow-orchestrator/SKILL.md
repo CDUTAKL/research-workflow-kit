@@ -15,19 +15,19 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 
 - Planning and advisor topic intake: use `$research-paper-plan`.
 - Literature discovery, source-grounded paper reading, related work, and citation batches: use `$research-literature-review`; use `$semanticscholar-skill` for real Semantic Scholar searches when exact papers, citations, or BibTeX candidates matter; use `$pdf` when full-paper PDF reading, original/translation alignment, figure/table extraction, or source anchors matter.
-- Experiment architecture, code design, local smoke tests, AutoDL/cloud training, training/evaluation scripts, config/log/output conventions, reproducibility, and mapping code runs to thesis experiments: use `$research-experiment-engineering`.
+- Experiment architecture, code design, `local_mac` smoke tests, AutoDL/cloud training, training/evaluation scripts, config/log/output conventions, reproducibility, and mapping code runs to thesis experiments: use `$research-experiment-engineering`.
 - Experiment recording and exploration: use `$jupyter-notebook`.
 - Result interpretation: use `$research-results-analysis`.
 - Figures, tables, diagrams, captions, Nature-style figure audit, and model-architecture rendering: use `$research-paper-figures`.
 - Drafting and revision: use `$research-paper-writing`.
-- Word thesis/manuscript production: use `$doc`.
+- DOCX thesis/manuscript production: use the Documents plugin (`documents:documents` in Codex plugin contexts). Pages or Microsoft Word may be used locally for human review, but Word is optional.
 - PDF review or final rendering checks: use `$pdf`.
 - Final submission or defense checks: use `$research-final-audit`.
 - Task planning and progress dashboards: use Notion when the user wants project tasks, weekly plans, or supervisor feedback synced outside the repo.
 - Code versioning and GitHub work: use GitHub for repository state, issues, PRs, CI, and version traceability around major code changes or formal experiments.
 - Engineering discipline: use Superpowers for TDD, systematic debugging, verification, and code review during implementation work.
 - Spreadsheet exports: use Spreadsheets for reviewable literature, result, claim, and audit tables without replacing source records.
-- Defense slides: use Presentations for PPTX creation/editing and Canva only when visual polish is specifically useful.
+- Defense slides: use Presentations for PPTX creation/editing; use Figma or BioRender for visual refinement when available. Canva is optional only if explicitly available and useful.
 - Image Gen Skill is used in stage 9 as the mandatory visual-reference generator for model architecture, method overview, workflow, and schematic figures when visual quality matters. Its output is checked for content accuracy and then redrawn formally; it is not treated as final manuscript evidence.
 - Figma can be used in stage 9 or 12 for model architecture diagram refinement, reusable diagram components, and visual system work after the source-of-truth architecture record and visual reference are established.
 - Nature-derived high-standard enhancements: use downloaded `nature-figure`, `nature-reader`, `nature-citation`, `nature-polishing`, and `nature-paper2ppt` source material as reference layers. `nature-figure` strengthens figure audit, `nature-reader` strengthens source-grounded paper reading, `nature-citation` strengthens long-text citation batching, `nature-polishing` strengthens final prose, and `nature-paper2ppt` strengthens defense slides. They do not replace the local `research-*` evidence workflow.
@@ -121,7 +121,7 @@ Read the reference files only as needed:
 - `references/experiment-records.md` for notebook and experiment registry workflows.
 - `references/visualization-rules.md` for publication figure rules.
 - `references/document-production.md` for DOCX/PDF/LaTeX production checks.
-- `references/tool-integration.md` for Notion, GitHub, Superpowers, Spreadsheets, Presentations, and Canva routing.
+- `references/tool-integration.md` for Notion, GitHub, Superpowers, Spreadsheets, Presentations, Figma, BioRender, and optional Canva routing.
 - `references/paper-iteration-loop.md` for iterative research-paper execution.
 - `references/source-map.md` for provenance and license notes.
 
@@ -134,13 +134,13 @@ Use this stage model when explaining or coordinating the full workflow:
 3. Experiment question definition: map planned claims to required experiments.
 4. Experiment architecture planning: `$research-experiment-engineering`.
 5. Research code implementation: Codex coding workflow, Superpowers TDD/debugging, GitHub versioning.
-6. Experiment run and monitoring: `$research-experiment-engineering` for local smoke tests, AutoDL/cloud formal training, logs, artifact recovery, shutdown/release policy, and git commit traceability.
+6. Experiment run and monitoring: `$research-experiment-engineering` for `local_mac` smoke tests, AutoDL/cloud formal training, logs, artifact recovery, shutdown/release policy, and git commit traceability. Use macOS Terminal, VS Code SSH, `ssh`, `scp`, or `rsync` for remote handoff.
 7. Experiment recording and result scan: `$jupyter-notebook`, `$research-results-analysis`, Spreadsheets for reviewable exports.
 8. Results analysis and claim mapping: `$research-results-analysis`, Scite for citation-support checks, Spreadsheets for claim tables.
 9. Figure and table planning: `$research-paper-figures`, with `figure-audit-standard.md` for Nature-derived claim-first figure QA. For model architecture, method overview, workflow, and schematic figures, run the required visual-reference route first: Image Gen Skill reference -> content-accuracy check -> formal redraw with Figma/PPTX/SVG/TikZ/Python from source-of-truth records -> metadata/provenance check -> figure audit. Use Spreadsheets for manuscript tables.
 10. Paper writing: `$research-paper-writing`, with `nature-polishing` rules for final section logic, hedging, sentence clarity, and English manuscript polish when appropriate.
-11. Word / LaTeX / PDF production: `$doc`, `$latex-tectonic`, `$pdf`.
-12. Final audit and defense preparation: `$research-final-audit`, Presentations, optional Canva, Notion task closure, and `nature-paper2ppt` structure when converting a paper or thesis chapter into a Chinese academic PPTX deck. Final audit must check figure-audit status, source-grounded reading/citation evidence, Zotero/Scite statuses, and network-architecture `.network.json` plus QA reports.
+11. DOCX / optional Word / optional LaTeX / PDF production: Documents plugin for `.docx`; Pages or Microsoft Word only when installed; LaTeX doctor first, then LaTeX compile only when a TeX runtime is available; `$pdf` for rendered checks.
+12. Final audit and defense preparation: `$research-final-audit`, Presentations, optional Figma/BioRender visual refinement, optional Canva only when available, Notion task closure, and `nature-paper2ppt` structure when converting a paper or thesis chapter into a Chinese academic PPTX deck. Final audit must check figure-audit status, source-grounded reading/citation evidence, Zotero/Scite statuses, and network-architecture `.network.json` plus QA reports.
 
 ## Output Contract
 

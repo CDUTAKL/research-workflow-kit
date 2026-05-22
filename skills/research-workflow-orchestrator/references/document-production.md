@@ -2,14 +2,14 @@
 
 ## Tool Routing
 
-- Use `$doc` for `.docx` reading, editing, formatting, and Word thesis templates.
+- Use the Documents plugin (`documents:documents` in Codex plugin contexts) for `.docx` reading, editing, formatting, and thesis templates.
 - Use `$pdf` for PDF reading, visual rendering checks, extraction, and final PDF review.
-- Use LaTeX Tectonic when the manuscript is LaTeX and compilation or PDF production matters.
+- Use LaTeX only after running the LaTeX doctor; compile only when the doctor finds a usable TeX runtime.
 - Use `$research-final-audit` before final submission or defense.
 
 ## DOCX Workflow
 
-For Word templates:
+For DOCX templates:
 
 1. Inspect document structure before editing.
 2. Preserve existing styles and layout.
@@ -30,7 +30,8 @@ For final PDF review:
 
 For LaTeX manuscripts:
 
-- Compile with the available project command or LaTeX Tectonic.
+- Run the LaTeX doctor first.
+- Compile with the available project command or the LaTeX compile skill only after a runtime is available.
 - Treat missing references, missing citations, overfull boxes in critical areas, and broken figures as final-audit issues.
 - Keep figure filenames stable and captions in the source document.
 

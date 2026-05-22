@@ -1,59 +1,43 @@
 """
-Auto-generate an experiment entry in experiment-log.md.
+Auto-generate an experiment entry in experiment-registry.md.
 
 Reads experiment parameters from a JSON file (default: last_experiment.json)
 or command-line overrides, auto-fills date, git commit, experiment ID, data hash
 (or computes it via --data-dir), and appends a completed entry to
-docs/thesis/experiment-log.md.
+docs/thesis/experiment-registry.md.
 
 Usage:
     python scripts/new_experiment.py                              # read last_experiment.json
-    python scripts/new_experiment.py --status 成功                 # override single field
+    python scripts/new_experiment.py --status done                 # override single field
     python scripts/new_experiment.py --data-dir data/raw_v3       # auto-compute data hash
     python scripts/new_experiment.py --data-hash abc123           # provide hash manually
     python scripts/new_experiment.py --help                       # show all fields
 """
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 THESIS_DIR = Path("docs/thesis")
-ELOG_PATH = THESIS_DIR / "experiment-log.md"
+REGISTRY_PATH = THESIS_DIR / "experiment-registry.md"
+LEGACY_ELOG_PATH = THESIS_DIR / "experiment-log.md"
 CONFIG_PATH = Path("last_experiment.json")
 
-TEMPLATE = """## EXP-{exp_id}
+REGISTRY_TEMPLATE = """# Experiment Registry
 
-### 绑定
-- **假设**: {hypothesis}
-- **前序实验**: {prev_exp}
-- **实验脚本**: `{script}`
-- **Git commit**: `{git_commit}`
+## Update Rules
 
-### 配置
-- **关键超参**: {hyperparams}
-- **数据版本**: {data_version}
-- **数据哈希**: `{data_hash}`
-- **种子**: global={seed_global}, numpy={seed_numpy}, torch={seed_torch}, cuda_deterministic={cuda_det}
-- **环境**: `requirements-freeze-{env_date}.txt`
+- Register every experiment before using its result in writing.
+- Keep one stable experiment ID per run or comparable run group.
+- Link result files, logs, notebooks, configs, and generated figures.
+- `experiment-log.md` is a legacy compatibility file; this registry is the primary evidence record.
 
-### 结果
-- **核心指标**: {primary_metric} (阈值: {threshold})
-- **辅助指标**: {secondary_metrics}
-- **状态**: [{status}]
+## Experiment Table
 
-### 失败诊断
-{diagnosis}
-
-### 对假设的影响
-- 假设本身是否需要修正？[ ] 是 [ ] 否
-- 说明: {hypothesis_impact}
-
-### 产出
-- **Checkpoint 路径**: {checkpoint_path}
-- **日志路径**: {log_path}
-- **TensorBoard 路径**: {tensorboard_path}
+| Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes |
+|---|---|---|---|---|---|---|---|---|---|
 """
 
 
@@ -95,7 +79,7 @@ def get_defaults() -> dict:
         "primary_metric": "N/A",
         "threshold": "N/A",
         "secondary_metrics": "N/A",
-        "status": " ",  # space so template renders as "[ ]"
+        "status": "planned",
         "diagnosis": "（如成功则删除本节）",
         "hypothesis_impact": "",
         "checkpoint_path": "",
@@ -123,6 +107,82 @@ def parse_overrides(argv: list[str]) -> dict:
         else:
             i += 1
     return overrides
+
+
+def markdown_cell(value: str) -> str:
+    value = str(value).replace("\n", " ").strip()
+    return value.replace("|", r"\|")
+
+
+def existing_experiment_ids() -> list[str]:
+    ids: list[str] = []
+    for path in (REGISTRY_PATH, LEGACY_ELOG_PATH):
+        if path.exists():
+            ids.extend(re.findall(r"\bEXP-\d{4}-\d{2}-\d{2}-\d{3}\b", path.read_text(encoding="utf-8")))
+    return ids
+
+
+def next_experiment_id(today: str) -> str:
+    nums = []
+    for exp_id in existing_experiment_ids():
+        match = re.fullmatch(rf"EXP-{re.escape(today)}-(\d{{3}})", exp_id)
+        if match:
+            nums.append(int(match.group(1)))
+    return f"EXP-{today}-{(max(nums) + 1) if nums else 1:03d}"
+
+
+def registry_row(cfg: dict) -> str:
+    experiment_id = cfg["experiment_id"]
+    claim = cfg.get("claim_id") or cfg.get("hypothesis") or "TBD"
+    method = cfg.get("hyperparams", "TBD")
+    data = f"{cfg.get('data_version', 'TBD')} / hash={cfg.get('data_hash', 'N/A')}"
+    command = f"`{cfg.get('script', 'TBD')}`"
+    output_parts = [
+        part for part in (
+            cfg.get("checkpoint_path"),
+            cfg.get("log_path"),
+            cfg.get("tensorboard_path"),
+        )
+        if part
+    ]
+    output_path = "; ".join(output_parts) if output_parts else "TBD"
+    metrics = "; ".join(
+        part for part in (
+            cfg.get("primary_metric"),
+            cfg.get("secondary_metrics"),
+        )
+        if part and part != "N/A"
+    ) or "TBD"
+    notes = (
+        f"prev={cfg.get('prev_exp', 'N/A')}; "
+        f"seed global={cfg.get('seed_global')}, numpy={cfg.get('seed_numpy')}, "
+        f"torch={cfg.get('seed_torch')}; git={cfg.get('git_commit')}"
+    )
+    cells = [
+        experiment_id,
+        claim,
+        method,
+        data,
+        command,
+        output_path,
+        metrics,
+        cfg.get("status", "planned"),
+        cfg.get("env_date"),
+        notes,
+    ]
+    return "| " + " | ".join(markdown_cell(str(cell)) for cell in cells) + " |"
+
+
+def ensure_registry() -> str:
+    REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if REGISTRY_PATH.exists():
+        return REGISTRY_PATH.read_text(encoding="utf-8")
+    return REGISTRY_TEMPLATE
+
+
+def append_registry_row(row: str) -> None:
+    current = ensure_registry().rstrip()
+    REGISTRY_PATH.write_text(current + "\n" + row + "\n", encoding="utf-8")
 
 
 def main() -> None:
@@ -153,43 +213,18 @@ def main() -> None:
             except Exception as e:
                 print(f"Warning: could not hash {data_dir}: {e}", file=sys.stderr)
 
-    # --- Generate sequential ID ---
-    if ELOG_PATH.exists():
-        existing = ELOG_PATH.read_text(encoding="utf-8")
-        ids = []
-        import re as _re
-        for m in _re.findall(r"EXP-(\d{4}-\d{2}-\d{2})-(\d{3})", existing):
-            ids.append((m[0], int(m[1])))
-        if ids:
-            latest_date, latest_num = max(ids, key=lambda x: (x[0], x[1]))
-            if latest_date == today:
-                cfg["exp_id"] = f"{today}-{latest_num + 1:03d}"
-            else:
-                cfg["exp_id"] = f"{today}-001"
-        else:
-            cfg["exp_id"] = f"{today}-001"
-    else:
-        cfg["exp_id"] = f"{today}-001"
-
-    entry = TEMPLATE.format(**cfg)
-
-    # --- Append to experiment log ---
-    ELOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    if ELOG_PATH.exists():
-        current = ELOG_PATH.read_text(encoding="utf-8")
-        entry = "\n" + entry
-    else:
-        current = "# Experiment Log\n\n> 结构化实验日志\n\n---\n"
-    ELOG_PATH.write_text(current + entry, encoding="utf-8")
+    # --- Generate sequential ID and append to the primary registry ---
+    cfg["experiment_id"] = next_experiment_id(today)
+    append_registry_row(registry_row(cfg))
 
     # --- Save for next time (without volatile fields) ---
     save_cfg = {k: v for k, v in cfg.items()
-                if k not in ("exp_id", "git_commit", "env_date", "data_hash")}
+                if k not in ("experiment_id", "git_commit", "env_date", "data_hash")}
     CONFIG_PATH.write_text(
         json.dumps(save_cfg, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
-    print(f"EXP-{cfg['exp_id']} appended to {ELOG_PATH}")
+    print(f"{cfg['experiment_id']} appended to {REGISTRY_PATH}")
     print(f"Config saved to {CONFIG_PATH} (will be reused next time)")
 
 

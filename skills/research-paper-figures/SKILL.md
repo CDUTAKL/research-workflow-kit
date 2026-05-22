@@ -33,7 +33,7 @@ Read `references/workflow.md` for figure planning, plotting conventions, Nature-
    - audit the reference for architecture/content mistakes;
    - preserve the style decisions that work;
    - redraw the final figure from source-of-truth records.
-8. For common result figures, prefer the local Nature-style template renderer in `scripts/nature_plot_templates.py`: write or inspect a figure spec JSON, render SVG/PDF/PNG, and review the QA report.
+8. For common result figures, prefer the local Nature-style template renderer in `skills/research-paper-figures/scripts/nature_plot_templates.py` or the installed equivalent under `~/.codex/skills/research-paper-figures/scripts/`: write or inspect a figure spec JSON, render SVG/PDF/PNG, and review the QA report.
 9. For network architecture diagrams, prefer editable vector/PPT-style shapes, feature-map stacks, module grouping, and clean hierarchy over generic rectangular flowcharts.
 10. For network architecture diagrams, record the source of truth (`model.py`, paper, `.network.json`, or manual architecture spec), then redraw formally with Figma, PPTX, SVG, TikZ, Python, or a legacy renderer as appropriate.
 11. When asked to generate plots, inspect available data and use project-standard Python tooling if present unless the user explicitly requests R.

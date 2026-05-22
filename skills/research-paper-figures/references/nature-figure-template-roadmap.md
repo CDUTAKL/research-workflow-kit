@@ -41,7 +41,7 @@ Do not copy the original gallery images or chart atlas PNGs into this skill. Ext
 
 ## Local Implementation Files
 
-- Renderer: `scripts/nature_plot_templates.py`
+- Renderer: `skills/research-paper-figures/scripts/nature_plot_templates.py`
 - Example specs: `examples/figure_specs/*.json`
 - Generated previews: `figures/templates/*`
 - Thesis control: `docs/thesis/figure-plan.md`

@@ -15,7 +15,8 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 | Image Gen Skill | mandatory visual reference for model architecture, method overview, workflow, and schematic figures when visual quality matters | `docs/thesis/figure-plan.md`, `figures/references/` |
 | Figma | formal redraw and refinement of architecture/method diagrams after Image Gen reference and source-of-truth records exist | `docs/thesis/network-architecture-figures.md` |
 | Presentations | defense PPTX creation, editing, rendering, and checking | `docs/thesis/defense-prep.md` |
-| Canva | optional visual polish for defense, poster, or presentation assets | `docs/thesis/defense-prep.md` |
+| BioRender | scientific schematic and mechanism-style visual refinement when installed | `docs/thesis/figure-plan.md`, `docs/thesis/defense-prep.md` |
+| Canva | optional visual polish only when available; not assumed on this Mac | `docs/thesis/defense-prep.md` |
 | `nature-figure` source | publication-grade figure logic, multi-panel visual argument, SVG/PDF/TIFF export checks | `docs/thesis/figure-plan.md` |
 | Network architecture renderer | CNN/ResNet/U-Net/Transformer/attention structure diagrams from `.network.json` specs | `docs/thesis/network-architecture-figures.md` |
 | `nature-polishing` source | high-standard academic prose polish, section logic, hedging, overclaim checks | `docs/thesis/writing-outline.md`, `docs/thesis/final-audit.md` |
@@ -31,12 +32,12 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 - Stage 9 formal redraw: check the Image Gen reference for content accuracy, then redraw with Figma/PPTX/SVG/TikZ/Python from source-of-truth records.
 - Stage 9 model diagrams: keep `.network.json`, `model.py`, paper source, or manual architecture spec as topology source of truth; generated references are not topology truth.
 - Stage 10 writing: `nature-polishing` rules can be used for the final wording pass after claims, evidence, and citations are already stable.
-- Stage 12 defense: Presentations handles PPTX work; `nature-paper2ppt` supplies paper-to-slide structure; Canva is optional for design polish.
+- Stage 12 defense: Presentations handles PPTX work; `nature-paper2ppt` supplies paper-to-slide structure; Figma/BioRender handle visual refinement when useful; Canva is optional only when available.
 
 ## Safety Rules
 
 - Do not store credentials, API tokens, private keys, or account recovery data in `docs/thesis/`.
-- Do not treat Notion, Spreadsheets, Canva, or slides as primary evidence sources.
+- Do not treat Notion, Spreadsheets, Figma, BioRender, Canva, or slides as primary evidence sources.
 - Before formal experiments, record git branch/commit or dirty state.
 - Before final defense slides, ensure every slide claim traces to `claim-evidence-map.md`.
 - Do not use Nature-derived style rules to strengthen scientific claims. They may improve presentation, but evidence still comes from results, citations, and the thesis console.

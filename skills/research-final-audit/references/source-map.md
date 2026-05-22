@@ -23,7 +23,7 @@ This skill is a lightweight Codex-native synthesis for final paper and thesis ch
 
 ## Local Tooling to Prefer
 
-- LaTeX Tectonic plugin for LaTeX compilation when applicable.
+- LaTeX plugin for doctor-first checks and compilation only when a TeX runtime is available.
 - Documents plugin for DOCX inspection and editing when applicable.
 - Presentations plugin for defense PPT/PPTX work.
 - Scite, Zotero, Semantic Scholar, and web search for citation verification.

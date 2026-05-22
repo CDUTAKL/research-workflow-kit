@@ -7,6 +7,8 @@
 - Link result files, logs, notebooks, configs, and generated figures.
 - Link architecture and runbook records for experiments that require code implementation.
 - Mark results as `invalid` if leakage, split mismatch, metric mismatch, or missing artifacts are found.
+- Use `EXP-*` for stable reviewed experiment records and `EXP-AUTO-*` for result-scan candidates.
+- `experiment-log.md` is a legacy compatibility file; this registry is the primary experiment evidence source.
 
 ## Status Legend
 
@@ -46,10 +48,11 @@
 
 ## Result Scan Imports
 
-Use `$research-results-analysis` or the scan script to populate candidate metrics:
+Use `$research-results-analysis` or the skill-local scan script to populate candidate metrics:
 
 ```bash
 python ~/.codex/skills/research-results-analysis/scripts/scan_results.py --root . --out-dir docs/thesis
+python ~/.codex/skills/research-results-analysis/scripts/result_scan_to_registry.py --scan-table docs/thesis/result-scan-table.csv --registry docs/thesis/experiment-registry.md
 ```
 
 | Scan Report | Table | Reviewed By | Review Status | Notes |

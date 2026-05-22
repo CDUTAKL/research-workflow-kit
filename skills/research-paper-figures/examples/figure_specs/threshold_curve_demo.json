@@ -27,7 +27,7 @@
   },
   "audit": {
     "source_data": "demo inline data; replace with experiment output before thesis use",
-    "script_or_notebook": "tools/skills/research-paper-figures/scripts/nature_plot_templates.py",
+    "script_or_notebook": "skills/research-paper-figures/scripts/nature_plot_templates.py",
     "metric_definition": "demo validation score by threshold",
     "experiment_id": "DEMO"
   }

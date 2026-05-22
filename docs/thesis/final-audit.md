@@ -49,7 +49,8 @@
 
 | Check | Status | Notes |
 |---|---|---|
-| Word/LaTeX compiles or exports cleanly | pending |  |
+| DOCX exports cleanly through Documents / Pages / optional Word | pending |  |
+| LaTeX doctor passes before optional LaTeX compile | pending |  |
 | References render correctly | pending |  |
 | Figure and table numbering is consistent | pending |  |
 | Network architecture figures have spec, vector output, and QA report | pending |  |

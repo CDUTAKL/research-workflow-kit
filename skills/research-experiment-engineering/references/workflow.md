@@ -103,11 +103,11 @@ Run naming rules:
 
 ## 4F. Local Smoke Test And AutoDL Formal Training
 
-Use a two-level execution strategy when the local GPU is weak and the user has access to AutoDL.
+Use a two-level execution strategy when this Mac is only suitable for smoke tests and the user has access to AutoDL.
 
 | Target | Role | Typical scope | Record |
 |---|---|---|---|
-| `local` | debug and smoke test | small sample, 1 epoch, short run, output-format check | local command, local output path, known failures |
+| `local_mac` | debug and smoke test | CPU / Apple Silicon / MPS when supported, small sample, 1 epoch, short run, output-format check | local command, local output path, known failures |
 | `cloud_autodl` | formal training | full dataset, full epochs, baselines, ablations, multi-seed runs | SSH alias, remote paths, GPU/env, run command, result recovery |
 
 Local smoke test must verify:
@@ -153,7 +153,7 @@ Handoff sequence:
 ```text
 $research-experiment-engineering
   -> code implementation/debugging with Codex
-  -> local smoke test
+  -> local_mac smoke test
   -> AutoDL formal training when needed
   -> result download/recovery
   -> run outputs and registry updates

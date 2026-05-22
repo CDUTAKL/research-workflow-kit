@@ -11,7 +11,7 @@ Recommended thesis notebook index:
 
 ## Experiment Engineering Role
 
-Use `$research-experiment-engineering` before result analysis when the work involves architecture planning, data pipeline design, model or algorithm module boundaries, training/evaluation entrypoints, config management, local smoke tests, AutoDL/cloud formal training, logging/output conventions, artifact recovery, or reproducibility.
+Use `$research-experiment-engineering` before result analysis when the work involves architecture planning, data pipeline design, model or algorithm module boundaries, training/evaluation entrypoints, config management, `local_mac` smoke tests, AutoDL/cloud formal training, logging/output conventions, artifact recovery, or reproducibility.
 
 Engineering console files:
 
@@ -25,7 +25,7 @@ Execution target policy:
 
 | Target | Role |
 |---|---|
-| `local` | debug, smoke test, small sample, output-format check |
+| `local_mac` | Mac CPU / Apple Silicon / MPS smoke test, small sample, output-format check |
 | `cloud_autodl` | formal full-data training, baselines, ablations, multi-seed runs |
 | `cloud_other` | RunPod, Colab, Kaggle, school server, or another remote target |
 
@@ -57,7 +57,7 @@ After experiment code is planned and runs are recorded:
 
 1. Use `$research-experiment-engineering` to define architecture, execution target, run commands, outputs, and reproducibility checks.
 2. Use Codex coding workflows to implement or refactor the data/model/train/evaluate code.
-3. Run local smoke tests before paid or long-running cloud training.
+3. Run `local_mac` smoke tests before paid or long-running cloud training.
 4. Use AutoDL/cloud only after command, config, data path, output path, and recovery plan are known.
 5. Use `$jupyter-notebook` for reproducible exploratory checks when needed.
 6. Use `$research-results-analysis` to normalize metrics and identify supported claims.

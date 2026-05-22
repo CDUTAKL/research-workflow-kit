@@ -22,8 +22,8 @@ Use this skill to transform raw experiment artifacts into trustworthy summaries 
 Read `references/workflow.md` for result tables, claim classification, and audit checklists. Read `references/source-map.md` for source provenance.
 
 1. Inventory result files, run configs, metrics, figures, and logs.
-2. When a directory of mixed results is provided, optionally run `scripts/scan_results.py` to create `docs/thesis/result-scan-summary.md` and `docs/thesis/result-scan-table.csv`.
-3. When a thesis console exists, optionally run `scripts/result_scan_to_registry.py` to add candidate `EXP-AUTO-*` rows to `docs/thesis/experiment-registry.md`.
+2. When a directory of mixed results is provided, optionally run the skill-local `scripts/scan_results.py` to create `docs/thesis/result-scan-summary.md` and `docs/thesis/result-scan-table.csv`.
+3. When a thesis console exists, optionally run the skill-local `scripts/result_scan_to_registry.py` to add candidate `EXP-AUTO-*` rows to `docs/thesis/experiment-registry.md`.
 4. Check data quality, split integrity, sample/label distributions, missing values, and anomaly risks.
 5. Normalize metric names, datasets/splits, seeds, baselines, and model variants.
 6. Choose the right statistical summary or test before using words such as significant, robust, or consistent.
