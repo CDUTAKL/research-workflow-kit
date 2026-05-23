@@ -6,6 +6,8 @@
 - Keep exact commands copyable on macOS shell or the remote target shell when possible.
 - Use `local_mac` for orchestration and CPU-only smoke tests, `remote_desktop_4060` as the primary GPU experiment target, and AutoDL only as a stronger fallback.
 - Record SSH alias, remote paths, and environment details only; do not record passwords, token values, or private-key contents.
+- Run the experiment contract check before expensive remote GPU work.
+- Record human-supervised iteration decisions in `autoresearch-results.tsv` when the run changes a claim or method.
 - After the run, update actual outputs, status, and handoff target.
 
 ## Runbook Table
@@ -13,6 +15,18 @@
 | Experiment ID | Target | Purpose | Command | Config | Expected Outputs | Monitoring Checklist | Success Criteria | Failure Handling | Result Recovery | Next Handoff | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | EXP-001 | local_mac/remote_desktop_4060/cloud_autodl | TBD | TBD | TBD | metrics, logs, checkpoint, predictions/TBD | logs finite, output dir exists | TBD | record failure and rerun plan | TBD | `$research-results-analysis` | planned |
+
+## Contract Check
+
+```bash
+python scripts/check_experiment_contract.py \
+  --experiment-id EXP-001 \
+  --config configs/experiment/EXP-001.yaml \
+  --smoke-config configs/smoke/EXP-001-smoke.yaml \
+  --registry docs/thesis/experiment-registry.md
+```
+
+After a run, add `--require-outputs` to require `manifest.json`, `config_resolved.json`, `metrics.json`, and `logs/`.
 
 ## Command Template
 
@@ -56,7 +70,7 @@ Record connection metadata here only after the user provides access. Do not stor
 |---|---|---|---|
 | 1 | Confirm SSH login and GPU visibility | pending | `nvidia-smi` or equivalent |
 | 2 | Confirm project, data, and environment paths | pending |  |
-| 3 | Run `local_mac` CPU-only smoke test or verify one already passed | pending |  |
+| 3 | Run experiment contract check and `local_mac` CPU-only smoke test | pending |  |
 | 4 | Run `remote_desktop_4060` smoke test if environment is new | pending |  |
 | 5 | Start formal training in a persistent session | pending | tmux/screen/nohup/platform default |
 | 6 | Monitor logs and GPU usage | pending |  |
@@ -64,6 +78,12 @@ Record connection metadata here only after the user provides access. Do not stor
 | 8 | Download or sync required artifacts | pending |  |
 | 9 | Update registry, reproducibility checklist, and claim map | pending |  |
 | 10 | Stop/release instance if requested | pending | never assume without user instruction |
+
+## Autoresearch Iteration Handoff
+
+| Iteration | Experiment | Verify Gate | Guard Gate | Result Log | State Update | Decision |
+|---|---|---|---|---|---|---|
+| 1 | EXP-001/TBD | pending | pending | `autoresearch-results.tsv` | `autoresearch-state.json` | pending |
 
 ## AutoDL Fallback Record
 

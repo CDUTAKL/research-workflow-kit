@@ -40,6 +40,19 @@
 |---|---|---|---|---|
 | TBD | TBD | no | pending | verify_metadata |
 
+## Data Availability Audit
+
+| Dataset / Claim | Source Data Traceable | Access / Restriction Recorded | Hash / Manifest | Data Dictionary | Action |
+|---|---|---|---|---|---|
+| DATA-001 / CLM-001 | pending | pending | pending | pending | update `data-availability.md` |
+
+## Code And Autoresearch Trace Audit
+
+| Item | Contract / State | Evidence | Status | Action |
+|---|---|---|---|---|
+| EXP-001 | experiment contract | config, smoke config, output manifest, registry row | pending | run `check_experiment_contract.py` |
+| Iteration 1 | verify/guard gates | `autoresearch-results.tsv`, `autoresearch-state.json` | pending | review before claim promotion |
+
 ## Figure / Table / Formula Audit
 
 | Item | Numbering Correct | Referenced In Text | Source Traceable | Caption Safe | Action |
@@ -53,6 +66,10 @@
 | DOCX exports cleanly through Documents / Pages / optional Word | pending |  |
 | LaTeX doctor passes before optional LaTeX compile | pending |  |
 | References render correctly | pending |  |
+| Section citation map covers each citation-worthy section | pending |  |
+| Data availability statement and dataset restrictions are recorded | pending |  |
+| Autoresearch iterations have verify/guard decisions | pending |  |
+| Experiment code contracts pass for cited runs | pending |  |
 | Figure and table numbering is consistent | pending |  |
 | Network architecture figures have spec, vector output, and QA report | pending |  |
 | Appendix and acknowledgements are complete | pending |  |
@@ -67,3 +84,5 @@
 | nature-figure rules | final figures | pending | pending | planned | check core conclusion, panel hierarchy, export format |
 | nature-polishing rules | final manuscript sections | pending | pending | planned | check hedging, sentence clarity, overclaim risk |
 | nature-paper2ppt rules | defense or seminar PPTX | pending | pending | planned | check slide argument spine and selected evidence figures |
+| nature-data rules | final data availability record | pending | pending | planned | check dataset provenance, access restrictions, hashes, data dictionary |
+| codex-autoresearch / ARIS loop rules | experiment iteration log | pending | pending | planned | check resume state, verify gate, guard gate, and human decision |

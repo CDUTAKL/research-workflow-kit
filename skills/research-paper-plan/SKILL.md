@@ -15,19 +15,21 @@ Use this skill to turn an advisor-given title, research idea, codebase, experime
 - Do not invent completed experiments, citations, datasets, or metrics.
 - For graduation theses, include school-facing sections such as abstract, related work, method, experiment, conclusion, appendix, acknowledgments, and defense preparation when relevant.
 - When a title or topic is provided, run Topic Intake before normal paper planning.
+- For early-stage idea exploration, use `docs/thesis/idea-discovery.md` to record paper pools, idea matrices, novelty risks, and shortlists.
 
 ## Workflow
 
 Read `references/workflow.md` for the detailed planning checklist and output templates. Use `scripts/generate_topic_intake.py` when the user gives a title and wants the thesis console updated. Read `references/source-map.md` only when attribution, license provenance, or source inspiration matters.
 
 1. If a title/topic is provided, perform Topic Intake: decompose the title, identify research object/task, keywords, routes, risks, and advisor questions.
-2. Identify the paper type, audience, target venue/school format if known, and current materials.
-3. Extract the research problem, technical challenge, proposed method, available results, and expected contribution.
-4. Build a section-level outline where every section has a purpose and required evidence.
-5. Map each major claim to experiments, figures/tables, citations, and missing work.
-6. When required experiments need code architecture, data pipelines, training/evaluation entrypoints, or reproducibility planning, route that work to `$research-experiment-engineering`.
-7. Update or propose updates for `docs/thesis/topic-intake.md`, `thesis-brief.md`, `writing-outline.md`, `literature-matrix.md`, and `experiment-architecture.md`.
-8. Return a prioritized next-action list that separates advisor clarification, literature, experiment engineering, result analysis, figures, and writing.
+2. If the topic is still open, build an idea-discovery record: paper pool, idea matrix, novelty risk, feasibility, and shortlist.
+3. Identify the paper type, audience, target venue/school format if known, and current materials.
+4. Extract the research problem, technical challenge, proposed method, available results, and expected contribution.
+5. Build a section-level outline where every section has a purpose and required evidence.
+6. Map each major claim to experiments, figures/tables, citations, and missing work.
+7. When required experiments need code architecture, data pipelines, training/evaluation entrypoints, or reproducibility planning, route that work to `$research-experiment-engineering`.
+8. Update or propose updates for `docs/thesis/topic-intake.md`, `idea-discovery.md`, `thesis-brief.md`, `writing-outline.md`, `literature-matrix.md`, and `experiment-architecture.md`.
+9. Return a prioritized next-action list that separates advisor clarification, literature, experiment engineering, result analysis, figures, and writing.
 
 ## Output Contract
 
@@ -38,6 +40,7 @@ Always include:
 - research task
 - keywords and synonyms
 - possible technical routes
+- idea-discovery paper pool or shortlist when topic exploration is requested
 - preliminary innovation candidates
 - paper question tree
 - literature search directions

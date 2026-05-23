@@ -35,6 +35,7 @@ output/
 experiments/checkpoints/
 checkpoints/
 artifacts/
+external-skill-candidates/
 *.pth
 *.pt
 *.ckpt
@@ -48,4 +49,3 @@ doc_outputs/
 tmp/
 temp/
 *.tmp
-

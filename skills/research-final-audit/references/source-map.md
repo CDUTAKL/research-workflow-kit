@@ -20,6 +20,12 @@ This skill is a lightweight Codex-native synthesis for final paper and thesis ch
   - MIT licensed. Used as inspiration for final prose-polish audit and overclaim checks.
 - `external-skill-candidates/nature-skills/skills/nature-paper2ppt`
   - MIT licensed. Used as inspiration for paper-to-PPT evidence routing and Chinese academic presentation QA.
+- `external-skill-candidates/nature-skills/skills/nature-data`
+  - MIT licensed. Used as inspiration for data availability statements, access restrictions, data dictionaries, and provenance checks.
+- `external-skill-candidates/codex-autoresearch`
+  - MIT licensed. Used as inspiration for iteration logs, state snapshots, and verify/guard audit records.
+- `external-skill-candidates/PaperOrchestra`
+  - MIT licensed. Used as inspiration for research-material aggregation and paper-quality handoff checks.
 
 ## Local Tooling to Prefer
 
@@ -27,6 +33,7 @@ This skill is a lightweight Codex-native synthesis for final paper and thesis ch
 - Documents plugin for DOCX inspection and editing when applicable.
 - Presentations plugin for defense PPT/PPTX work.
 - Scite, Zotero, Semantic Scholar, and web search for citation verification.
+- `$research-data-availability`, `$research-autoresearch-loop`, and `$research-code-quality` for the new local audit gates.
 
 ## Excluded or Reference-Only Sources
 

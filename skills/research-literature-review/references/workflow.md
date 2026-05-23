@@ -207,6 +207,41 @@ Tool responsibilities remain:
 - Scite: supports/contrasts/mentions checks for concrete claims.
 - DOI/publisher/arXiv: final metadata verification.
 
+## Section-Level Citation Matching
+
+Use `docs/thesis/section-citation-map.md` when the user wants papers matched to each thesis chapter, section, paragraph, or claim unit.
+
+Default sequence:
+
+```text
+thesis section or outline
+-> SEC-* section records
+-> SEG-* citation-worthy segments
+-> Semantic Scholar candidate search
+-> metadata verification
+-> Zotero queue
+-> Scite or source-grounded reader check
+-> cite / do_not_cite_yet decision
+```
+
+Required fields:
+
+| Field | Purpose |
+|---|---|
+| `Section ID` | stable `SEC-*` ID for chapter or subsection |
+| `Segment ID` | stable `SEG-*` ID for claim-bearing text |
+| `Candidate Reference` | paper title, DOI, arXiv, or S2 ID |
+| `Support Grade` | strong, partial, background, limiting, contradictory, or metadata_only |
+| `Source Status` | candidate, metadata_verified, in_zotero, or claim_support_checked |
+| `Scite / Reader Status` | not_checked, supports_claim, mentions_only, needs_direct_reading, or source-map block |
+| `Export Format` | bibtex, ris, enw, or zotero-rdf |
+
+Run the audit script when a section is ready for writing:
+
+```bash
+python scripts/audit_section_citations.py --warn-only
+```
+
 ## Tool Responsibility Table
 
 | Tool | Best use | Not suitable for |

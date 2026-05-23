@@ -13,6 +13,9 @@
 | Notion | 1, 3, 4-6, 12 | task board, weekly plan, supervisor feedback, progress dashboard | `task-board-sync.md` | Does not replace `docs/thesis/` evidence files |
 | GitHub | 4-6, 12 | code versioning, issue/PR review, branch/commit traceability | `git-version-log.md` | Formal experiments should record branch/commit |
 | Superpowers | 5, 6 | planning, TDD, systematic debugging, verification, code review | linked tasks in `task-board-sync.md` or `git-version-log.md` | Engineering method layer, not evidence source |
+| `$research-code-quality` | 4-6 | code skeleton, config-driven entrypoints, experiment contract, smoke config, remote 4060 templates | `experiment-architecture.md`, `experiment-runbook.md`, `experiment-integrity-checklist.md` | Run before expensive GPU work |
+| `$research-autoresearch-loop` | 5-8 | human-supervised experiment iteration, resume state, verify/guard gates | `autoresearch-loop.md`, `autoresearch-results.tsv`, `autoresearch-state.json` | Not unattended autonomous research |
+| `$research-data-availability` | 7-8, 11-12 | dataset provenance, access status, claim-to-data traceability | `data-availability.md`, `final-audit.md` | Required before final submission/defense materials |
 | `local_mac` | 1-10 | research console, literature/writing/remote-run control, CPU-only smoke tests | `experiment-runbook.md`, `reproducibility-checklist.md` | Do not assume local GPU |
 | `remote_desktop_4060` | 5-8 | primary CUDA/GPU experiment target | `experiment-runbook.md`, `reproducibility-checklist.md`, `experiment-registry.md` | Use for training, evaluation, tuning, and reproducibility artifacts |
 | `cloud_autodl` | 6-8 optional | stronger fallback GPU target | `experiment-runbook.md`, `reproducibility-checklist.md` | Use only when desktop 4060 is unavailable or insufficient |
@@ -28,23 +31,24 @@
 | Network architecture renderer | 9 | structure-spec to SVG/PDF/PNG/PPTX-target model diagrams | `network-architecture-figures.md`, `figure-plan.md` | Use for CNN/ResNet/U-Net/Transformer/attention diagrams |
 | nature-polishing source | 10, 12 | final academic prose polish, hedging and overclaim checks | `writing-outline.md`, `final-audit.md` | Use after evidence and citations are stable |
 | nature-paper2ppt source | 12 | paper/thesis-to-Chinese-PPT structure, figure selection, speaker-note logic | `defense-prep.md` | Use through Presentations and final audit |
+| External skill candidates | 1-12 | source-map references for controlled local adaptations | `external-skill-sources.md` | Do not install full external packs by default |
 
 ## Stage Integration
 
 | Stage | Main Skills | Tool Layer |
 |---|---|---|
-| 1. Paper planning | `$research-paper-plan` | Notion for task board |
-| 2. Literature discovery and review | `$semanticscholar-skill`, `$research-literature-review`, Zotero, Scite | Spreadsheets for reviewable matrix exports |
+| 1. Paper planning | `$research-paper-plan` | Notion for task board; `idea-discovery.md` for paper pool, idea matrix, novelty risk |
+| 2. Literature discovery and review | `$semanticscholar-skill`, `$research-literature-review`, Zotero, Scite | Spreadsheets for reviewable matrix exports; `section-citation-map.md` for section-level citation matching |
 | 3. Experiment question definition | `$research-paper-plan`, `$research-experiment-engineering` | Notion for task planning |
-| 4. Experiment architecture planning | `$research-experiment-engineering` | GitHub issues/branches when useful |
-| 5. Research code implementation | Codex coding, Superpowers | Mac research console, GitHub commits and code review; heavy tests can run on `remote_desktop_4060` |
-| 6. Experiment run and monitoring | `$research-experiment-engineering` | GitHub commit trace, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback, macOS Terminal / VS Code SSH / `ssh` / `scp` / `rsync`, Notion progress |
-| 7. Experiment recording and result scan | `$jupyter-notebook`, `$research-results-analysis` | Spreadsheets for result tables |
-| 8. Results analysis and claim mapping | `$research-results-analysis` | Scite for citation support, Spreadsheets for claim tables |
+| 4. Experiment architecture planning | `$research-experiment-engineering`, `$research-code-quality` | GitHub issues/branches when useful; contract checks before implementation |
+| 5. Research code implementation | Codex coding, Superpowers, `$research-code-quality` | Mac research console, GitHub commits and code review; heavy tests can run on `remote_desktop_4060` |
+| 6. Experiment run and monitoring | `$research-experiment-engineering`, `$research-autoresearch-loop` | GitHub commit trace, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback, macOS Terminal / VS Code SSH / `ssh` / `scp` / `rsync`, Notion progress |
+| 7. Experiment recording and result scan | `$jupyter-notebook`, `$research-results-analysis`, `$research-autoresearch-loop` | Spreadsheets for result tables; update data availability and autoresearch logs |
+| 8. Results analysis and claim mapping | `$research-results-analysis`, `$research-data-availability` | Scite for citation support, Spreadsheets for claim tables, section citation coverage |
 | 9. Figure and table planning | `$research-paper-figures`, Image Gen visual reference, nature-figure source, Figma/BioRender/PPTX/SVG/TikZ/Python formal redraw | Image Gen for attractive reference; Spreadsheets for table exports; Figma/BioRender/PPTX for model diagram redraw/refinement; Presentations for PPTX refinement |
-| 10. Paper writing | `$research-paper-writing`, nature-polishing source, Documents | Zotero for citations |
-| 11. Laptop DOCX / optional Word / optional LaTeX / PDF production | Documents, LaTeX doctor before LaTeX compile, PDF | Move final production to laptop; Zotero/BibTeX; Pages or Microsoft Word optional for local review |
-| 12. Laptop final audit and defense preparation | `$research-final-audit`, Presentations, nature-paper2ppt source | Move final finishing to laptop; Notion tasks, Figma/BioRender optional, Canva optional only if available |
+| 10. Paper writing | `$research-paper-writing`, nature-polishing source, Documents | Zotero for citations; check `section-citation-map.md` before polishing |
+| 11. Laptop DOCX / optional Word / optional LaTeX / PDF production | Documents, `$research-data-availability`, LaTeX doctor before LaTeX compile, PDF | Move final production to laptop; Zotero/BibTeX; Pages or Microsoft Word optional for local review |
+| 12. Laptop final audit and defense preparation | `$research-final-audit`, `$research-data-availability`, Presentations, nature-paper2ppt source | Move final finishing to laptop; Notion tasks, Figma/BioRender optional, Canva optional only if available |
 
 ## Non-Replacement Rules
 

@@ -3,7 +3,7 @@
 ## Update Rules
 
 - Use this file to prepare the defense narrative, slides, evidence backups, and likely Q&A.
-- Every slide claim must trace to `claim-evidence-map.md`, `figure-plan.md`, or `final-audit.md`.
+- Every slide claim must trace to `claim-evidence-map.md`, `figure-plan.md`, `section-citation-map.md`, or `final-audit.md`.
 - Use Presentations for PPTX creation/editing. Use nature-paper2ppt-derived structure when converting a paper or thesis chapter into a Chinese academic deck. Use Figma or BioRender for visual refinement when useful. Canva is optional only when available.
 - Final stage 11-12 production is intended to happen on the user's laptop; keep slide/evidence versions traceable back to the Mac `docs/thesis/` console.
 
@@ -37,7 +37,7 @@ Use this when building a PPTX from the thesis, a paper draft, or a source paper.
 | Background | why the problem matters | `thesis-brief.md`, literature | context figure optional | medium | planned |
 | Gap / bottleneck | what is unresolved | `literature-matrix.md` | comparison table/diagram optional | medium | planned |
 | Method / workflow | what was built or tested | `experiment-architecture.md` | method diagram | high | planned |
-| Key evidence | what supports main claim | `claim-evidence-map.md`, `figure-plan.md` | selected result figures only | high | planned |
+| Key evidence | what supports main claim | `claim-evidence-map.md`, `figure-plan.md`, `section-citation-map.md` | selected result figures only | high | planned |
 | Validation / robustness | why the result is credible | registry, reproducibility checklist | ablation/error/robustness visual | high | planned |
 | Limitations | where the claim stops | `final-audit.md` | optional limitation table | high | planned |
 | Summary / Q&A | take-home message and backup evidence | final audit, claim map | optional synthesis figure | medium | planned |
@@ -54,6 +54,7 @@ Use this when building a PPTX from the thesis, a paper draft, or a source paper.
 
 - Use Presentations for creating, editing, rendering, and verifying `.pptx`.
 - Use nature-paper2ppt-derived rules to choose a small number of evidence-bearing figures instead of copying every figure.
+- Choose slide citations from `section-citation-map.md` and important evidence figures from `figure-plan.md`; do not add uncited slide claims.
 - Use Figma or BioRender when a slide needs visual refinement beyond PPTX layout.
 - Use Canva only when it is available and a polished visual design or poster-style asset is needed.
 - Do not create slide claims that are stronger than the audited thesis claims.

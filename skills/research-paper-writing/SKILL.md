@@ -15,6 +15,7 @@ Use this skill to produce clear, evidence-backed academic prose. It supports Chi
 - Keep contribution, method, and result claims distinct.
 - Preserve the user's meaning when rewriting, but strengthen logic, flow, and academic tone.
 - Mark missing citations or evidence explicitly.
+- Before final polish, check section citation coverage and data-backed claim traceability when thesis console files exist.
 
 ## Workflow
 
@@ -24,8 +25,9 @@ Read `references/workflow.md` for section templates, paragraph patterns, Nature-
 2. Determine the section's job in the paper.
 3. Draft or rewrite with a clear claim-evidence structure.
 4. Check each paragraph for topic sentence, evidence, transition, and overclaiming.
-5. For final polish, apply section-aware academic style checks: paper type, section job, reader question, tense, hedging, sentence length, citation integrity, and overclaim risk.
-6. Return text plus unresolved evidence/citation gaps.
+5. For citation-heavy sections, consult `section-citation-map.md`; for data-backed claims, consult `data-availability.md`.
+6. For final polish, apply section-aware academic style checks: paper type, section job, reader question, tense, hedging, sentence length, citation integrity, and overclaim risk.
+7. Return text plus unresolved evidence/citation gaps.
 
 ## Output Contract
 

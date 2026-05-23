@@ -5,7 +5,7 @@ description: Use when building a literature review, related work section, citati
 
 # Research Literature Review
 
-Use this skill to find, organize, and synthesize literature into a defensible related-work structure. The goal is not a pile of paper summaries; the goal is a citation-backed map of what is known, what is missing, and how the user's work fits.
+Use this skill to find, organize, and synthesize literature into a defensible related-work structure. The goal is not a pile of paper summaries; the goal is a citation-backed map of what is known, what is missing, how the user's work fits, and which citations support each thesis section.
 
 ## Core Rules
 
@@ -13,6 +13,7 @@ Use this skill to find, organize, and synthesize literature into a defensible re
 - Separate classic/foundational work, recent work, method competitors, datasets/benchmarks, and surveys.
 - Track what each paper supports in the user's manuscript.
 - For full-paper reading tasks, preserve source-grounded evidence with page/block anchors before using the paper for important claims.
+- For citation-heavy thesis text, map sections and segments in `docs/thesis/section-citation-map.md`.
 - Never fabricate references, DOI values, author lists, venues, or BibTeX entries.
 - Use web search, Scite, Zotero, Semantic Scholar, arXiv, or publisher pages when current or precise source metadata matters.
 
@@ -25,7 +26,7 @@ Read `references/workflow.md` for the literature matrix and related-work templat
 3. Collect candidate papers and classify them by role.
 4. Build a literature matrix with relationship-to-paper and citation-use columns.
 5. For papers requiring direct reading, create or request a source-grounded reader artifact under `docs/thesis/paper-readings/<paper-slug>/`.
-6. For long citation-seeking text, split into claim/segment batches before searching.
+6. For long citation-seeking text, split into `SEC-*` sections and `SEG-*` claim/segment batches before searching.
 7. Propose a related-work outline that groups literature by concept, not chronologically.
 8. Flag missing citations and unverifiable claims.
 
@@ -44,6 +45,7 @@ Always include:
 - Zotero status and Scite/support status for important citation candidates
 - reading status, reader path, source-map path, and key source blocks when a paper has been directly read
 - citation batch strategy when the input contains many citation-worthy claims
+- section citation map updates when matching papers to thesis chapters, sections, or paragraphs
 - missing literature
 - BibTeX/Zotero follow-up actions
 

@@ -7,6 +7,8 @@
 - Use this file as the bridge between experiment results, literature review, figures, and writing.
 - Use `CLM-*` for thesis claims and `EXP-*` / `EXP-AUTO-*` for experiment evidence references.
 - Claim audits read `Experiment Evidence` from this file and check it against `experiment-registry.md`.
+- Literature-backed claims should connect to `section-citation-map.md`.
+- Data-backed claims should connect to `data-availability.md`.
 
 ## Claim Status Legend
 
@@ -34,3 +36,15 @@
 | Claim ID | Citation | What The Citation Must Support | Scite / Direct Reading Status | Decision |
 |---|---|---|---|---|
 | CLM-001 | TBD | TBD | pending | do_not_cite_yet |
+
+## Data Support Checks
+
+| Claim ID | Dataset / Artifact | Data Availability Status | Trace Decision |
+|---|---|---|---|
+| CLM-001 | DATA-001/TBD | pending | do_not_use_yet |
+
+## Section Citation Links
+
+| Claim ID | Section ID | Segment IDs | Citation Coverage | Next Action |
+|---|---|---|---|---|
+| CLM-001 | SEC-001/TBD | SEG-001/TBD | missing | update `section-citation-map.md` |

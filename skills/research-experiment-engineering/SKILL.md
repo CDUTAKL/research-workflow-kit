@@ -15,6 +15,8 @@ Use this skill before result analysis when a research project needs experiment c
 - Require machine-readable outputs for important runs: config, metrics, predictions when applicable, logs, and artifacts.
 - Map every important run to an experiment ID in `docs/thesis/experiment-registry.md`.
 - Use `local_mac` for orchestration and CPU-only smoke tests on this Mac; use `remote_desktop_4060` as the primary formal GPU experiment target; use `cloud_autodl` or another cloud target only as a fallback when the desktop 4060 is unavailable or insufficient.
+- Use `$research-code-quality` or `scripts/check_experiment_contract.py` before expensive remote GPU runs.
+- Use `$research-autoresearch-loop` when a run is part of iterative method improvement.
 - Never write SSH passwords, private-key contents, or long-lived credentials into project files.
 - Hand completed outputs to `$research-results-analysis`; do not make final paper claims inside this skill.
 
@@ -28,11 +30,13 @@ Read `references/workflow.md` for the six-stage engineering flow. Read `referenc
 4. Define the model or algorithm module contract.
 5. Define train, evaluate, and predict script interfaces.
 6. Define config, run naming, logging, metrics, checkpoints, predictions, and artifact outputs.
-7. Choose execution target: `local_mac` for smoke tests/debugging, `remote_desktop_4060` for primary formal GPU training/evaluation, `cloud_autodl` as fallback, or another cloud target when specified.
-8. Define reproducibility requirements and remote result recovery.
-9. Map runs to `docs/thesis` experiment IDs and runbook entries.
-10. Route code implementation, testing, and debugging through normal Codex coding workflows.
-11. Hand completed outputs to `$research-results-analysis`.
+7. Define the experiment contract: config, seed, split, metric, output path, registry row, and smoke config.
+8. Choose execution target: `local_mac` for smoke tests/debugging, `remote_desktop_4060` for primary formal GPU training/evaluation, `cloud_autodl` as fallback, or another cloud target when specified.
+9. Define reproducibility requirements and remote result recovery.
+10. Map runs to `docs/thesis` experiment IDs and runbook entries.
+11. Route code implementation, testing, and debugging through normal Codex coding workflows.
+12. For iterative runs, record verify/guard outcomes through `$research-autoresearch-loop`.
+13. Hand completed outputs to `$research-results-analysis`.
 
 ## Output Contract
 
@@ -45,8 +49,10 @@ Always include:
 - training/evaluation/prediction entrypoints
 - config and run naming convention
 - logging and output directory convention
+- experiment contract check command
 - execution target plan: `local_mac` smoke test, `remote_desktop_4060` formal training, `cloud_autodl` fallback, or a documented combination
 - reproducibility checklist
+- autoresearch verify/guard handoff when the run is part of iteration
 - result recovery and shutdown/release policy for remote or cloud runs
 - thesis console files to update
 - risks, blockers, and next implementation tasks

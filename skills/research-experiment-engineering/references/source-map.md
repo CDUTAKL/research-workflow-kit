@@ -22,11 +22,19 @@ This skill is a lightweight Codex-native synthesis for research experiment engin
 - DVC metrics/parameters/plots documentation
   - https://doc.dvc.org/start/data-pipelines/metrics-parameters-plots
   - Used for optional params, metrics, plots, and pipeline reproducibility concepts.
+- `external-skill-candidates/codex-autoresearch`
+  - MIT licensed. Used as inspiration for iteration logging, resumable state, and preflight discipline.
+- `external-skill-candidates/aris`
+  - MIT licensed. Used as inspiration for code review before GPU runs, experiment integrity checks, and remote monitoring.
+- `external-skill-candidates/AI-research-SKILLs`
+  - MIT licensed. Used as a technical reference for evaluation, fine-tuning, optimization, inference, and MLOps when needed.
 
 ## Local Adaptation Notes
 
 - No external repository source code is copied.
 - The default workflow is plain Python plus JSON/YAML files and stable output directories.
 - Hydra, MLflow, DVC, and W&B are optional tools, not dependencies.
-- Windows + Codex compatibility is the default assumption.
+- macOS Codex plus `remote_desktop_4060` is the default device workflow.
 - This skill plans experiment engineering and handoffs; final empirical claims belong to `$research-results-analysis`.
+- Code contract details live in `$research-code-quality`.
+- Iterative experiment logging lives in `$research-autoresearch-loop`.

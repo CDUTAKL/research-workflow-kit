@@ -8,6 +8,7 @@
 - For methods and experiments chapters, require architecture, runbook, and reproducibility evidence before writing strong claims.
 - When an advisor title is newly received, update `topic-intake.md` before finalizing the chapter outline.
 - Use Nature-derived polishing only after a section's claims, citations, and evidence are stable.
+- Before polishing a section, check `section-citation-map.md` for citation coverage and `data-availability.md` for data-backed claims.
 
 ## Recommended Drafting Order
 
@@ -32,6 +33,12 @@ Conclusion
 | Experiments | Describe data, protocol, baselines, metrics | experiment architecture, runbook, registry, reproducibility checklist | setup table | dataset/metric citations | planned |  |
 | Results Analysis | Interpret results conservatively | claim-evidence map, result tables | result figures/tables | comparison citations | planned |  |
 | Conclusion | State supported contributions and limits | final claim map | none | optional | planned |  |
+
+## Section Evidence Coverage
+
+| Section ID | Chapter / Section | Claim Coverage | Citation Coverage | Data Availability | Ready To Polish? | Notes |
+|---|---|---|---|---|---|---|
+| SEC-001 | TBD | missing | missing | pending | no | update claim, citation, and data records |
 
 ## Final Polish Tracker
 

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SSH_ALIAS="${SSH_ALIAS:-desktop-4060}"
+REMOTE_OUTPUT="${REMOTE_OUTPUT:-~/research-project/outputs/EXP-001/}"
+LOCAL_OUTPUT="${LOCAL_OUTPUT:-outputs/EXP-001/}"
+
+mkdir -p "${LOCAL_OUTPUT}"
+rsync -av "${SSH_ALIAS}:${REMOTE_OUTPUT}" "${LOCAL_OUTPUT}"
+

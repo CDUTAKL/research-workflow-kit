@@ -1,0 +1,5 @@
+interface:
+  display_name: "Research Code Quality"
+  short_description: "Validate experiment code contracts and skeletons"
+  default_prompt: "Use $research-code-quality to check my experiment code before GPU training."
+

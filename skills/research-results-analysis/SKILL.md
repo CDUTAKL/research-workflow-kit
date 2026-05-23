@@ -16,6 +16,8 @@ Use this skill to transform raw experiment artifacts into trustworthy summaries 
 - Audit experiment integrity before turning results into paper claims.
 - Convert results into conservative claims only when the evidence supports them.
 - Never average incompatible settings or compare runs with different data splits unless explicitly justified.
+- For iterative experiments, update or request `autoresearch-results.tsv` verify/guard records before promoting a result.
+- For data-backed claims, route dataset traceability gaps to `$research-data-availability`.
 
 ## Workflow
 
@@ -28,7 +30,7 @@ Read `references/workflow.md` for result tables, claim classification, and audit
 5. Normalize metric names, datasets/splits, seeds, baselines, and model variants.
 6. Choose the right statistical summary or test before using words such as significant, robust, or consistent.
 7. Audit ground-truth provenance, metric computation, result file existence, scope, and dead-code risks.
-8. Update `docs/thesis/experiment-registry.md` and `docs/thesis/claim-evidence-map.md` when a thesis console exists.
+8. Update `docs/thesis/experiment-registry.md`, `docs/thesis/claim-evidence-map.md`, `docs/thesis/autoresearch-results.tsv`, and `docs/thesis/data-availability.md` when a thesis console exists and the result is used as evidence.
 9. Build a claim table with supported, weak, unsupported, and missing-evidence claims.
 10. If code architecture, run commands, machine-readable metrics, or reproducibility records are missing, route fixes to `$research-experiment-engineering`.
 11. Hand off figure/table requirements to `$research-paper-figures` and propose follow-up experiments only when they unblock a paper claim.
@@ -52,5 +54,7 @@ Always include:
 - unsupported claims
 - missing experiments
 - experiment-engineering fixes when outputs are not traceable or reproducible
+- autoresearch verify/guard status when results are part of iterative improvement
+- data availability follow-ups for claim-supporting artifacts
 
 If the user supplies only prose without artifacts, state that the analysis is provisional and ask for result files or tables.

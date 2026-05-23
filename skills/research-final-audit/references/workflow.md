@@ -133,6 +133,10 @@ Use this when `docs/thesis/` contains tool integration records.
 | `spreadsheet-exports.md` | spreadsheets are reviewed and not stale against source files | manuscript table uses stale values | Spreadsheets or `$research-results-analysis` |
 | `defense-prep.md` | slide claims trace to audited claims and figures | defense overclaims or lacks backup evidence | Presentations or `$research-paper-figures` |
 | Nature-derived figure/polish/PPT records | high-standard figure, prose, or slide checks were applied only after evidence was stable | style hides unsupported science | `$research-paper-figures`, `$research-paper-writing`, Presentations |
+| `data-availability.md` | data-backed claims have dataset provenance, access status, hash/manifest, and data dictionary | final thesis cannot defend where data came from | `$research-data-availability` |
+| `section-citation-map.md` | citation-heavy sections have verified candidate citations and support grades | related work or background has weak/unsupported citations | `$research-literature-review`, `$semanticscholar-skill`, Zotero, Scite |
+| `autoresearch-results.tsv` / `autoresearch-state.json` | iterative experiments have verify/guard decisions and resumable state | method iteration cannot be audited | `$research-autoresearch-loop` |
+| experiment contract records | cited runs have config, smoke config, registry row, and output manifest | result cannot be reproduced or tied to code | `$research-code-quality`, `$research-experiment-engineering` |
 
 Tool-layer rules:
 
@@ -153,6 +157,9 @@ Use these checks when a paper, thesis section, figure package, or PPT deck has b
 | Network architecture diagram | `.network.json` spec, layout/connections/panels/audit fields, renderer preset, SVG/PDF/PNG outputs, PPTX mode, QA report, topology-only caption | `$research-paper-figures` |
 | Source-grounded paper reader | `paper.md`, `source_map.json`, key blocks, figure/table notes, and direct-reading evidence for important claims | `$research-literature-review` and `$pdf` |
 | Citation batch | segment IDs, candidate references, support grades, dedupe keys, Zotero/Scite/metadata status | `$research-literature-review`, `$semanticscholar-skill`, Zotero, Scite |
+| Data availability | dataset IDs, source/processed data, access restrictions, hashes, data dictionary, and final statement | `$research-data-availability` |
+| Autoresearch loop | iteration TSV, state JSON, verify gate, guard gate, and human decision | `$research-autoresearch-loop` |
+| Code contract | config, smoke config, registry row, output manifest, metrics, logs, remote 4060 handoff | `$research-code-quality` |
 | Manuscript prose | section job, hourglass flow, hedging, sentence clarity, citation placement, overclaim risk | `$research-paper-writing` |
 | PPTX deck | one argument spine, selected figures as evidence, Chinese slide titles as claims, speaker notes, backup evidence paths | Presentations and `$research-final-audit` |
 
@@ -188,6 +195,10 @@ Audit output must route each issue to the next corrective skill.
 | unsupported or exaggerated claim | `$research-paper-writing` and `$research-results-analysis` |
 | unclear or misleading figure | `$research-paper-figures` |
 | citation missing or unsupported | `$research-literature-review`, `$semanticscholar-skill`, Scite, or Zotero |
+| section citation coverage gap | `$research-literature-review` |
+| missing data availability | `$research-data-availability` |
+| missing code contract | `$research-code-quality` |
+| missing autoresearch verify/guard decision | `$research-autoresearch-loop` |
 | missing task/progress sync | Notion or `$research-workflow-orchestrator` |
 | missing code version trace | GitHub or `$research-experiment-engineering` |
 | stale spreadsheet export | Spreadsheets or `$research-results-analysis` |

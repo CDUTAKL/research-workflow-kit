@@ -37,6 +37,8 @@
 - Keep rejected candidates visible as `invalid` or document why they were not used.
 - Add promoted claims to `claim-evidence-map.md`; do not cite raw scan rows directly in the thesis.
 - For code-backed experiments, update `experiment-architecture.md`, `experiment-runbook.md`, and `reproducibility-checklist.md` before marking the experiment as `done`.
+- For iterative method changes, record verify/guard outcomes in `autoresearch-results.tsv` before promoting the result to a thesis claim.
+- For data-backed claims, ensure `data-availability.md` maps the output artifact to source data.
 
 ## Engineering Links
 
@@ -45,6 +47,9 @@
 | `experiment-architecture.md` | code architecture, data/model/train/evaluate boundaries |
 | `experiment-runbook.md` | exact run commands, expected outputs, monitoring, failure handling |
 | `reproducibility-checklist.md` | environment, seed, config, artifacts, rerun command, claim mapping |
+| `experiment-integrity-checklist.md` | leakage, fake ground truth, metric, config, artifact, and scope checks |
+| `autoresearch-results.tsv` | human-supervised iteration record and verify/guard decisions |
+| `data-availability.md` | dataset provenance and claim-to-data traceability |
 
 ## Result Scan Imports
 

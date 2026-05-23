@@ -7,7 +7,7 @@
 - Do not cite papers marked `do_not_cite_yet` in the manuscript.
 - When a new advisor topic is received, start from `topic-intake.md` search directions before broadening the literature search.
 - For full-paper reading, store source-grounded artifacts under `docs/thesis/paper-readings/<paper-slug>/` and record reader/source-map paths here.
-- For long citation-seeking text, use batch rows so candidate references remain traceable to claim segments.
+- For long citation-seeking text, use `section-citation-map.md` plus batch rows so candidate references remain traceable to claim segments.
 
 ## Search Scope
 
@@ -90,6 +90,12 @@ Use this queue when a thesis section or manuscript paragraph contains many citat
 | Citation Batch | Segment ID | Claim / Segment | Candidate Reference | Support Grade | Dedupe Key | Export Format | Verification Status | Next Action |
 |---|---|---|---|---|---|---|---|---|
 | BATCH-001 | SEG-001 | TBD | TBD | strong/partial/background/limiting/contradictory/metadata_only | DOI/arXiv/title/TBD | bibtex/ris/zotero-rdf/enw | candidate | verify_metadata/add_to_zotero/check_with_scite |
+
+## Section Citation Map Handoff
+
+| Section ID | Segment Range | Citation Coverage | Reader Evidence Needed | Export Target | Next Action |
+|---|---|---|---|---|---|
+| SEC-001 | SEG-001/TBD | missing | TBD | BibTeX/RIS/ENW/Zotero RDF | update `section-citation-map.md` |
 
 ## Literature Workflow Log
 

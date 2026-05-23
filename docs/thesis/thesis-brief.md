@@ -56,9 +56,14 @@
 | File | Purpose |
 |---|---|
 | `topic-intake.md` | Advisor title decomposition and first research blueprint |
+| `idea-discovery.md` | Paper pool, idea matrix, novelty risk, shortlist |
 | `literature-matrix.md` | Literature search, grouping, citation status |
+| `section-citation-map.md` | Section-level citation candidates and support checks |
 | `experiment-architecture.md` | Topic-derived experiment engineering blueprint |
 | `experiment-registry.md` | Experiment IDs, configs, outputs, metrics |
+| `autoresearch-loop.md` | Human-supervised experiment iteration plan |
+| `data-availability.md` | Dataset provenance, access status, and claim-to-data traceability |
+| `research-materials-index.md` | Handoff index connecting materials to claims, sections, and figures |
 | `claim-evidence-map.md` | Claims mapped to results, figures, and citations |
 | `figure-plan.md` | Figure/table plan and caption drafts |
 | `writing-outline.md` | Chapter plan and writing status |

@@ -8,16 +8,16 @@ Prefer adapting the existing repository. When creating or reorganizing experimen
 src/
   data/ or dataset.py
   models/ or model.py
-  train.py
-  evaluate.py
-  predict.py
-  metrics.py
-  utils.py
+  training/ or train.py
+  evaluation/ or evaluate.py
+  metrics/ or metrics.py
+  utils/ or utils.py
 
 configs/
   data/
   model/
   experiment/
+  smoke/
 
 outputs/
   <experiment_id>/
@@ -27,12 +27,15 @@ outputs/
     checkpoints/
     figures/
     logs/
+    manifest.json
 
 docs/thesis/
   experiment-architecture.md
   experiment-runbook.md
   experiment-registry.md
   claim-evidence-map.md
+  data-availability.md
+  autoresearch-results.tsv
 ```
 
 ## Boundary Rules
@@ -79,6 +82,22 @@ python src/evaluate.py --config configs/experiment/EXP-001.yaml --checkpoint out
 ```
 
 Adapt command names to the repo. Do not invent files when reviewing an existing project; propose the nearest local equivalent.
+
+## Contract And Skeleton Helpers
+
+For new or under-structured projects:
+
+```bash
+python scripts/render_project_skeleton.py --project .
+```
+
+Before remote GPU training:
+
+```bash
+python scripts/check_experiment_contract.py --experiment-id EXP-001 --warn-only
+```
+
+After a run, add `--require-outputs` to check `manifest.json`, `config_resolved.json`, `metrics.json`, and `logs/`.
 
 ## Optional Tooling
 

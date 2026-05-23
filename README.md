@@ -32,9 +32,12 @@ research-paper-plan
 research-literature-review
 semanticscholar-skill
 research-experiment-engineering
+research-code-quality
+research-autoresearch-loop
 research-results-analysis
 research-paper-figures
 research-paper-writing
+research-data-availability
 research-final-audit
 ```
 
@@ -123,6 +126,13 @@ The workflow has 12 stages:
 
 `docs/thesis/` is the project evidence source of truth. Notion or other task tools should be used for progress tracking only, not as the primary evidence archive.
 
+The workflow includes optional enhancement layers:
+
+- `research-code-quality` checks config-driven code, experiment contracts, smoke configs, output manifests, and 4060 handoff templates before expensive runs.
+- `research-autoresearch-loop` records human-supervised experiment iterations in `autoresearch-results.tsv` and `autoresearch-state.json` with verify/guard gates.
+- `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
+- `$research-literature-review` supports section-level citation matching through `section-citation-map.md` and source-grounded readers.
+
 ## macOS Toolchain Notes
 
 - `local_mac` is the research console and orchestration machine for stages 1-10: planning, literature, code editing, remote run control, result analysis, figure planning, and writing drafts. It may run CPU-only smoke tests, but GPU work is not assumed.
@@ -137,6 +147,10 @@ The workflow has 12 stages:
 ## Script Locations
 
 - Project bootstrap scripts live in root `scripts/`.
+- Experiment contract checks live in `scripts/check_experiment_contract.py`.
+- Autoresearch iteration logging lives in `scripts/new_autoresearch_iteration.py`.
+- Citation and data audits live in `scripts/audit_section_citations.py` and `scripts/audit_data_availability.py`.
+- 4060 remote handoff templates live in `scripts/remote_*_4060.sh.template`.
 - Result scanning lives in `skills/research-results-analysis/scripts/scan_results.py` and `skills/research-results-analysis/scripts/result_scan_to_registry.py`.
 - Figure rendering lives in `skills/research-paper-figures/scripts/nature_plot_templates.py` and `skills/research-paper-figures/scripts/render_network_architecture.py`.
 - Root `scripts/render_network_architecture.py` is a legacy placeholder; use the skill-local renderer for formal architecture figures.

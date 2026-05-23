@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SSH_ALIAS="${SSH_ALIAS:-desktop-4060}"
+REMOTE_PROJECT="${REMOTE_PROJECT:-~/research-project}"
+LOCAL_PROJECT="${LOCAL_PROJECT:-.}"
+
+rsync -av --delete \
+  --exclude ".git/" \
+  --exclude ".venv/" \
+  --exclude "outputs/" \
+  --exclude "data/" \
+  "${LOCAL_PROJECT}/" "${SSH_ALIAS}:${REMOTE_PROJECT}/"
+

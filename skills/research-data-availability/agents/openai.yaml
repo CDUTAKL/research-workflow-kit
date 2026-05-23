@@ -1,0 +1,5 @@
+interface:
+  display_name: "Research Data Availability"
+  short_description: "Audit thesis data provenance and availability"
+  default_prompt: "Use $research-data-availability to check whether my thesis data is traceable."
+

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Research Autoresearch Loop"
+  short_description: "Run human-supervised experiment iteration"
+  default_prompt: "Use $research-autoresearch-loop to plan my next experiment iteration."
+

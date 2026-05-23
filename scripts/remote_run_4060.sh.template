@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SSH_ALIAS="${SSH_ALIAS:-desktop-4060}"
+REMOTE_PROJECT="${REMOTE_PROJECT:-~/research-project}"
+ENV_ACTIVATE="${ENV_ACTIVATE:-source .venv/bin/activate}"
+RUN_COMMAND="${RUN_COMMAND:-python src/train.py --config configs/experiment/EXP-001.yaml --out outputs/EXP-001}"
+
+ssh "${SSH_ALIAS}" "cd '${REMOTE_PROJECT}' && ${ENV_ACTIVATE} && ${RUN_COMMAND}"
+

@@ -101,6 +101,15 @@ Run naming rules:
 - Record seed, split, config, and output path in `experiment-registry.md`.
 - Keep comparable runs under consistent config and output conventions.
 
+Before a formal run, check the experiment contract:
+
+```bash
+python scripts/check_experiment_contract.py \
+  --experiment-id EXP-001 \
+  --config configs/experiment/EXP-001.yaml \
+  --smoke-config configs/smoke/EXP-001-smoke.yaml
+```
+
 ## 4F. Local Smoke Test And Remote GPU Formal Training
 
 Use a three-device execution strategy when this Mac is the research console, the user's desktop has an RTX 4060, and AutoDL is only a stronger fallback.
@@ -119,6 +128,16 @@ Local smoke test must verify:
 - loss and metrics are finite.
 - output directory, log, and metrics files are created.
 - the command is ready to move to `remote_desktop_4060`.
+
+Remote handoff templates:
+
+```text
+scripts/remote_sync_to_4060.sh.template
+scripts/remote_run_4060.sh.template
+scripts/remote_fetch_results.sh.template
+```
+
+Fill only SSH aliases, paths, and commands. Do not store passwords or token values.
 
 Remote GPU formal training must record:
 
@@ -154,11 +173,13 @@ Handoff sequence:
 ```text
 $research-experiment-engineering
   -> code implementation/debugging with Codex
+  -> research-code-quality contract check
   -> local_mac smoke test
   -> remote_desktop_4060 formal GPU training when needed
   -> cloud_autodl fallback only when the desktop 4060 is unavailable or insufficient
   -> result download/recovery
   -> run outputs and registry updates
+  -> research-autoresearch-loop verify/guard record when iterative
   -> $research-results-analysis
   -> $research-paper-figures
   -> $research-paper-writing
@@ -172,7 +193,9 @@ $research-experiment-engineering
 - Config and seed are recorded.
 - Data split and metric definitions are visible.
 - Local CPU-only smoke test passes before remote GPU training.
+- Experiment contract check passes or has explicit documented warnings.
 - Remote desktop 4060 runs have remote paths, result recovery, and GPU environment recorded.
+- Iterative improvements have verify/guard status in `autoresearch-results.tsv`.
 - AutoDL fallback runs have remote paths, result recovery, and shutdown policy recorded.
 - Reproducibility risks are explicit.
 - Completed outputs are ready for `$research-results-analysis`.

@@ -11,6 +11,9 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 | Notion | task boards, weekly planning, supervisor feedback, progress dashboards | `docs/thesis/task-board-sync.md` |
 | GitHub | repository state, issues, PRs, CI, code review, version traceability | `docs/thesis/git-version-log.md` |
 | Superpowers | TDD, systematic debugging, verification, code review, implementation discipline | linked task or git log |
+| `$research-code-quality` | experiment contract, skeleton, smoke config, remote 4060 templates | `docs/thesis/experiment-integrity-checklist.md` |
+| `$research-autoresearch-loop` | human-supervised experiment iteration, state, verify/guard gates | `docs/thesis/autoresearch-loop.md` |
+| `$research-data-availability` | dataset provenance, access restrictions, claim-to-data traceability | `docs/thesis/data-availability.md` |
 | `local_mac` | stages 1-10 research console, literature/writing/remote-run control, CPU-only smoke tests | `docs/thesis/experiment-runbook.md`, `docs/thesis/reproducibility-checklist.md` |
 | `remote_desktop_4060` | primary RTX 4060 GPU target for training, evaluation, tuning, and reproducibility artifacts | `docs/thesis/experiment-runbook.md`, `docs/thesis/experiment-registry.md` |
 | `cloud_autodl` | fallback GPU target when the desktop 4060 is unavailable or insufficient | `docs/thesis/reproducibility-checklist.md` |
@@ -25,11 +28,16 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 | Network architecture renderer | CNN/ResNet/U-Net/Transformer/attention structure diagrams from `.network.json` specs | `docs/thesis/network-architecture-figures.md` |
 | `nature-polishing` source | high-standard academic prose polish, section logic, hedging, overclaim checks | `docs/thesis/writing-outline.md`, `docs/thesis/final-audit.md` |
 | `nature-paper2ppt` source | paper/thesis-to-PPT story spine, figure selection, Chinese slide logic, PPT QA | `docs/thesis/defense-prep.md` |
+| external skill source registry | source commit/license/adaptation record for reference-only external projects | `docs/thesis/external-skill-sources.md` |
 
 ## Stage Rules
 
-- Stage 1 planning: Notion can mirror tasks, but `thesis-brief.md` remains the local source of evidence.
+- Stage 1 planning: Notion can mirror tasks, but `thesis-brief.md` remains the local source of evidence; use `idea-discovery.md` for early paper-pool and idea-matrix work.
+- Stage 2 literature: use `section-citation-map.md` when matching papers to thesis chapters or paragraphs.
 - Stages 4-6 engineering: GitHub and Superpowers should be considered for major code changes, debugging, and formal experiment traceability. Use `local_mac` for CPU-only smoke tests, `remote_desktop_4060` for primary GPU runs, and `cloud_autodl` only as fallback.
+- Stages 4-6 code quality: use `$research-code-quality` before remote GPU runs.
+- Stages 5-8 iteration: use `$research-autoresearch-loop` for iteration logging and verify/guard decisions.
+- Stages 7-12 data availability: use `$research-data-availability` before finalizing data-backed claims.
 - Stages 7-9 tables: Spreadsheets can export review-friendly tables from Markdown/CSV/notebook outputs.
 - Stage 9 figures: `nature-figure` rules can be used when a visual needs publication-grade panel logic, editable vector export, and source-data traceability.
 - Stage 9 visual reference: use Image Gen Skill first for model architecture, method overview, workflow, and schematic figures when visual quality matters; store reference assets under `figures/references/`.

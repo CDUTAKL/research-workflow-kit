@@ -11,6 +11,7 @@ Use this skill to plan and produce figures and tables that support paper claims.
 
 - Every figure/table must support a specific claim or clarify a necessary method detail.
 - Prefer reproducible plots from data over screenshots.
+- For data-backed figures, confirm source data or data-availability status when `docs/thesis/data-availability.md` exists.
 - For model architecture, method pipeline, workflow, and other schematic figures, first create or select a strong visual reference. Image Gen Skill is the preferred fast reference generator when the user wants an attractive layout, palette, or composition.
 - Treat Image Gen outputs as visual references only. Check their content accuracy, then redraw the formal figure from source-of-truth records using `research-paper-figures`, Figma, PPTX, SVG, TikZ, or Python.
 - Do not insert Image Gen outputs directly into a thesis or manuscript as final figures unless the user explicitly accepts AI-generated bitmap provenance. Formal figures should be redrawn, source-traceable, and free of generated-image metadata when possible.
@@ -23,7 +24,7 @@ Use this skill to plan and produce figures and tables that support paper claims.
 Read `references/workflow.md` for figure planning, plotting conventions, Nature-derived figure-readiness rules, and caption templates. Read `references/nature-figure-controlled-port.md` when generating Nature-style bar, line, heatmap, scatter, radar, distribution, forest, log-scale, ablation, threshold, confusion-matrix, image-plate, or multi-panel figures. Read `references/nature-figure-template-roadmap.md` when extending the local template library. Read `references/figure-audit-standard.md` when reviewing publication-ready, thesis-ready, Nature-style, or final submission figures. Read `references/network-architecture-figure.md` when drawing CNN, ResNet, U-Net, Transformer, attention, feature-fusion, or other neural-network architecture figures. Read `references/source-map.md` for source provenance.
 
 1. Build a figure/table inventory tied to paper claims.
-2. Identify required input data for every visual, including experiment runbook, registry, output paths, and claim-evidence map when available.
+2. Identify required input data for every visual, including experiment runbook, registry, output paths, claim-evidence map, section-citation map, and data availability records when available.
 3. Choose chart or diagram types based on the evidence.
 4. Specify caption claims, labels, units, scales, and export formats.
 5. For publication-level or "Nature-style" figures, establish the figure contract before plotting: core conclusion, evidence chain, panel hierarchy, backend, dimensions, editable text, source-data traceability, and export formats.
@@ -46,6 +47,7 @@ Always include:
 - purpose of each visual
 - required input data
 - experiment/runbook source for data-backed figures when applicable
+- data availability or section citation source when the figure supports a data-backed or literature-backed claim
 - recommended visual type
 - caption draft
 - plotting/style rules

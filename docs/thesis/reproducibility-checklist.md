@@ -25,6 +25,8 @@
 | Predictions | error analysis and figures | `outputs/EXP-001/predictions.csv` |
 | Code version | traceability | git branch/commit if available |
 | Rerun command | reproduction | command from `experiment-runbook.md` |
+| Experiment contract | pre-run and post-run validation | `scripts/check_experiment_contract.py --experiment-id EXP-001` |
+| Data availability | claim-to-data traceability | `data-availability.md` |
 
 ## Remote Desktop 4060 Reproducibility Evidence
 
@@ -38,6 +40,18 @@
 | CUDA / PyTorch version | TBD | pending | record when available |
 | Remote output path | TBD | pending |  |
 | Local recovered artifact path | TBD | pending | metrics/logs/checkpoints/predictions |
+
+## Code Contract Evidence
+
+| Experiment ID | Config | Smoke Config | Output Manifest | Contract Check | Status | Notes |
+|---|---|---|---|---|---|---|
+| EXP-001 | `configs/experiment/EXP-001.yaml` | `configs/smoke/EXP-001-smoke.yaml` | `outputs/EXP-001/manifest.json` | `scripts/check_experiment_contract.py` | pending |  |
+
+## Autoresearch Reproducibility Evidence
+
+| Iteration | Experiment | Verify Gate | Guard Gate | State Snapshot | Decision |
+|---|---|---|---|---|---|
+| 1 | EXP-001/TBD | pending | pending | `autoresearch-state.json` | pending |
 
 ## AutoDL Fallback Reproducibility Evidence
 

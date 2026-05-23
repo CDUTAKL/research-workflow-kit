@@ -8,6 +8,8 @@ This skill is a lightweight Codex-native synthesis. It does not copy private or 
   - Used as inspiration for paper story, contribution planning, and experiment-to-claim mapping.
 - `external-skill-candidates/master-cai-research-paper-writing-skills/research-paper-writing`
   - Used as inspiration for section logic, claim-evidence alignment, and reviewer-facing organization.
+- `external-skill-candidates/research-innovation-explorer`
+  - MIT licensed. Used as inspiration for paper pool, idea matrix, novelty risk, feasibility, and shortlist records.
 
 ## Excluded or Reference-Only Sources
 
@@ -20,4 +22,4 @@ This skill is a lightweight Codex-native synthesis. It does not copy private or 
 
 - Removed agent-specific control flow and platform-only assumptions.
 - Added `scripts/generate_topic_intake.py` as a local standard-library helper for scaffolding advisor-title intake into the thesis console.
-- Designed for Windows + Codex and for reuse across projects, not only gamma spectroscopy.
+- Designed for Mac/Codex plus remote GPU workflows and for reuse across projects, not only gamma spectroscopy.

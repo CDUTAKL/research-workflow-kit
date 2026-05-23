@@ -11,7 +11,7 @@ Recommended thesis notebook index:
 
 ## Experiment Engineering Role
 
-Use `$research-experiment-engineering` before result analysis when the work involves architecture planning, data pipeline design, model or algorithm module boundaries, training/evaluation entrypoints, config management, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback training, logging/output conventions, artifact recovery, or reproducibility.
+Use `$research-experiment-engineering` before result analysis when the work involves architecture planning, data pipeline design, model or algorithm module boundaries, training/evaluation entrypoints, config management, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback training, logging/output conventions, artifact recovery, or reproducibility. Use `$research-code-quality` for experiment contracts and `$research-autoresearch-loop` for iterative verify/guard records.
 
 Engineering console files:
 
@@ -20,6 +20,10 @@ Engineering console files:
 | `docs/thesis/experiment-architecture.md` | planned data/model/train/evaluate architecture |
 | `docs/thesis/experiment-runbook.md` | exact commands, expected outputs, monitoring and failure handling |
 | `docs/thesis/reproducibility-checklist.md` | environment, split, seed, config, code version, artifacts, rerun command |
+| `docs/thesis/experiment-integrity-checklist.md` | leakage, metric, config, artifact, and scope checks |
+| `docs/thesis/autoresearch-results.tsv` | iteration result log and verify/guard status |
+| `docs/thesis/autoresearch-state.json` | resumable iteration state |
+| `docs/thesis/data-availability.md` | source data, processed data, artifacts, access, and hash records |
 
 Execution target policy:
 
@@ -58,13 +62,16 @@ After experiment code is planned and runs are recorded:
 
 1. Use `$research-experiment-engineering` to define architecture, execution target, run commands, outputs, and reproducibility checks.
 2. Use Codex coding workflows to implement or refactor the data/model/train/evaluate code.
-3. Run `local_mac` CPU-only smoke tests before long-running remote GPU training.
-4. Use `remote_desktop_4060` as the primary formal GPU target only after command, config, data path, output path, and recovery plan are known.
-5. Use `cloud_autodl` only as a fallback when the desktop 4060 is unavailable or insufficient.
-6. Use `$jupyter-notebook` for reproducible exploratory checks when needed.
-7. Use `$research-results-analysis` to normalize metrics and identify supported claims.
-8. Use `$research-paper-figures` to plan and generate visuals from the same traceable data.
-9. Update the claim-evidence map before drafting result prose.
+3. Run `$research-code-quality` or `scripts/check_experiment_contract.py` before remote GPU training.
+4. Run `local_mac` CPU-only smoke tests before long-running remote GPU training.
+5. Use `remote_desktop_4060` as the primary formal GPU target only after command, config, data path, output path, and recovery plan are known.
+6. Use `cloud_autodl` only as a fallback when the desktop 4060 is unavailable or insufficient.
+7. Use `$research-autoresearch-loop` when the run is part of a method-improvement iteration.
+8. Use `$jupyter-notebook` for reproducible exploratory checks when needed.
+9. Use `$research-results-analysis` to normalize metrics and identify supported claims.
+10. Use `$research-data-availability` when outputs become claim evidence.
+11. Use `$research-paper-figures` to plan and generate visuals from the same traceable data.
+12. Update the claim-evidence map before drafting result prose.
 
 ## Minimum Reproducibility Notes
 
