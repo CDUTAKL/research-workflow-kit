@@ -51,6 +51,12 @@ def main() -> None:
     copied += copy_tree(TEMPLATE_ROOT / "scripts", project / "scripts", args.overwrite)
     copied += copy_tree(TEMPLATE_ROOT / "dashboard-web", project / "dashboard-web", args.overwrite)
 
+    launcher_src = TEMPLATE_ROOT / "open-dashboard.command"
+    launcher_dst = project / "open-dashboard.command"
+    if launcher_src.exists() and (not launcher_dst.exists() or args.overwrite):
+        shutil.copy2(launcher_src, launcher_dst)
+        copied.append(str(launcher_dst))
+
     if args.with_claude_hook:
         src = TEMPLATE_ROOT / ".claude" / "settings.local.template.json"
         dst = project / ".claude" / "settings.local.json"

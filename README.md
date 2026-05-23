@@ -172,6 +172,14 @@ pnpm run prepare:data
 pnpm run dev
 ```
 
+On macOS, the simple launcher is:
+
+```bash
+./scripts/open_dashboard.sh
+```
+
+You can also double-click `open-dashboard.command` in Finder. Keep the opened terminal window running while using the dashboard.
+
 Open the Vite URL shown in the terminal, usually `http://127.0.0.1:5173/`.
 
 For this Mac, prefer the Homebrew Node toolchain when running dashboard commands:

@@ -58,6 +58,14 @@ pnpm run prepare:data
 pnpm run dev
 ```
 
+Simpler Mac launcher:
+
+```bash
+./scripts/open_dashboard.sh
+```
+
+Or double-click `open-dashboard.command` in Finder.
+
 | Graph Artifact | Status | Notes |
 |---|---|---|
 | `evidence-graph.json` | pending | machine-readable evidence relationship graph |
