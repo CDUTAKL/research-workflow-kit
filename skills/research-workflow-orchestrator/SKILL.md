@@ -30,7 +30,7 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 - Code versioning and GitHub work: use GitHub for repository state, issues, PRs, CI, and version traceability around major code changes or formal experiments.
 - Device workflow: treat `local_mac` as the stages 1-10 research console, `remote_desktop_4060` as the primary GPU execution target, `cloud_autodl` as a stronger fallback, and the user's laptop as the stage 11-12 finalization machine.
 - Evidence workflow: use `evidence-promotion-policy.md` to keep `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` relationships consistent before final writing or defense.
-- Project overview: use `workflow-dashboard.md`, `scripts/research_workflow_doctor.py`, and `scripts/export_evidence_graph.py` when the user needs a one-page status view, health check, or visual evidence relationship map.
+- Project overview: use `workflow-dashboard.md`, `scripts/research_workflow_doctor.py`, `scripts/export_evidence_graph.py`, and `dashboard-web/` when the user needs a one-page status view, health check, visual evidence relationship map, or local web dashboard.
 - Engineering discipline: use Superpowers for TDD, systematic debugging, verification, and code review during implementation work.
 - Spreadsheet exports: use Spreadsheets for reviewable literature, result, claim, and audit tables without replacing source records.
 - Defense slides: use Presentations for PPTX creation/editing; use Figma or BioRender for visual refinement when available. Canva is optional only if explicitly available and useful.
@@ -111,6 +111,7 @@ The core console files are:
 | `thesis-brief.md` | Topic, research question, contributions, constraints, timeline |
 | `tool-integration-map.md` | plugin/skill roles by workflow stage |
 | `workflow-dashboard.md` | one-page current stage, blockers, recent experiments, evidence gaps, audit tier |
+| `dashboard-web/` | React/Vite local web dashboard rendering generated workflow data |
 | `task-board-sync.md` | Notion task board and progress sync |
 | `git-version-log.md` | branch/commit traceability for code and experiments |
 | `literature-matrix.md` | Literature groups, source status, paper-reading records, citation batches |

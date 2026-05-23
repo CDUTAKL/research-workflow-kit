@@ -365,15 +365,27 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             )
 
             result = subprocess.run(
-                [sys.executable, str(RESEARCH_WORKFLOW_DOCTOR), "--write-dashboard", "--warn-only"],
+                [
+                    sys.executable,
+                    str(RESEARCH_WORKFLOW_DOCTOR),
+                    "--write-dashboard",
+                    "--write-data",
+                    "--json-out",
+                    "docs/thesis/dashboard-data.json",
+                    "--warn-only",
+                ],
                 cwd=project,
                 text=True,
                 capture_output=True,
                 check=True,
             )
             dashboard = (thesis / "workflow-dashboard.md").read_text(encoding="utf-8")
+            dashboard_json = json.loads((thesis / "dashboard-data.json").read_text(encoding="utf-8"))
             self.assertIn("Workflow Health", result.stdout)
+            self.assertIn("wrote dashboard data", result.stdout)
             self.assertIn("claims=1 experiments=1 datasets=1", dashboard)
+            self.assertEqual("ok", dashboard_json["health"])
+            self.assertEqual(1, dashboard_json["counts"]["claims"])
             self.assertNotIn("old", dashboard)
 
 

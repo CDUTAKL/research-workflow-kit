@@ -3,8 +3,11 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import json
 import re
 from pathlib import Path
+
+from export_evidence_graph import build_graph
 
 
 THESIS_DIR = Path("docs/thesis")
@@ -154,9 +157,99 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
     return p0, p1, info, data
 
 
+def health_status(p0: list[str], p1: list[str]) -> str:
+    return "blocked" if p0 else "warning" if p1 else "ok"
+
+
+def parse_stage_snapshot(thesis_dir: Path) -> list[dict[str, str]]:
+    rows = markdown_rows(read_text(thesis_dir / "workflow-dashboard.md"))
+    stages: list[dict[str, str]] = []
+    for cells in rows:
+        if not cells or not cells[0].isdigit():
+            continue
+        stages.append(
+            {
+                "stage": cells[0],
+                "name": cells[1] if len(cells) > 1 else "",
+                "status": cells[2] if len(cells) > 2 else "",
+                "record": cells[3] if len(cells) > 3 else "",
+                "notes": cells[4] if len(cells) > 4 else "",
+            }
+        )
+    return stages
+
+
+def parse_current_status(thesis_dir: Path) -> dict[str, str]:
+    status: dict[str, str] = {}
+    for cells in markdown_rows(read_text(thesis_dir / "workflow-dashboard.md")):
+        if len(cells) >= 2 and cells[0].lower() in {
+            "current stage",
+            "active focus",
+            "current audit tier",
+            "main blocker",
+            "next concrete action",
+            "last dashboard refresh",
+        }:
+            status[cells[0]] = cells[1]
+    return status
+
+
+def to_records(data: dict[str, object]) -> dict[str, list[dict[str, str]]]:
+    records: dict[str, list[dict[str, str]]] = {}
+    for key, value in data.items():
+        if isinstance(value, dict):
+            records[key] = [
+                {"id": item_id, **item}
+                for item_id, item in value.items()
+                if isinstance(item, dict)
+            ]
+    return records
+
+
+def dashboard_data(
+    thesis_dir: Path,
+    p0: list[str],
+    p1: list[str],
+    info: list[str],
+    data: dict[str, object],
+) -> dict[str, object]:
+    records = to_records(data)
+    experiments = records.get("experiments", [])
+    graph = build_graph(thesis_dir)
+    return {
+        "generatedAt": dt.datetime.now().isoformat(timespec="seconds"),
+        "health": health_status(p0, p1),
+        "counts": {
+            "claims": len(records.get("claims", [])),
+            "experiments": len(records.get("experiments", [])),
+            "datasets": len(records.get("datasets", [])),
+            "figures": len(records.get("figures", [])),
+            "sections": len(records.get("sections", [])),
+            "graphNodes": len(graph["nodes"]),
+            "graphEdges": len(graph["edges"]),
+        },
+        "currentStatus": parse_current_status(thesis_dir),
+        "stages": parse_stage_snapshot(thesis_dir),
+        "issues": {"p0": p0, "p1": p1},
+        "summary": info[0] if info else "",
+        "recentExperiments": experiments[-5:],
+        "records": records,
+        "graph": graph,
+        "links": {
+            "dashboard": "docs/thesis/workflow-dashboard.md",
+            "claimMap": "docs/thesis/claim-evidence-map.md",
+            "experimentRegistry": "docs/thesis/experiment-registry.md",
+            "dataAvailability": "docs/thesis/data-availability.md",
+            "figurePlan": "docs/thesis/figure-plan.md",
+            "finalAudit": "docs/thesis/final-audit.md",
+            "evidenceGraph": "docs/thesis/evidence-graph.json",
+        },
+    }
+
+
 def dashboard_block(p0: list[str], p1: list[str], info: list[str], data: dict[str, object]) -> str:
     now = dt.datetime.now().isoformat(timespec="seconds")
-    health = "blocked" if p0 else "warning" if p1 else "ok"
+    health = health_status(p0, p1)
     lines = [
         f"Generated: {now}",
         "",
@@ -197,6 +290,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run a one-command research workflow health check.")
     parser.add_argument("--thesis-dir", default="docs/thesis")
     parser.add_argument("--write-dashboard", action="store_true")
+    parser.add_argument("--write-data", action="store_true", help="Write dashboard JSON for the React/Vite web dashboard.")
+    parser.add_argument("--json-out", default="docs/thesis/dashboard-data.json")
     parser.add_argument("--warn-only", action="store_true")
     args = parser.parse_args()
 
@@ -207,6 +302,14 @@ def main() -> None:
     if args.write_dashboard:
         write_dashboard(thesis_dir, block)
         print(f"\nwrote dashboard: {thesis_dir / 'workflow-dashboard.md'}")
+    if args.write_data:
+        out = Path(args.json_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(
+            json.dumps(dashboard_data(thesis_dir, p0, p1, info, data), ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(f"wrote dashboard data: {out}")
     if p0 and not args.warn_only:
         raise SystemExit(1)
 

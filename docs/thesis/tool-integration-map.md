@@ -19,6 +19,7 @@
 | evidence promotion policy | 2-12 | ID naming, evidence promotion gates, quick/advisor/final audit tiers | `evidence-promotion-policy.md` | Use before promoting `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` |
 | workflow dashboard | 1-12 | one-page project status, blockers, recent experiments, missing evidence, audit tier | `workflow-dashboard.md` | Refresh manually or with `research_workflow_doctor.py --write-dashboard` |
 | evidence graph export | 3-12 | machine-readable and visual relationship map across claims, experiments, data, sections, figures | `evidence-graph.json`, `evidence-graph.mmd` | Use before advisor/final review when evidence feels scattered |
+| React/Vite dashboard | 1-12 | local web rendering of workflow health, stages, evidence graph, claims, experiments, and data availability | `dashboard-web/` | Run `pnpm run prepare:data`, then `pnpm run dev` |
 | `local_mac` | 1-10 | research console, literature/writing/remote-run control, CPU-only smoke tests | `experiment-runbook.md`, `reproducibility-checklist.md` | Do not assume local GPU |
 | `remote_desktop_4060` | 5-8 | primary CUDA/GPU experiment target | `experiment-runbook.md`, `reproducibility-checklist.md`, `experiment-registry.md` | Use for training, evaluation, tuning, and reproducibility artifacts; save `outputs/EXP-*/environment.txt` |
 | `cloud_autodl` | 6-8 optional | stronger fallback GPU target | `experiment-runbook.md`, `reproducibility-checklist.md` | Use only when desktop 4060 is unavailable or insufficient |

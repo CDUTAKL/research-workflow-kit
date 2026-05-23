@@ -1,0 +1,24 @@
+{
+  "name": "research-workflow-dashboard",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "prepare:data": "mkdir -p public/data && cd .. && python3 scripts/research_workflow_doctor.py --write-data --json-out dashboard-web/public/data/dashboard-data.json --warn-only && python3 scripts/export_evidence_graph.py --out dashboard-web/public/data/evidence-graph.json --mermaid dashboard-web/public/data/evidence-graph.mmd",
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}

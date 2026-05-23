@@ -50,6 +50,14 @@ Generate current evidence relationships with:
 python scripts/export_evidence_graph.py --out docs/thesis/evidence-graph.json --mermaid docs/thesis/evidence-graph.mmd
 ```
 
+Open the local React/Vite dashboard with:
+
+```bash
+cd dashboard-web
+pnpm run prepare:data
+pnpm run dev
+```
+
 | Graph Artifact | Status | Notes |
 |---|---|---|
 | `evidence-graph.json` | pending | machine-readable evidence relationship graph |

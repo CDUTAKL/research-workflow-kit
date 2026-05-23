@@ -10,6 +10,10 @@ env/
 
 # OS / editors
 .DS_Store
+dashboard-web/node_modules/
+dashboard-web/dist/
+dashboard-web/public/data/*.json
+dashboard-web/public/data/*.mmd
 Thumbs.db
 .vscode/
 .idea/

@@ -156,10 +156,31 @@ The workflow includes optional enhancement layers:
 - Environment snapshots live in `scripts/write_environment_snapshot.py`.
 - One-command workflow health checks live in `scripts/research_workflow_doctor.py`.
 - Evidence graph export lives in `scripts/export_evidence_graph.py`.
+- React/Vite web dashboard lives in `dashboard-web/`.
 - 4060 remote handoff templates live in `scripts/remote_*_4060.sh.template`.
 - Result scanning lives in `skills/research-results-analysis/scripts/scan_results.py` and `skills/research-results-analysis/scripts/result_scan_to_registry.py`.
 - Figure rendering lives in `skills/research-paper-figures/scripts/nature_plot_templates.py` and `skills/research-paper-figures/scripts/render_network_architecture.py`.
 - Root `scripts/render_network_architecture.py` is a legacy placeholder; use the skill-local renderer for formal architecture figures.
+
+## Web Dashboard
+
+The Markdown dashboard remains the source-of-truth project homepage, and the React/Vite dashboard renders the same console data as a local web app.
+
+```bash
+cd dashboard-web
+pnpm run prepare:data
+pnpm run dev
+```
+
+Open the Vite URL shown in the terminal, usually `http://127.0.0.1:5173/`.
+
+For this Mac, prefer the Homebrew Node toolchain when running dashboard commands:
+
+```bash
+PATH=/opt/homebrew/bin:$PATH pnpm run build
+```
+
+The web app reads generated files under `dashboard-web/public/data/`, which are ignored by git because they represent the current project state. Regenerate them with `pnpm run prepare:data` after important workflow changes.
 
 ## Figure Workflow
 

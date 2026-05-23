@@ -6,7 +6,14 @@ from pathlib import Path
 
 TEMPLATE_ROOT = Path(__file__).resolve().parent
 
-SKIP_NAMES = {"result-scan-summary.md", "result-scan-table.csv"}
+SKIP_NAMES = {
+    "result-scan-summary.md",
+    "result-scan-table.csv",
+    "dashboard-data.json",
+    "evidence-graph.json",
+    "evidence-graph.mmd",
+}
+SKIP_PARTS = {"node_modules", "dist"}
 
 
 def copy_tree(src: Path, dst: Path, overwrite: bool) -> list[str]:
@@ -17,7 +24,7 @@ def copy_tree(src: Path, dst: Path, overwrite: bool) -> list[str]:
         if path.is_dir():
             continue
         rel = path.relative_to(src)
-        if rel.name in SKIP_NAMES:
+        if rel.name in SKIP_NAMES or any(part in SKIP_PARTS for part in rel.parts):
             continue
         target = dst / rel
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -42,6 +49,7 @@ def main() -> None:
     copied += copy_tree(TEMPLATE_ROOT / "docs", project / "docs", args.overwrite)
     copied += copy_tree(TEMPLATE_ROOT / "figures", project / "figures", args.overwrite)
     copied += copy_tree(TEMPLATE_ROOT / "scripts", project / "scripts", args.overwrite)
+    copied += copy_tree(TEMPLATE_ROOT / "dashboard-web", project / "dashboard-web", args.overwrite)
 
     if args.with_claude_hook:
         src = TEMPLATE_ROOT / ".claude" / "settings.local.template.json"

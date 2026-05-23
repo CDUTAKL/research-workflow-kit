@@ -1,0 +1,65 @@
+import type { DashboardData } from './types';
+
+export const mockData: DashboardData = {
+  generatedAt: 'not generated yet',
+  health: 'warning',
+  counts: {
+    claims: 1,
+    experiments: 1,
+    datasets: 1,
+    figures: 1,
+    sections: 1,
+    graphNodes: 5,
+    graphEdges: 4,
+  },
+  currentStatus: {
+    'Current stage': '1-12/TBD',
+    'Active focus': 'planning/literature/experiment/writing/finalization/TBD',
+    'Current audit tier': 'quick/advisor/final/TBD',
+    'Main blocker': 'Refresh data with pnpm run prepare:data',
+    'Next concrete action': 'Run the workflow doctor',
+  },
+  stages: [
+    { stage: '1', name: 'Paper planning', status: 'pending', record: 'thesis-brief.md', notes: '' },
+    { stage: '2', name: 'Literature discovery and review', status: 'pending', record: 'literature-matrix.md', notes: '' },
+    { stage: '3', name: 'Experiment question definition', status: 'pending', record: 'claim-evidence-map.md', notes: '' },
+    { stage: '4', name: 'Experiment architecture planning', status: 'pending', record: 'experiment-architecture.md', notes: '' },
+    { stage: '5', name: 'Research code implementation', status: 'pending', record: 'git-version-log.md', notes: '' },
+    { stage: '6', name: 'Experiment run and monitoring', status: 'pending', record: 'experiment-runbook.md', notes: '' },
+    { stage: '7', name: 'Experiment recording and result scan', status: 'pending', record: 'experiment-registry.md', notes: '' },
+    { stage: '8', name: 'Results analysis and claim mapping', status: 'pending', record: 'claim-evidence-map.md', notes: '' },
+    { stage: '9', name: 'Figure and table production', status: 'pending', record: 'figure-plan.md', notes: '' },
+    { stage: '10', name: 'Paper writing and polishing', status: 'pending', record: 'writing-outline.md', notes: '' },
+    { stage: '11', name: 'Laptop DOCX / optional LaTeX / PDF', status: 'pending', record: 'final artifacts', notes: '' },
+    { stage: '12', name: 'Laptop final audit and defense', status: 'pending', record: 'final-audit.md', notes: '' },
+  ],
+  issues: {
+    p0: [],
+    p1: ['Dashboard data has not been generated yet.'],
+  },
+  summary: 'fallback data',
+  recentExperiments: [{ id: 'EXP-001', status: 'planned', output: 'outputs/EXP-001' }],
+  records: {
+    claims: [{ id: 'CLM-001', status: 'missing', experiments: 'EXP-001', figures: 'FIG-001' }],
+    experiments: [{ id: 'EXP-001', status: 'planned', output: 'outputs/EXP-001' }],
+    datasets: [{ id: 'DATA-001', status: 'missing', hash: 'TBD', access: 'TBD' }],
+    figures: [{ id: 'FIG-001', status: 'planned' }],
+    sections: [{ id: 'SEC-INTRO-001', coverage: 'missing' }],
+  },
+  graph: {
+    nodes: [
+      { id: 'SEC-INTRO-001', kind: 'SEC', label: 'SEC-INTRO-001' },
+      { id: 'CLM-001', kind: 'CLM', label: 'CLM-001' },
+      { id: 'EXP-001', kind: 'EXP', label: 'EXP-001' },
+      { id: 'DATA-001', kind: 'DATA', label: 'DATA-001' },
+      { id: 'FIG-001', kind: 'FIG', label: 'FIG-001' },
+    ],
+    edges: [
+      { source: 'SEC-INTRO-001', target: 'CLM-001', relation: 'contains_claim' },
+      { source: 'CLM-001', target: 'EXP-001', relation: 'supported_by' },
+      { source: 'CLM-001', target: 'DATA-001', relation: 'traces_to' },
+      { source: 'FIG-001', target: 'CLM-001', relation: 'visualizes' },
+    ],
+  },
+  links: {},
+};
