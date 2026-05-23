@@ -38,7 +38,7 @@ Conclusion
 
 | Section ID | Chapter / Section | Claim Coverage | Citation Coverage | Data Availability | Ready To Polish? | Notes |
 |---|---|---|---|---|---|---|
-| SEC-001 | TBD | missing | missing | pending | no | update claim, citation, and data records |
+| SEC-INTRO-001 | TBD | missing | missing | pending | no | update claim, citation, and data records |
 
 ## Final Polish Tracker
 

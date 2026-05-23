@@ -132,11 +132,13 @@ The workflow includes optional enhancement layers:
 - `research-autoresearch-loop` records human-supervised experiment iterations in `autoresearch-results.tsv` and `autoresearch-state.json` with verify/guard gates.
 - `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
 - `$research-literature-review` supports section-level citation matching through `section-citation-map.md` and source-grounded readers.
+- `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
 
 ## macOS Toolchain Notes
 
 - `local_mac` is the research console and orchestration machine for stages 1-10: planning, literature, code editing, remote run control, result analysis, figure planning, and writing drafts. It may run CPU-only smoke tests, but GPU work is not assumed.
 - `remote_desktop_4060` is the primary GPU experiment target for training, evaluation, tuning, reproducibility runs, and artifact generation.
+- Formal `remote_desktop_4060` runs should write `outputs/EXP-*/environment.txt` with `scripts/write_environment_snapshot.py`; the CUDA and PyTorch versions may be fixed on the desktop, but the snapshot is still required evidence.
 - `cloud_autodl` is an optional stronger fallback when the desktop 4060 is unavailable or insufficient.
 - Remote training uses macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync`; MobaXterm is a Windows-only convenience and is not assumed.
 - Stages 11-12 are intended to move to the user's laptop for final DOCX/optional Word/optional LaTeX/PDF production, final audit, and defense material finishing.
@@ -150,6 +152,7 @@ The workflow includes optional enhancement layers:
 - Experiment contract checks live in `scripts/check_experiment_contract.py`.
 - Autoresearch iteration logging lives in `scripts/new_autoresearch_iteration.py`.
 - Citation and data audits live in `scripts/audit_section_citations.py` and `scripts/audit_data_availability.py`.
+- Environment snapshots live in `scripts/write_environment_snapshot.py`.
 - 4060 remote handoff templates live in `scripts/remote_*_4060.sh.template`.
 - Result scanning lives in `skills/research-results-analysis/scripts/scan_results.py` and `skills/research-results-analysis/scripts/result_scan_to_registry.py`.
 - Figure rendering lives in `skills/research-paper-figures/scripts/nature_plot_templates.py` and `skills/research-paper-figures/scripts/render_network_architecture.py`.

@@ -6,6 +6,7 @@
 - Do not promote a claim to the manuscript until its status is `supported` or the wording is weakened.
 - Use this file as the bridge between experiment results, literature review, figures, and writing.
 - Use `CLM-*` for thesis claims and `EXP-*` / `EXP-AUTO-*` for experiment evidence references.
+- Use `SEC-*`, `DATA-*`, and `FIG-*` links from `evidence-promotion-policy.md` before marking a claim as `supported`.
 - Claim audits read `Experiment Evidence` from this file and check it against `experiment-registry.md`.
 - Literature-backed claims should connect to `section-citation-map.md`.
 - Data-backed claims should connect to `data-availability.md`.
@@ -23,7 +24,7 @@
 
 | Claim ID | Claim Draft | Status | Experiment Evidence | Figure/Table | Literature Evidence | Caveat | Next Action |
 |---|---|---|---|---|---|---|---|
-| CLM-001 | TBD | missing | EXP-001/TBD | Fig./Table TBD | Paper/TBD | TBD | add evidence or weaken claim |
+| CLM-001 | TBD | missing | EXP-001/TBD | FIG-001/TBD | Paper/TBD | TBD | add evidence or weaken claim |
 
 ## Result-To-Claim Review
 
@@ -47,4 +48,4 @@
 
 | Claim ID | Section ID | Segment IDs | Citation Coverage | Next Action |
 |---|---|---|---|---|
-| CLM-001 | SEC-001/TBD | SEG-001/TBD | missing | update `section-citation-map.md` |
+| CLM-001 | SEC-INTRO-001/TBD | SEG-001/TBD | missing | update `section-citation-map.md` |

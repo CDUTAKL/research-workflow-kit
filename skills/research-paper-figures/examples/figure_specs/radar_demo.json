@@ -1,5 +1,5 @@
 {
-  "figure_id": "Fig-template-radar",
+  "figure_id": "FIG-TEMPLATE-radar",
   "template": "radar",
   "title": "Radar profile template",
   "claim": "The radar plot summarizes a balanced multi-metric profile, but area should not be interpreted as a statistical effect.",

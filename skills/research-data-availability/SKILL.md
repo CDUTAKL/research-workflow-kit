@@ -12,6 +12,7 @@ Use this skill when thesis claims, figures, tables, or experiments need traceabl
 - Keep `docs/thesis/data-availability.md` as the local data availability source of truth.
 - Do not store private datasets, credentials, or restricted data in git.
 - Every result claim should trace to source data, processed data, script/notebook, and output artifact.
+- Use `DATA-*` for datasets/snapshots and connect them to `CLM-*`, `EXP-*`, and `FIG-*` records according to `evidence-promotion-policy.md`.
 - Record why data cannot be shared when privacy, license, advisor, or project constraints apply.
 - Data availability is an audit gate, not a substitute for experiment reproducibility.
 
@@ -38,4 +39,3 @@ Always include:
 - data dictionary status
 - final availability statement draft or required fixes
 - suggested updates to `docs/thesis/data-availability.md`
-

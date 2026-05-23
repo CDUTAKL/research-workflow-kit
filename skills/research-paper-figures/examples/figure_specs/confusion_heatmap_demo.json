@@ -1,5 +1,5 @@
 {
-  "figure_id": "Fig-template-confusion-heatmap",
+  "figure_id": "FIG-TEMPLATE-confusion-heatmap",
   "template": "confusion_heatmap",
   "title": "Confusion heatmap template",
   "claim": "The classifier's error structure is concentrated in specific class pairs rather than uniformly distributed.",

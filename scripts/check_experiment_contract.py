@@ -13,6 +13,7 @@ from pathlib import Path
 
 
 REQUIRED_OUTPUTS = ("manifest.json", "config_resolved.json", "metrics.json", "logs")
+ENVIRONMENT_SNAPSHOT = "environment.txt"
 
 
 def read_text(path: Path) -> str:
@@ -80,6 +81,7 @@ def main() -> None:
     parser.add_argument("--registry", default="docs/thesis/experiment-registry.md")
     parser.add_argument("--output", help="Output directory. Defaults to outputs/<EXP>.")
     parser.add_argument("--require-outputs", action="store_true", help="Require manifest/config/metrics/logs to exist.")
+    parser.add_argument("--require-env-snapshot", action="store_true", help="Require outputs/<EXP>/environment.txt for formal GPU runs.")
     parser.add_argument("--warn-only", action="store_true", help="Exit 0 even when blocking issues are found.")
     args = parser.parse_args()
 
@@ -123,6 +125,13 @@ def main() -> None:
             missing_outputs = check_outputs(output_dir)
             if missing_outputs:
                 errors.append(f"output directory missing: {', '.join(missing_outputs)}")
+            if args.require_env_snapshot and not (output_dir / ENVIRONMENT_SNAPSHOT).exists():
+                errors.append(f"output directory missing: {ENVIRONMENT_SNAPSHOT}")
+    elif args.require_env_snapshot:
+        if not output_dir.exists():
+            errors.append(f"output directory not found: {output_dir}")
+        elif not (output_dir / ENVIRONMENT_SNAPSHOT).exists():
+            errors.append(f"output directory missing: {ENVIRONMENT_SNAPSHOT}")
     elif registry_row and str(output_dir) not in registry_row and "TBD" not in registry_row:
         warnings.append(f"registry row does not mention expected output path `{output_dir}`")
 
@@ -147,4 +156,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

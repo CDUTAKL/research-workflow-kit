@@ -13,6 +13,7 @@ Use this skill before expensive experiments or when research code needs to becom
 - Use config-driven experiments; avoid hard-coded paths, seeds, metrics, and output folders.
 - Every formal run should have a contract: config, seed, split, metric, output path, registry row, and smoke config.
 - Machine-readable outputs should include manifest, resolved config, metrics, logs, and predictions when applicable.
+- Formal `remote_desktop_4060` or cloud GPU evidence should include `outputs/EXP-*/environment.txt`.
 - Remote templates must not store passwords, tokens, or private-key contents.
 
 ## Workflow
@@ -24,8 +25,9 @@ Read `references/code-quality.md` for the checks and template layout. Read `refe
 3. Confirm config-driven entrypoints for train, evaluate, predict, and figures.
 4. Run or recommend `scripts/check_experiment_contract.py`.
 5. Prepare `local_mac` smoke config before `remote_desktop_4060` formal runs.
-6. Use the 4060 sync/run/fetch templates only after the user fills SSH alias and remote paths.
-7. Route valid experiments back to `$research-experiment-engineering`.
+6. Write or require an environment snapshot for formal remote runs.
+7. Use the 4060 sync/run/fetch templates only after the user fills SSH alias and remote paths.
+8. Route valid experiments back to `$research-experiment-engineering`.
 
 ## Output Contract
 
@@ -37,5 +39,5 @@ Always include:
 - output artifact contract
 - experiment contract check command
 - remote 4060 handoff notes when relevant
+- environment snapshot requirement when the run is formal GPU evidence
 - risks such as leakage, config drift, missing metrics, or hard-coded paths
-

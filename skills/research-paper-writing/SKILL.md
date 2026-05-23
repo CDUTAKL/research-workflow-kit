@@ -15,6 +15,7 @@ Use this skill to produce clear, evidence-backed academic prose. It supports Chi
 - Keep contribution, method, and result claims distinct.
 - Preserve the user's meaning when rewriting, but strengthen logic, flow, and academic tone.
 - Mark missing citations or evidence explicitly.
+- Check `evidence-promotion-policy.md` before moving `CLM-*` content into final prose; section IDs should use `SEC-*`.
 - Before final polish, check section citation coverage and data-backed claim traceability when thesis console files exist.
 
 ## Workflow

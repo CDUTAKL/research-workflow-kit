@@ -1,5 +1,5 @@
 {
-  "figure_id": "Fig-template-ablation-barh",
+  "figure_id": "FIG-TEMPLATE-ablation-barh",
   "template": "ablation_barh",
   "title": "Horizontal ablation template",
   "claim": "Incrementally adding components improves the demo score under a controlled ablation protocol.",

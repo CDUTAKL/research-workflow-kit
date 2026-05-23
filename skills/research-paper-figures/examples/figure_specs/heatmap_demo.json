@@ -1,5 +1,5 @@
 {
-  "figure_id": "Fig-template-heatmap",
+  "figure_id": "FIG-TEMPLATE-heatmap",
   "template": "heatmap",
   "title": "Metric matrix heatmap template",
   "claim": "The heatmap identifies which methods are consistently strong across multiple metrics.",

@@ -15,6 +15,7 @@ Use this skill to transform raw experiment artifacts into trustworthy summaries 
 - Report uncertainty, missing baselines, failed runs, inconsistent metrics, and statistical limitations.
 - Audit experiment integrity before turning results into paper claims.
 - Convert results into conservative claims only when the evidence supports them.
+- Promote results according to `evidence-promotion-policy.md`: `EXP-*` evidence should map to `CLM-*`, `DATA-*`, and any `FIG-*` that visualizes the result.
 - Never average incompatible settings or compare runs with different data splits unless explicitly justified.
 - For iterative experiments, update or request `autoresearch-results.tsv` verify/guard records before promoting a result.
 - For data-backed claims, route dataset traceability gaps to `$research-data-availability`.

@@ -79,6 +79,9 @@ When using the desktop RTX 4060, record these fields in `experiment-runbook.md` 
 | Username/port | only if needed for reconnection |
 | Private key | local file path only, never key contents |
 | GPU model | RTX 4060, with VRAM when known |
+| Fixed CUDA version | desktop CUDA version once confirmed |
+| Fixed PyTorch version | desktop PyTorch version once confirmed |
+| Environment snapshot | `outputs/EXP-*/environment.txt` |
 | Remote project path | code directory on the desktop |
 | Remote data path | dataset directory on the desktop |
 | Remote env | conda/env activation command |
@@ -96,12 +99,13 @@ Remote GPU execution sequence:
 1. Confirm SSH access and GPU.
 2. Confirm project, data, and environment paths.
 3. Run or verify a small remote smoke test if the environment is new.
-4. Start formal training in tmux, screen, nohup, or the platform's preferred background method.
-5. Monitor logs and GPU usage.
-6. Verify metrics, logs, checkpoints, and predictions exist.
-7. Download or sync required artifacts.
-8. Update thesis console records.
-9. Stop temporary jobs or free cloud instances if the fallback cloud target was used.
+4. Save `outputs/EXP-*/environment.txt` with `scripts/write_environment_snapshot.py`.
+5. Start formal training in tmux, screen, nohup, or the platform's preferred background method.
+6. Monitor logs and GPU usage.
+7. Verify metrics, logs, checkpoints, predictions, and environment snapshot exist.
+8. Download or sync required artifacts.
+9. Update thesis console records.
+10. Stop temporary jobs or free cloud instances if the fallback cloud target was used.
 ```
 
 ## AutoDL Fallback Run Record

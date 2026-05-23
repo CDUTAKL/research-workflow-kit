@@ -13,6 +13,7 @@ CHECK_CONTRACT = REPO_ROOT / "scripts" / "check_experiment_contract.py"
 AUDIT_SECTION_CITATIONS = REPO_ROOT / "scripts" / "audit_section_citations.py"
 AUDIT_DATA_AVAILABILITY = REPO_ROOT / "scripts" / "audit_data_availability.py"
 NEW_AUTORESEARCH_ITERATION = REPO_ROOT / "scripts" / "new_autoresearch_iteration.py"
+WRITE_ENV_SNAPSHOT = REPO_ROOT / "scripts" / "write_environment_snapshot.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -135,6 +136,10 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             )
             for name in ("manifest.json", "config_resolved.json", "metrics.json"):
                 (project / "outputs" / "EXP-001" / name).write_text("{}", encoding="utf-8")
+            (project / "outputs" / "EXP-001" / "environment.txt").write_text(
+                "target_label: remote_desktop_4060\n",
+                encoding="utf-8",
+            )
 
             result = subprocess.run(
                 [
@@ -143,6 +148,7 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                     "--experiment-id",
                     "EXP-001",
                     "--require-outputs",
+                    "--require-env-snapshot",
                 ],
                 cwd=project,
                 text=True,
@@ -150,6 +156,30 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 check=True,
             )
             self.assertIn("Errors: 0", result.stdout)
+
+    def test_write_environment_snapshot_creates_snapshot_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            out = project / "outputs" / "EXP-001" / "environment.txt"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(WRITE_ENV_SNAPSHOT),
+                    "--out",
+                    str(out),
+                    "--label",
+                    "remote_desktop_4060",
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            text = out.read_text(encoding="utf-8")
+            self.assertIn("wrote environment snapshot", result.stdout)
+            self.assertIn("target_label: remote_desktop_4060", text)
+            self.assertIn("## PyTorch", text)
+            self.assertIn("## Git", text)
 
     def test_section_citation_audit_parses_segments(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -161,11 +191,11 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                     """\
                     | Section ID | Thesis Location | Section Purpose | Required Literature Role | Coverage Status | Notes |
                     |---|---|---|---|---|---|
-                    | SEC-001 | Ch1 | background | foundational | partial |  |
+                    | SEC-INTRO-001 | Ch1 | background | foundational | partial |  |
 
                     | Segment ID | Section ID | Segment / Claim Draft | Candidate Reference | DOI / arXiv / S2 ID | Support Grade | Source Status | Zotero Status | Scite / Reader Status | Export Format | Next Action |
                     |---|---|---|---|---|---|---|---|---|---|---|
-                    | SEG-001 | SEC-001 | claim | Paper A | 10.0000/example | strong | metadata_verified | in_zotero | supports_claim | bibtex | cite_in_related_work |
+                    | SEG-001 | SEC-INTRO-001 | claim | Paper A | 10.0000/example | strong | metadata_verified | in_zotero | supports_claim | bibtex | cite_in_related_work |
                     """
                 ),
                 encoding="utf-8",

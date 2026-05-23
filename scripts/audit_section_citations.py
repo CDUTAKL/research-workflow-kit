@@ -44,7 +44,7 @@ def main() -> None:
     for cells in rows:
         if not cells:
             continue
-        if re.fullmatch(r"SEC-\d+", cells[0]):
+        if re.fullmatch(r"SEC-[A-Za-z0-9.-]+", cells[0]):
             sections.add(cells[0])
         if re.fullmatch(r"SEG-\d+", cells[0]):
             segments.append(
@@ -89,4 +89,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

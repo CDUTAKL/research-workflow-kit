@@ -24,8 +24,8 @@
 |---|---|---|---|---|---|---|
 | S01 | Title | introduce thesis | thesis metadata | none | planned |  |
 | S02 | Motivation | TBD | `thesis-brief.md` | TBD | planned |  |
-| S03 | Method overview | TBD | `experiment-architecture.md` | Fig-001/TBD | planned |  |
-| S04 | Main results | CLM-001/TBD | `claim-evidence-map.md` | Table/Fig TBD | planned |  |
+| S03 | Method overview | TBD | `experiment-architecture.md` | FIG-001/TBD | planned |  |
+| S04 | Main results | CLM-001/TBD | `claim-evidence-map.md` | FIG-TABLE-001/FIG-001 TBD | planned |  |
 
 ## Paper-To-PPT Structure
 

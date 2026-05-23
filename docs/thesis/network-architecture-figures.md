@@ -1,5 +1,7 @@
 # Network Architecture Figures
 
+Use `FIG-ARCH-*` as the final manuscript-facing ID. Older `ARCH-*` labels can be kept only as internal renderer/spec notes.
+
 ## Update Rules
 
 - Use this file for CNN, ResNet, U-Net, Transformer, attention, feature-fusion, and other model structure diagrams.
@@ -40,7 +42,7 @@ Legacy renderers may be used as structure helpers, but they are not required whe
 
 | Figure ID | Model | visual_reference | reference_accuracy_check | Source Of Truth | Formal Redraw Tool | Outputs | metadata_check | QA Report | Status |
 |---|---|---|---|---|---|---|---|---|---|
-| Arch-001 | TBD | `figures/references/Arch-001_reference.png` | pending | paper/code/`.network.json`/TBD | Figma/PPTX/SVG/TikZ/Python/TBD | SVG/PDF/PNG/PPTX/TBD | pending | TBD.qa.md | planned |
+| FIG-ARCH-001 | TBD | `figures/references/FIG-ARCH-001_reference.png` | pending | paper/code/`.network.json`/TBD | Figma/PPTX/SVG/TikZ/Python/TBD | SVG/PDF/PNG/PPTX/TBD | pending | TBD.qa.md | planned |
 
 ## Figma Handoff
 
@@ -48,7 +50,7 @@ Use Figma when the Image Gen reference has a strong style and the architecture f
 
 | Figure ID | Figma File / Node | Input Reference | Source Of Truth | Redraw Goal | Export Back To | Status |
 |---|---|---|---|---|---|
-| Arch-001 | TBD | Image Gen reference/TBD | `.network.json`/model.py/TBD | match reference style and correct topology | SVG/PDF/PNG/PPTX | planned |
+| FIG-ARCH-001 | TBD | Image Gen reference/TBD | `.network.json`/model.py/TBD | match reference style and correct topology | SVG/PDF/PNG/PPTX | planned |
 
 Rules:
 
@@ -61,7 +63,7 @@ Rules:
 
 | Figure ID | Core Conclusion | Input Shape | Main Stages | Downsampling / Fusion | Head / Output | Caption-Safe Note |
 |---|---|---|---|---|---|---|
-| Arch-001 | TBD | TBD | TBD | TBD | TBD | Describes topology only; does not claim performance |
+| FIG-ARCH-001 | TBD | TBD | TBD | TBD | TBD | Describes topology only; does not claim performance |
 
 ## Visual QA
 

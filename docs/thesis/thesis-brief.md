@@ -49,7 +49,7 @@
 | Literature review | TBD | literature matrix | planned |  |
 | Experiments | TBD | experiment registry and result summary | planned |  |
 | First draft | TBD | complete manuscript draft | planned |  |
-| Final audit | TBD | final audit report | planned |  |
+| Final audit | TBD | quick/advisor/final audit report | planned | follow `evidence-promotion-policy.md` |
 
 ## Linked Console Files
 

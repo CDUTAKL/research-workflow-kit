@@ -1,5 +1,5 @@
 {
-  "figure_id": "Fig-template-log-bar",
+  "figure_id": "FIG-TEMPLATE-log-bar",
   "template": "log_bar",
   "title": "Log-scale bar template",
   "claim": "The compared quantities differ by orders of magnitude, which requires a log-scale view.",

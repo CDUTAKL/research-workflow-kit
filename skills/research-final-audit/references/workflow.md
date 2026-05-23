@@ -1,5 +1,17 @@
 # Final Audit Workflow
 
+## Audit Tier Selection
+
+Use `docs/thesis/evidence-promotion-policy.md` to choose the tier before auditing.
+
+| Tier | Use When | Minimum Output |
+|---|---|---|
+| `quick` | daily, after a new run, figure, citation, or claim change | short issue list and next action |
+| `advisor` | before supervisor review or milestone meetings | advisor-ready risk list across claims, citations, data, figures, and code |
+| `final` | before DOCX/PDF release, defense, or submission | full go/no-go decision with formatting and defense readiness |
+
+For all tiers, use manuscript-facing IDs: `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*`. `SEG-*` is a section-level citation unit, not a replacement for a claim ID.
+
 ## Claim Audit
 
 | Manuscript claim | Location | Evidence source | Status | Required fix |
@@ -136,7 +148,7 @@ Use this when `docs/thesis/` contains tool integration records.
 | `data-availability.md` | data-backed claims have dataset provenance, access status, hash/manifest, and data dictionary | final thesis cannot defend where data came from | `$research-data-availability` |
 | `section-citation-map.md` | citation-heavy sections have verified candidate citations and support grades | related work or background has weak/unsupported citations | `$research-literature-review`, `$semanticscholar-skill`, Zotero, Scite |
 | `autoresearch-results.tsv` / `autoresearch-state.json` | iterative experiments have verify/guard decisions and resumable state | method iteration cannot be audited | `$research-autoresearch-loop` |
-| experiment contract records | cited runs have config, smoke config, registry row, and output manifest | result cannot be reproduced or tied to code | `$research-code-quality`, `$research-experiment-engineering` |
+| experiment contract records | cited runs have config, smoke config, registry row, output manifest, and environment snapshot for formal GPU runs | result cannot be reproduced or tied to code | `$research-code-quality`, `$research-experiment-engineering` |
 
 Tool-layer rules:
 
@@ -160,6 +172,7 @@ Use these checks when a paper, thesis section, figure package, or PPT deck has b
 | Data availability | dataset IDs, source/processed data, access restrictions, hashes, data dictionary, and final statement | `$research-data-availability` |
 | Autoresearch loop | iteration TSV, state JSON, verify gate, guard gate, and human decision | `$research-autoresearch-loop` |
 | Code contract | config, smoke config, registry row, output manifest, metrics, logs, remote 4060 handoff | `$research-code-quality` |
+| Environment snapshot | `outputs/EXP-*/environment.txt`, CUDA/PyTorch/Python/GPU/git state, fixed desktop profile when known | `$research-code-quality`, `$research-experiment-engineering` |
 | Manuscript prose | section job, hourglass flow, hedging, sentence clarity, citation placement, overclaim risk | `$research-paper-writing` |
 | PPTX deck | one argument spine, selected figures as evidence, Chinese slide titles as claims, speaker notes, backup evidence paths | Presentations and `$research-final-audit` |
 

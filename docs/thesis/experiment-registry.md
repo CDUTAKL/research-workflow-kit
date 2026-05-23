@@ -9,6 +9,7 @@
 - Mark results as `invalid` if leakage, split mismatch, metric mismatch, or missing artifacts are found.
 - Use `EXP-*` for stable reviewed experiment records and `EXP-AUTO-*` for result-scan candidates.
 - `experiment-log.md` is a legacy compatibility file; this registry is the primary experiment evidence source.
+- Promote experiments according to `evidence-promotion-policy.md`; formal `remote_desktop_4060` evidence requires an environment snapshot.
 
 ## Status Legend
 
@@ -50,6 +51,7 @@
 | `experiment-integrity-checklist.md` | leakage, fake ground truth, metric, config, artifact, and scope checks |
 | `autoresearch-results.tsv` | human-supervised iteration record and verify/guard decisions |
 | `data-availability.md` | dataset provenance and claim-to-data traceability |
+| `outputs/EXP-*/environment.txt` | required environment snapshot for formal 4060 or cloud GPU evidence |
 
 ## Result Scan Imports
 

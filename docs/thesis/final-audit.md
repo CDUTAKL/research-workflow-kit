@@ -6,6 +6,7 @@
 - Record issues by priority and close them only after checking the manuscript or source file.
 - Link each serious issue to the affected claim, section, figure, table, citation, or experiment.
 - Stages 11-12 are intended to be finished on the user's laptop; record the laptop artifact path or version when final production moves off the Mac research console.
+- Apply `evidence-promotion-policy.md` before promoting any `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` item to final evidence.
 
 ## Priority Legend
 
@@ -18,9 +19,17 @@
 
 ## Audit Run Log
 
-| Date | Manuscript Version | Auditor | Scope | Result |
-|---|---|---|---|---|
-| TBD | TBD | TBD | full/partial | pending |
+| Date | Manuscript Version | Audit Tier | Auditor | Scope | Result |
+|---|---|---|---|---|---|
+| TBD | TBD | quick/advisor/final | TBD | full/partial | pending |
+
+## Audit Tiers
+
+| Tier | When To Run | Must Check | Output |
+|---|---|---|---|
+| quick | daily, after new experiment output, before continuing a branch | changed `CLM-*`, new `EXP-*`, new `DATA-*`, new `FIG-*`, broken citations, obvious overclaiming | short issue list and next action |
+| advisor | before supervisor meeting, milestone review, or chapter handoff | claim map, section citation coverage, figures/tables, data traceability, code contracts, 4060 snapshots, limitations | advisor-ready risk list |
+| final | before DOCX/PDF release, defense, or submission | all quick/advisor checks plus formatting, bibliography, final data availability, defense slides, laptop artifact paths | final go/no-go decision |
 
 ## Issue Table
 
@@ -57,7 +66,39 @@
 
 | Item | Numbering Correct | Referenced In Text | Source Traceable | Caption Safe | Action |
 |---|---|---|---|---|---|
-| Fig-001 | pending | pending | pending | pending | TBD |
+| FIG-001 | pending | pending | pending | pending | TBD |
+
+## Quick Audit Checklist
+
+| Check | Status | Notes |
+|---|---|---|
+| Changed `CLM-*` items still match evidence scope | pending |  |
+| New `EXP-*` outputs have registry rows and status | pending |  |
+| New `DATA-*` references have path/access/hash or known gap | pending |  |
+| New `FIG-*` items have source data or source-of-truth notes | pending |  |
+| New citations are at least metadata candidates, not invented references | pending |  |
+
+## Advisor Audit Checklist
+
+| Check | Status | Notes |
+|---|---|---|
+| Each important `SEC-*` has section citation coverage | pending |  |
+| Main `CLM-*` items are supported or deliberately weakened | pending |  |
+| Reviewed `EXP-*` runs pass contract checks | pending |  |
+| `remote_desktop_4060` formal runs include `outputs/EXP-*/environment.txt` | pending |  |
+| Figures/tables use `FIG-*` IDs and have safe captions | pending |  |
+| Data restrictions and availability language are advisor-reviewable | pending |  |
+
+## Final Audit Checklist
+
+| Check | Status | Notes |
+|---|---|---|
+| No main claim remains weak without caveat | pending |  |
+| Every final figure/table has `FIG-*`, source trace, and export path | pending |  |
+| Every data-backed claim has a `DATA-*` trace and availability status | pending |  |
+| Every cited formal GPU result has an environment snapshot | pending |  |
+| Bibliography, citation rendering, and section citation map agree | pending |  |
+| Defense slides only use promoted evidence | pending |  |
 
 ## Export And Defense Checklist
 
@@ -70,6 +111,7 @@
 | Data availability statement and dataset restrictions are recorded | pending |  |
 | Autoresearch iterations have verify/guard decisions | pending |  |
 | Experiment code contracts pass for cited runs | pending |  |
+| Remote 4060 formal runs have environment snapshots | pending |  |
 | Figure and table numbering is consistent | pending |  |
 | Network architecture figures have spec, vector output, and QA report | pending |  |
 | Appendix and acknowledgements are complete | pending |  |

@@ -1,5 +1,5 @@
 {
-  "figure_id": "Fig-template-threshold-curve",
+  "figure_id": "FIG-TEMPLATE-threshold-curve",
   "template": "threshold_curve",
   "title": "Threshold curve template",
   "claim": "The operating point is selected from a validation-style threshold scan rather than from a single arbitrary value.",

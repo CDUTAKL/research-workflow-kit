@@ -117,7 +117,7 @@ Use a three-device execution strategy when this Mac is the research console, the
 | Target | Role | Typical scope | Record |
 |---|---|---|---|
 | `local_mac` | research console, debug, and smoke test | CPU-only small sample, 1 epoch, short run, output-format check | local command, local output path, known failures |
-| `remote_desktop_4060` | primary formal GPU execution target | full dataset when feasible, full epochs, baselines, ablations, multi-seed runs | SSH alias, remote paths, RTX 4060/env, run command, result recovery |
+| `remote_desktop_4060` | primary formal GPU execution target | full dataset when feasible, full epochs, baselines, ablations, multi-seed runs | SSH alias, remote paths, RTX 4060/env, environment snapshot, run command, result recovery |
 | `cloud_autodl` | fallback formal GPU execution target | larger runs when the desktop 4060 is unavailable or insufficient | AutoDL instance/image, remote paths, GPU/env, run command, result recovery, shutdown policy |
 
 Local smoke test must verify:
@@ -143,6 +143,7 @@ Remote GPU formal training must record:
 
 - SSH alias or host label, not the password or private-key contents.
 - GPU model and remote environment when available.
+- CUDA/PyTorch can be fixed on the desktop, but every formal run still needs `outputs/EXP-*/environment.txt`.
 - remote project path and remote data path.
 - conda/env activation command.
 - exact train/evaluate command.
@@ -194,7 +195,7 @@ $research-experiment-engineering
 - Data split and metric definitions are visible.
 - Local CPU-only smoke test passes before remote GPU training.
 - Experiment contract check passes or has explicit documented warnings.
-- Remote desktop 4060 runs have remote paths, result recovery, and GPU environment recorded.
+- Remote desktop 4060 runs have remote paths, result recovery, GPU environment recorded, and `outputs/EXP-*/environment.txt` saved.
 - Iterative improvements have verify/guard status in `autoresearch-results.tsv`.
 - AutoDL fallback runs have remote paths, result recovery, and shutdown policy recorded.
 - Reproducibility risks are explicit.

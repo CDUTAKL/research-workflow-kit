@@ -8,6 +8,7 @@
 - Record SSH alias, remote paths, and environment details only; do not record passwords, token values, or private-key contents.
 - Run the experiment contract check before expensive remote GPU work.
 - Record human-supervised iteration decisions in `autoresearch-results.tsv` when the run changes a claim or method.
+- For `remote_desktop_4060` formal runs, save an environment snapshot even when CUDA and PyTorch versions are fixed on the desktop.
 - After the run, update actual outputs, status, and handoff target.
 
 ## Runbook Table
@@ -26,7 +27,7 @@ python scripts/check_experiment_contract.py \
   --registry docs/thesis/experiment-registry.md
 ```
 
-After a run, add `--require-outputs` to require `manifest.json`, `config_resolved.json`, `metrics.json`, and `logs/`.
+After a run, add `--require-outputs` to require `manifest.json`, `config_resolved.json`, `metrics.json`, and `logs/`. For formal `remote_desktop_4060` runs, also add `--require-env-snapshot`.
 
 ## Command Template
 
@@ -60,6 +61,10 @@ Record connection metadata here only after the user provides access. Do not stor
 | Remote project path | TBD | code path on desktop |
 | Remote data path | TBD | dataset path on desktop |
 | Remote environment | TBD | conda/env activation command |
+| Fixed CUDA version | TBD | record the fixed desktop CUDA version once known |
+| Fixed PyTorch version | TBD | record the fixed desktop PyTorch version once known |
+| Python version | TBD | remote environment Python |
+| Driver version | TBD | from `nvidia-smi` |
 | Remote output path | TBD | experiment artifacts |
 | Local download path | TBD | where recovered results are stored |
 | Shutdown policy | ask_user / stop_after_recovery / keep_running | choose before long runs |
@@ -72,12 +77,32 @@ Record connection metadata here only after the user provides access. Do not stor
 | 2 | Confirm project, data, and environment paths | pending |  |
 | 3 | Run experiment contract check and `local_mac` CPU-only smoke test | pending |  |
 | 4 | Run `remote_desktop_4060` smoke test if environment is new | pending |  |
-| 5 | Start formal training in a persistent session | pending | tmux/screen/nohup/platform default |
-| 6 | Monitor logs and GPU usage | pending |  |
-| 7 | Verify metrics/logs/checkpoints/predictions | pending |  |
-| 8 | Download or sync required artifacts | pending |  |
-| 9 | Update registry, reproducibility checklist, and claim map | pending |  |
-| 10 | Stop/release instance if requested | pending | never assume without user instruction |
+| 5 | Write `outputs/EXP-*/environment.txt` on the 4060 desktop | pending | `python scripts/write_environment_snapshot.py --out outputs/EXP-001/environment.txt --label remote_desktop_4060` |
+| 6 | Start formal training in a persistent session | pending | tmux/screen/nohup/platform default |
+| 7 | Monitor logs and GPU usage | pending |  |
+| 8 | Verify metrics/logs/checkpoints/predictions and environment snapshot | pending |  |
+| 9 | Download or sync required artifacts | pending |  |
+| 10 | Update registry, reproducibility checklist, data availability, and claim map | pending |  |
+| 11 | Stop/release instance if requested | pending | never assume without user instruction |
+
+## Remote Desktop 4060 Environment Snapshot
+
+The desktop CUDA and PyTorch versions can be fixed, but every formal evidence-bearing run still needs a saved snapshot file:
+
+```bash
+python scripts/write_environment_snapshot.py \
+  --out outputs/EXP-001/environment.txt \
+  --label remote_desktop_4060
+```
+
+Minimum follow-up check:
+
+```bash
+python scripts/check_experiment_contract.py \
+  --experiment-id EXP-001 \
+  --require-outputs \
+  --require-env-snapshot
+```
 
 ## Autoresearch Iteration Handoff
 
@@ -109,6 +134,7 @@ Use this section only when `remote_desktop_4060` is unavailable or insufficient.
 | Metrics are finite | yes | TBD | pending |
 | Checkpoint saved when expected | yes | TBD | pending |
 | Metrics JSON/CSV exists | yes | TBD | pending |
+| Environment snapshot exists for formal 4060 runs | yes | TBD | pending |
 | Evaluation uses intended split | yes | TBD | pending |
 | Result artifacts recovered locally | yes for cloud runs | TBD | pending |
 

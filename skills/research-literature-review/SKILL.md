@@ -14,6 +14,7 @@ Use this skill to find, organize, and synthesize literature into a defensible re
 - Track what each paper supports in the user's manuscript.
 - For full-paper reading tasks, preserve source-grounded evidence with page/block anchors before using the paper for important claims.
 - For citation-heavy thesis text, map sections and segments in `docs/thesis/section-citation-map.md`.
+- Use `SEC-*` for thesis sections and `SEG-*` only for section-level citation units; connect literature support back to `CLM-*` through `claim-evidence-map.md`.
 - Never fabricate references, DOI values, author lists, venues, or BibTeX entries.
 - Use web search, Scite, Zotero, Semantic Scholar, arXiv, or publisher pages when current or precise source metadata matters.
 

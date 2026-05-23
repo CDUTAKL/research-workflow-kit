@@ -10,11 +10,10 @@
 
 | Material ID | Type | Path / Link | Related Claim | Related Section | Related Experiment | Related Figure/Table | Status | Notes |
 |---|---|---|---|---|---|---|---|---|
-| MAT-001 | experiment/literature/figure/notebook/log/slides/TBD | TBD | CLM-001/TBD | SEC-001/TBD | EXP-001/TBD | Fig-001/TBD | planned |  |
+| MAT-001 | experiment/literature/figure/notebook/log/slides/TBD | TBD | CLM-001/TBD | SEC-INTRO-001/TBD | EXP-001/TBD | FIG-001/TBD | planned |  |
 
 ## Writing Handoff
 
 | Section ID | Needed Materials | Available Materials | Missing Materials | Ready For Writing? |
 |---|---|---|---|---|
-| SEC-001 | literature, claim evidence, figure/table/TBD | TBD | TBD | no |
-
+| SEC-INTRO-001 | literature, claim evidence, figure/table/TBD | TBD | TBD | no |

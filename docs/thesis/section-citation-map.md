@@ -6,18 +6,19 @@
 - Split by chapter, section, paragraph, or claim-bearing segment; do not invent references.
 - Candidate references are not final citations until metadata and support are verified.
 - Important claims require Scite status or source-map-backed direct reading evidence.
+- Follow `evidence-promotion-policy.md`: `SEC-*` names thesis sections, and `SEG-*` names citation units inside those sections.
 
 ## Section Registry
 
 | Section ID | Thesis Location | Section Purpose | Required Literature Role | Coverage Status | Notes |
 |---|---|---|---|---|---|
-| SEC-001 | Chapter/Section TBD | background/method/results/discussion/TBD | foundational/recent/competitor/dataset/metric/TBD | missing |  |
+| SEC-INTRO-001 | Chapter/Section TBD | background/method/results/discussion/TBD | foundational/recent/competitor/dataset/metric/TBD | missing |  |
 
 ## Segment Citation Table
 
 | Segment ID | Section ID | Segment / Claim Draft | Candidate Reference | DOI / arXiv / S2 ID | Support Grade | Source Status | Zotero Status | Scite / Reader Status | Export Format | Next Action |
 |---|---|---|---|---|---|---|---|---|---|---|
-| SEG-001 | SEC-001 | TBD | TBD | TBD | strong/partial/background/limiting/contradictory/metadata_only/TBD | candidate | not_added | not_checked | bibtex/ris/enw/zotero-rdf/TBD | verify_metadata |
+| SEG-001 | SEC-INTRO-001 | TBD | TBD | TBD | strong/partial/background/limiting/contradictory/metadata_only/TBD | candidate | not_added | not_checked | bibtex/ris/enw/zotero-rdf/TBD | verify_metadata |
 
 ## Reader Evidence Queue
 
@@ -29,5 +30,4 @@
 
 | Export ID | Scope | Format | Destination | Included Segments | Status | Notes |
 |---|---|---|---|---|---|---|
-| CITE-EXPORT-001 | SEC-001/TBD | bibtex/ris/enw/zotero-rdf | TBD | SEG-001/TBD | planned | candidate references only until verified |
-
+| CITE-EXPORT-001 | SEC-INTRO-001/TBD | bibtex/ris/enw/zotero-rdf | TBD | SEG-001/TBD | planned | candidate references only until verified |

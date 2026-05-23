@@ -16,8 +16,9 @@
 | `$research-code-quality` | 4-6 | code skeleton, config-driven entrypoints, experiment contract, smoke config, remote 4060 templates | `experiment-architecture.md`, `experiment-runbook.md`, `experiment-integrity-checklist.md` | Run before expensive GPU work |
 | `$research-autoresearch-loop` | 5-8 | human-supervised experiment iteration, resume state, verify/guard gates | `autoresearch-loop.md`, `autoresearch-results.tsv`, `autoresearch-state.json` | Not unattended autonomous research |
 | `$research-data-availability` | 7-8, 11-12 | dataset provenance, access status, claim-to-data traceability | `data-availability.md`, `final-audit.md` | Required before final submission/defense materials |
+| evidence promotion policy | 2-12 | ID naming, evidence promotion gates, quick/advisor/final audit tiers | `evidence-promotion-policy.md` | Use before promoting `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` |
 | `local_mac` | 1-10 | research console, literature/writing/remote-run control, CPU-only smoke tests | `experiment-runbook.md`, `reproducibility-checklist.md` | Do not assume local GPU |
-| `remote_desktop_4060` | 5-8 | primary CUDA/GPU experiment target | `experiment-runbook.md`, `reproducibility-checklist.md`, `experiment-registry.md` | Use for training, evaluation, tuning, and reproducibility artifacts |
+| `remote_desktop_4060` | 5-8 | primary CUDA/GPU experiment target | `experiment-runbook.md`, `reproducibility-checklist.md`, `experiment-registry.md` | Use for training, evaluation, tuning, and reproducibility artifacts; save `outputs/EXP-*/environment.txt` |
 | `cloud_autodl` | 6-8 optional | stronger fallback GPU target | `experiment-runbook.md`, `reproducibility-checklist.md` | Use only when desktop 4060 is unavailable or insufficient |
 | Laptop finalization | 11-12 | final DOCX/optional Word/optional LaTeX/PDF production and defense finishing | `final-audit.md`, `defense-prep.md` | Separate from Mac research-console workflow |
 | Spreadsheets | 2, 7-9, 12 | export literature matrices, result tables, claim maps, audit tables | `spreadsheet-exports.md` | Use for reviewable tables; keep source records in Markdown/CSV |

@@ -1,5 +1,5 @@
 {
-  "figure_id": "Fig-template-distribution",
+  "figure_id": "FIG-TEMPLATE-distribution",
   "template": "distribution",
   "title": "Distribution template",
   "claim": "The distribution plot shows spread across repeated runs rather than only a single best value.",

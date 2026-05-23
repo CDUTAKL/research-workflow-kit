@@ -6,6 +6,7 @@
 - Record local paths, hashes, access limits, and generation commands; do not store private datasets or secrets in git.
 - A claim is not final if its required data source is missing or impossible to trace.
 - Use `$research-data-availability` before final audit, DOCX/PDF production, and defense material finishing.
+- Follow `evidence-promotion-policy.md`: data-backed `CLM-*` items must trace to `DATA-*`, and final visuals use `FIG-*`.
 
 ## Dataset Registry
 
@@ -17,7 +18,7 @@
 
 | Claim ID | Experiment / Figure | Source Data | Processed Data | Script / Notebook | Output Artifact | Trace Status | Required Fix |
 |---|---|---|---|---|---|---|---|
-| CLM-001 | EXP-001/Fig-001 | DATA-001/TBD | TBD | TBD | TBD | missing | record source path, hash, and generation command |
+| CLM-001 | EXP-001/FIG-001 | DATA-001/TBD | TBD | TBD | TBD | missing | record source path, hash, and generation command |
 
 ## Sharing And Restriction Notes
 
@@ -31,4 +32,3 @@
 The data and artifacts supporting this thesis are recorded in docs/thesis/data-availability.md.
 Public release, restricted access, or non-release conditions should be described here after advisor review.
 ```
-

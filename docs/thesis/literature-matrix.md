@@ -95,7 +95,7 @@ Use this queue when a thesis section or manuscript paragraph contains many citat
 
 | Section ID | Segment Range | Citation Coverage | Reader Evidence Needed | Export Target | Next Action |
 |---|---|---|---|---|---|
-| SEC-001 | SEG-001/TBD | missing | TBD | BibTeX/RIS/ENW/Zotero RDF | update `section-citation-map.md` |
+| SEC-INTRO-001 | SEG-001/TBD | missing | TBD | BibTeX/RIS/ENW/Zotero RDF | update `section-citation-map.md` |
 
 ## Literature Workflow Log
 

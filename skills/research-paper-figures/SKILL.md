@@ -10,6 +10,7 @@ Use this skill to plan and produce figures and tables that support paper claims.
 ## Core Rules
 
 - Every figure/table must support a specific claim or clarify a necessary method detail.
+- Use manuscript-facing `FIG-*` IDs for final figures, tables, and architecture visuals; map legacy `Fig-*`, `Table-*`, or `Arch-*` labels before final audit.
 - Prefer reproducible plots from data over screenshots.
 - For data-backed figures, confirm source data or data-availability status when `docs/thesis/data-availability.md` exists.
 - For model architecture, method pipeline, workflow, and other schematic figures, first create or select a strong visual reference. Image Gen Skill is the preferred fast reference generator when the user wants an attractive layout, palette, or composition.

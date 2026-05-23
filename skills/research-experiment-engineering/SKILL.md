@@ -15,6 +15,7 @@ Use this skill before result analysis when a research project needs experiment c
 - Require machine-readable outputs for important runs: config, metrics, predictions when applicable, logs, and artifacts.
 - Map every important run to an experiment ID in `docs/thesis/experiment-registry.md`.
 - Use `local_mac` for orchestration and CPU-only smoke tests on this Mac; use `remote_desktop_4060` as the primary formal GPU experiment target; use `cloud_autodl` or another cloud target only as a fallback when the desktop 4060 is unavailable or insufficient.
+- Treat the desktop CUDA/PyTorch profile as fixed when the user confirms it, but still save `outputs/EXP-*/environment.txt` for every formal 4060 evidence run.
 - Use `$research-code-quality` or `scripts/check_experiment_contract.py` before expensive remote GPU runs.
 - Use `$research-autoresearch-loop` when a run is part of iterative method improvement.
 - Never write SSH passwords, private-key contents, or long-lived credentials into project files.
@@ -50,7 +51,7 @@ Always include:
 - config and run naming convention
 - logging and output directory convention
 - experiment contract check command
-- execution target plan: `local_mac` smoke test, `remote_desktop_4060` formal training, `cloud_autodl` fallback, or a documented combination
+- execution target plan: `local_mac` smoke test, `remote_desktop_4060` formal training with environment snapshot, `cloud_autodl` fallback, or a documented combination
 - reproducibility checklist
 - autoresearch verify/guard handoff when the run is part of iteration
 - result recovery and shutdown/release policy for remote or cloud runs

@@ -1,5 +1,7 @@
 # Figure Plan
 
+Use `evidence-promotion-policy.md` for final visual IDs. Manuscript-facing figures, tables, and architecture diagrams should use `FIG-*`; legacy `Fig-*`, `Table-*`, or `Arch-*` labels can remain only as local notes until mapped.
+
 ## Update Rules
 
 - Use this file to plan figures and tables before polishing visual style.
@@ -14,7 +16,7 @@
 
 | Figure ID | visual_reference | reference_source | reference_accuracy_check | style_to_reuse | source_of_truth | formal_redraw_tool | final_export_path | metadata_check | Status |
 |---|---|---|---|---|---|---|---|---|---|
-| Arch-001 | `figures/references/Arch-001_reference.png` | imagegen/TBD | pending | layout/palette/panel hierarchy/TBD | `.network.json` / model.py / paper source | Figma/BioRender/PPTX/SVG/TikZ/Python/TBD | `figures/final/Arch-001.*` | pending | planned |
+| FIG-ARCH-001 | `figures/references/FIG-ARCH-001_reference.png` | imagegen/TBD | pending | layout/palette/panel hierarchy/TBD | `.network.json` / model.py / paper source | Figma/BioRender/PPTX/SVG/TikZ/Python/TBD | `figures/final/FIG-ARCH-001.*` | pending | planned |
 
 Rules:
 
@@ -28,9 +30,9 @@ Rules:
 
 | ID | Type | Purpose | figure_claim | panel_role | source_data | script_or_notebook | Recommended Form | Caption Draft | export_status | audit_status | revision_needed | Status | Export Target |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Fig-001 | figure | TBD | CLM-001/TBD | hero/support/TBD | TBD | TBD | flowchart/line/bar/heatmap/TBD | TBD | planned | pending | TBD | planned | PDF/SVG/PNG/TBD |
-| Table-001 | table | TBD | CLM-001/TBD | table/TBD | TBD | TBD | metric table/ablation table/TBD | TBD | planned | pending | TBD | planned | DOCX/optional LaTeX/TBD |
-| Arch-001 | network architecture | explain model topology | method clarity | architecture main + inset | `.network.json` / model.py / paper source | skills/research-paper-figures/scripts/render_network_architecture.py | feature-map stack diagram | structure-only caption | planned | pending | TBD | planned | SVG/PDF/PNG/PPTX |
+| FIG-001 | figure | TBD | CLM-001/TBD | hero/support/TBD | TBD | TBD | flowchart/line/bar/heatmap/TBD | TBD | planned | pending | TBD | planned | PDF/SVG/PNG/TBD |
+| FIG-TABLE-001 | table | TBD | CLM-001/TBD | table/TBD | TBD | TBD | metric table/ablation table/TBD | TBD | planned | pending | TBD | planned | DOCX/optional LaTeX/TBD |
+| FIG-ARCH-001 | network architecture | explain model topology | method clarity | architecture main + inset | `.network.json` / model.py / paper source | skills/research-paper-figures/scripts/render_network_architecture.py | feature-map stack diagram | structure-only caption | planned | pending | TBD | planned | SVG/PDF/PNG/PPTX |
 
 ## Publication-Grade Figure Contract
 
@@ -38,19 +40,19 @@ Use this section when a figure needs Nature-style or high-impact-journal polish.
 
 | Figure ID | Core Conclusion | Evidence Chain / Panels | Hero Panel | Source Data / Script | Statistics / Uncertainty | Export Plan | QA Status |
 |---|---|---|---|---|---|---|---|
-| Fig-001 | TBD | panel a/b/c TBD | TBD | TBD | n/seed/fold/error bar TBD | SVG/PDF + PNG preview/TBD | planned |
+| FIG-001 | TBD | panel a/b/c TBD | TBD | TBD | n/seed/fold/error bar TBD | SVG/PDF + PNG preview/TBD | planned |
 
 ## Network Architecture Figure Handoff
 
 | Architecture Figure | Spec File | Renderer Preset | Generated Outputs | QA Report | Console Record |
 |---|---|---|---|---|---|
-| Arch-001 | TBD.network.json | thesis-clean/nature-minimal/ppt-template-rich | SVG/PDF/PNG/PPTX/TBD | TBD.qa.md | `network-architecture-figures.md` |
+| FIG-ARCH-001 | TBD.network.json | thesis-clean/nature-minimal/ppt-template-rich | SVG/PDF/PNG/PPTX/TBD | TBD.qa.md | `network-architecture-figures.md` |
 
 ## Nature-Style Template Handoff
 
 | Figure ID | Template | Spec File | Generated Outputs | QA Report | Source Data | Status |
 |---|---|---|---|---|---|---|
-| Fig-template-001 | grouped_bar/line_trend/heatmap/scatter/radar/distribution/forest/multi_panel/log_bar/ablation_barh/threshold_curve/confusion_heatmap/asymmetric_hero/image_plate | skills/research-paper-figures/examples/figure_specs/TBD.json | SVG/PDF/PNG/TBD | TBD.qa.md | demo/experiment CSV/TBD | planned |
+| FIG-TEMPLATE-001 | grouped_bar/line_trend/heatmap/scatter/radar/distribution/forest/multi_panel/log_bar/ablation_barh/threshold_curve/confusion_heatmap/asymmetric_hero/image_plate | skills/research-paper-figures/examples/figure_specs/TBD.json | SVG/PDF/PNG/TBD | TBD.qa.md | demo/experiment CSV/TBD | planned |
 
 ## Template Library Coverage
 
@@ -75,7 +77,7 @@ Use this section when a figure needs Nature-style or high-impact-journal polish.
 
 | Figure/Table ID | Required Columns / Fields | Source File | Missing Data | Owner / Next Action |
 |---|---|---|---|---|
-| Fig-001 | TBD | TBD | TBD | TBD |
+| FIG-001 | TBD | TBD | TBD | TBD |
 
 ## Caption Safety Checklist
 
@@ -95,4 +97,4 @@ Use this section when a figure needs Nature-style or high-impact-journal polish.
 
 | Figure ID | Audit Date | Figure Claim | Source Data | Script/Notebook | Export Status | Audit Status | Revision Needed |
 |---|---|---|---|---|---|---|---|
-| Fig-001 | TBD | TBD | TBD | TBD | SVG/PDF/PNG/TBD | pending | TBD |
+| FIG-001 | TBD | TBD | TBD | TBD | SVG/PDF/PNG/TBD | pending | TBD |
