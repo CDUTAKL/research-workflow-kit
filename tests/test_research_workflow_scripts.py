@@ -3,6 +3,7 @@ import sys
 import tempfile
 import textwrap
 import unittest
+import json
 from pathlib import Path
 
 
@@ -14,6 +15,8 @@ AUDIT_SECTION_CITATIONS = REPO_ROOT / "scripts" / "audit_section_citations.py"
 AUDIT_DATA_AVAILABILITY = REPO_ROOT / "scripts" / "audit_data_availability.py"
 NEW_AUTORESEARCH_ITERATION = REPO_ROOT / "scripts" / "new_autoresearch_iteration.py"
 WRITE_ENV_SNAPSHOT = REPO_ROOT / "scripts" / "write_environment_snapshot.py"
+EXPORT_EVIDENCE_GRAPH = REPO_ROOT / "scripts" / "export_evidence_graph.py"
+RESEARCH_WORKFLOW_DOCTOR = REPO_ROOT / "scripts" / "research_workflow_doctor.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -276,6 +279,102 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("EXP-001", tsv)
             self.assertIn("0.02", tsv)
             self.assertIn("CLM-001", state)
+
+    def test_export_evidence_graph_writes_json_and_mermaid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "claim-evidence-map.md").write_text(
+                textwrap.dedent(
+                    """\
+                    | Claim ID | Claim Draft | Status | Experiment Evidence | Figure/Table | Literature Evidence | Caveat | Next Action |
+                    |---|---|---|---|---|---|---|---|
+                    | CLM-001 | accuracy improves | supported | EXP-001 | FIG-001 | Paper A | bounded | done |
+                    """
+                ),
+                encoding="utf-8",
+            )
+            (thesis / "experiment-registry.md").write_text(
+                "| Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|\n"
+                "| EXP-001 | CLM-001 | config | DATA-001 | train | outputs/EXP-001 | acc | reviewed | 2026-01-01 | remote_desktop_4060 |\n",
+                encoding="utf-8",
+            )
+            (thesis / "data-availability.md").write_text(
+                "| Dataset ID | Name / Version | Used By Claims | Used By Experiments | Local Path | Remote / Archive Path | Hash / Manifest | Access Level | License / Permission | Data Dictionary | Generation Command | Status | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|\n"
+                "| DATA-001 | dataset | CLM-001 | EXP-001 | data | remote | sha256:abc | private | ok | dict | prepare | reviewed |  |\n",
+                encoding="utf-8",
+            )
+            (thesis / "figure-plan.md").write_text(
+                "| Figure ID | Type | Purpose | Related Claim | Role | Source Data | Script | Visual Type | Caption | Status |\n"
+                "|---|---|---|---|---|---|---|---|---|---|\n"
+                "| FIG-001 | figure | result | CLM-001 | support | DATA-001 | plot.py | bar | safe | final |\n",
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [sys.executable, str(EXPORT_EVIDENCE_GRAPH)],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            graph = json.loads((thesis / "evidence-graph.json").read_text(encoding="utf-8"))
+            mermaid = (thesis / "evidence-graph.mmd").read_text(encoding="utf-8")
+            node_ids = {node["id"] for node in graph["nodes"]}
+            self.assertIn("nodes:", result.stdout)
+            self.assertTrue({"CLM-001", "EXP-001", "DATA-001", "FIG-001"}.issubset(node_ids))
+            self.assertIn("graph LR", mermaid)
+            self.assertIn("CLM_001", mermaid)
+
+    def test_research_workflow_doctor_writes_dashboard(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "workflow-dashboard.md").write_text(
+                "# Workflow Dashboard\n\n<!-- workflow-doctor:start -->\nold\n<!-- workflow-doctor:end -->\n",
+                encoding="utf-8",
+            )
+            for name in (
+                "evidence-promotion-policy.md",
+                "section-citation-map.md",
+                "figure-plan.md",
+                "final-audit.md",
+            ):
+                (thesis / name).write_text("# placeholder\n", encoding="utf-8")
+            (thesis / "claim-evidence-map.md").write_text(
+                "| Claim ID | Claim Draft | Status | Experiment Evidence | Figure/Table | Literature Evidence | Caveat | Next Action |\n"
+                "|---|---|---|---|---|---|---|---|\n"
+                "| CLM-001 | accuracy improves | supported | EXP-001 | FIG-001 | Paper A | bounded | done |\n",
+                encoding="utf-8",
+            )
+            (thesis / "experiment-registry.md").write_text(
+                "| Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|\n"
+                "| EXP-001 | CLM-001 | config | DATA-001 | train | outputs/EXP-001 | acc | reviewed | 2026-01-01 | reviewed |\n",
+                encoding="utf-8",
+            )
+            (thesis / "data-availability.md").write_text(
+                "| Dataset ID | Name / Version | Used By Claims | Used By Experiments | Local Path | Remote / Archive Path | Hash / Manifest | Access Level | License / Permission | Data Dictionary | Generation Command | Status | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|\n"
+                "| DATA-001 | dataset | CLM-001 | EXP-001 | data | remote | sha256:abc | private | ok | dict | prepare | reviewed |  |\n",
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [sys.executable, str(RESEARCH_WORKFLOW_DOCTOR), "--write-dashboard", "--warn-only"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            dashboard = (thesis / "workflow-dashboard.md").read_text(encoding="utf-8")
+            self.assertIn("Workflow Health", result.stdout)
+            self.assertIn("claims=1 experiments=1 datasets=1", dashboard)
+            self.assertNotIn("old", dashboard)
 
 
 if __name__ == "__main__":

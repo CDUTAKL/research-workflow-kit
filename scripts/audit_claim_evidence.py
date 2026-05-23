@@ -45,6 +45,8 @@ def parse_claim_evidence_map(text: str) -> list[dict]:
         claim_id = cells[0].strip()
         if not re.fullmatch(r"(?:CLM-\d+|C\d+\.\d+)", claim_id):
             continue
+        if claim_id.startswith("CLM-") and len(cells) < 8:
+            continue
         claim_text = cells[1].strip() if len(cells) > 1 else ""
         evidence_text = cells[3] if len(cells) > 3 else ""
         evidence_refs = extract_experiment_refs(evidence_text)

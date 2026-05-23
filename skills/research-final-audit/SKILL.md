@@ -15,6 +15,7 @@ Use this skill as the last quality gate before submission or defense. It checks 
 - Treat missing data availability for core data-backed claims as a blocker.
 - Apply `evidence-promotion-policy.md` before promoting `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` records to final evidence.
 - Choose the audit tier explicitly: `quick`, `advisor`, or `final`.
+- Use `workflow-dashboard.md`, `research_workflow_doctor.py`, and `evidence-graph.mmd` as navigation aids when the project console is large.
 - Separate scientific issues from formatting issues.
 - Prioritize fixes by submission risk.
 - Do not silently rewrite claims to be stronger than the evidence.
@@ -50,6 +51,7 @@ Always include:
 - 4060 or cloud environment snapshot issues for cited formal GPU runs
 - data availability issues
 - section citation map issues
+- workflow dashboard and evidence graph issues
 - code contract and autoresearch verify/guard issues
 - tool-layer issues: Notion sync, git traceability, spreadsheet staleness, defense slide gaps
 - audit-to-revision routing

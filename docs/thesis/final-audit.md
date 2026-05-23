@@ -7,6 +7,7 @@
 - Link each serious issue to the affected claim, section, figure, table, citation, or experiment.
 - Stages 11-12 are intended to be finished on the user's laptop; record the laptop artifact path or version when final production moves off the Mac research console.
 - Apply `evidence-promotion-policy.md` before promoting any `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` item to final evidence.
+- Run `scripts/research_workflow_doctor.py --write-dashboard` before advisor or final audit when the project console exists.
 
 ## Priority Legend
 
@@ -98,6 +99,7 @@
 | Every data-backed claim has a `DATA-*` trace and availability status | pending |  |
 | Every cited formal GPU result has an environment snapshot | pending |  |
 | Bibliography, citation rendering, and section citation map agree | pending |  |
+| `workflow-dashboard.md` and evidence graph are refreshed | pending |  |
 | Defense slides only use promoted evidence | pending |  |
 
 ## Export And Defense Checklist

@@ -147,6 +147,8 @@ Use this when `docs/thesis/` contains tool integration records.
 | Nature-derived figure/polish/PPT records | high-standard figure, prose, or slide checks were applied only after evidence was stable | style hides unsupported science | `$research-paper-figures`, `$research-paper-writing`, Presentations |
 | `data-availability.md` | data-backed claims have dataset provenance, access status, hash/manifest, and data dictionary | final thesis cannot defend where data came from | `$research-data-availability` |
 | `section-citation-map.md` | citation-heavy sections have verified candidate citations and support grades | related work or background has weak/unsupported citations | `$research-literature-review`, `$semanticscholar-skill`, Zotero, Scite |
+| `workflow-dashboard.md` | current stage, blockers, missing evidence, and audit tier are visible | project state is hard to understand or stale | `$research-workflow-orchestrator` |
+| `evidence-graph.json` / `evidence-graph.mmd` | core claim relationships can be inspected as a graph | hidden missing links across claim/data/figure/experiment records | `$research-workflow-orchestrator` |
 | `autoresearch-results.tsv` / `autoresearch-state.json` | iterative experiments have verify/guard decisions and resumable state | method iteration cannot be audited | `$research-autoresearch-loop` |
 | experiment contract records | cited runs have config, smoke config, registry row, output manifest, and environment snapshot for formal GPU runs | result cannot be reproduced or tied to code | `$research-code-quality`, `$research-experiment-engineering` |
 

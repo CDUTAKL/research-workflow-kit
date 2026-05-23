@@ -30,6 +30,7 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 - Code versioning and GitHub work: use GitHub for repository state, issues, PRs, CI, and version traceability around major code changes or formal experiments.
 - Device workflow: treat `local_mac` as the stages 1-10 research console, `remote_desktop_4060` as the primary GPU execution target, `cloud_autodl` as a stronger fallback, and the user's laptop as the stage 11-12 finalization machine.
 - Evidence workflow: use `evidence-promotion-policy.md` to keep `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` relationships consistent before final writing or defense.
+- Project overview: use `workflow-dashboard.md`, `scripts/research_workflow_doctor.py`, and `scripts/export_evidence_graph.py` when the user needs a one-page status view, health check, or visual evidence relationship map.
 - Engineering discipline: use Superpowers for TDD, systematic debugging, verification, and code review during implementation work.
 - Spreadsheet exports: use Spreadsheets for reviewable literature, result, claim, and audit tables without replacing source records.
 - Defense slides: use Presentations for PPTX creation/editing; use Figma or BioRender for visual refinement when available. Canva is optional only if explicitly available and useful.
@@ -109,6 +110,7 @@ The core console files are:
 | `topic-intake.md` | advisor title intake, topic decomposition, first research blueprint |
 | `thesis-brief.md` | Topic, research question, contributions, constraints, timeline |
 | `tool-integration-map.md` | plugin/skill roles by workflow stage |
+| `workflow-dashboard.md` | one-page current stage, blockers, recent experiments, evidence gaps, audit tier |
 | `task-board-sync.md` | Notion task board and progress sync |
 | `git-version-log.md` | branch/commit traceability for code and experiments |
 | `literature-matrix.md` | Literature groups, source status, paper-reading records, citation batches |
@@ -119,6 +121,7 @@ The core console files are:
 | `experiment-runbook.md` | run commands, expected outputs, monitoring, failure handling |
 | `reproducibility-checklist.md` | environment, split, seed, config, artifacts, rerun commands |
 | `evidence-promotion-policy.md` | ID naming, promotion gates, quick/advisor/final audit tiers |
+| `evidence-graph.json` / `evidence-graph.mmd` | generated evidence relationship graph |
 | `experiment-registry.md` | Experiment IDs, configs, outputs, metrics, risks |
 | `experiment-integrity-checklist.md` | leakage, fake ground truth, metric, config, artifact, and scope checks |
 | `autoresearch-loop.md` | human-supervised iteration plan and verify/guard gate contract |
@@ -162,7 +165,7 @@ Use this stage model when explaining or coordinating the full workflow:
 9. Figure and table planning: `$research-paper-figures`, with `figure-audit-standard.md` for Nature-derived claim-first figure QA. For model architecture, method overview, workflow, and schematic figures, run the required visual-reference route first: Image Gen Skill reference -> content-accuracy check -> formal redraw with Figma/PPTX/SVG/TikZ/Python from source-of-truth records -> metadata/provenance check -> figure audit. Use Spreadsheets for manuscript tables.
 10. Paper writing: `$research-paper-writing`, with `nature-polishing` rules for final section logic, hedging, sentence clarity, and English manuscript polish when appropriate; check `section-citation-map.md` before citation-heavy polishing.
 11. Laptop DOCX / optional Word / optional LaTeX / PDF production: move final production to the user's laptop; use `$research-data-availability`, Documents plugin for `.docx`; Pages or Microsoft Word only when installed; LaTeX doctor first, then LaTeX compile only when a TeX runtime is available; `$pdf` for rendered checks.
-12. Laptop final audit and defense preparation: move final finishing to the user's laptop; use `$research-final-audit`, `$research-data-availability`, Presentations, optional Figma/BioRender visual refinement, optional Canva only when available, Notion task closure, and `nature-paper2ppt` structure when converting a paper or thesis chapter into a Chinese academic PPTX deck. Final audit must choose `quick`, `advisor`, or `final` tier and check figure-audit status, source-grounded reading/citation evidence, Zotero/Scite statuses, data availability, autoresearch verify/guard status, code contract status, 4060 environment snapshots, and network-architecture `.network.json` plus QA reports.
+12. Laptop final audit and defense preparation: move final finishing to the user's laptop; use `$research-final-audit`, `$research-data-availability`, Presentations, optional Figma/BioRender visual refinement, optional Canva only when available, Notion task closure, and `nature-paper2ppt` structure when converting a paper or thesis chapter into a Chinese academic PPTX deck. Final audit must choose `quick`, `advisor`, or `final` tier and check workflow dashboard health, evidence graph gaps, figure-audit status, source-grounded reading/citation evidence, Zotero/Scite statuses, data availability, autoresearch verify/guard status, code contract status, 4060 environment snapshots, and network-architecture `.network.json` plus QA reports.
 
 ## Output Contract
 

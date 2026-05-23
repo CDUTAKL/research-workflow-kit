@@ -95,6 +95,13 @@ python scripts/check_experiment_contract.py --experiment-id EXP-001 --require-ou
 | `advisor` | before supervisor review or milestone meeting | is the story defensible enough for feedback? | claims, section citations, figures, data, code contracts, limitations |
 | `final` | before submission, defense, or PDF/DOCX release | is the thesis ready to stand on its evidence? | full manuscript, final figures, data availability, environment snapshots, slides, formatting |
 
+## Dashboard And Graph Rules
+
+- Use `workflow-dashboard.md` as the first file to inspect at the start of a work session.
+- Use `research_workflow_doctor.py --write-dashboard` to refresh blocker and missing-evidence summaries.
+- Use `export_evidence_graph.py` to export `evidence-graph.json` and `evidence-graph.mmd` before advisor or final review when the evidence chain is hard to inspect manually.
+- Treat the graph as a navigation aid, not as proof by itself. The source Markdown files remain the evidence source of truth.
+
 ## Hard Rules
 
 - Do not promote a `CLM-*` claim to `supported` with only a polished paragraph or slide.

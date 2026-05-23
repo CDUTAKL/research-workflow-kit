@@ -133,6 +133,7 @@ The workflow includes optional enhancement layers:
 - `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
 - `$research-literature-review` supports section-level citation matching through `section-citation-map.md` and source-grounded readers.
 - `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
+- `docs/thesis/workflow-dashboard.md` is the daily project homepage for current stage, blockers, recent experiments, missing evidence, and audit tier.
 
 ## macOS Toolchain Notes
 
@@ -153,6 +154,8 @@ The workflow includes optional enhancement layers:
 - Autoresearch iteration logging lives in `scripts/new_autoresearch_iteration.py`.
 - Citation and data audits live in `scripts/audit_section_citations.py` and `scripts/audit_data_availability.py`.
 - Environment snapshots live in `scripts/write_environment_snapshot.py`.
+- One-command workflow health checks live in `scripts/research_workflow_doctor.py`.
+- Evidence graph export lives in `scripts/export_evidence_graph.py`.
 - 4060 remote handoff templates live in `scripts/remote_*_4060.sh.template`.
 - Result scanning lives in `skills/research-results-analysis/scripts/scan_results.py` and `skills/research-results-analysis/scripts/result_scan_to_registry.py`.
 - Figure rendering lives in `skills/research-paper-figures/scripts/nature_plot_templates.py` and `skills/research-paper-figures/scripts/render_network_architecture.py`.
