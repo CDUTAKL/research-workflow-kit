@@ -45,6 +45,7 @@ export interface DashboardData {
     sections: number;
     graphNodes: number;
     graphEdges: number;
+    skillIssues?: number;
   };
   currentStatus: Record<string, string>;
   stages: WorkflowStage[];
@@ -54,6 +55,14 @@ export interface DashboardData {
   };
   summary: string;
   recentExperiments: WorkflowRecord[];
+  experimentReports?: WorkflowRecord[];
+  skillHealth?: {
+    totalSkills: number;
+    brokenReferences: number;
+    missingScripts: number;
+    outdatedAssumptions: number;
+    reportPath?: string;
+  };
   records: {
     claims?: WorkflowRecord[];
     experiments?: WorkflowRecord[];

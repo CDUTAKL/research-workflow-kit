@@ -13,6 +13,7 @@ Use this skill for human-AI collaborative experiment iteration. It borrows usefu
 - Every iteration must target a claim, hypothesis, metric, or integrity risk.
 - Record iterations in `docs/thesis/autoresearch-results.tsv`.
 - Record resumable state in `docs/thesis/autoresearch-state.json`.
+- For formal runs, generate a lightweight report in `docs/thesis/experiment-reports/EXP-*.md` with baseline comparison, verify/guard status, and environment snapshot status.
 - Use a dual gate: verify improvement, then guard against invalid science.
 - Formal GPU work defaults to `remote_desktop_4060`; `cloud_autodl` is fallback.
 
@@ -28,7 +29,8 @@ Read `references/loop.md` for the iteration contract. Read `references/source-ma
 6. Apply verify gate: did the experiment answer the question or improve the metric?
 7. Apply guard gate: no leakage, config drift, phantom result, or claim inflation.
 8. Record the iteration with `scripts/new_autoresearch_iteration.py`.
-9. Hand reviewed results to `$research-results-analysis`.
+9. Generate or update the experiment report with `scripts/new_experiment_report.py --experiment-id EXP-... --baseline EXP-...` when a baseline comparison is relevant.
+10. Hand reviewed results to `$research-results-analysis`.
 
 ## Output Contract
 
@@ -41,5 +43,5 @@ Always include:
 - remote target and recovery path
 - verify gate and guard gate
 - registry and autoresearch files to update
+- experiment report and baseline comparison status
 - human decision needed before promotion
-

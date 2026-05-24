@@ -22,8 +22,13 @@ fi
 echo "Preparing dashboard data..."
 pnpm run prepare:data
 
+if ! lsof -ti tcp:8765 >/dev/null 2>&1; then
+  echo "Starting dashboard control server on 127.0.0.1:8765..."
+  (cd "${ROOT_DIR}" && python3 scripts/dashboard_control_server.py --host 127.0.0.1 --port 8765) &
+fi
+
 echo "Opening ${URL}"
 open "${URL}" >/dev/null 2>&1 || true
 
 echo "Starting dashboard server. Keep this terminal window open while using the dashboard."
-pnpm run dev -- --host 127.0.0.1
+pnpm run dev

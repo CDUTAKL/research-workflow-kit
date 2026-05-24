@@ -156,6 +156,10 @@ The workflow includes optional enhancement layers:
 - Environment snapshots live in `scripts/write_environment_snapshot.py`.
 - One-command workflow health checks live in `scripts/research_workflow_doctor.py`.
 - Evidence graph export lives in `scripts/export_evidence_graph.py`.
+- Dashboard local control service lives in `scripts/dashboard_control_server.py`.
+- Deep research task packets are created with `scripts/new_deep_research_task.py`.
+- Experiment reports and baseline comparisons are created with `scripts/new_experiment_report.py`.
+- Skill consistency audits live in `scripts/audit_skills.py`.
 - React/Vite web dashboard lives in `dashboard-web/`.
 - 4060 remote handoff templates live in `scripts/remote_*_4060.sh.template`.
 - Result scanning lives in `skills/research-results-analysis/scripts/scan_results.py` and `skills/research-results-analysis/scripts/result_scan_to_registry.py`.
@@ -182,6 +186,12 @@ You can also double-click `open-dashboard.command` in Finder. Keep the opened te
 
 Open the Vite URL shown in the terminal, usually `http://127.0.0.1:5173/`.
 
+The launcher also starts a local-only control service on `http://127.0.0.1:8765`.
+The web dashboard can then refresh workflow data, export the evidence graph, run
+the quick health check, open whitelisted source files, and copy the next terminal
+command. The service does not expose remote access, does not store credentials,
+and does not execute arbitrary commands.
+
 For this Mac, prefer the Homebrew Node toolchain when running dashboard commands:
 
 ```bash
@@ -189,6 +199,14 @@ PATH=/opt/homebrew/bin:$PATH pnpm run build
 ```
 
 The web app reads generated files under `dashboard-web/public/data/`, which are ignored by git because they represent the current project state. Regenerate them with `pnpm run prepare:data` after important workflow changes.
+
+Useful lightweight commands:
+
+```bash
+python3 scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "your section topic"
+python3 scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000
+python3 scripts/audit_skills.py --warn-only --write-report
+```
 
 ## Figure Workflow
 

@@ -15,9 +15,9 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 
 - Planning and advisor topic intake: use `$research-paper-plan`.
 - Idea discovery and early research direction: use `$research-paper-plan` with `docs/thesis/idea-discovery.md` for paper pools, idea matrices, novelty risks, and shortlists.
-- Literature discovery, source-grounded paper reading, related work, section-level citation matching, and citation batches: use `$research-literature-review`; use `$semanticscholar-skill` for real Semantic Scholar searches when exact papers, citations, or BibTeX candidates matter; use `$pdf` when full-paper PDF reading, original/translation alignment, figure/table extraction, or source anchors matter.
+- Literature discovery, source-grounded paper reading, related work, section-level citation matching, deep research task packets, and citation batches: use `$research-literature-review`; use `$semanticscholar-skill` for real Semantic Scholar searches when exact papers, citations, or BibTeX candidates matter; use `$pdf` when full-paper PDF reading, original/translation alignment, figure/table extraction, or source anchors matter.
 - Experiment architecture, code design, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback training, training/evaluation scripts, config/log/output conventions, reproducibility, and mapping code runs to thesis experiments: use `$research-experiment-engineering`; use `$research-code-quality` for skeletons, contract checks, smoke configs, output manifests, and 4060 handoff templates.
-- Human-supervised iterative experiment improvement: use `$research-autoresearch-loop` for `autoresearch-results.tsv`, `autoresearch-state.json`, verify gates, guard gates, and recovery decisions.
+- Human-supervised iterative experiment improvement: use `$research-autoresearch-loop` for `autoresearch-results.tsv`, `autoresearch-state.json`, verify gates, guard gates, baseline comparison reports, and recovery decisions.
 - Experiment recording and exploration: use `$jupyter-notebook`.
 - Result interpretation: use `$research-results-analysis`.
 - Figures, tables, diagrams, captions, Nature-style figure audit, and model-architecture rendering: use `$research-paper-figures`.
@@ -30,7 +30,8 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 - Code versioning and GitHub work: use GitHub for repository state, issues, PRs, CI, and version traceability around major code changes or formal experiments.
 - Device workflow: treat `local_mac` as the stages 1-10 research console, `remote_desktop_4060` as the primary GPU execution target, `cloud_autodl` as a stronger fallback, and the user's laptop as the stage 11-12 finalization machine.
 - Evidence workflow: use `evidence-promotion-policy.md` to keep `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` relationships consistent before final writing or defense.
-- Project overview: use `workflow-dashboard.md`, `scripts/research_workflow_doctor.py`, `scripts/export_evidence_graph.py`, and `dashboard-web/` when the user needs a one-page status view, health check, visual evidence relationship map, or local web dashboard.
+- Project overview: use `workflow-dashboard.md`, `scripts/research_workflow_doctor.py`, `scripts/export_evidence_graph.py`, `scripts/dashboard_control_server.py`, and `dashboard-web/` when the user needs a one-page status view, health check, visual evidence relationship map, or local web dashboard with refresh/open/export actions.
+- Skill maintenance: use `scripts/audit_skills.py` when changing or installing skills, or before merging workflow changes, to catch missing references, missing scripts, and old tool assumptions.
 - Engineering discipline: use Superpowers for TDD, systematic debugging, verification, and code review during implementation work.
 - Spreadsheet exports: use Spreadsheets for reviewable literature, result, claim, and audit tables without replacing source records.
 - Defense slides: use Presentations for PPTX creation/editing; use Figma or BioRender for visual refinement when available. Canva is optional only if explicitly available and useful.
@@ -80,6 +81,8 @@ docs/thesis/
   literature-matrix.md
   paper-readings/
   section-citation-map.md
+  deep-research-tasks.md
+  section-research-packets/
   idea-discovery.md
   experiment-architecture.md
   experiment-runbook.md
@@ -89,6 +92,7 @@ docs/thesis/
   autoresearch-loop.md
   autoresearch-results.tsv
   autoresearch-state.json
+  experiment-reports/
   experiment-notebook-index.md
   claim-evidence-map.md
   data-availability.md
@@ -99,6 +103,7 @@ docs/thesis/
   writing-outline.md
   final-audit.md
   defense-prep.md
+  skill-audit-report.md
 ```
 
 When the user asks to update thesis status, view thesis progress, resume thesis work, review thesis materials, or decide what to do next, inspect `docs/thesis/` first. If the files exist, summarize the current state from the console before recommending next steps. If they do not exist, suggest creating the console, or create it directly when the user asks for implementation.
@@ -117,6 +122,8 @@ The core console files are:
 | `literature-matrix.md` | Literature groups, source status, paper-reading records, citation batches |
 | `paper-readings/` | Source-grounded full-paper readers with `paper.md`, `source_map.json`, notes, and assets |
 | `section-citation-map.md` | Section and segment level citation matching |
+| `deep-research-tasks.md` | chapter or section level literature search tasks |
+| `section-research-packets/` | per-section citation precision packets |
 | `idea-discovery.md` | Paper pool, idea matrix, novelty risk, shortlist |
 | `experiment-architecture.md` | experiment code architecture, data/model/train/evaluate boundaries |
 | `experiment-runbook.md` | run commands, expected outputs, monitoring, failure handling |
@@ -128,6 +135,7 @@ The core console files are:
 | `autoresearch-loop.md` | human-supervised iteration plan and verify/guard gate contract |
 | `autoresearch-results.tsv` | iteration result log |
 | `autoresearch-state.json` | resumable iteration state |
+| `experiment-reports/` | baseline comparison and claim-promotion report for each formal run |
 | `experiment-notebook-index.md` | Reproducible notebook records and console handoffs |
 | `claim-evidence-map.md` | Claim-to-result-to-figure-to-citation traceability |
 | `data-availability.md` | dataset provenance, access status, and claim-to-data traceability |
@@ -138,6 +146,7 @@ The core console files are:
 | `writing-outline.md` | Chapter goals, evidence, citations, writing status |
 | `final-audit.md` | Submission, defense, citation, figure, format, and claim audit |
 | `defense-prep.md` | defense narrative, slide inventory, and Q&A |
+| `skill-audit-report.md` | generated check of skill structure and outdated assumptions |
 
 ## Workflow
 
@@ -156,12 +165,12 @@ Read the reference files only as needed:
 Use this stage model when explaining or coordinating the full workflow:
 
 1. Paper planning: `$research-paper-plan` for Topic Intake -> Research Blueprint when a title is provided; optionally sync tasks to Notion; use `idea-discovery.md` for paper pool, idea matrix, novelty risk, and shortlist.
-2. Literature discovery and review: `$semanticscholar-skill`, `$research-literature-review`, `$pdf` for source-grounded paper readers, Zotero, Scite, long-text citation batching, and `section-citation-map.md`.
+2. Literature discovery and review: `$semanticscholar-skill`, `$research-literature-review`, `$pdf` for source-grounded paper readers, Zotero, Scite, long-text citation batching, `section-citation-map.md`, and `deep-research-tasks.md` section packets when a chapter needs tighter citation matching.
 3. Experiment question definition: map planned claims to required experiments.
 4. Experiment architecture planning: `$research-experiment-engineering` and `$research-code-quality` for code boundaries, config-driven entrypoints, and experiment contracts.
 5. Research code implementation: Codex coding workflow, Superpowers TDD/debugging, `$research-code-quality`, GitHub versioning.
 6. Experiment run and monitoring: `$research-experiment-engineering` for `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU formal runs, `cloud_autodl` fallback training, logs, artifact recovery, shutdown/release policy, and git commit traceability; use `$research-autoresearch-loop` for human-supervised iterations and verify/guard gates. Use macOS Terminal, VS Code SSH, `ssh`, `scp`, or `rsync` for remote handoff.
-7. Experiment recording and result scan: `$jupyter-notebook`, `$research-results-analysis`, `$research-autoresearch-loop`, Spreadsheets for reviewable exports; update data availability when result artifacts become evidence.
+7. Experiment recording and result scan: `$jupyter-notebook`, `$research-results-analysis`, `$research-autoresearch-loop`, Spreadsheets for reviewable exports; create `experiment-reports/EXP-*.md` for formal baseline comparisons; update data availability when result artifacts become evidence.
 8. Results analysis and claim mapping: `$research-results-analysis`, `$research-data-availability`, Scite for citation-support checks, Spreadsheets for claim tables, and `section-citation-map.md`.
 9. Figure and table planning: `$research-paper-figures`, with `figure-audit-standard.md` for Nature-derived claim-first figure QA. For model architecture, method overview, workflow, and schematic figures, run the required visual-reference route first: Image Gen Skill reference -> content-accuracy check -> formal redraw with Figma/PPTX/SVG/TikZ/Python from source-of-truth records -> metadata/provenance check -> figure audit. Use Spreadsheets for manuscript tables.
 10. Paper writing: `$research-paper-writing`, with `nature-polishing` rules for final section logic, hedging, sentence clarity, and English manuscript polish when appropriate; check `section-citation-map.md` before citation-heavy polishing.

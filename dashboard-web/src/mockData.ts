@@ -11,6 +11,7 @@ export const mockData: DashboardData = {
     sections: 1,
     graphNodes: 5,
     graphEdges: 4,
+    skillIssues: 0,
   },
   currentStatus: {
     'Current stage': '1-12/TBD',
@@ -39,6 +40,13 @@ export const mockData: DashboardData = {
   },
   summary: 'fallback data',
   recentExperiments: [{ id: 'EXP-001', status: 'planned', output: 'outputs/EXP-001' }],
+  experimentReports: [],
+  skillHealth: {
+    totalSkills: 0,
+    brokenReferences: 0,
+    missingScripts: 0,
+    outdatedAssumptions: 0,
+  },
   records: {
     claims: [{ id: 'CLM-001', status: 'missing', experiments: 'EXP-001', figures: 'FIG-001' }],
     experiments: [{ id: 'EXP-001', status: 'planned', output: 'outputs/EXP-001' }],

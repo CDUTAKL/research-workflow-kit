@@ -8,11 +8,13 @@ import {
   CheckCircle2,
   CircleAlert,
   Database,
+  ExternalLink,
   FileText,
   FlaskConical,
   GitBranch,
   Layers3,
   RefreshCw,
+  Terminal,
 } from 'lucide-react';
 import { mockData } from './mockData';
 import type { DashboardData, EvidenceEdge, EvidenceNode, Health, WorkflowRecord } from './types';
@@ -69,6 +71,72 @@ function MetricCard({
         <div className="metric-value">{value}</div>
         <div className="metric-label">{label}</div>
       </div>
+    </section>
+  );
+}
+
+async function postAction(endpoint: string, payload: object = {}) {
+  const response = await fetch(`http://127.0.0.1:8765${endpoint}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok || !data.ok) {
+    throw new Error(data.error || data.output || 'dashboard action failed');
+  }
+  return data as { ok: boolean; output?: string };
+}
+
+function ActionPanel({ onReload }: { onReload: () => void }) {
+  const [message, setMessage] = useState('Control server actions use http://127.0.0.1:8765');
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function run(label: string, action: () => Promise<unknown>, reload = false) {
+    setBusy(label);
+    try {
+      const result = await action();
+      setMessage(typeof result === 'object' && result && 'output' in result ? String((result as { output?: string }).output || 'done') : 'done');
+      if (reload) onReload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const nextCommand = './scripts/open_dashboard.sh';
+
+  return (
+    <section className="panel action-panel">
+      <div className="panel-title-row">
+        <Terminal size={18} />
+        <h2>Control Actions</h2>
+      </div>
+      <div className="action-grid">
+        <button onClick={() => run('refresh', () => postAction('/api/refresh-dashboard'), true)} disabled={Boolean(busy)}>
+          <RefreshCw size={16} /> Refresh Dashboard
+        </button>
+        <button onClick={() => run('graph', () => postAction('/api/export-evidence-graph'), true)} disabled={Boolean(busy)}>
+          <GitBranch size={16} /> Export Evidence Graph
+        </button>
+        <button onClick={() => run('doctor', () => postAction('/api/run-doctor'))} disabled={Boolean(busy)}>
+          <Activity size={16} /> Run Quick Health Check
+        </button>
+        <button onClick={() => run('open', () => postAction('/api/open-path', { key: 'dashboard' }))} disabled={Boolean(busy)}>
+          <ExternalLink size={16} /> Open Dashboard Source
+        </button>
+        <button onClick={() => run('tasks', () => postAction('/api/open-path', { key: 'deepResearchTasks' }))} disabled={Boolean(busy)}>
+          <BookOpen size={16} /> Open Research Tasks
+        </button>
+        <button onClick={() => run('reports', () => postAction('/api/open-path', { key: 'experimentReports' }))} disabled={Boolean(busy)}>
+          <FlaskConical size={16} /> Open Reports Folder
+        </button>
+        <button onClick={() => navigator.clipboard.writeText(nextCommand).then(() => setMessage(`copied: ${nextCommand}`))} disabled={Boolean(busy)}>
+          <FileText size={16} /> Copy Next Command
+        </button>
+      </div>
+      <pre className="action-output">{busy ? `Running ${busy}...` : message}</pre>
     </section>
   );
 }
@@ -209,7 +277,7 @@ export function App() {
   const [data, setData] = useState<DashboardData>(mockData);
   const [loadedFromFile, setLoadedFromFile] = useState(false);
 
-  useEffect(() => {
+  function reloadData() {
     fetch('/data/dashboard-data.json', { cache: 'no-store' })
       .then((response) => {
         if (!response.ok) throw new Error('dashboard-data.json not found');
@@ -223,6 +291,10 @@ export function App() {
         setData(mockData);
         setLoadedFromFile(false);
       });
+  }
+
+  useEffect(() => {
+    reloadData();
   }, []);
 
   const p0Count = data.issues.p0.length;
@@ -279,6 +351,8 @@ export function App() {
         <IssueList title="P1 Issues" items={data.issues.p1} tone="p1" />
       </section>
 
+      <ActionPanel onReload={reloadData} />
+
       <StageRail data={data} />
 
       <section className="content-grid wide-left">
@@ -298,6 +372,38 @@ export function App() {
                 <span className={`status-pill ${statusClass(experiment.status)}`}>{compact(experiment.status)}</span>
               </article>
             )) : <div className="empty-state">none</div>}
+          </div>
+        </section>
+      </section>
+
+      <section className="content-grid">
+        <section className="panel">
+          <div className="panel-title-row">
+            <FlaskConical size={18} />
+            <h2>Experiment Loop</h2>
+          </div>
+          <div className="experiment-list">
+            {(data.experimentReports ?? []).length ? data.experimentReports!.map((report) => (
+              <article className="experiment-row" key={report.id}>
+                <div>
+                  <strong>{report.id}</strong>
+                  <span>{compact(report.row)}</span>
+                </div>
+                <span className={`status-pill ${statusClass(report.status)}`}>{compact(report.status)}</span>
+              </article>
+            )) : <div className="empty-state">No experiment reports yet</div>}
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-title-row">
+            <CheckCircle2 size={18} />
+            <h2>Skill Health</h2>
+          </div>
+          <div className="skill-health">
+            <div><strong>{data.skillHealth?.totalSkills ?? 0}</strong><span>Total skills</span></div>
+            <div><strong>{data.skillHealth?.brokenReferences ?? 0}</strong><span>Broken references</span></div>
+            <div><strong>{data.skillHealth?.missingScripts ?? 0}</strong><span>Missing scripts</span></div>
+            <div><strong>{data.skillHealth?.outdatedAssumptions ?? 0}</strong><span>Outdated assumptions</span></div>
           </div>
         </section>
       </section>

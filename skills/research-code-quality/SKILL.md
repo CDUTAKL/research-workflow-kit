@@ -15,6 +15,7 @@ Use this skill before expensive experiments or when research code needs to becom
 - Machine-readable outputs should include manifest, resolved config, metrics, logs, and predictions when applicable.
 - Formal `remote_desktop_4060` or cloud GPU evidence should include `outputs/EXP-*/environment.txt`.
 - Remote templates must not store passwords, tokens, or private-key contents.
+- When editing or installing workflow skills, run `scripts/audit_skills.py --warn-only --write-report` before merging to keep references, scripts, and tool assumptions consistent.
 
 ## Workflow
 
@@ -28,6 +29,7 @@ Read `references/code-quality.md` for the checks and template layout. Read `refe
 6. Write or require an environment snapshot for formal remote runs.
 7. Use the 4060 sync/run/fetch templates only after the user fills SSH alias and remote paths.
 8. Route valid experiments back to `$research-experiment-engineering`.
+9. Run skill self-checks after workflow-skill changes when this kit itself is being maintained.
 
 ## Output Contract
 
@@ -41,3 +43,4 @@ Always include:
 - remote 4060 handoff notes when relevant
 - environment snapshot requirement when the run is formal GPU evidence
 - risks such as leakage, config drift, missing metrics, or hard-coded paths
+- skill audit status when maintaining this workflow kit

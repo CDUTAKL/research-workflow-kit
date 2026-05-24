@@ -2,8 +2,11 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import time
 import unittest
 import json
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 
@@ -17,6 +20,10 @@ NEW_AUTORESEARCH_ITERATION = REPO_ROOT / "scripts" / "new_autoresearch_iteration
 WRITE_ENV_SNAPSHOT = REPO_ROOT / "scripts" / "write_environment_snapshot.py"
 EXPORT_EVIDENCE_GRAPH = REPO_ROOT / "scripts" / "export_evidence_graph.py"
 RESEARCH_WORKFLOW_DOCTOR = REPO_ROOT / "scripts" / "research_workflow_doctor.py"
+NEW_DEEP_RESEARCH_TASK = REPO_ROOT / "scripts" / "new_deep_research_task.py"
+NEW_EXPERIMENT_REPORT = REPO_ROOT / "scripts" / "new_experiment_report.py"
+AUDIT_SKILLS = REPO_ROOT / "scripts" / "audit_skills.py"
+DASHBOARD_CONTROL_SERVER = REPO_ROOT / "scripts" / "dashboard_control_server.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -280,6 +287,93 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("0.02", tsv)
             self.assertIn("CLM-001", state)
 
+    def test_new_deep_research_task_creates_section_packet(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(NEW_DEEP_RESEARCH_TASK),
+                    "--section-id",
+                    "SEC-INTRO-001",
+                    "--topic",
+                    "remote sensing segmentation baselines",
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            tasks = (project / "docs" / "thesis" / "deep-research-tasks.md").read_text(encoding="utf-8")
+            packet = project / "docs" / "thesis" / "section-research-packets" / "SEC-INTRO-001.md"
+            self.assertIn("appended deep research task", result.stdout)
+            self.assertIn("SEC-INTRO-001", tasks)
+            self.assertIn("remote sensing segmentation baselines", packet.read_text(encoding="utf-8"))
+
+    def test_new_experiment_report_compares_baseline_metrics(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "experiment-registry.md").write_text(
+                "| Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|\n"
+                "| EXP-000 | CLM-001 | baseline | DATA-001 | train | outputs/EXP-000 | accuracy=0.80 | reviewed | 2026-01-01 | local_mac |\n"
+                "| EXP-001 | CLM-001 | improved | DATA-001 | train | outputs/EXP-001 | accuracy=0.83 | reviewed | 2026-01-02 | remote_desktop_4060 |\n",
+                encoding="utf-8",
+            )
+            for exp_id, accuracy in (("EXP-000", 0.80), ("EXP-001", 0.83)):
+                out_dir = project / "outputs" / exp_id
+                out_dir.mkdir(parents=True)
+                (out_dir / "metrics.json").write_text(json.dumps({"accuracy": accuracy}), encoding="utf-8")
+            (project / "outputs" / "EXP-001" / "environment.txt").write_text(
+                "target_label: remote_desktop_4060\n", encoding="utf-8"
+            )
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(NEW_EXPERIMENT_REPORT),
+                    "--experiment-id",
+                    "EXP-001",
+                    "--baseline",
+                    "EXP-000",
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            report = (thesis / "experiment-reports" / "EXP-001.md").read_text(encoding="utf-8")
+            self.assertIn("wrote experiment report", result.stdout)
+            self.assertIn("EXP-000", report)
+            self.assertIn("accuracy", report)
+            self.assertIn("0.03", report)
+
+    def test_audit_skills_reports_missing_reference_without_failing_warn_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            skill = project / "skills" / "demo-skill"
+            skill.mkdir(parents=True)
+            (skill / "SKILL.md").write_text("Read `references/missing.md` and run `scripts/missing.py`.\n", encoding="utf-8")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(AUDIT_SKILLS),
+                    "--root",
+                    str(project),
+                    "--warn-only",
+                    "--write-report",
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertIn("broken references: 1", result.stdout)
+            self.assertIn("missing scripts: 1", result.stdout)
+            self.assertTrue((project / "docs" / "thesis" / "skill-audit-report.md").exists())
+
     def test_export_evidence_graph_writes_json_and_mermaid(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)
@@ -386,7 +480,45 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("claims=1 experiments=1 datasets=1", dashboard)
             self.assertEqual("ok", dashboard_json["health"])
             self.assertEqual(1, dashboard_json["counts"]["claims"])
+            self.assertIn("skillHealth", dashboard_json)
             self.assertNotIn("old", dashboard)
+
+    def test_dashboard_control_server_rejects_unlisted_open_path(self):
+        port = 18765
+        proc = subprocess.Popen(
+            [sys.executable, str(DASHBOARD_CONTROL_SERVER), "--port", str(port)],
+            cwd=REPO_ROOT,
+            text=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            status_url = f"http://127.0.0.1:{port}/api/status"
+            for _ in range(30):
+                try:
+                    with urllib.request.urlopen(status_url, timeout=0.2) as response:
+                        self.assertEqual(200, response.status)
+                        break
+                except OSError:
+                    time.sleep(0.1)
+            else:
+                self.fail("dashboard control server did not start")
+
+            request = urllib.request.Request(
+                f"http://127.0.0.1:{port}/api/open-path",
+                data=json.dumps({"key": "../secrets"}).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with self.assertRaises(urllib.error.HTTPError) as ctx:
+                urllib.request.urlopen(request, timeout=1)
+            self.assertEqual(403, ctx.exception.code)
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                proc.kill()
 
 
 if __name__ == "__main__":

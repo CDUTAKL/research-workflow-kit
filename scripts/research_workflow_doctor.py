@@ -7,6 +7,7 @@ import json
 import re
 from pathlib import Path
 
+from audit_skills import audit_repo, render_report
 from export_evidence_graph import build_graph
 
 
@@ -206,6 +207,49 @@ def to_records(data: dict[str, object]) -> dict[str, list[dict[str, str]]]:
     return records
 
 
+def collect_experiment_reports(thesis_dir: Path) -> list[dict[str, str]]:
+    reports_dir = thesis_dir / "experiment-reports"
+    if not reports_dir.exists():
+        return []
+    reports: list[dict[str, str]] = []
+    for path in sorted(reports_dir.glob("EXP-*.md")):
+        text = read_text(path)
+        report_id = path.stem
+        promotion = ""
+        env_status = ""
+        for line in text.splitlines():
+            if line.startswith("- Claim promotion decision:"):
+                promotion = line.split(":", 1)[1].strip()
+            elif line.startswith("- Environment snapshot:"):
+                env_status = line.split(":", 1)[1].strip()
+            elif line.startswith("| Environment Snapshot |"):
+                cells = [cell.strip() for cell in line.strip("|").split("|")]
+                env_status = cells[1] if len(cells) > 1 else env_status
+            elif line.startswith("| pending |") and "Promote only after" in line:
+                promotion = "pending"
+        reports.append(
+            {
+                "id": report_id,
+                "path": path.as_posix(),
+                "status": promotion or "TBD",
+                "row": f"env: {env_status or 'TBD'} | {path.as_posix()}",
+            }
+        )
+    return reports
+
+
+def collect_skill_health() -> dict[str, object]:
+    result = audit_repo(Path("."))
+    summary = result["summary"]  # type: ignore[index]
+    return {
+        "totalSkills": summary["totalSkills"],
+        "brokenReferences": summary["brokenReferences"],
+        "missingScripts": summary["missingScripts"],
+        "outdatedAssumptions": summary["outdatedAssumptions"],
+        "reportPath": "docs/thesis/skill-audit-report.md",
+    }
+
+
 def dashboard_data(
     thesis_dir: Path,
     p0: list[str],
@@ -216,6 +260,8 @@ def dashboard_data(
     records = to_records(data)
     experiments = records.get("experiments", [])
     graph = build_graph(thesis_dir)
+    skill_health = collect_skill_health()
+    experiment_reports = collect_experiment_reports(thesis_dir)
     return {
         "generatedAt": dt.datetime.now().isoformat(timespec="seconds"),
         "health": health_status(p0, p1),
@@ -227,12 +273,15 @@ def dashboard_data(
             "sections": len(records.get("sections", [])),
             "graphNodes": len(graph["nodes"]),
             "graphEdges": len(graph["edges"]),
+            "skillIssues": int(skill_health["brokenReferences"]) + int(skill_health["missingScripts"]) + int(skill_health["outdatedAssumptions"]),
         },
         "currentStatus": parse_current_status(thesis_dir),
         "stages": parse_stage_snapshot(thesis_dir),
         "issues": {"p0": p0, "p1": p1},
         "summary": info[0] if info else "",
         "recentExperiments": experiments[-5:],
+        "experimentReports": experiment_reports[-5:],
+        "skillHealth": skill_health,
         "records": records,
         "graph": graph,
         "links": {
@@ -291,6 +340,7 @@ def main() -> None:
     parser.add_argument("--thesis-dir", default="docs/thesis")
     parser.add_argument("--write-dashboard", action="store_true")
     parser.add_argument("--write-data", action="store_true", help="Write dashboard JSON for the React/Vite web dashboard.")
+    parser.add_argument("--write-skill-audit", action="store_true")
     parser.add_argument("--json-out", default="docs/thesis/dashboard-data.json")
     parser.add_argument("--warn-only", action="store_true")
     args = parser.parse_args()
@@ -310,6 +360,11 @@ def main() -> None:
             encoding="utf-8",
         )
         print(f"wrote dashboard data: {out}")
+    if args.write_skill_audit:
+        skill_result = audit_repo(Path("."))
+        report = thesis_dir / "skill-audit-report.md"
+        report.write_text(render_report(skill_result), encoding="utf-8")
+        print(f"wrote skill audit report: {report}")
     if p0 and not args.warn_only:
         raise SystemExit(1)
 

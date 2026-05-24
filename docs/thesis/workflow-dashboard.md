@@ -8,6 +8,14 @@ This is the project homepage for the research workflow. Update it manually durin
 python scripts/research_workflow_doctor.py --write-dashboard
 ```
 
+The local web dashboard is the operational view of the same console. Start it with:
+
+```bash
+./scripts/open_dashboard.sh
+```
+
+It starts a local-only control service on `127.0.0.1:8765` so the page can refresh dashboard data, export the evidence graph, run the quick health check, open whitelisted source files, and copy recommended commands.
+
 ## Current Status
 
 | Field | Value |
@@ -71,6 +79,17 @@ Or double-click `open-dashboard.command` in Finder.
 | `evidence-graph.json` | pending | machine-readable evidence relationship graph |
 | `evidence-graph.mmd` | pending | Mermaid diagram for quick visual inspection |
 
+## Operational Actions
+
+| Action | Script / Button | Output |
+|---|---|---|
+| Refresh dashboard data | `Refresh Dashboard` or `python scripts/research_workflow_doctor.py --write-dashboard --write-data` | `workflow-dashboard.md`, `dashboard-data.json` |
+| Export evidence graph | `Export Evidence Graph` or `python scripts/export_evidence_graph.py` | `evidence-graph.json`, `evidence-graph.mmd` |
+| Run quick health check | `Run Quick Health Check` or `python scripts/research_workflow_doctor.py --warn-only` | P0/P1 console report |
+| Create deep research task | `python scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "..."` | `deep-research-tasks.md`, section packet |
+| Create experiment report | `python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000` | `experiment-reports/EXP-001.md` |
+| Audit skills | `python scripts/audit_skills.py --warn-only --write-report` | `skill-audit-report.md` |
+
 ## Quick Navigation
 
 | Need | File |
@@ -80,5 +99,7 @@ Or double-click `open-dashboard.command` in Finder.
 | What experiments support the thesis? | `experiment-registry.md`, `experiment-runbook.md` |
 | What data backs the results? | `data-availability.md` |
 | What citations support each section? | `section-citation-map.md`, `literature-matrix.md` |
+| What citation search task should run next? | `deep-research-tasks.md`, `section-research-packets/` |
+| What changed versus baseline? | `experiment-reports/` |
 | What figures are final? | `figure-plan.md`, `network-architecture-figures.md` |
 | Is this ready for advisor or final review? | `final-audit.md` |

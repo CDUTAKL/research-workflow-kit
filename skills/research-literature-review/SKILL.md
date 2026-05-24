@@ -14,6 +14,7 @@ Use this skill to find, organize, and synthesize literature into a defensible re
 - Track what each paper supports in the user's manuscript.
 - For full-paper reading tasks, preserve source-grounded evidence with page/block anchors before using the paper for important claims.
 - For citation-heavy thesis text, map sections and segments in `docs/thesis/section-citation-map.md`.
+- When a section needs targeted citation improvement, create a deep research task with `scripts/new_deep_research_task.py --section-id SEC-... --topic "..."` and work inside `docs/thesis/section-research-packets/`.
 - Use `SEC-*` for thesis sections and `SEG-*` only for section-level citation units; connect literature support back to `CLM-*` through `claim-evidence-map.md`.
 - Never fabricate references, DOI values, author lists, venues, or BibTeX entries.
 - Use web search, Scite, Zotero, Semantic Scholar, arXiv, or publisher pages when current or precise source metadata matters.
@@ -28,8 +29,9 @@ Read `references/workflow.md` for the literature matrix and related-work templat
 4. Build a literature matrix with relationship-to-paper and citation-use columns.
 5. For papers requiring direct reading, create or request a source-grounded reader artifact under `docs/thesis/paper-readings/<paper-slug>/`.
 6. For long citation-seeking text, split into `SEC-*` sections and `SEG-*` claim/segment batches before searching.
-7. Propose a related-work outline that groups literature by concept, not chronologically.
-8. Flag missing citations and unverifiable claims.
+7. For each weak section, create a deep research packet containing section question, keyword set, search queries, candidate papers, must-read papers, citation gaps, Scite/Zotero status, and final citation decisions.
+8. Propose a related-work outline that groups literature by concept, not chronologically.
+9. Flag missing citations and unverifiable claims.
 
 ## Output Contract
 
@@ -47,6 +49,7 @@ Always include:
 - reading status, reader path, source-map path, and key source blocks when a paper has been directly read
 - citation batch strategy when the input contains many citation-worthy claims
 - section citation map updates when matching papers to thesis chapters, sections, or paragraphs
+- deep research packet path when a section needs more precise literature search
 - missing literature
 - BibTeX/Zotero follow-up actions
 
