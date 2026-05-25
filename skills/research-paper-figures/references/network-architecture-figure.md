@@ -13,14 +13,14 @@ Use a structure specification instead of improvising the figure each time.
 ```text
 architecture source or model.py
 -> .network.json structure spec
--> preset selection
--> skills/research-paper-figures/scripts/render_network_architecture.py
+-> Image Gen reference when visual style exploration is useful
+-> draw.io formal redraw by default
 -> SVG/PDF/PNG and optional PPTX
 -> QA report
 -> figure-plan.md and network-architecture-figures.md
 ```
 
-Default command:
+Optional renderer command for first-pass structure generation:
 
 ```powershell
 python skills\research-paper-figures\scripts\render_network_architecture.py `
@@ -34,7 +34,7 @@ python skills\research-paper-figures\scripts\render_network_architecture.py `
 
 PPTX export is a formal target for presentation-style figures. Use `--pptx-mode image-backed` for the most stable first-pass PPTX, or `--pptx-mode native-shape` when an editable PowerPoint draft is more important than exact Matplotlib visual parity. If `python-pptx` is unavailable, use the Presentations plugin or install `python-pptx`; keep SVG/PDF/PNG as the immediate manuscript outputs.
 
-Figma is useful after the renderer has produced a structurally correct diagram. Use Figma for visual refinement, reusable diagram components, collaborative review, and design-system consistency. Do not let Figma become the only source of architecture truth; update the `.network.json` spec whenever the model structure changes.
+draw.io is the default formal redraw tool for the final structured diagram after the source-of-truth spec and any Image Gen visual reference have been checked. Figma is optional after draw.io or the renderer has produced a structurally correct diagram. Use Figma for visual refinement, reusable diagram components, collaborative review, and design-system consistency. Do not let Figma become the only source of architecture truth; update the `.network.json` spec whenever the model structure changes.
 
 ## Presets
 
@@ -49,6 +49,7 @@ Figma is useful after the renderer has produced a structurally correct diagram. 
 | Target | Best use | Source of truth |
 |---|---|---|
 | `.network.json` | architecture facts, shapes, stages, repeats, downsampling, heads | yes |
+| draw.io | default formal redraw and editable structured diagram | no; sync back to spec |
 | SVG/PDF/PNG | manuscript assets and preview | generated from spec |
 | PPTX | presentation asset; record whether image-backed or native editable shapes | generated or refined from spec |
 | Figma | visual polish, component reuse, layout exploration, collaborative design | no; sync back to spec |
@@ -137,6 +138,7 @@ Before drawing, define:
 - Keep labels short enough for Word/PDF rendering at final size.
 - Preserve editable vector text in SVG/PDF where possible.
 - Keep a `.network.json` spec next to generated outputs or in the thesis console so the figure can be regenerated after model changes.
+- Record the draw.io file/export paths in `docs/thesis/network-architecture-figures.md` when draw.io is used.
 - When PPTX output is requested, record whether it is native editable shapes or image-backed PPTX.
 - When Figma is used, record the Figma file/node and exported asset paths in `docs/thesis/network-architecture-figures.md`.
 - When QA reports unresolved connections, fix the `.network.json` node names before using the figure.

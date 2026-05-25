@@ -145,7 +145,7 @@ The workflow includes optional enhancement layers:
 - Stages 11-12 are intended to move to the user's laptop for final DOCX/optional Word/optional LaTeX/PDF production, final audit, and defense material finishing.
 - DOCX work uses the Documents plugin and local `.docx` files. Pages can open or review documents locally; Microsoft Word is optional when installed.
 - LaTeX is optional. Run the LaTeX doctor first, then compile only when a TeX runtime is available.
-- Defense and diagram polish use Presentations, Figma, and BioRender when available. Canva is not assumed on this Mac.
+- Diagram polish uses draw.io / draw.io MCP as the default formal redraw route for model architecture, method workflow, system architecture, and process diagrams. Presentations handles PPTX; Figma and BioRender are optional visual refinement tools when available. Canva is not assumed on this Mac.
 
 ## Script Locations
 
@@ -214,11 +214,13 @@ For model architecture, method pipeline, workflow, and schematic figures:
 
 1. Use Image Gen only to create a visual reference.
 2. Check the reference for technical accuracy.
-3. Redraw the final figure from source-of-truth information with Figma, PPTX, SVG, TikZ, or Python.
-4. Export final thesis-ready files.
+3. Redraw the final structured diagram in draw.io from source-of-truth information.
+4. Export final thesis-ready SVG/PDF/PNG files, and use Presentations/PPTX when the diagram belongs in defense slides.
 5. Record provenance and audit status in `docs/thesis/figure-plan.md`.
 
 Do not use AI-generated raster images directly as final thesis figures unless the project explicitly accepts that provenance.
+
+Use Python or the Nature-style renderer for data-backed statistical plots. Use Figma or BioRender only as optional polish layers when draw.io/Python output needs additional design refinement.
 
 ## Sensitive Information Policy
 

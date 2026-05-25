@@ -14,7 +14,8 @@ Use this skill to plan and produce figures and tables that support paper claims.
 - Prefer reproducible plots from data over screenshots.
 - For data-backed figures, confirm source data or data-availability status when `docs/thesis/data-availability.md` exists.
 - For model architecture, method pipeline, workflow, and other schematic figures, first create or select a strong visual reference. Image Gen Skill is the preferred fast reference generator when the user wants an attractive layout, palette, or composition.
-- Treat Image Gen outputs as visual references only. Check their content accuracy, then redraw the formal figure from source-of-truth records using `research-paper-figures`, Figma, PPTX, SVG, TikZ, or Python.
+- Treat Image Gen outputs as visual references only. Check their content accuracy, then redraw formal structured diagrams from source-of-truth records in draw.io by default. Export SVG/PDF/PNG from draw.io; use Presentations/PPTX for defense-slide packaging.
+- Use Python or the Nature-style renderer for data-backed plots. Use Figma or BioRender only as optional polish/refinement tools when draw.io/Python output needs a stronger visual finish.
 - Do not insert Image Gen outputs directly into a thesis or manuscript as final figures unless the user explicitly accepts AI-generated bitmap provenance. Formal figures should be redrawn, source-traceable, and free of generated-image metadata when possible.
 - Keep visual style consistent across figures.
 - Use accessible contrast, readable labels, and publication-ready export formats.
@@ -34,10 +35,11 @@ Read `references/workflow.md` for figure planning, plotting conventions, Nature-
    - generate/select a visual reference, preferably with Image Gen Skill when the target is a polished model/method diagram;
    - audit the reference for architecture/content mistakes;
    - preserve the style decisions that work;
-   - redraw the final figure from source-of-truth records.
+   - redraw the final structured diagram from source-of-truth records in draw.io by default;
+   - export SVG/PDF/PNG and, when needed, place the exported asset into PPTX slides.
 8. For common result figures, prefer the local Nature-style template renderer in `skills/research-paper-figures/scripts/nature_plot_templates.py` or the installed equivalent under `~/.codex/skills/research-paper-figures/scripts/`: write or inspect a figure spec JSON, render SVG/PDF/PNG, and review the QA report.
 9. For network architecture diagrams, prefer editable vector/PPT-style shapes, feature-map stacks, module grouping, and clean hierarchy over generic rectangular flowcharts.
-10. For network architecture diagrams, record the source of truth (`model.py`, paper, `.network.json`, or manual architecture spec), then redraw formally with Figma, PPTX, SVG, TikZ, Python, or a legacy renderer as appropriate.
+10. For network architecture diagrams, record the source of truth (`model.py`, paper, `.network.json`, or manual architecture spec), then redraw formally in draw.io by default. Use SVG/PDF/PNG exports for the thesis and PPTX packaging for defense. Figma/BioRender remain optional polish tools; legacy renderers may remain structure helpers.
 11. When asked to generate plots, inspect available data and use project-standard Python tooling if present unless the user explicitly requests R.
 
 ## Output Contract
@@ -57,7 +59,7 @@ Always include:
 - Nature-style figure audit findings when reviewing final figures
 - Nature-style figure spec, template type, generated files, and QA report when a common result figure is produced
 - network-architecture visual grammar when relevant
-- formal redraw tool, source-of-truth record, generated files, metadata/C2PA check, and QA report when a network architecture figure is produced
+- formal redraw tool, draw.io source/export paths, source-of-truth record, generated files, metadata/C2PA check, and QA report when a network architecture figure is produced
 - LaTeX or Word insertion advice
 
 If data is missing, return a figure specification and data requirements instead of inventing values.

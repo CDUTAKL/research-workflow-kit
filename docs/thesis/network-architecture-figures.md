@@ -9,7 +9,7 @@ Use `FIG-ARCH-*` as the final manuscript-facing ID. Older `ARCH-*` labels can be
 - Do not treat architecture diagrams as performance evidence. They describe model topology and information flow.
 - Prefer editable vector/PPT-style outputs over screenshots.
 - Use Image Gen Skill first for an attractive visual reference when visual quality matters, then check content accuracy and redraw formally.
-- Keep `.network.json`, `model.py`, paper source, or manual architecture spec as the source of truth. Image Gen references, PPTX, Figma, PNG, and screenshots are outputs or refinements, not topology records.
+- Keep `.network.json`, `model.py`, paper source, or manual architecture spec as the source of truth. Image Gen references, draw.io files, PPTX, Figma, PNG, and screenshots are outputs or refinements, not topology records.
 - Run the QA report before marking any architecture figure as ready.
 
 ## Visual Reference To Formal Architecture Workflow
@@ -20,14 +20,14 @@ architecture source or model.py
 -> Image Gen Skill reference image
 -> content accuracy check
 -> style decisions to reuse
--> formal redraw in Figma/PPTX/SVG/TikZ/Python
+-> formal redraw in draw.io
 -> SVG/PDF/PNG/PPTX export
 -> metadata/provenance check
 -> QA report
 -> figure-plan.md / final-audit.md
 ```
 
-Legacy renderers may be used as structure helpers, but they are not required when Figma/TikZ/PPTX is the formal redraw path.
+Legacy renderers may be used as structure helpers, but draw.io is the default formal redraw path for structured diagrams. Use Python or the Nature-style renderer for data-backed plots; use Figma/BioRender only as optional visual refinement.
 
 ## Spec Fields
 
@@ -42,20 +42,20 @@ Legacy renderers may be used as structure helpers, but they are not required whe
 
 | Figure ID | Model | visual_reference | reference_accuracy_check | Source Of Truth | Formal Redraw Tool | Outputs | metadata_check | QA Report | Status |
 |---|---|---|---|---|---|---|---|---|---|
-| FIG-ARCH-001 | TBD | `figures/references/FIG-ARCH-001_reference.png` | pending | paper/code/`.network.json`/TBD | Figma/PPTX/SVG/TikZ/Python/TBD | SVG/PDF/PNG/PPTX/TBD | pending | TBD.qa.md | planned |
+| FIG-ARCH-001 | TBD | `figures/references/FIG-ARCH-001_reference.png` | pending | paper/code/`.network.json`/TBD | draw.io/TBD | SVG/PDF/PNG/PPTX/TBD | pending | TBD.qa.md | planned |
 
-## Figma Handoff
+## draw.io Handoff
 
-Use Figma when the Image Gen reference has a strong style and the architecture facts are known. Figma should recreate the useful visual style while correcting any reference mistakes against the source-of-truth architecture.
+Use draw.io when the Image Gen reference has a strong style and the architecture facts are known. draw.io should recreate the useful visual structure while correcting any reference mistakes against the source-of-truth architecture.
 
-| Figure ID | Figma File / Node | Input Reference | Source Of Truth | Redraw Goal | Export Back To | Status |
+| Figure ID | draw.io File / Diagram | Input Reference | Source Of Truth | Redraw Goal | Export Back To | Status |
 |---|---|---|---|---|---|
-| FIG-ARCH-001 | TBD | Image Gen reference/TBD | `.network.json`/model.py/TBD | match reference style and correct topology | SVG/PDF/PNG/PPTX | planned |
+| FIG-ARCH-001 | TBD | Image Gen reference/TBD | `.network.json`/model.py/TBD | match reference structure and correct topology | SVG/PDF/PNG/PPTX | planned |
 
 Rules:
 
 - Keep source-of-truth records as the authority for model topology.
-- Use Figma for formal redraw and visual refinement, not for changing architecture facts without updating the source record.
+- Use draw.io for formal redraw, not for changing architecture facts without updating the source record.
 - Export refined assets back to the project and record final paths in this file.
 - Final manuscript still uses source-traceable SVG/PDF/PNG, not an untracked screenshot.
 

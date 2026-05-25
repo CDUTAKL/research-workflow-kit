@@ -20,7 +20,7 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 - Human-supervised iterative experiment improvement: use `$research-autoresearch-loop` for `autoresearch-results.tsv`, `autoresearch-state.json`, verify gates, guard gates, baseline comparison reports, and recovery decisions.
 - Experiment recording and exploration: use `$jupyter-notebook`.
 - Result interpretation: use `$research-results-analysis`.
-- Figures, tables, diagrams, captions, Nature-style figure audit, and model-architecture rendering: use `$research-paper-figures`.
+- Figures, tables, diagrams, captions, Nature-style figure audit, and model-architecture rendering: use `$research-paper-figures`; for structured model/method/workflow diagrams, use draw.io as the default formal redraw tool after Image Gen visual reference and content-accuracy checks.
 - Drafting and revision: use `$research-paper-writing`.
 - Data provenance and data availability: use `$research-data-availability` before final writing, final audit, DOCX/PDF production, and defense preparation.
 - DOCX thesis/manuscript production: use the Documents plugin (`documents:documents` in Codex plugin contexts). Pages or Microsoft Word may be used locally for human review, but Word is optional.
@@ -34,9 +34,10 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 - Skill maintenance: use `scripts/audit_skills.py` when changing or installing skills, or before merging workflow changes, to catch missing references, missing scripts, and old tool assumptions.
 - Engineering discipline: use Superpowers for TDD, systematic debugging, verification, and code review during implementation work.
 - Spreadsheet exports: use Spreadsheets for reviewable literature, result, claim, and audit tables without replacing source records.
-- Defense slides: use Presentations for PPTX creation/editing; use Figma or BioRender for visual refinement when available. Canva is optional only if explicitly available and useful.
+- Defense slides: use Presentations for PPTX creation/editing; use draw.io exports for structured diagrams; use Figma or BioRender only as optional visual refinement tools when available. Canva is optional only if explicitly available and useful.
 - Image Gen Skill is used in stage 9 as the mandatory visual-reference generator for model architecture, method overview, workflow, and schematic figures when visual quality matters. Its output is checked for content accuracy and then redrawn formally; it is not treated as final manuscript evidence.
-- Figma can be used in stage 9 or 12 for model architecture diagram refinement, reusable diagram components, and visual system work after the source-of-truth architecture record and visual reference are established.
+- draw.io / draw.io MCP is the default stage 9 formal redraw route for model architecture, method overview, workflow, evidence graph, and system diagrams. Export SVG/PDF/PNG for thesis use and package into PPTX for defense slides when needed.
+- Figma can be used in stage 9 or 12 for optional diagram refinement, reusable design components, and visual system work after the draw.io/source-of-truth record and visual reference are established.
 - Nature-derived high-standard enhancements: use downloaded `nature-figure`, `nature-reader`, `nature-citation`, `nature-data`, `nature-polishing`, and `nature-paper2ppt` source material as reference layers. `nature-figure` strengthens figure audit, `nature-reader` strengthens source-grounded paper reading, `nature-citation` strengthens long-text citation batching, `nature-data` strengthens data availability, `nature-polishing` strengthens final prose, and `nature-paper2ppt` strengthens defense slides. They do not replace the local `research-*` evidence workflow. Do not add `nature-response` for graduation-thesis-only workflows unless the user later asks for journal review response support.
 
 ## Project Console
@@ -140,7 +141,7 @@ The core console files are:
 | `claim-evidence-map.md` | Claim-to-result-to-figure-to-citation traceability |
 | `data-availability.md` | dataset provenance, access status, and claim-to-data traceability |
 | `figure-plan.md` | Figures, tables, captions, input data, status |
-| `network-architecture-figures.md` | model structure diagrams, `.network.json` specs, renderer presets, outputs, QA |
+| `network-architecture-figures.md` | model structure diagrams, draw.io redraw records, `.network.json` specs, renderer presets, outputs, QA |
 | `spreadsheet-exports.md` | export registry for reviewable tables |
 | `research-materials-index.md` | index of experiment, literature, notebook, figure, and writing materials |
 | `writing-outline.md` | Chapter goals, evidence, citations, writing status |
@@ -156,7 +157,7 @@ Read the reference files only as needed:
 - `references/experiment-records.md` for notebook and experiment registry workflows.
 - `references/visualization-rules.md` for publication figure rules.
 - `references/document-production.md` for DOCX/PDF/LaTeX production checks.
-- `references/tool-integration.md` for Notion, GitHub, Superpowers, Spreadsheets, Presentations, Figma, BioRender, and optional Canva routing.
+- `references/tool-integration.md` for Notion, GitHub, Superpowers, Spreadsheets, draw.io, Presentations, Figma, BioRender, and optional Canva routing.
 - `references/paper-iteration-loop.md` for iterative research-paper execution.
 - `references/source-map.md` for provenance and license notes.
 
@@ -172,10 +173,10 @@ Use this stage model when explaining or coordinating the full workflow:
 6. Experiment run and monitoring: `$research-experiment-engineering` for `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU formal runs, `cloud_autodl` fallback training, logs, artifact recovery, shutdown/release policy, and git commit traceability; use `$research-autoresearch-loop` for human-supervised iterations and verify/guard gates. Use macOS Terminal, VS Code SSH, `ssh`, `scp`, or `rsync` for remote handoff.
 7. Experiment recording and result scan: `$jupyter-notebook`, `$research-results-analysis`, `$research-autoresearch-loop`, Spreadsheets for reviewable exports; create `experiment-reports/EXP-*.md` for formal baseline comparisons; update data availability when result artifacts become evidence.
 8. Results analysis and claim mapping: `$research-results-analysis`, `$research-data-availability`, Scite for citation-support checks, Spreadsheets for claim tables, and `section-citation-map.md`.
-9. Figure and table planning: `$research-paper-figures`, with `figure-audit-standard.md` for Nature-derived claim-first figure QA. For model architecture, method overview, workflow, and schematic figures, run the required visual-reference route first: Image Gen Skill reference -> content-accuracy check -> formal redraw with Figma/PPTX/SVG/TikZ/Python from source-of-truth records -> metadata/provenance check -> figure audit. Use Spreadsheets for manuscript tables.
+9. Figure and table planning: `$research-paper-figures`, with `figure-audit-standard.md` for Nature-derived claim-first figure QA. For model architecture, method overview, workflow, and schematic figures, run the required visual-reference route first: Image Gen Skill reference -> content-accuracy check -> formal redraw in draw.io from source-of-truth records -> SVG/PDF/PNG export -> optional PPTX packaging -> metadata/provenance check -> figure audit. Use Python or the Nature-style renderer for data-backed plots, and Spreadsheets for manuscript tables.
 10. Paper writing: `$research-paper-writing`, with `nature-polishing` rules for final section logic, hedging, sentence clarity, and English manuscript polish when appropriate; check `section-citation-map.md` before citation-heavy polishing.
 11. Laptop DOCX / optional Word / optional LaTeX / PDF production: move final production to the user's laptop; use `$research-data-availability`, Documents plugin for `.docx`; Pages or Microsoft Word only when installed; LaTeX doctor first, then LaTeX compile only when a TeX runtime is available; `$pdf` for rendered checks.
-12. Laptop final audit and defense preparation: move final finishing to the user's laptop; use `$research-final-audit`, `$research-data-availability`, Presentations, optional Figma/BioRender visual refinement, optional Canva only when available, Notion task closure, and `nature-paper2ppt` structure when converting a paper or thesis chapter into a Chinese academic PPTX deck. Final audit must choose `quick`, `advisor`, or `final` tier and check workflow dashboard health, evidence graph gaps, figure-audit status, source-grounded reading/citation evidence, Zotero/Scite statuses, data availability, autoresearch verify/guard status, code contract status, 4060 environment snapshots, and network-architecture `.network.json` plus QA reports.
+12. Laptop final audit and defense preparation: move final finishing to the user's laptop; use `$research-final-audit`, `$research-data-availability`, Presentations, draw.io exports, optional Figma/BioRender visual refinement, optional Canva only when available, Notion task closure, and `nature-paper2ppt` structure when converting a paper or thesis chapter into a Chinese academic PPTX deck. Final audit must choose `quick`, `advisor`, or `final` tier and check workflow dashboard health, evidence graph gaps, figure-audit status, source-grounded reading/citation evidence, Zotero/Scite statuses, data availability, autoresearch verify/guard status, code contract status, 4060 environment snapshots, and network-architecture draw.io/`.network.json` plus QA reports.
 
 ## Output Contract
 

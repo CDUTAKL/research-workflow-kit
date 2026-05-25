@@ -53,7 +53,7 @@ Use this contract when the user asks for a publication-quality figure, Nature-st
 | Export | Prefer editable SVG/PDF for plots and high-DPI PNG/TIFF only when raster is needed |
 | Caption safety | Caption must state what the visual shows, not a broader claim than the evidence |
 
-For this Windows + Codex workflow, use Python/Matplotlib/Seaborn by default when the project is Python-based. Use R/ggplot only when the user explicitly requests R or supplies an R plotting workflow.
+For this Mac + Codex workflow, use Python/Matplotlib/Seaborn by default for data-backed plots when the project is Python-based. Use R/ggplot only when the user explicitly requests R or supplies an R plotting workflow.
 
 ## Mandatory Visual Reference Route
 
@@ -64,7 +64,7 @@ Figure intent
 -> Image Gen Skill visual reference
 -> content-accuracy check
 -> style decision extraction
--> formal redraw from source of truth
+-> formal redraw in draw.io from source of truth
 -> SVG/PDF/PNG/PPTX export
 -> metadata/provenance check
 -> figure audit
@@ -76,7 +76,7 @@ Rules:
 - The generated image is a reference, not a source of scientific truth.
 - Check the reference before redrawing: module names, arrows, layer order, tensor shapes, labels, symbols, legends, and any numeric values.
 - If the reference is visually strong but contains mistakes, keep the useful style decisions and correct the scientific content during formal redraw.
-- Redraw the final figure with `research-paper-figures`, Figma, PPTX, SVG, TikZ, Python, or another editable/vector-capable workflow.
+- Redraw structured model, method, workflow, evidence graph, and architecture diagrams in draw.io by default. Use Python or the Nature-style renderer for data-backed plots. Use Figma/BioRender only as optional polish layers after the source-traceable draw.io/Python output exists.
 - The final thesis/manuscript figure must trace to source-of-truth records such as `.network.json`, `model.py`, experiment CSV/JSON, figure spec JSON, or a paper/code source note.
 - Before final use, check that exported manuscript assets do not contain unwanted Image Gen C2PA/OpenAI provenance metadata.
 
@@ -89,7 +89,7 @@ Record the route in `docs/thesis/figure-plan.md`:
 | `reference_accuracy_check` | pass/revise/failed, with exact content issues |
 | `style_to_reuse` | layout, palette, panel hierarchy, icon style, typography notes |
 | `source_of_truth` | `.network.json`, `model.py`, experiment data, or cited source |
-| `formal_redraw_tool` | Figma, PPTX, SVG, TikZ, Python, or legacy renderer |
+| `formal_redraw_tool` | draw.io by default for structured diagrams; Python/Nature-style renderer for data plots; Figma/BioRender/PPTX/SVG/TikZ only when justified |
 | `final_export_path` | manuscript-ready output path |
 | `metadata_check` | pending/pass/revise for C2PA/OpenAI/provenance metadata |
 
@@ -182,7 +182,7 @@ When producing a neural-network architecture figure, use this handoff:
 Image Gen Skill visual reference
   -> reference accuracy check
   -> source-of-truth architecture spec
-  -> Figma/PPTX/SVG/TikZ/Python formal redraw
+  -> draw.io formal redraw
   -> SVG/PDF/PNG/PPTX target
   -> metadata and figure audit
   -> docs/thesis/network-architecture-figures.md

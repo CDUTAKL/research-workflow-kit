@@ -27,8 +27,9 @@
 | Spreadsheets | 2, 7-9, 12 | export literature matrices, result tables, claim maps, audit tables | `spreadsheet-exports.md` | Use for reviewable tables; keep source records in Markdown/CSV |
 | Documents | 10, 11 | DOCX thesis drafting, editing, and formatting | `writing-outline.md`, `final-audit.md` | In Codex plugin contexts this is `documents:documents`; Pages or Microsoft Word are optional local review tools |
 | PDF | 11, 12 | rendered PDF checks | `final-audit.md` | Use for final visual/layout audit |
-| Figma | 9, 12 | model architecture figure refinement, visual system, diagram layout review, reusable design components | `network-architecture-figures.md`, `figure-plan.md` | Best for polishing and collaborative design after spec/render outputs exist |
-| BioRender | 9, 12 | scientific schematic and mechanism-style visual refinement | `figure-plan.md`, `defense-prep.md` | Use when available; still keep source data and claims in `docs/thesis/` |
+| draw.io / draw.io MCP | 9, 12 | default formal redraw for model architecture, method workflow, evidence graph, system architecture, and process diagrams | `network-architecture-figures.md`, `figure-plan.md` | Use after Image Gen reference/content check; export SVG/PDF/PNG and package into PPTX when needed |
+| Figma | 9, 12 optional | visual system, collaborative design polish, reusable design components | `network-architecture-figures.md`, `figure-plan.md` | Optional refinement after draw.io/source-of-truth records exist |
+| BioRender | 9, 12 optional | scientific schematic and mechanism-style visual refinement | `figure-plan.md`, `defense-prep.md` | Optional; still keep source data and claims in `docs/thesis/` |
 | Presentations | 12 | defense slide deck and speaking structure | `defense-prep.md` | Slides must trace to supported claims |
 | Canva | 12 optional | visual polish for defense or poster materials | `defense-prep.md` | Not assumed on this Mac; optional only when available, not a source of evidence |
 | nature-figure source | 9, 12 | publication-grade figure contract, multi-panel logic, export QA | `figure-plan.md`, `final-audit.md` | Use as an enhancement layer through `$research-paper-figures` |
@@ -49,10 +50,10 @@
 | 6. Experiment run and monitoring | `$research-experiment-engineering`, `$research-autoresearch-loop` | GitHub commit trace, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback, macOS Terminal / VS Code SSH / `ssh` / `scp` / `rsync`, Notion progress |
 | 7. Experiment recording and result scan | `$jupyter-notebook`, `$research-results-analysis`, `$research-autoresearch-loop` | Spreadsheets for result tables; update data availability and autoresearch logs |
 | 8. Results analysis and claim mapping | `$research-results-analysis`, `$research-data-availability` | Scite for citation support, Spreadsheets for claim tables, section citation coverage |
-| 9. Figure and table planning | `$research-paper-figures`, Image Gen visual reference, nature-figure source, Figma/BioRender/PPTX/SVG/TikZ/Python formal redraw | Image Gen for attractive reference; Spreadsheets for table exports; Figma/BioRender/PPTX for model diagram redraw/refinement; Presentations for PPTX refinement |
+| 9. Figure and table planning | `$research-paper-figures`, Image Gen visual reference, draw.io formal redraw, Python/Nature-style renderer, nature-figure source | Image Gen for attractive reference; draw.io for structured diagrams; Python for data-backed plots; Spreadsheets for table exports; Presentations for PPTX packaging |
 | 10. Paper writing | `$research-paper-writing`, nature-polishing source, Documents | Zotero for citations; check `section-citation-map.md` before polishing |
 | 11. Laptop DOCX / optional Word / optional LaTeX / PDF production | Documents, `$research-data-availability`, LaTeX doctor before LaTeX compile, PDF | Move final production to laptop; Zotero/BibTeX; Pages or Microsoft Word optional for local review |
-| 12. Laptop final audit and defense preparation | `$research-final-audit`, `$research-data-availability`, Presentations, nature-paper2ppt source | Move final finishing to laptop; Notion tasks, Figma/BioRender optional, Canva optional only if available |
+| 12. Laptop final audit and defense preparation | `$research-final-audit`, `$research-data-availability`, Presentations, draw.io exports, nature-paper2ppt source | Move final finishing to laptop; Notion tasks, Figma/BioRender optional, Canva optional only if available |
 
 ## Non-Replacement Rules
 
@@ -61,7 +62,7 @@
 | Notion | `docs/thesis/` evidence archive |
 | GitHub | local reproducibility checklist and experiment registry |
 | Spreadsheets | source Markdown/CSV records and notebooks |
-| Figma / BioRender | `.network.json` specs, claim/evidence records, and figure QA |
+| draw.io / Figma / BioRender | `.network.json` specs, claim/evidence records, and figure QA |
 | Presentations / Canva | supported claims and audited figures |
 | Superpowers | domain-specific research review |
 | nature-skills-derived style | raw evidence, citations, result analysis, or claim audit |

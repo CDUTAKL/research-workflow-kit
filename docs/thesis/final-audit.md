@@ -77,6 +77,7 @@
 | New `EXP-*` outputs have registry rows and status | pending |  |
 | New `DATA-*` references have path/access/hash or known gap | pending |  |
 | New `FIG-*` items have source data or source-of-truth notes | pending |  |
+| New structured diagrams use draw.io formal redraw or record a justified exception | pending |  |
 | New citations are at least metadata candidates, not invented references | pending |  |
 
 ## Advisor Audit Checklist
@@ -115,7 +116,7 @@
 | Experiment code contracts pass for cited runs | pending |  |
 | Remote 4060 formal runs have environment snapshots | pending |  |
 | Figure and table numbering is consistent | pending |  |
-| Network architecture figures have spec, vector output, and QA report | pending |  |
+| Network architecture figures have draw.io redraw record, spec, vector output, and QA report | pending |  |
 | Appendix and acknowledgements are complete | pending |  |
 | Defense slides align with supported claims | pending |  |
 | Backup evidence files are traceable | pending |  |

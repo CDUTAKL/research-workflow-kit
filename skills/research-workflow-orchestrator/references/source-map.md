@@ -18,7 +18,7 @@ This skill coordinates installed local skills and selected MIT-licensed source m
 - Superpowers plugin skills
 - Spreadsheets plugin
 - Presentations plugin
-- Figma, BioRender, Presentations, and optional Canva when visual polish is useful and available
+- draw.io for default structured diagram redraws; Figma, BioRender, Presentations, and optional Canva when visual polish or slide packaging is useful and available
 
 ## External Source Inspiration
 

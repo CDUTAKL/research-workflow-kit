@@ -4,7 +4,7 @@
 
 - Use this file to prepare the defense narrative, slides, evidence backups, and likely Q&A.
 - Every slide claim must trace to `claim-evidence-map.md`, `figure-plan.md`, `section-citation-map.md`, or `final-audit.md`.
-- Use Presentations for PPTX creation/editing. Use nature-paper2ppt-derived structure when converting a paper or thesis chapter into a Chinese academic deck. Use Figma or BioRender for visual refinement when useful. Canva is optional only when available.
+- Use Presentations for PPTX creation/editing. Use draw.io exports for structured method/model/workflow diagrams. Use nature-paper2ppt-derived structure when converting a paper or thesis chapter into a Chinese academic deck. Use Figma or BioRender only for optional visual refinement when useful. Canva is optional only when available.
 - Final stage 11-12 production is intended to happen on the user's laptop; keep slide/evidence versions traceable back to the Mac `docs/thesis/` console.
 
 ## Defense Narrative
@@ -55,7 +55,7 @@ Use this when building a PPTX from the thesis, a paper draft, or a source paper.
 - Use Presentations for creating, editing, rendering, and verifying `.pptx`.
 - Use nature-paper2ppt-derived rules to choose a small number of evidence-bearing figures instead of copying every figure.
 - Choose slide citations from `section-citation-map.md` and important evidence figures from `figure-plan.md`; do not add uncited slide claims.
-- Use Figma or BioRender when a slide needs visual refinement beyond PPTX layout.
+- Use draw.io exports for structured diagrams; use Figma or BioRender only when a slide needs visual refinement beyond draw.io/PPTX layout.
 - Use Canva only when it is available and a polished visual design or poster-style asset is needed.
 - Do not create slide claims that are stronger than the audited thesis claims.
 - Keep backup evidence paths visible in speaker notes or this file.

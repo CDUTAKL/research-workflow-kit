@@ -109,13 +109,14 @@ Use this for model architecture diagrams, method overview figures, workflow diag
 
 | Visual | Reference image | Reference accuracy | Source of truth | Formal redraw tool | Metadata check | Decision |
 |---|---|---|---|---|---|---|
-| Figure | `figures/references/...` | pass/revise/failed | `.network.json`/model.py/data/source note | Figma/PPTX/SVG/TikZ/Python | pass/pending/revise | accept/revise/block |
+| Figure | `figures/references/...` | pass/revise/failed | `.network.json`/model.py/data/source note | draw.io/Python/PPTX/SVG/TikZ/Figma/BioRender | pass/pending/revise | accept/revise/block |
 
 Check:
 
 - Image Gen or other reference images are not inserted directly as final thesis/manuscript figures unless explicitly approved.
 - The reference image was checked for wrong labels, hallucinated modules, incorrect arrows, inconsistent tensor shapes, and unsupported numeric values.
 - The final formal figure was redrawn from source-of-truth records, not copied from the generated bitmap.
+- Structured model, method, workflow, and architecture diagrams used draw.io as the default formal redraw path unless a reason for another tool is recorded.
 - The final export path is recorded in `figure-plan.md` or `network-architecture-figures.md`.
 - PNG/PDF/SVG/PPTX outputs were checked for unwanted Image Gen C2PA/OpenAI provenance metadata when the image was derived from a generated reference.
 - The caption describes the real model, method, or data source, not the Image Gen prompt.
@@ -168,7 +169,7 @@ Use these checks when a paper, thesis section, figure package, or PPT deck has b
 |---|---|---|
 | Figure package | core conclusion, panel evidence, non-redundancy, source-data traceability, editable vector/raster rationale | `$research-paper-figures` |
 | Final figure package | `figure-audit-standard.md` status, figure claim, panel roles, source data, script/notebook, export status, and revision items | `$research-paper-figures` |
-| Network architecture diagram | `.network.json` spec, layout/connections/panels/audit fields, renderer preset, SVG/PDF/PNG outputs, PPTX mode, QA report, topology-only caption | `$research-paper-figures` |
+| Network architecture diagram | draw.io redraw record, `.network.json` spec, layout/connections/panels/audit fields, SVG/PDF/PNG outputs, PPTX mode, QA report, topology-only caption | `$research-paper-figures` |
 | Source-grounded paper reader | `paper.md`, `source_map.json`, key blocks, figure/table notes, and direct-reading evidence for important claims | `$research-literature-review` and `$pdf` |
 | Citation batch | segment IDs, candidate references, support grades, dedupe keys, Zotero/Scite/metadata status | `$research-literature-review`, `$semanticscholar-skill`, Zotero, Scite |
 | Data availability | dataset IDs, source/processed data, access restrictions, hashes, data dictionary, and final statement | `$research-data-availability` |
