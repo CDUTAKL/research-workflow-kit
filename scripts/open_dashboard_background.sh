@@ -7,8 +7,15 @@ URL="${DASHBOARD_URL:-http://127.0.0.1:5173/}"
 LOG_DIR="${ROOT_DIR}/tmp/dashboard"
 CONTROL_LOG="${LOG_DIR}/control-server.log"
 VITE_LOG="${LOG_DIR}/vite.log"
+OPEN_BROWSER=1
+
+if [ "${1:-}" = "--no-open" ]; then
+  OPEN_BROWSER=0
+fi
 
 export PATH="/opt/homebrew/bin:${PATH}"
+export NO_PROXY="127.0.0.1,localhost,${NO_PROXY:-}"
+export no_proxy="127.0.0.1,localhost,${no_proxy:-}"
 
 mkdir -p "${LOG_DIR}"
 
@@ -47,4 +54,6 @@ for _ in range(60):
         time.sleep(0.3)
 PY
 
-open "${URL}"
+if [ "${OPEN_BROWSER}" = "1" ]; then
+  open "${URL}"
+fi

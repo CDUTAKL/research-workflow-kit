@@ -178,27 +178,28 @@ pnpm run prepare:data
 pnpm run dev
 ```
 
-On macOS, the simple launcher is:
+On macOS, the best daily route is a fixed local URL. Install the background launcher once:
+
+```bash
+./scripts/install_dashboard_fixed_url_macos.sh
+```
+
+Then open this fixed page from your browser bookmark or pinned tab:
+
+```text
+http://127.0.0.1:5173/
+```
+
+This creates a user LaunchAgent that starts the dashboard service at login and checks it every 5 minutes. It does not require a desktop shortcut.
+
+Manual launchers are still available:
 
 ```bash
 ./scripts/open_dashboard.sh
-```
-
-For a browser-like launcher on this Mac, open:
-
-```text
-~/Applications/科研工作流总控台.app
-```
-
-The setup also places a desktop shortcut named `科研工作流总控台.app`. It starts the dashboard in the background and opens the browser. You can still double-click `open-dashboard.command` in Finder when you want a visible terminal window for logs.
-
-Recreate the macOS app launcher after moving the repository with:
-
-```bash
 ./scripts/install_dashboard_app_macos.sh
 ```
 
-Open the Vite URL shown in the terminal, usually `http://127.0.0.1:5173/`.
+`open_dashboard.sh` shows terminal logs. `install_dashboard_app_macos.sh` creates an optional app under `~/Applications/`.
 
 The launcher also starts a local-only control service on `http://127.0.0.1:8765`.
 The web dashboard can then refresh workflow data, export the evidence graph, run

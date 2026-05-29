@@ -66,25 +66,28 @@ pnpm run prepare:data
 pnpm run dev
 ```
 
-Simpler Mac launcher:
+Recommended Mac route: install a fixed local URL service once:
+
+```bash
+./scripts/install_dashboard_fixed_url_macos.sh
+```
+
+Then open this fixed page from a browser bookmark or pinned tab:
+
+```text
+http://127.0.0.1:5173/
+```
+
+This uses a macOS user LaunchAgent to start the dashboard service at login and check it every 5 minutes. It does not require a desktop shortcut.
+
+Manual launchers remain available:
 
 ```bash
 ./scripts/open_dashboard.sh
-```
-
-For browser-like launching on this Mac, use the generated app:
-
-```text
-~/Applications/科研工作流总控台.app
-```
-
-Or double-click the desktop shortcut `科研工作流总控台.app`. It starts the dashboard in the background and opens the browser. `open-dashboard.command` remains available as the terminal-visible launcher.
-
-Recreate the macOS app launcher after moving the repository with:
-
-```bash
 ./scripts/install_dashboard_app_macos.sh
 ```
+
+`open_dashboard.sh` shows terminal logs. `install_dashboard_app_macos.sh` creates an optional app under `~/Applications/`.
 
 | Graph Artifact | Status | Notes |
 |---|---|---|
