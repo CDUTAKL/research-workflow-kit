@@ -32,14 +32,14 @@ It starts a local-only control service on `127.0.0.1:8765` so the page can refre
 | Stage | Name | Status | Main Record | Notes |
 |---|---|---|---|---|
 | 1 | Paper planning | pending | `thesis-brief.md`, `idea-discovery.md` |  |
-| 2 | Literature discovery and review | pending | `literature-matrix.md`, `section-citation-map.md` |  |
+| 2 | Literature discovery and review | pending | `literature-matrix.md`, `zotero-screening-loop.md`, `section-citation-map.md` |  |
 | 3 | Experiment question definition | pending | `claim-evidence-map.md` |  |
 | 4 | Experiment architecture planning | pending | `experiment-architecture.md` |  |
 | 5 | Research code implementation | pending | code repo, `git-version-log.md` |  |
 | 6 | Experiment run and monitoring | pending | `experiment-runbook.md` |  |
 | 7 | Experiment recording and result scan | pending | `experiment-registry.md` |  |
 | 8 | Results analysis and claim mapping | pending | `claim-evidence-map.md`, `data-availability.md` |  |
-| 9 | Figure and table production | pending | `figure-plan.md` |  |
+| 9 | Figure and table production | pending | `figure-plan.md`, `diagram-replica-tasks.md` |  |
 | 10 | Paper writing and polishing | pending | `writing-outline.md` |  |
 | 11 | Laptop DOCX / optional LaTeX / PDF | pending | final document artifacts |  |
 | 12 | Laptop final audit and defense | pending | `final-audit.md`, `defense-prep.md` |  |
@@ -99,7 +99,8 @@ Or double-click `open-dashboard.command` in Finder.
 | What experiments support the thesis? | `experiment-registry.md`, `experiment-runbook.md` |
 | What data backs the results? | `data-availability.md` |
 | What citations support each section? | `section-citation-map.md`, `literature-matrix.md` |
+| What literature candidates need screening? | `zotero-screening-loop.md` |
 | What citation search task should run next? | `deep-research-tasks.md`, `section-research-packets/` |
 | What changed versus baseline? | `experiment-reports/` |
-| What figures are final? | `figure-plan.md`, `network-architecture-figures.md` |
+| What figures are final? | `figure-plan.md`, `diagram-replica-tasks.md`, `network-architecture-figures.md` |
 | Is this ready for advisor or final review? | `final-audit.md` |

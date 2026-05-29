@@ -18,7 +18,7 @@ This skill coordinates installed local skills and selected MIT-licensed source m
 - Superpowers plugin skills
 - Spreadsheets plugin
 - Presentations plugin
-- draw.io for default structured diagram redraws; Figma, BioRender, Presentations, and optional Canva when visual polish or slide packaging is useful and available
+- draw.io for default Mac structured diagram redraws; Windows Visio as an optional `.vsdx` replication route; Figma, BioRender, Presentations, and optional Canva when visual polish or slide packaging is useful and available
 
 ## External Source Inspiration
 
@@ -40,6 +40,8 @@ This skill coordinates installed local skills and selected MIT-licensed source m
 - `external-skill-candidates/AI-research-SKILLs`
 - `external-skill-candidates/research-innovation-explorer`
 - `external-skill-candidates/DeepLearningDrawingTemplate`
+- `external-skill-candidates/zotero-med-pipeline`
+- `external-skill-candidates/codex-visio-replica-workflow`
 
 ## Adaptation Notes
 
@@ -52,4 +54,6 @@ This skill coordinates installed local skills and selected MIT-licensed source m
 - AI-Research-SKILLs is MIT licensed and reference-only for technical topics such as evaluation, fine-tuning, optimization, inference, and MLOps; do not install the whole pack by default.
 - research-innovation-explorer is MIT licensed and used as a reference layer for paper pools, idea matrices, novelty risk, and shortlists.
 - DeepLearningDrawingTemplate is Apache-2.0 licensed in the local clone, but it contains README previews and commercial links rather than editable PPT source files. It is used only as inspiration for network-architecture visual grammar, not copied as assets.
+- zotero-med-pipeline is MIT licensed and used as inspiration for a general Zotero screening loop; medical-only restrictions are not inherited unless the project is medical.
+- codex-visio-replica-workflow had no license file observed in the referenced snapshot, so it is used as reference-only inspiration for Windows Visio workflows; no source code is copied.
 - The workflow is designed for Mac/Codex with `remote_desktop_4060` as the primary GPU target and avoids hard-coded API credentials.

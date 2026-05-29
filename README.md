@@ -131,7 +131,8 @@ The workflow includes optional enhancement layers:
 - `research-code-quality` checks config-driven code, experiment contracts, smoke configs, output manifests, and 4060 handoff templates before expensive runs.
 - `research-autoresearch-loop` records human-supervised experiment iterations in `autoresearch-results.tsv` and `autoresearch-state.json` with verify/guard gates.
 - `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
-- `$research-literature-review` supports section-level citation matching through `section-citation-map.md` and source-grounded readers.
+- `$research-literature-review` supports section-level citation matching through `section-citation-map.md`, Zotero screening loops through `zotero-screening-loop.md`, and source-grounded readers.
+- `$research-paper-figures` supports dual-platform diagram replication: Mac draw.io MCP by default and Windows Visio when editable `.vsdx` output is useful.
 - `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
 - `docs/thesis/workflow-dashboard.md` is the daily project homepage for current stage, blockers, recent experiments, missing evidence, and audit tier.
 
@@ -146,6 +147,7 @@ The workflow includes optional enhancement layers:
 - DOCX work uses the Documents plugin and local `.docx` files. Pages can open or review documents locally; Microsoft Word is optional when installed.
 - LaTeX is optional. Run the LaTeX doctor first, then compile only when a TeX runtime is available.
 - Diagram polish uses draw.io / draw.io MCP as the default formal redraw route for model architecture, method workflow, system architecture, and process diagrams. Presentations handles PPTX; Figma and BioRender are optional visual refinement tools when available. Canva is not assumed on this Mac.
+- Windows can be used as an optional diagram replication workstation when Microsoft Visio and PowerShell 7+ are available. In that case, use the Visio JSON-plan route, export `.vsdx` plus PDF/PNG/EMF, then copy artifacts back to the project.
 
 ## Script Locations
 
@@ -214,13 +216,28 @@ For model architecture, method pipeline, workflow, and schematic figures:
 
 1. Use Image Gen only to create a visual reference.
 2. Check the reference for technical accuracy.
-3. Redraw the final structured diagram in draw.io from source-of-truth information.
-4. Export final thesis-ready SVG/PDF/PNG files, and use Presentations/PPTX when the diagram belongs in defense slides.
-5. Record provenance and audit status in `docs/thesis/figure-plan.md`.
+3. Mac route: redraw the final structured diagram in draw.io from source-of-truth information.
+4. Windows route: optionally generate a Visio JSON plan, create editable `.vsdx`, and export PDF/PNG/EMF.
+5. Export final thesis-ready SVG/PDF/PNG files, and use Presentations/PPTX when the diagram belongs in defense slides.
+6. Record provenance and audit status in `docs/thesis/figure-plan.md`, `diagram-replica-tasks.md`, and `network-architecture-figures.md`.
 
 Do not use AI-generated raster images directly as final thesis figures unless the project explicitly accepts that provenance.
 
 Use Python or the Nature-style renderer for data-backed statistical plots. Use Figma or BioRender only as optional polish layers when draw.io/Python output needs additional design refinement.
+
+## Literature Screening Workflow
+
+For recurring literature intake:
+
+1. Collect candidates from Semantic Scholar, Zotero, Scite, Web, arXiv/PubMed/publisher pages, or stable RSS feeds.
+2. Deduplicate by DOI/arXiv/S2/PMID/title.
+3. Screen as `A-core`, `B-section`, `C-background`, or `D-exclude`.
+4. Queue useful papers for Zotero and BibTeX.
+5. Export or review with Spreadsheets when useful.
+6. Convert feedback into cautious screening preferences, not automatic citation decisions.
+7. Hand strong candidates to `section-citation-map.md` and `deep-research-tasks.md`.
+
+Use `docs/thesis/zotero-screening-loop.md` to record this loop. Zotero and spreadsheets are convenience layers; `docs/thesis/` remains the evidence source of truth.
 
 ## Sensitive Information Policy
 

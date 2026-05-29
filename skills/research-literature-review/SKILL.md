@@ -15,13 +15,14 @@ Use this skill to find, organize, and synthesize literature into a defensible re
 - For full-paper reading tasks, preserve source-grounded evidence with page/block anchors before using the paper for important claims.
 - For citation-heavy thesis text, map sections and segments in `docs/thesis/section-citation-map.md`.
 - When a section needs targeted citation improvement, create a deep research task with `scripts/new_deep_research_task.py --section-id SEC-... --topic "..."` and work inside `docs/thesis/section-research-packets/`.
+- When the project needs recurring literature intake, use the Zotero screening loop in `docs/thesis/zotero-screening-loop.md`: candidate pool -> A/B/C/D labels -> Zotero queue -> spreadsheet feedback -> section citation handoff.
 - Use `SEC-*` for thesis sections and `SEG-*` only for section-level citation units; connect literature support back to `CLM-*` through `claim-evidence-map.md`.
 - Never fabricate references, DOI values, author lists, venues, or BibTeX entries.
 - Use web search, Scite, Zotero, Semantic Scholar, arXiv, or publisher pages when current or precise source metadata matters.
 
 ## Workflow
 
-Read `references/workflow.md` for the literature matrix and related-work templates. Read `references/source-map.md` for provenance and license notes.
+Read `references/workflow.md` for the literature matrix and related-work templates. Read `references/zotero-screening-loop.md` when adapting Zotero screening, feedback learning, or A/B/C/D candidate labels. Read `references/source-map.md` for provenance and license notes.
 
 1. Clarify the research topic, domain terms, target date range, and paper type.
 2. Build search queries with synonyms, method names, datasets, metrics, and application terms.
@@ -30,8 +31,9 @@ Read `references/workflow.md` for the literature matrix and related-work templat
 5. For papers requiring direct reading, create or request a source-grounded reader artifact under `docs/thesis/paper-readings/<paper-slug>/`.
 6. For long citation-seeking text, split into `SEC-*` sections and `SEG-*` claim/segment batches before searching.
 7. For each weak section, create a deep research packet containing section question, keyword set, search queries, candidate papers, must-read papers, citation gaps, Scite/Zotero status, and final citation decisions.
-8. Propose a related-work outline that groups literature by concept, not chronologically.
-9. Flag missing citations and unverifiable claims.
+8. For recurring intake, maintain the A/B/C/D screening pool and Zotero writeback queue without treating unverified candidates as citations.
+9. Propose a related-work outline that groups literature by concept, not chronologically.
+10. Flag missing citations and unverifiable claims.
 
 ## Output Contract
 
@@ -50,6 +52,7 @@ Always include:
 - citation batch strategy when the input contains many citation-worthy claims
 - section citation map updates when matching papers to thesis chapters, sections, or paragraphs
 - deep research packet path when a section needs more precise literature search
+- screening label, Zotero queue status, and feedback-learning status when using the screening loop
 - missing literature
 - BibTeX/Zotero follow-up actions
 

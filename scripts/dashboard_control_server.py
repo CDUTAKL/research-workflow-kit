@@ -20,6 +20,8 @@ ALLOWED_OPEN_PATHS = {
     "figurePlan": ROOT / "docs" / "thesis" / "figure-plan.md",
     "finalAudit": ROOT / "docs" / "thesis" / "final-audit.md",
     "deepResearchTasks": ROOT / "docs" / "thesis" / "deep-research-tasks.md",
+    "diagramReplicaTasks": ROOT / "docs" / "thesis" / "diagram-replica-tasks.md",
+    "zoteroScreeningLoop": ROOT / "docs" / "thesis" / "zotero-screening-loop.md",
     "experimentReports": ROOT / "docs" / "thesis" / "experiment-reports",
 }
 

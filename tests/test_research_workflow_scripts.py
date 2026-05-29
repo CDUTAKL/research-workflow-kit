@@ -1,4 +1,5 @@
 import subprocess
+import socket
 import sys
 import tempfile
 import textwrap
@@ -435,7 +436,9 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             for name in (
                 "evidence-promotion-policy.md",
                 "section-citation-map.md",
+                "zotero-screening-loop.md",
                 "figure-plan.md",
+                "diagram-replica-tasks.md",
                 "final-audit.md",
             ):
                 (thesis / name).write_text("# placeholder\n", encoding="utf-8")
@@ -484,25 +487,31 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertNotIn("old", dashboard)
 
     def test_dashboard_control_server_rejects_unlisted_open_path(self):
-        port = 18765
+        with socket.socket() as sock:
+            sock.bind(("127.0.0.1", 0))
+            port = sock.getsockname()[1]
         proc = subprocess.Popen(
             [sys.executable, str(DASHBOARD_CONTROL_SERVER), "--port", str(port)],
             cwd=REPO_ROOT,
             text=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
         try:
+            opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
             status_url = f"http://127.0.0.1:{port}/api/status"
             for _ in range(30):
                 try:
-                    with urllib.request.urlopen(status_url, timeout=0.2) as response:
+                    with opener.open(status_url, timeout=0.2) as response:
                         self.assertEqual(200, response.status)
                         break
                 except OSError:
                     time.sleep(0.1)
             else:
-                self.fail("dashboard control server did not start")
+                stderr = ""
+                if proc.poll() is not None:
+                    _, stderr = proc.communicate(timeout=1)
+                self.fail(f"dashboard control server did not start; exit={proc.poll()} stderr={stderr}")
 
             request = urllib.request.Request(
                 f"http://127.0.0.1:{port}/api/open-path",
@@ -511,14 +520,15 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 method="POST",
             )
             with self.assertRaises(urllib.error.HTTPError) as ctx:
-                urllib.request.urlopen(request, timeout=1)
+                opener.open(request, timeout=1)
             self.assertEqual(403, ctx.exception.code)
         finally:
             proc.terminate()
             try:
-                proc.wait(timeout=2)
+                proc.communicate(timeout=2)
             except subprocess.TimeoutExpired:
                 proc.kill()
+                proc.communicate(timeout=2)
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ Use this skill to plan and produce figures and tables that support paper claims.
 
 ## Workflow
 
-Read `references/workflow.md` for figure planning, plotting conventions, Nature-derived figure-readiness rules, and caption templates. Read `references/nature-figure-controlled-port.md` when generating Nature-style bar, line, heatmap, scatter, radar, distribution, forest, log-scale, ablation, threshold, confusion-matrix, image-plate, or multi-panel figures. Read `references/nature-figure-template-roadmap.md` when extending the local template library. Read `references/figure-audit-standard.md` when reviewing publication-ready, thesis-ready, Nature-style, or final submission figures. Read `references/network-architecture-figure.md` when drawing CNN, ResNet, U-Net, Transformer, attention, feature-fusion, or other neural-network architecture figures. Read `references/source-map.md` for source provenance.
+Read `references/workflow.md` for figure planning, plotting conventions, Nature-derived figure-readiness rules, and caption templates. Read `references/dual-platform-diagram-replica.md` when adapting reference images into Mac draw.io or Windows Visio redraw workflows. Read `references/nature-figure-controlled-port.md` when generating Nature-style bar, line, heatmap, scatter, radar, distribution, forest, log-scale, ablation, threshold, confusion-matrix, image-plate, or multi-panel figures. Read `references/nature-figure-template-roadmap.md` when extending the local template library. Read `references/figure-audit-standard.md` when reviewing publication-ready, thesis-ready, Nature-style, or final submission figures. Read `references/network-architecture-figure.md` when drawing CNN, ResNet, U-Net, Transformer, attention, feature-fusion, or other neural-network architecture figures. Read `references/source-map.md` for source provenance.
 
 1. Build a figure/table inventory tied to paper claims.
 2. Identify required input data for every visual, including experiment runbook, registry, output paths, claim-evidence map, section-citation map, and data availability records when available.
@@ -37,6 +37,7 @@ Read `references/workflow.md` for figure planning, plotting conventions, Nature-
    - preserve the style decisions that work;
    - redraw the final structured diagram from source-of-truth records in draw.io by default;
    - export SVG/PDF/PNG and, when needed, place the exported asset into PPTX slides.
+   - when working on Windows with Microsoft Visio, optionally use the Visio JSON-plan route and record `.vsdx` plus exports.
 8. For common result figures, prefer the local Nature-style template renderer in `skills/research-paper-figures/scripts/nature_plot_templates.py` or the installed equivalent under `~/.codex/skills/research-paper-figures/scripts/`: write or inspect a figure spec JSON, render SVG/PDF/PNG, and review the QA report.
 9. For network architecture diagrams, prefer editable vector/PPT-style shapes, feature-map stacks, module grouping, and clean hierarchy over generic rectangular flowcharts.
 10. For network architecture diagrams, record the source of truth (`model.py`, paper, `.network.json`, or manual architecture spec), then redraw formally in draw.io by default. Use SVG/PDF/PNG exports for the thesis and PPTX packaging for defense. Figma/BioRender remain optional polish tools; legacy renderers may remain structure helpers.
@@ -60,6 +61,7 @@ Always include:
 - Nature-style figure spec, template type, generated files, and QA report when a common result figure is produced
 - network-architecture visual grammar when relevant
 - formal redraw tool, draw.io source/export paths, source-of-truth record, generated files, metadata/C2PA check, and QA report when a network architecture figure is produced
+- platform route: `local_mac_drawio` or `windows_visio` when a reference image is replicated
 - LaTeX or Word insertion advice
 
 If data is missing, return a figure specification and data requirements instead of inventing values.

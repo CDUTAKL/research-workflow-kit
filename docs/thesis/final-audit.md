@@ -77,8 +77,9 @@
 | New `EXP-*` outputs have registry rows and status | pending |  |
 | New `DATA-*` references have path/access/hash or known gap | pending |  |
 | New `FIG-*` items have source data or source-of-truth notes | pending |  |
-| New structured diagrams use draw.io formal redraw or record a justified exception | pending |  |
+| New structured diagrams use Mac draw.io or Windows Visio route and record source-of-truth notes | pending |  |
 | New citations are at least metadata candidates, not invented references | pending |  |
+| New Zotero screening candidates are not cited before metadata/relevance checks | pending |  |
 
 ## Advisor Audit Checklist
 
@@ -89,6 +90,8 @@
 | Reviewed `EXP-*` runs pass contract checks | pending |  |
 | `remote_desktop_4060` formal runs include `outputs/EXP-*/environment.txt` | pending |  |
 | Figures/tables use `FIG-*` IDs and have safe captions | pending |  |
+| `diagram-replica-tasks.md` records draw.io / Visio outputs for structured diagrams | pending |  |
+| A/B/C/D literature screening labels have section handoff or exclusion reasons | pending |  |
 | Data restrictions and availability language are advisor-reviewable | pending |  |
 
 ## Final Audit Checklist
@@ -100,6 +103,7 @@
 | Every data-backed claim has a `DATA-*` trace and availability status | pending |  |
 | Every cited formal GPU result has an environment snapshot | pending |  |
 | Bibliography, citation rendering, and section citation map agree | pending |  |
+| Zotero screening feedback does not create unsupported stable screening rules | pending |  |
 | `workflow-dashboard.md` and evidence graph are refreshed | pending |  |
 | Defense slides only use promoted evidence | pending |  |
 
@@ -116,7 +120,7 @@
 | Experiment code contracts pass for cited runs | pending |  |
 | Remote 4060 formal runs have environment snapshots | pending |  |
 | Figure and table numbering is consistent | pending |  |
-| Network architecture figures have draw.io redraw record, spec, vector output, and QA report | pending |  |
+| Network architecture figures have draw.io or Visio redraw record, spec, vector output, and QA report | pending |  |
 | Appendix and acknowledgements are complete | pending |  |
 | Defense slides align with supported claims | pending |  |
 | Backup evidence files are traceable | pending |  |

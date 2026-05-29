@@ -20,6 +20,7 @@
 | workflow dashboard | 1-12 | one-page project status, blockers, recent experiments, missing evidence, audit tier | `workflow-dashboard.md` | Refresh manually or with `research_workflow_doctor.py --write-dashboard` |
 | evidence graph export | 3-12 | machine-readable and visual relationship map across claims, experiments, data, sections, figures | `evidence-graph.json`, `evidence-graph.mmd` | Use before advisor/final review when evidence feels scattered |
 | React/Vite dashboard | 1-12 | local web rendering of workflow health, stages, evidence graph, claims, experiments, and data availability | `dashboard-web/` | Run `pnpm run prepare:data`, then `pnpm run dev` |
+| Zotero screening loop | 2, 10, 12 | candidate-paper intake, A/B/C/D labels, Zotero queue, spreadsheet feedback learning | `zotero-screening-loop.md`, `literature-matrix.md` | Inspired by `zotero-med-pipeline`; generalized beyond medical-only PubMed workflow |
 | `local_mac` | 1-10 | research console, literature/writing/remote-run control, CPU-only smoke tests | `experiment-runbook.md`, `reproducibility-checklist.md` | Do not assume local GPU |
 | `remote_desktop_4060` | 5-8 | primary CUDA/GPU experiment target | `experiment-runbook.md`, `reproducibility-checklist.md`, `experiment-registry.md` | Use for training, evaluation, tuning, and reproducibility artifacts; save `outputs/EXP-*/environment.txt` |
 | `cloud_autodl` | 6-8 optional | stronger fallback GPU target | `experiment-runbook.md`, `reproducibility-checklist.md` | Use only when desktop 4060 is unavailable or insufficient |
@@ -28,6 +29,7 @@
 | Documents | 10, 11 | DOCX thesis drafting, editing, and formatting | `writing-outline.md`, `final-audit.md` | In Codex plugin contexts this is `documents:documents`; Pages or Microsoft Word are optional local review tools |
 | PDF | 11, 12 | rendered PDF checks | `final-audit.md` | Use for final visual/layout audit |
 | draw.io / draw.io MCP | 9, 12 | default formal redraw for model architecture, method workflow, evidence graph, system architecture, and process diagrams | `network-architecture-figures.md`, `figure-plan.md` | Use after Image Gen reference/content check; export SVG/PDF/PNG and package into PPTX when needed |
+| Windows Visio route | 9, 12 optional | direct Windows replication route for editable `.vsdx` diagrams from JSON plans | `diagram-replica-tasks.md`, `diagram-plans/`, `network-architecture-figures.md` | Use on Windows with Microsoft Visio + PowerShell 7; copy exports back to thesis project |
 | Figma | 9, 12 optional | visual system, collaborative design polish, reusable design components | `network-architecture-figures.md`, `figure-plan.md` | Optional refinement after draw.io/source-of-truth records exist |
 | BioRender | 9, 12 optional | scientific schematic and mechanism-style visual refinement | `figure-plan.md`, `defense-prep.md` | Optional; still keep source data and claims in `docs/thesis/` |
 | Presentations | 12 | defense slide deck and speaking structure | `defense-prep.md` | Slides must trace to supported claims |
@@ -43,14 +45,14 @@
 | Stage | Main Skills | Tool Layer |
 |---|---|---|
 | 1. Paper planning | `$research-paper-plan` | Notion for task board; `idea-discovery.md` for paper pool, idea matrix, novelty risk |
-| 2. Literature discovery and review | `$semanticscholar-skill`, `$research-literature-review`, Zotero, Scite | Spreadsheets for reviewable matrix exports; `section-citation-map.md` for section-level citation matching |
+| 2. Literature discovery and review | `$semanticscholar-skill`, `$research-literature-review`, Zotero, Scite | Spreadsheets for reviewable matrix exports; `zotero-screening-loop.md` for candidate screening; `section-citation-map.md` for section-level citation matching |
 | 3. Experiment question definition | `$research-paper-plan`, `$research-experiment-engineering` | Notion for task planning |
 | 4. Experiment architecture planning | `$research-experiment-engineering`, `$research-code-quality` | GitHub issues/branches when useful; contract checks before implementation |
 | 5. Research code implementation | Codex coding, Superpowers, `$research-code-quality` | Mac research console, GitHub commits and code review; heavy tests can run on `remote_desktop_4060` |
 | 6. Experiment run and monitoring | `$research-experiment-engineering`, `$research-autoresearch-loop` | GitHub commit trace, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback, macOS Terminal / VS Code SSH / `ssh` / `scp` / `rsync`, Notion progress |
 | 7. Experiment recording and result scan | `$jupyter-notebook`, `$research-results-analysis`, `$research-autoresearch-loop` | Spreadsheets for result tables; update data availability and autoresearch logs |
 | 8. Results analysis and claim mapping | `$research-results-analysis`, `$research-data-availability` | Scite for citation support, Spreadsheets for claim tables, section citation coverage |
-| 9. Figure and table planning | `$research-paper-figures`, Image Gen visual reference, draw.io formal redraw, Python/Nature-style renderer, nature-figure source | Image Gen for attractive reference; draw.io for structured diagrams; Python for data-backed plots; Spreadsheets for table exports; Presentations for PPTX packaging |
+| 9. Figure and table planning | `$research-paper-figures`, Image Gen visual reference, draw.io formal redraw, optional Windows Visio route, Python/Nature-style renderer, nature-figure source | Image Gen for attractive reference; Mac draw.io for structured diagrams; Windows Visio for editable `.vsdx`; Python for data-backed plots; Presentations for PPTX packaging |
 | 10. Paper writing | `$research-paper-writing`, nature-polishing source, Documents | Zotero for citations; check `section-citation-map.md` before polishing |
 | 11. Laptop DOCX / optional Word / optional LaTeX / PDF production | Documents, `$research-data-availability`, LaTeX doctor before LaTeX compile, PDF | Move final production to laptop; Zotero/BibTeX; Pages or Microsoft Word optional for local review |
 | 12. Laptop final audit and defense preparation | `$research-final-audit`, `$research-data-availability`, Presentations, draw.io exports, nature-paper2ppt source | Move final finishing to laptop; Notion tasks, Figma/BioRender optional, Canva optional only if available |
@@ -62,7 +64,7 @@
 | Notion | `docs/thesis/` evidence archive |
 | GitHub | local reproducibility checklist and experiment registry |
 | Spreadsheets | source Markdown/CSV records and notebooks |
-| draw.io / Figma / BioRender | `.network.json` specs, claim/evidence records, and figure QA |
+| draw.io / Windows Visio / Figma / BioRender | `.network.json` specs, claim/evidence records, and figure QA |
 | Presentations / Canva | supported claims and audited figures |
 | Superpowers | domain-specific research review |
 | nature-skills-derived style | raw evidence, citations, result analysis, or claim audit |

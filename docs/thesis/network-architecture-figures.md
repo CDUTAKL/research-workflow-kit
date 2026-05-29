@@ -9,7 +9,7 @@ Use `FIG-ARCH-*` as the final manuscript-facing ID. Older `ARCH-*` labels can be
 - Do not treat architecture diagrams as performance evidence. They describe model topology and information flow.
 - Prefer editable vector/PPT-style outputs over screenshots.
 - Use Image Gen Skill first for an attractive visual reference when visual quality matters, then check content accuracy and redraw formally.
-- Keep `.network.json`, `model.py`, paper source, or manual architecture spec as the source of truth. Image Gen references, draw.io files, PPTX, Figma, PNG, and screenshots are outputs or refinements, not topology records.
+- Keep `.network.json`, `model.py`, paper source, or manual architecture spec as the source of truth. Image Gen references, draw.io files, Visio `.vsdx`, PPTX, Figma, PNG, and screenshots are outputs or refinements, not topology records.
 - Run the QA report before marking any architecture figure as ready.
 
 ## Visual Reference To Formal Architecture Workflow
@@ -20,14 +20,14 @@ architecture source or model.py
 -> Image Gen Skill reference image
 -> content accuracy check
 -> style decisions to reuse
--> formal redraw in draw.io
+-> formal redraw in draw.io on Mac or Visio on Windows
 -> SVG/PDF/PNG/PPTX export
 -> metadata/provenance check
 -> QA report
 -> figure-plan.md / final-audit.md
 ```
 
-Legacy renderers may be used as structure helpers, but draw.io is the default formal redraw path for structured diagrams. Use Python or the Nature-style renderer for data-backed plots; use Figma/BioRender only as optional visual refinement.
+Legacy renderers may be used as structure helpers, but draw.io is the default Mac formal redraw path for structured diagrams. Windows Visio is an optional direct-use route when `.vsdx` editability is useful. Use Python or the Nature-style renderer for data-backed plots; use Figma/BioRender only as optional visual refinement.
 
 ## Spec Fields
 
@@ -42,7 +42,7 @@ Legacy renderers may be used as structure helpers, but draw.io is the default fo
 
 | Figure ID | Model | visual_reference | reference_accuracy_check | Source Of Truth | Formal Redraw Tool | Outputs | metadata_check | QA Report | Status |
 |---|---|---|---|---|---|---|---|---|---|
-| FIG-ARCH-001 | TBD | `figures/references/FIG-ARCH-001_reference.png` | pending | paper/code/`.network.json`/TBD | draw.io/TBD | SVG/PDF/PNG/PPTX/TBD | pending | TBD.qa.md | planned |
+| FIG-ARCH-001 | TBD | `figures/references/FIG-ARCH-001_reference.png` | pending | paper/code/`.network.json`/TBD | draw.io or Windows Visio/TBD | SVG/PDF/PNG/PPTX/VSDX/TBD | pending | TBD.qa.md | planned |
 
 ## draw.io Handoff
 
@@ -58,6 +58,21 @@ Rules:
 - Use draw.io for formal redraw, not for changing architecture facts without updating the source record.
 - Export refined assets back to the project and record final paths in this file.
 - Final manuscript still uses source-traceable SVG/PDF/PNG, not an untracked screenshot.
+
+## Windows Visio Handoff
+
+Use this route only on a Windows machine with Microsoft Visio and PowerShell 7+ when editable `.vsdx` output is useful.
+
+| Figure ID | Visio Plan | VSDX Output | Preview Export | Source Of Truth | Status |
+|---|---|---|---|---|---|
+| FIG-ARCH-001 | `docs/thesis/diagram-plans/FIG-ARCH-001.visio-plan.json` | `figures/final/FIG-ARCH-001.vsdx` | PDF/PNG/EMF/TBD | `.network.json`/model.py/TBD | planned |
+
+Rules:
+
+- Check the Windows Visio environment before generation.
+- The `.vsdx` is editable output, not topology truth.
+- Copy final `.vsdx` and preview exports back to the project and record them here.
+- Keep the same caption and `FIG-*` ID across draw.io and Visio variants.
 
 ## Architecture Contract
 

@@ -7,7 +7,7 @@ Use `evidence-promotion-policy.md` for final visual IDs. Manuscript-facing figur
 - Use this file to plan figures and tables before polishing visual style.
 - Every figure/table should identify its purpose, input data, supported claim, and caption-safe wording.
 - For model architecture, method overview, workflow, and schematic figures, create or select a visual reference first. Image Gen Skill is the preferred reference generator when visual quality matters.
-- Reference images are not final thesis figures. Check reference content accuracy, then redraw structured diagrams from source-of-truth records in draw.io by default.
+- Reference images are not final thesis figures. Check reference content accuracy, then redraw structured diagrams from source-of-truth records in draw.io by default on Mac, or Visio on Windows when editable `.vsdx` is needed.
 - Use Python or the Nature-style renderer for data-backed plots. Use Figma/BioRender only as optional visual polish after draw.io/Python output exists.
 - Use `network-architecture-figures.md` for model structure diagrams; do not manage them as generic result plots.
 - Run the Nature-derived `figure-audit-standard.md` before marking final thesis, advisor-facing, or publication-ready figures as ready.
@@ -15,9 +15,9 @@ Use `evidence-promotion-policy.md` for final visual IDs. Manuscript-facing figur
 
 ## Visual Reference To Formal Redraw Register
 
-| Figure ID | visual_reference | reference_source | reference_accuracy_check | style_to_reuse | source_of_truth | formal_redraw_tool | final_export_path | metadata_check | Status |
-|---|---|---|---|---|---|---|---|---|---|
-| FIG-ARCH-001 | `figures/references/FIG-ARCH-001_reference.png` | imagegen/TBD | pending | layout/palette/panel hierarchy/TBD | `.network.json` / model.py / paper source | draw.io/TBD | `figures/final/FIG-ARCH-001.*` | pending | planned |
+| Figure ID | visual_reference | reference_source | platform_route | reference_accuracy_check | style_to_reuse | source_of_truth | formal_redraw_tool | final_export_path | metadata_check | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FIG-ARCH-001 | `figures/references/FIG-ARCH-001_reference.png` | imagegen/TBD | local_mac_drawio / windows_visio / TBD | pending | layout/palette/panel hierarchy/TBD | `.network.json` / model.py / paper source | draw.io/Visio/TBD | `figures/final/FIG-ARCH-001.*` | pending | planned |
 
 Rules:
 
@@ -25,7 +25,8 @@ Rules:
 - `reference_accuracy_check` must name any incorrect module, arrow, tensor shape, symbol, or label before redraw.
 - `style_to_reuse` records what should be copied stylistically: layout, palette, spacing, side legend, inset style, typography, or panel hierarchy.
 - `source_of_truth` records what controls scientific accuracy.
-- `formal_redraw_tool` should be draw.io for structured diagrams unless a justified exception is recorded.
+- `platform_route` records whether the figure uses `local_mac_drawio` or `windows_visio`.
+- `formal_redraw_tool` should be draw.io for Mac structured diagrams, or Visio for Windows `.vsdx` replication, unless a justified exception is recorded.
 - `metadata_check` confirms the final export does not carry unwanted generated-image provenance such as C2PA/OpenAI metadata.
 
 ## Figure And Table List
@@ -34,7 +35,7 @@ Rules:
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | FIG-001 | figure | TBD | CLM-001/TBD | hero/support/TBD | TBD | TBD | flowchart/line/bar/heatmap/TBD | TBD | planned | pending | TBD | planned | PDF/SVG/PNG/TBD |
 | FIG-TABLE-001 | table | TBD | CLM-001/TBD | table/TBD | TBD | TBD | metric table/ablation table/TBD | TBD | planned | pending | TBD | planned | DOCX/optional LaTeX/TBD |
-| FIG-ARCH-001 | network architecture | explain model topology | method clarity | architecture main + inset | `.network.json` / model.py / paper source | draw.io or skills/research-paper-figures/scripts/render_network_architecture.py | feature-map stack diagram | structure-only caption | planned | pending | TBD | planned | SVG/PDF/PNG/PPTX |
+| FIG-ARCH-001 | network architecture | explain model topology | method clarity | architecture main + inset | `.network.json` / model.py / paper source | draw.io, Windows Visio, or skills/research-paper-figures/scripts/render_network_architecture.py | feature-map stack diagram | structure-only caption | planned | pending | TBD | planned | SVG/PDF/PNG/PPTX/VSDX |
 
 ## Publication-Grade Figure Contract
 
@@ -46,9 +47,9 @@ Use this section when a figure needs Nature-style or high-impact-journal polish.
 
 ## Network Architecture Figure Handoff
 
-| Architecture Figure | Spec File | draw.io / Renderer Record | Generated Outputs | QA Report | Console Record |
+| Architecture Figure | Spec File | draw.io / Visio / Renderer Record | Generated Outputs | QA Report | Console Record |
 |---|---|---|---|---|---|
-| FIG-ARCH-001 | TBD.network.json | draw.io file or thesis-clean/nature-minimal/ppt-template-rich | SVG/PDF/PNG/PPTX/TBD | TBD.qa.md | `network-architecture-figures.md` |
+| FIG-ARCH-001 | TBD.network.json | draw.io file, `.vsdx`, or thesis-clean/nature-minimal/ppt-template-rich | SVG/PDF/PNG/PPTX/VSDX/TBD | TBD.qa.md | `network-architecture-figures.md`, `diagram-replica-tasks.md` |
 
 ## Nature-Style Template Handoff
 

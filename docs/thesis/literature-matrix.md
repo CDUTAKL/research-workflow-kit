@@ -8,6 +8,7 @@
 - When a new advisor topic is received, start from `topic-intake.md` search directions before broadening the literature search.
 - For full-paper reading, store source-grounded artifacts under `docs/thesis/paper-readings/<paper-slug>/` and record reader/source-map paths here.
 - For long citation-seeking text, use `section-citation-map.md` plus batch rows so candidate references remain traceable to claim segments.
+- For recurring literature intake, use `zotero-screening-loop.md` for A/B/C/D labels, Zotero writeback queue, spreadsheet feedback, and section handoff.
 
 ## Search Scope
 
@@ -47,6 +48,15 @@
 | `cite_in_related_work` | Ready to cite in the related-work structure |
 | `do_not_cite_yet` | Do not cite until relevance or metadata is resolved |
 
+## Screening Label Legend
+
+| Label | Meaning | Use |
+|---|---|---|
+| `A-core` | central to thesis topic, method, dataset, metric, or claim | read and map to `SEC-*`, `SEG-*`, or `CLM-*` |
+| `B-section` | useful for a specific chapter or subsection | add to section packet |
+| `C-background` | broad background or backup citation | keep as candidate |
+| `D-exclude` | irrelevant or unreliable for this thesis | do not cite; record exclusion reason |
+
 ## Core Literature Table
 
 | Paper | Year | Venue | Identifier | Role | Method/Data | Main Finding | Limitation | Use In Manuscript | Source Status | Next Action | Zotero Status | Scite/Support Status | Reading Status | Reader Path | Source Map Path | Key Blocks | Figure/Table Notes | Notes |
@@ -68,6 +78,12 @@
 | Paper | Identifier | Collection / Tag | PDF Attachment | BibTeX Status | Zotero Status | Final Metadata Check | Next Action |
 |---|---|---|---|---|---|---|---|
 | TBD | DOI/arXiv/S2/PubMed/TBD | thesis/TBD | missing/attached | missing/candidate/final | not_added/in_zotero | pending | add_to_zotero |
+
+## Screening Feedback Handoff
+
+| Item ID | Screening Label | Zotero Status | Feedback Status | Section Handoff | Next Action |
+|---|---|---|---|---|---|
+| LIT-CAND-001/TBD | A-core/B-section/C-background/D-exclude/TBD | not_added/in_zotero/duplicate/TBD | none/tentative/stable/ambiguous/TBD | SEC-INTRO-001/TBD | update `zotero-screening-loop.md` |
 
 ## Scite / Claim Support Queue
 

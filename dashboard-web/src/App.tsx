@@ -129,6 +129,12 @@ function ActionPanel({ onReload }: { onReload: () => void }) {
         <button onClick={() => run('tasks', () => postAction('/api/open-path', { key: 'deepResearchTasks' }))} disabled={Boolean(busy)}>
           <BookOpen size={16} /> Open Research Tasks
         </button>
+        <button onClick={() => run('zotero', () => postAction('/api/open-path', { key: 'zoteroScreeningLoop' }))} disabled={Boolean(busy)}>
+          <BookOpen size={16} /> Open Zotero Screening
+        </button>
+        <button onClick={() => run('diagrams', () => postAction('/api/open-path', { key: 'diagramReplicaTasks' }))} disabled={Boolean(busy)}>
+          <ExternalLink size={16} /> Open Diagram Tasks
+        </button>
         <button onClick={() => run('reports', () => postAction('/api/open-path', { key: 'experimentReports' }))} disabled={Boolean(busy)}>
           <FlaskConical size={16} /> Open Reports Folder
         </button>

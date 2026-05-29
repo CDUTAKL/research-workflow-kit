@@ -115,7 +115,9 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
         "experiment-registry.md",
         "data-availability.md",
         "section-citation-map.md",
+        "zotero-screening-loop.md",
         "figure-plan.md",
+        "diagram-replica-tasks.md",
         "final-audit.md",
     ]
     for name in required_files:
@@ -290,6 +292,8 @@ def dashboard_data(
             "experimentRegistry": "docs/thesis/experiment-registry.md",
             "dataAvailability": "docs/thesis/data-availability.md",
             "figurePlan": "docs/thesis/figure-plan.md",
+            "diagramReplicaTasks": "docs/thesis/diagram-replica-tasks.md",
+            "zoteroScreeningLoop": "docs/thesis/zotero-screening-loop.md",
             "finalAudit": "docs/thesis/final-audit.md",
             "evidenceGraph": "docs/thesis/evidence-graph.json",
         },
