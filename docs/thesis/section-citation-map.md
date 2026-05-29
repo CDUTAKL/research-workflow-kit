@@ -7,6 +7,7 @@
 - Candidate references are not final citations until metadata and support are verified.
 - Important claims require Scite status or source-map-backed direct reading evidence.
 - Follow `evidence-promotion-policy.md`: `SEC-*` names thesis sections, and `SEG-*` names citation units inside those sections.
+- Promote core citations through `citation-provenance.md`, and use `zotero-collection-coverage.md` to track whether each section has enough Zotero-backed literature.
 
 ## Section Registry
 

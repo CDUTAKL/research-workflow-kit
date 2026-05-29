@@ -16,12 +16,16 @@ ALLOWED_OPEN_PATHS = {
     "dashboard": ROOT / "docs" / "thesis" / "workflow-dashboard.md",
     "claimMap": ROOT / "docs" / "thesis" / "claim-evidence-map.md",
     "experimentRegistry": ROOT / "docs" / "thesis" / "experiment-registry.md",
+    "benchmarkReportSchema": ROOT / "docs" / "thesis" / "benchmark-report-schema.md",
     "dataAvailability": ROOT / "docs" / "thesis" / "data-availability.md",
+    "materialPassport": ROOT / "docs" / "thesis" / "material-passport.md",
+    "citationProvenance": ROOT / "docs" / "thesis" / "citation-provenance.md",
     "figurePlan": ROOT / "docs" / "thesis" / "figure-plan.md",
     "finalAudit": ROOT / "docs" / "thesis" / "final-audit.md",
     "deepResearchTasks": ROOT / "docs" / "thesis" / "deep-research-tasks.md",
     "diagramReplicaTasks": ROOT / "docs" / "thesis" / "diagram-replica-tasks.md",
     "zoteroScreeningLoop": ROOT / "docs" / "thesis" / "zotero-screening-loop.md",
+    "zoteroCollectionCoverage": ROOT / "docs" / "thesis" / "zotero-collection-coverage.md",
     "experimentReports": ROOT / "docs" / "thesis" / "experiment-reports",
 }
 

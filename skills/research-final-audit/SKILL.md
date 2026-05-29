@@ -14,6 +14,7 @@ Use this skill as the last quality gate before submission or defense. It checks 
 - Treat unverifiable references as blockers until checked.
 - Treat missing data availability for core data-backed claims as a blocker.
 - Apply `evidence-promotion-policy.md` before promoting `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` records to final evidence.
+- Check `material-passport.md`, `benchmark-report-schema.md`, `citation-provenance.md`, and `zotero-collection-coverage.md` when the project uses those records.
 - Choose the audit tier explicitly: `quick`, `advisor`, or `final`.
 - Use `workflow-dashboard.md`, `research_workflow_doctor.py`, and `evidence-graph.mmd` as navigation aids when the project console is large.
 - Separate scientific issues from formatting issues.
@@ -27,8 +28,8 @@ Read `references/workflow.md` for audit tables and checklists. Read `references/
 1. Identify the target artifact: manuscript, thesis, references, figures, LaTeX/PDF, Word document, or slides.
 2. Extract quantitative claims, comparisons, scope wording, figure/table captions, and citation-backed statements.
 3. Audit claims against raw result files, cited evidence, configs, and rendered figures/tables.
-4. Audit citations for existence, metadata accuracy, and claim support.
-5. Audit reproducibility records, including run commands, configs, seeds, splits, code version, metric files, output directories, 4060 environment snapshots, code contract checks, and autoresearch verify/guard records when the thesis console exists.
+4. Audit citations for existence, metadata accuracy, claim support, provenance, Zotero coverage, and export trace.
+5. Audit reproducibility and benchmark records, including run commands, configs, seeds, splits, code version, metric files, output directories, 4060 environment snapshots, code contract checks, benchmark report schema, material passports, and autoresearch verify/guard records when the thesis console exists.
 6. Audit tool-layer records when available: task board sync, git version log, spreadsheet exports, and defense prep.
 7. Audit data availability records, including dataset provenance, access restrictions, hash/manifest, data dictionary, and claim-to-data traceability.
 8. Check section citation coverage for citation-heavy manuscript sections.
@@ -47,7 +48,9 @@ Always include:
 - figure/table/equation checks
 - figure-audit status for final figures and network architecture diagrams
 - source-grounded reading status for important citations when Scite is insufficient
+- citation provenance and Zotero collection coverage issues
 - reproducibility checklist issues
+- material passport and benchmark report schema issues
 - 4060 or cloud environment snapshot issues for cited formal GPU runs
 - data availability issues
 - section citation map issues

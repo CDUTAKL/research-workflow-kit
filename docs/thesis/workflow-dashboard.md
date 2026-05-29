@@ -103,6 +103,10 @@ Manual launchers remain available:
 | 快速健康检查 | `快速健康检查` or `python scripts/research_workflow_doctor.py --warn-only` | P0/P1 console report |
 | 创建深研任务 | `python scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "..."` | `deep-research-tasks.md`, section packet |
 | 创建实验报告 | `python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000` | `experiment-reports/EXP-001.md` |
+| 检查材料护照 | `打开材料护照` | `material-passport.md` |
+| 检查引用溯源 | `打开引用溯源` | `citation-provenance.md` |
+| 检查 Zotero 覆盖 | `打开文献覆盖` | `zotero-collection-coverage.md` |
+| 检查 benchmark 规范 | `打开 Benchmark` | `benchmark-report-schema.md` |
 | 审计 skills | `python scripts/audit_skills.py --warn-only --write-report` | `skill-audit-report.md` |
 
 ## Quick Navigation
@@ -111,10 +115,12 @@ Manual launchers remain available:
 |---|---|
 | What should happen next? | `workflow-dashboard.md`, `task-board-sync.md` |
 | What claims are safe? | `claim-evidence-map.md`, `evidence-promotion-policy.md` |
+| What materials identify the evidence chain? | `material-passport.md`, `research-materials-index.md` |
 | What experiments support the thesis? | `experiment-registry.md`, `experiment-runbook.md` |
+| What benchmark comparison is defensible? | `benchmark-report-schema.md`, `experiment-reports/` |
 | What data backs the results? | `data-availability.md` |
-| What citations support each section? | `section-citation-map.md`, `literature-matrix.md` |
-| What literature candidates need screening? | `zotero-screening-loop.md` |
+| What citations support each section? | `section-citation-map.md`, `citation-provenance.md`, `literature-matrix.md` |
+| What literature candidates need screening? | `zotero-screening-loop.md`, `zotero-collection-coverage.md` |
 | What citation search task should run next? | `deep-research-tasks.md`, `section-research-packets/` |
 | What changed versus baseline? | `experiment-reports/` |
 | What figures are final? | `figure-plan.md`, `diagram-replica-tasks.md`, `network-architecture-figures.md` |

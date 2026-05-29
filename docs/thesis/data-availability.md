@@ -7,6 +7,7 @@
 - A claim is not final if its required data source is missing or impossible to trace.
 - Use `$research-data-availability` before final audit, DOCX/PDF production, and defense material finishing.
 - Follow `evidence-promotion-policy.md`: data-backed `CLM-*` items must trace to `DATA-*`, and final visuals use `FIG-*`.
+- Register evidence-critical datasets, outputs, figures, readings, and final artifacts in `material-passport.md`.
 
 ## Dataset Registry
 

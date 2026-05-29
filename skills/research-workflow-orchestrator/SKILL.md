@@ -83,14 +83,17 @@ docs/thesis/
   git-version-log.md
   literature-matrix.md
   zotero-screening-loop.md
+  zotero-collection-coverage.md
   paper-readings/
   section-citation-map.md
+  citation-provenance.md
   deep-research-tasks.md
   section-research-packets/
   idea-discovery.md
   experiment-architecture.md
   experiment-runbook.md
   reproducibility-checklist.md
+  benchmark-report-schema.md
   experiment-registry.md
   experiment-integrity-checklist.md
   autoresearch-loop.md
@@ -99,6 +102,7 @@ docs/thesis/
   experiment-reports/
   experiment-notebook-index.md
   claim-evidence-map.md
+  material-passport.md
   data-availability.md
   figure-plan.md
   diagram-replica-tasks.md
@@ -127,8 +131,10 @@ The core console files are:
 | `git-version-log.md` | branch/commit traceability for code and experiments |
 | `literature-matrix.md` | Literature groups, source status, paper-reading records, citation batches |
 | `zotero-screening-loop.md` | candidate-paper screening, A/B/C/D labels, Zotero queue, and feedback learning |
+| `zotero-collection-coverage.md` | Zotero collection coverage by section, claim, and verified citations |
 | `paper-readings/` | Source-grounded full-paper readers with `paper.md`, `source_map.json`, notes, and assets |
 | `section-citation-map.md` | Section and segment level citation matching |
+| `citation-provenance.md` | citation metadata/support verification, Zotero status, and export trace |
 | `deep-research-tasks.md` | chapter or section level literature search tasks |
 | `section-research-packets/` | per-section citation precision packets |
 | `idea-discovery.md` | Paper pool, idea matrix, novelty risk, shortlist |
@@ -137,6 +143,7 @@ The core console files are:
 | `reproducibility-checklist.md` | environment, split, seed, config, artifacts, rerun commands |
 | `evidence-promotion-policy.md` | ID naming, promotion gates, quick/advisor/final audit tiers |
 | `evidence-graph.json` / `evidence-graph.mmd` | generated evidence relationship graph |
+| `benchmark-report-schema.md` | baseline/new metric comparison schema and benchmark guard checklist |
 | `experiment-registry.md` | Experiment IDs, configs, outputs, metrics, risks |
 | `experiment-integrity-checklist.md` | leakage, fake ground truth, metric, config, artifact, and scope checks |
 | `autoresearch-loop.md` | human-supervised iteration plan and verify/guard gate contract |
@@ -145,6 +152,7 @@ The core console files are:
 | `experiment-reports/` | baseline comparison and claim-promotion report for each formal run |
 | `experiment-notebook-index.md` | Reproducible notebook records and console handoffs |
 | `claim-evidence-map.md` | Claim-to-result-to-figure-to-citation traceability |
+| `material-passport.md` | identity cards for datasets, experiment outputs, figures, readings, and document artifacts |
 | `data-availability.md` | dataset provenance, access status, and claim-to-data traceability |
 | `figure-plan.md` | Figures, tables, captions, input data, status |
 | `diagram-replica-tasks.md` | Mac draw.io and Windows Visio reference-image replication tasks |
@@ -174,17 +182,17 @@ Read the reference files only as needed:
 Use this stage model when explaining or coordinating the full workflow:
 
 1. Paper planning: `$research-paper-plan` for Topic Intake -> Research Blueprint when a title is provided; optionally sync tasks to Notion; use `idea-discovery.md` for paper pool, idea matrix, novelty risk, and shortlist.
-2. Literature discovery and review: `$semanticscholar-skill`, `$research-literature-review`, `$pdf` for source-grounded paper readers, Zotero, Scite, long-text citation batching, optional Zotero screening loop, `section-citation-map.md`, and `deep-research-tasks.md` section packets when a chapter needs tighter citation matching.
+2. Literature discovery and review: `$semanticscholar-skill`, `$research-literature-review`, `$pdf` for source-grounded paper readers, Zotero, Scite, long-text citation batching, optional Zotero screening loop, `zotero-collection-coverage.md`, `citation-provenance.md`, `section-citation-map.md`, and `deep-research-tasks.md` section packets when a chapter needs tighter citation matching.
 3. Experiment question definition: map planned claims to required experiments.
 4. Experiment architecture planning: `$research-experiment-engineering` and `$research-code-quality` for code boundaries, config-driven entrypoints, and experiment contracts.
 5. Research code implementation: Codex coding workflow, Superpowers TDD/debugging, `$research-code-quality`, GitHub versioning.
 6. Experiment run and monitoring: `$research-experiment-engineering` for `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU formal runs, `cloud_autodl` fallback training, logs, artifact recovery, shutdown/release policy, and git commit traceability; use `$research-autoresearch-loop` for human-supervised iterations and verify/guard gates. Use macOS Terminal, VS Code SSH, `ssh`, `scp`, or `rsync` for remote handoff.
-7. Experiment recording and result scan: `$jupyter-notebook`, `$research-results-analysis`, `$research-autoresearch-loop`, Spreadsheets for reviewable exports; create `experiment-reports/EXP-*.md` for formal baseline comparisons; update data availability when result artifacts become evidence.
-8. Results analysis and claim mapping: `$research-results-analysis`, `$research-data-availability`, Scite for citation-support checks, Spreadsheets for claim tables, and `section-citation-map.md`.
+7. Experiment recording and result scan: `$jupyter-notebook`, `$research-results-analysis`, `$research-autoresearch-loop`, Spreadsheets for reviewable exports; create `experiment-reports/EXP-*.md` and update `benchmark-report-schema.md` for formal baseline comparisons; update `material-passport.md` and data availability when result artifacts become evidence.
+8. Results analysis and claim mapping: `$research-results-analysis`, `$research-data-availability`, Scite for citation-support checks, Spreadsheets for claim tables, `material-passport.md`, `benchmark-report-schema.md`, `citation-provenance.md`, and `section-citation-map.md`.
 9. Figure and table planning: `$research-paper-figures`, with `figure-audit-standard.md` for Nature-derived claim-first figure QA. For model architecture, method overview, workflow, and schematic figures, run the required visual-reference route first. Mac route: Image Gen Skill reference -> content-accuracy check -> formal redraw in draw.io from source-of-truth records -> SVG/PDF/PNG export -> optional PPTX packaging -> metadata/provenance check -> figure audit. Windows route: reference image -> Visio JSON plan -> `.vsdx` -> EMF/PDF/PNG export -> copy artifacts back -> audit. Use Python or the Nature-style renderer for data-backed plots, and Spreadsheets for manuscript tables.
 10. Paper writing: `$research-paper-writing`, with `nature-polishing` rules for final section logic, hedging, sentence clarity, and English manuscript polish when appropriate; check `section-citation-map.md` before citation-heavy polishing.
 11. Laptop DOCX / optional Word / optional LaTeX / PDF production: move final production to the user's laptop; use `$research-data-availability`, Documents plugin for `.docx`; Pages or Microsoft Word only when installed; LaTeX doctor first, then LaTeX compile only when a TeX runtime is available; `$pdf` for rendered checks.
-12. Laptop final audit and defense preparation: move final finishing to the user's laptop; use `$research-final-audit`, `$research-data-availability`, Presentations, draw.io exports, optional Figma/BioRender visual refinement, optional Canva only when available, Notion task closure, and `nature-paper2ppt` structure when converting a paper or thesis chapter into a Chinese academic PPTX deck. Final audit must choose `quick`, `advisor`, or `final` tier and check workflow dashboard health, evidence graph gaps, figure-audit status, source-grounded reading/citation evidence, Zotero/Scite statuses, data availability, autoresearch verify/guard status, code contract status, 4060 environment snapshots, and network-architecture draw.io/`.network.json` plus QA reports.
+12. Laptop final audit and defense preparation: move final finishing to the user's laptop; use `$research-final-audit`, `$research-data-availability`, Presentations, draw.io exports, optional Figma/BioRender visual refinement, optional Canva only when available, Notion task closure, and `nature-paper2ppt` structure when converting a paper or thesis chapter into a Chinese academic PPTX deck. Final audit must choose `quick`, `advisor`, or `final` tier and check workflow dashboard health, evidence graph gaps, material passport completeness, benchmark report schema, figure-audit status, source-grounded reading/citation provenance, Zotero collection coverage, data availability, autoresearch verify/guard status, code contract status, 4060 environment snapshots, and network-architecture draw.io/`.network.json` plus QA reports.
 
 ## Output Contract
 

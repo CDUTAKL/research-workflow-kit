@@ -435,8 +435,12 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             )
             for name in (
                 "evidence-promotion-policy.md",
+                "material-passport.md",
                 "section-citation-map.md",
+                "citation-provenance.md",
                 "zotero-screening-loop.md",
+                "zotero-collection-coverage.md",
+                "benchmark-report-schema.md",
                 "figure-plan.md",
                 "diagram-replica-tasks.md",
                 "final-audit.md",

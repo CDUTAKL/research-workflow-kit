@@ -131,9 +131,10 @@ The workflow includes optional enhancement layers:
 - `research-code-quality` checks config-driven code, experiment contracts, smoke configs, output manifests, and 4060 handoff templates before expensive runs.
 - `research-autoresearch-loop` records human-supervised experiment iterations in `autoresearch-results.tsv` and `autoresearch-state.json` with verify/guard gates.
 - `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
-- `$research-literature-review` supports section-level citation matching through `section-citation-map.md`, Zotero screening loops through `zotero-screening-loop.md`, and source-grounded readers.
+- `$research-literature-review` supports section-level citation matching through `section-citation-map.md`, Zotero screening loops through `zotero-screening-loop.md`, citation provenance through `citation-provenance.md`, Zotero collection coverage through `zotero-collection-coverage.md`, and source-grounded readers.
 - `$research-paper-figures` supports dual-platform diagram replication: Mac draw.io MCP by default and Windows Visio when editable `.vsdx` output is useful.
 - `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
+- `docs/thesis/material-passport.md` identifies evidence-critical materials, while `benchmark-report-schema.md` standardizes baseline/new experiment comparisons before claim promotion.
 - `docs/thesis/workflow-dashboard.md` is the daily project homepage for current stage, blockers, recent experiments, missing evidence, and audit tier.
 
 ## macOS Toolchain Notes

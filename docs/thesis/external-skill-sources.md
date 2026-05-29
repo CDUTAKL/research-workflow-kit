@@ -19,6 +19,12 @@
 | EXT-IDEA | `https://github.com/foryourhealth111-pixel/research-innovation-explorer` | `external-skill-candidates/research-innovation-explorer` | `1429c9b` | MIT | paper pool, idea matrix, novelty risk, shortlist | `idea-discovery.md`, `$research-paper-plan` | referenced |
 | EXT-ZOTERO-MED | `https://github.com/Chip-G0202/zotero-med-pipeline` | `external-skill-candidates/zotero-med-pipeline` | `9f1e307` | MIT | staged literature intake, A/B/C/D screening, Zotero writeback, title translation, spreadsheet feedback learning | `zotero-screening-loop.md`, `$research-literature-review` | adapted |
 | EXT-VISIO-REPLICA | `https://github.com/uigiuf/codex-visio-replica-workflow` | `external-skill-candidates/codex-visio-replica-workflow` | `ba09a87` | no license file observed | reference-image decomposition, JSON diagram plans, Visio COM generation, export preview QA | `diagram-replica-tasks.md`, `diagram-plans/`, `$research-paper-figures` | adapted as reference only |
+| EXT-ARS-CODEX | `https://github.com/Imbad0202/academic-research-skills-codex` | not cloned | web scan | unknown | Material Passport, benchmark schema, cross-model verification, data access levels | `material-passport.md`, `benchmark-report-schema.md`, `$research-final-audit` | idea adapted |
+| EXT-AGENT-RESEARCH-SKILLS | `https://github.com/lingzhi227/agent-research-skills` | not cloned | web scan | unknown | multi-source discovery, novelty assessment, idea generation | `idea-discovery.md`, `citation-provenance.md`, `zotero-collection-coverage.md` | referenced |
+| EXT-LLM-ZOTERO | `https://github.com/yilewang/llm-for-zotero` | not cloned | web scan | unknown | library chat, paper chat, Zotero collection/tag workflows | `zotero-collection-coverage.md`, `citation-provenance.md` | idea adapted |
+| EXT-PAPER-SEARCH-MCP | `https://github.com/openags/paper-search-mcp` | not cloned | web scan | unknown | arXiv/PubMed/bioRxiv style paper search as MCP/CLI/skill | `$research-literature-review`, `citation-provenance.md` | referenced |
+| EXT-AI-RESEARCH-ZOTERO | `https://github.com/WenyuChiou/ai-research-skills` | not cloned | web scan | unknown | Zotero CRUD, claim-evidence audit, research workspace | `citation-provenance.md`, `zotero-collection-coverage.md`, `$research-final-audit` | referenced |
+| EXT-BEAMER | `https://github.com/Noi1r/beamer-skill` | not cloned | web scan | unknown | optional Beamer slides, TikZ audit, defense presentation checks | optional future stage 12 Beamer route | watch |
 
 ## Local Adaptation Rules
 

@@ -80,6 +80,8 @@
 | New structured diagrams use Mac draw.io or Windows Visio route and record source-of-truth notes | pending |  |
 | New citations are at least metadata candidates, not invented references | pending |  |
 | New Zotero screening candidates are not cited before metadata/relevance checks | pending |  |
+| New core citations have `citation-provenance.md` entries before final prose use | pending |  |
+| New evidence-critical materials have `material-passport.md` entries | pending |  |
 
 ## Advisor Audit Checklist
 
@@ -92,6 +94,8 @@
 | Figures/tables use `FIG-*` IDs and have safe captions | pending |  |
 | `diagram-replica-tasks.md` records draw.io / Visio outputs for structured diagrams | pending |  |
 | A/B/C/D literature screening labels have section handoff or exclusion reasons | pending |  |
+| Zotero collections cover target sections in `zotero-collection-coverage.md` | pending |  |
+| Formal baseline comparisons are recorded in `benchmark-report-schema.md` | pending |  |
 | Data restrictions and availability language are advisor-reviewable | pending |  |
 
 ## Final Audit Checklist
@@ -103,7 +107,9 @@
 | Every data-backed claim has a `DATA-*` trace and availability status | pending |  |
 | Every cited formal GPU result has an environment snapshot | pending |  |
 | Bibliography, citation rendering, and section citation map agree | pending |  |
+| Citation provenance records include metadata/support verification for core citations | pending |  |
 | Zotero screening feedback does not create unsupported stable screening rules | pending |  |
+| Material passport and benchmark report schema agree with promoted claims | pending |  |
 | `workflow-dashboard.md` and evidence graph are refreshed | pending |  |
 | Defense slides only use promoted evidence | pending |  |
 

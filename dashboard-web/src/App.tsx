@@ -225,6 +225,18 @@ function ActionPanel({ onReload }: { onReload: () => void }) {
         <button onClick={() => run('zotero', () => postAction('/api/open-path', { key: 'zoteroScreeningLoop' }))} disabled={Boolean(busy)}>
           <BookOpen size={16} /> 打开 Zotero 筛选
         </button>
+        <button onClick={() => run('coverage', () => postAction('/api/open-path', { key: 'zoteroCollectionCoverage' }))} disabled={Boolean(busy)}>
+          <BookOpen size={16} /> 打开文献覆盖
+        </button>
+        <button onClick={() => run('citation', () => postAction('/api/open-path', { key: 'citationProvenance' }))} disabled={Boolean(busy)}>
+          <BookOpen size={16} /> 打开引用溯源
+        </button>
+        <button onClick={() => run('material', () => postAction('/api/open-path', { key: 'materialPassport' }))} disabled={Boolean(busy)}>
+          <Database size={16} /> 打开材料护照
+        </button>
+        <button onClick={() => run('benchmark', () => postAction('/api/open-path', { key: 'benchmarkReportSchema' }))} disabled={Boolean(busy)}>
+          <FlaskConical size={16} /> 打开 Benchmark
+        </button>
         <button onClick={() => run('diagrams', () => postAction('/api/open-path', { key: 'diagramReplicaTasks' }))} disabled={Boolean(busy)}>
           <ExternalLink size={16} /> 打开图表任务
         </button>

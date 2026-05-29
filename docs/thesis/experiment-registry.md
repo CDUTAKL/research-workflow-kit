@@ -40,6 +40,7 @@
 - For code-backed experiments, update `experiment-architecture.md`, `experiment-runbook.md`, and `reproducibility-checklist.md` before marking the experiment as `done`.
 - For iterative method changes, record verify/guard outcomes in `autoresearch-results.tsv` before promoting the result to a thesis claim.
 - For data-backed claims, ensure `data-availability.md` maps the output artifact to source data.
+- For formal baseline comparisons, update `benchmark-report-schema.md` and register evidence-critical outputs in `material-passport.md`.
 
 ## Engineering Links
 
@@ -50,6 +51,8 @@
 | `reproducibility-checklist.md` | environment, seed, config, artifacts, rerun command, claim mapping |
 | `experiment-integrity-checklist.md` | leakage, fake ground truth, metric, config, artifact, and scope checks |
 | `autoresearch-results.tsv` | human-supervised iteration record and verify/guard decisions |
+| `benchmark-report-schema.md` | baseline/new metric comparison schema and benchmark guard checklist |
+| `material-passport.md` | identity card for evidence-critical outputs and final artifacts |
 | `data-availability.md` | dataset provenance and claim-to-data traceability |
 | `outputs/EXP-*/environment.txt` | required environment snapshot for formal 4060 or cloud GPU evidence |
 

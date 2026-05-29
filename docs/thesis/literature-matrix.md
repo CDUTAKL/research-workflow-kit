@@ -9,6 +9,7 @@
 - For full-paper reading, store source-grounded artifacts under `docs/thesis/paper-readings/<paper-slug>/` and record reader/source-map paths here.
 - For long citation-seeking text, use `section-citation-map.md` plus batch rows so candidate references remain traceable to claim segments.
 - For recurring literature intake, use `zotero-screening-loop.md` for A/B/C/D labels, Zotero writeback queue, spreadsheet feedback, and section handoff.
+- For core citations, update `citation-provenance.md` with metadata/support verification and `zotero-collection-coverage.md` with section-level Zotero coverage.
 
 ## Search Scope
 
