@@ -184,7 +184,19 @@ On macOS, the simple launcher is:
 ./scripts/open_dashboard.sh
 ```
 
-You can also double-click `open-dashboard.command` in Finder. Keep the opened terminal window running while using the dashboard.
+For a browser-like launcher on this Mac, open:
+
+```text
+~/Applications/科研工作流总控台.app
+```
+
+The setup also places a desktop shortcut named `科研工作流总控台.app`. It starts the dashboard in the background and opens the browser. You can still double-click `open-dashboard.command` in Finder when you want a visible terminal window for logs.
+
+Recreate the macOS app launcher after moving the repository with:
+
+```bash
+./scripts/install_dashboard_app_macos.sh
+```
 
 Open the Vite URL shown in the terminal, usually `http://127.0.0.1:5173/`.
 
