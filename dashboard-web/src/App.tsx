@@ -20,9 +20,59 @@ import { mockData } from './mockData';
 import type { DashboardData, EvidenceEdge, EvidenceNode, Health, WorkflowRecord } from './types';
 
 const healthLabels: Record<Health, string> = {
-  ok: 'OK',
-  warning: 'Warning',
-  blocked: 'Blocked',
+  ok: '健康',
+  warning: '需关注',
+  blocked: '已阻塞',
+};
+
+const statusLabels: Record<string, string> = {
+  done: '已完成',
+  reviewed: '已复核',
+  final: '已定稿',
+  supported: '证据支持',
+  ok: '正常',
+  availability_ready: '数据说明就绪',
+  restricted_ready: '受限数据说明就绪',
+  blocked: '阻塞',
+  invalid: '无效',
+  unsupported: '证据不足',
+  not_reproducible: '不可复现',
+  missing: '缺失',
+  pending: '待处理',
+  weak: '较弱',
+  candidate: '候选',
+  completed_unreviewed: '已完成待复核',
+  planned: '计划中',
+};
+
+const stageNameLabels: Record<string, string> = {
+  'Paper planning': '论文规划',
+  'Literature discovery and review': '文献发现与综述',
+  'Experiment question definition': '实验问题定义',
+  'Experiment architecture planning': '实验架构规划',
+  'Research code implementation': '科研代码实现',
+  'Experiment run and monitoring': '实验运行与监控',
+  'Experiment recording and result scan': '实验记录与结果扫描',
+  'Results analysis and claim mapping': '结果分析与论点映射',
+  'Figure and table production': '图表与模型结构图制作',
+  'Paper writing and polishing': '论文写作与润色',
+  'Laptop DOCX / optional LaTeX / PDF': '笔记本 DOCX / 可选 LaTeX / PDF',
+  'Laptop final audit and defense': '笔记本终审与答辩准备',
+};
+
+const relationLabels: Record<string, string> = {
+  contains_claim: '包含论点',
+  supported_by: '由实验支持',
+  traces_to: '追溯到数据',
+  visualizes: '图表呈现',
+  cites: '引用支持',
+};
+
+const auditTierLabels: Record<string, string> = {
+  quick: '快速审计',
+  advisor: '导师审计',
+  final: '终审',
+  TBD: '待填写',
 };
 
 const kindOrder = ['SEC', 'CLM', 'EXP', 'DATA', 'FIG'];
@@ -51,6 +101,49 @@ function statusClass(value = '') {
 function compact(value = '', fallback = 'TBD') {
   const text = value.replace(/`/g, '').trim();
   return text || fallback;
+}
+
+function displayStatus(value = '', fallback = '待处理') {
+  const raw = compact(value, fallback);
+  return statusLabels[raw.toLowerCase()] ?? raw.replace(/TBD/g, '待填写');
+}
+
+function displayText(value = '', fallback = '待填写') {
+  return compact(value, fallback).replace(/TBD/g, '待填写');
+}
+
+function displayStageName(value = '') {
+  return stageNameLabels[value] ?? displayText(value);
+}
+
+function displayAuditTier(value = '') {
+  return compact(value, 'TBD')
+    .split('/')
+    .map((part) => auditTierLabels[part] ?? part.replace(/TBD/g, '待填写'))
+    .join(' / ');
+}
+
+function displayRelation(value = '') {
+  return relationLabels[value] ?? value;
+}
+
+function displayIssue(value = '') {
+  const text = displayText(value);
+  const replacements: Array<[RegExp, string]> = [
+    [/^missing console file: (.+)$/i, '缺少控制台文件：$1'],
+    [/^(.+) is marked supported but has no structured evidence ID$/i, '$1 标记为已支持，但缺少结构化证据 ID'],
+    [/^(.+) has no experiment, figure, data, section, or literature evidence$/i, '$1 缺少实验、图表、数据、章节或文献证据'],
+    [/^(.+) is (done|reviewed) but has no output path$/i, '$1 已完成或已复核，但缺少输出路径'],
+    [/^(.+) is a formal 4060 run but missing (.+)$/i, '$1 是正式 4060 实验，但缺少 $2'],
+    [/^(.+) is reviewed but missing hash\/manifest$/i, '$1 已复核，但缺少 hash 或 manifest'],
+    [/^(.+) is reviewed but missing access level$/i, '$1 已复核，但缺少访问条件说明'],
+    [/^(.+) is final but has no linked claim\/data\/experiment ID$/i, '$1 已定稿，但没有关联论点、数据或实验 ID'],
+    [/^(.+) has missing section citation coverage$/i, '$1 章节引用覆盖不足'],
+  ];
+  for (const [pattern, replacement] of replacements) {
+    if (pattern.test(text)) return text.replace(pattern, replacement);
+  }
+  return text;
 }
 
 function MetricCard({
@@ -89,14 +182,14 @@ async function postAction(endpoint: string, payload: object = {}) {
 }
 
 function ActionPanel({ onReload }: { onReload: () => void }) {
-  const [message, setMessage] = useState('Control server actions use http://127.0.0.1:8765');
+  const [message, setMessage] = useState('本地控制服务使用 http://127.0.0.1:8765，只在本机访问');
   const [busy, setBusy] = useState<string | null>(null);
 
   async function run(label: string, action: () => Promise<unknown>, reload = false) {
     setBusy(label);
     try {
       const result = await action();
-      setMessage(typeof result === 'object' && result && 'output' in result ? String((result as { output?: string }).output || 'done') : 'done');
+      setMessage(typeof result === 'object' && result && 'output' in result ? String((result as { output?: string }).output || '已完成') : '已完成');
       if (reload) onReload();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : String(error));
@@ -111,38 +204,38 @@ function ActionPanel({ onReload }: { onReload: () => void }) {
     <section className="panel action-panel">
       <div className="panel-title-row">
         <Terminal size={18} />
-        <h2>Control Actions</h2>
+        <h2>一键操作</h2>
       </div>
       <div className="action-grid">
         <button onClick={() => run('refresh', () => postAction('/api/refresh-dashboard'), true)} disabled={Boolean(busy)}>
-          <RefreshCw size={16} /> Refresh Dashboard
+          <RefreshCw size={16} /> 刷新控制台
         </button>
         <button onClick={() => run('graph', () => postAction('/api/export-evidence-graph'), true)} disabled={Boolean(busy)}>
-          <GitBranch size={16} /> Export Evidence Graph
+          <GitBranch size={16} /> 导出证据图谱
         </button>
         <button onClick={() => run('doctor', () => postAction('/api/run-doctor'))} disabled={Boolean(busy)}>
-          <Activity size={16} /> Run Quick Health Check
+          <Activity size={16} /> 快速健康检查
         </button>
         <button onClick={() => run('open', () => postAction('/api/open-path', { key: 'dashboard' }))} disabled={Boolean(busy)}>
-          <ExternalLink size={16} /> Open Dashboard Source
+          <ExternalLink size={16} /> 打开控制台源文件
         </button>
         <button onClick={() => run('tasks', () => postAction('/api/open-path', { key: 'deepResearchTasks' }))} disabled={Boolean(busy)}>
-          <BookOpen size={16} /> Open Research Tasks
+          <BookOpen size={16} /> 打开深研任务
         </button>
         <button onClick={() => run('zotero', () => postAction('/api/open-path', { key: 'zoteroScreeningLoop' }))} disabled={Boolean(busy)}>
-          <BookOpen size={16} /> Open Zotero Screening
+          <BookOpen size={16} /> 打开 Zotero 筛选
         </button>
         <button onClick={() => run('diagrams', () => postAction('/api/open-path', { key: 'diagramReplicaTasks' }))} disabled={Boolean(busy)}>
-          <ExternalLink size={16} /> Open Diagram Tasks
+          <ExternalLink size={16} /> 打开图表任务
         </button>
         <button onClick={() => run('reports', () => postAction('/api/open-path', { key: 'experimentReports' }))} disabled={Boolean(busy)}>
-          <FlaskConical size={16} /> Open Reports Folder
+          <FlaskConical size={16} /> 打开实验报告
         </button>
-        <button onClick={() => navigator.clipboard.writeText(nextCommand).then(() => setMessage(`copied: ${nextCommand}`))} disabled={Boolean(busy)}>
-          <FileText size={16} /> Copy Next Command
+        <button onClick={() => navigator.clipboard.writeText(nextCommand).then(() => setMessage(`已复制：${nextCommand}`))} disabled={Boolean(busy)}>
+          <FileText size={16} /> 复制启动命令
         </button>
       </div>
-      <pre className="action-output">{busy ? `Running ${busy}...` : message}</pre>
+      <pre className="action-output">{busy ? `正在执行 ${busy}...` : message}</pre>
     </section>
   );
 }
@@ -156,7 +249,7 @@ function IssueList({ title, items, tone }: { title: string; items: string[]; ton
         <span className={`count-badge ${tone}`}>{items.length}</span>
       </div>
       <div className="issue-list">
-        {items.length ? items.map((item) => <div className="issue-item" key={item}>{item}</div>) : <div className="empty-state">none</div>}
+        {items.length ? items.map((item) => <div className="issue-item" key={item}>{displayIssue(item)}</div>) : <div className="empty-state">暂无</div>}
       </div>
     </section>
   );
@@ -167,17 +260,17 @@ function StageRail({ data }: { data: DashboardData }) {
     <section className="panel stage-panel">
       <div className="panel-title-row">
         <Layers3 size={18} />
-        <h2>12-Stage Progress</h2>
+        <h2>12 步流程进度</h2>
       </div>
       <div className="stage-grid">
         {data.stages.map((stage) => (
           <article className={`stage-item ${statusClass(stage.status)}`} key={stage.stage}>
             <div className="stage-number">{stage.stage}</div>
             <div className="stage-body">
-              <div className="stage-name">{stage.name}</div>
-              <div className="stage-record">{compact(stage.record)}</div>
+              <div className="stage-name">{displayStageName(stage.name)}</div>
+              <div className="stage-record">{displayText(stage.record)}</div>
             </div>
-            <span className="status-pill">{compact(stage.status, 'pending')}</span>
+            <span className="status-pill">{displayStatus(stage.status)}</span>
           </article>
         ))}
       </div>
@@ -210,14 +303,14 @@ function RecordTable({ title, icon, rows, columns }: {
                 {columns.map((column) => (
                   <td key={String(column.key)}>
                     {column.key === 'status' || column.key === 'coverage'
-                      ? <span className={`status-pill ${statusClass(String(row[column.key] ?? ''))}`}>{compact(String(row[column.key] ?? ''))}</span>
-                      : compact(String(row[column.key] ?? ''))}
+                      ? <span className={`status-pill ${statusClass(String(row[column.key] ?? ''))}`}>{displayStatus(String(row[column.key] ?? ''))}</span>
+                      : displayText(String(row[column.key] ?? ''))}
                   </td>
                 ))}
               </tr>
             )) : (
               <tr>
-                <td colSpan={columns.length}>No records yet</td>
+                <td colSpan={columns.length}>暂无记录</td>
               </tr>
             )}
           </tbody>
@@ -245,9 +338,9 @@ function EvidenceGraph({ nodes, edges }: { nodes: EvidenceNode[]; edges: Evidenc
     <section className="panel graph-panel">
       <div className="panel-title-row">
         <GitBranch size={18} />
-        <h2>Evidence Graph</h2>
+        <h2>证据图谱</h2>
       </div>
-      <svg viewBox="0 0 920 520" role="img" aria-label="Evidence relationship graph">
+      <svg viewBox="0 0 920 520" role="img" aria-label="证据关系图谱">
         {edges.map((edge) => {
           const source = layout.get(edge.source);
           const target = layout.get(edge.target);
@@ -259,7 +352,7 @@ function EvidenceGraph({ nodes, edges }: { nodes: EvidenceNode[]; edges: Evidenc
                 className="graph-edge"
                 d={`M ${source.x + 58} ${source.y} C ${midX} ${source.y}, ${midX} ${target.y}, ${target.x - 58} ${target.y}`}
               />
-              <text className="edge-label" x={midX - 28} y={(source.y + target.y) / 2 - 4}>{edge.relation}</text>
+              <text className="edge-label" x={midX - 28} y={(source.y + target.y) / 2 - 4}>{displayRelation(edge.relation)}</text>
             </g>
           );
         })}
@@ -303,18 +396,16 @@ export function App() {
     reloadData();
   }, []);
 
-  const p0Count = data.issues.p0.length;
-  const p1Count = data.issues.p1.length;
-  const auditTier = data.currentStatus['Current audit tier'] ?? 'quick/advisor/final/TBD';
-  const currentStage = data.currentStatus['Current stage'] ?? '1-12/TBD';
-  const nextAction = data.currentStatus['Next concrete action'] ?? 'TBD';
+  const auditTier = displayAuditTier(data.currentStatus['Current audit tier'] ?? 'quick/advisor/final/TBD');
+  const currentStage = displayText(data.currentStatus['Current stage'] ?? '1-12/TBD');
+  const nextAction = displayText(data.currentStatus['Next concrete action'] ?? '请运行健康检查或刷新控制台');
 
   return (
     <main className="app-shell">
       <header className="topbar">
         <div>
           <p className="eyebrow">Research Workflow Kit</p>
-          <h1>Workflow Dashboard</h1>
+          <h1>科研工作流总控台</h1>
         </div>
         <div className="top-actions">
           <span className={`health-badge ${data.health}`}>
@@ -323,41 +414,41 @@ export function App() {
           </span>
           <span className="data-source">
             <RefreshCw size={15} />
-            {loadedFromFile ? 'live data' : 'fallback data'}
+            {loadedFromFile ? '实时数据' : '示例数据'}
           </span>
         </div>
       </header>
 
       <section className="status-band">
         <div className="status-copy">
-          <p className="eyebrow">Current Stage</p>
+          <p className="eyebrow">当前阶段</p>
           <div className="stage-headline">{currentStage}</div>
           <p>{nextAction}</p>
         </div>
         <div className="audit-chip">
-          <span>Audit Tier</span>
+          <span>审计等级</span>
           <strong>{auditTier}</strong>
         </div>
         <div className="generated">
-          <span>Generated</span>
+          <span>更新时间</span>
           <strong>{data.generatedAt}</strong>
         </div>
       </section>
 
+      <ActionPanel onReload={reloadData} />
+
       <section className="metric-grid">
-        <MetricCard label="Claims" value={data.counts.claims} icon={<FileText size={18} />} accent="#0f766e" />
-        <MetricCard label="Experiments" value={data.counts.experiments} icon={<FlaskConical size={18} />} accent="#7c3aed" />
-        <MetricCard label="Data" value={data.counts.datasets} icon={<Database size={18} />} accent="#b45309" />
-        <MetricCard label="Figures" value={data.counts.figures} icon={<BarChart3 size={18} />} accent="#be123c" />
-        <MetricCard label="Graph Links" value={data.counts.graphEdges} icon={<GitBranch size={18} />} accent="#2563eb" />
+        <MetricCard label="论点" value={data.counts.claims} icon={<FileText size={18} />} accent="#0f766e" />
+        <MetricCard label="实验" value={data.counts.experiments} icon={<FlaskConical size={18} />} accent="#7c3aed" />
+        <MetricCard label="数据" value={data.counts.datasets} icon={<Database size={18} />} accent="#b45309" />
+        <MetricCard label="图表" value={data.counts.figures} icon={<BarChart3 size={18} />} accent="#be123c" />
+        <MetricCard label="证据关系" value={data.counts.graphEdges} icon={<GitBranch size={18} />} accent="#2563eb" />
       </section>
 
       <section className="content-grid">
-        <IssueList title="P0 Blockers" items={data.issues.p0} tone="p0" />
-        <IssueList title="P1 Issues" items={data.issues.p1} tone="p1" />
+        <IssueList title="P0 阻塞项" items={data.issues.p0} tone="p0" />
+        <IssueList title="P1 待补项" items={data.issues.p1} tone="p1" />
       </section>
-
-      <ActionPanel onReload={reloadData} />
 
       <StageRail data={data} />
 
@@ -366,18 +457,18 @@ export function App() {
         <section className="panel">
           <div className="panel-title-row">
             <Activity size={18} />
-            <h2>Recent Experiments</h2>
+            <h2>最近实验</h2>
           </div>
           <div className="experiment-list">
             {data.recentExperiments.length ? data.recentExperiments.map((experiment) => (
               <article className="experiment-row" key={experiment.id}>
                 <div>
                   <strong>{experiment.id}</strong>
-                  <span>{compact(experiment.output)}</span>
+                  <span>{displayText(experiment.output)}</span>
                 </div>
-                <span className={`status-pill ${statusClass(experiment.status)}`}>{compact(experiment.status)}</span>
+                <span className={`status-pill ${statusClass(experiment.status)}`}>{displayStatus(experiment.status)}</span>
               </article>
-            )) : <div className="empty-state">none</div>}
+            )) : <div className="empty-state">暂无</div>}
           </div>
         </section>
       </section>
@@ -386,63 +477,63 @@ export function App() {
         <section className="panel">
           <div className="panel-title-row">
             <FlaskConical size={18} />
-            <h2>Experiment Loop</h2>
+            <h2>实验闭环</h2>
           </div>
           <div className="experiment-list">
             {(data.experimentReports ?? []).length ? data.experimentReports!.map((report) => (
               <article className="experiment-row" key={report.id}>
                 <div>
                   <strong>{report.id}</strong>
-                  <span>{compact(report.row)}</span>
+                  <span>{displayText(report.row)}</span>
                 </div>
-                <span className={`status-pill ${statusClass(report.status)}`}>{compact(report.status)}</span>
+                <span className={`status-pill ${statusClass(report.status)}`}>{displayStatus(report.status)}</span>
               </article>
-            )) : <div className="empty-state">No experiment reports yet</div>}
+            )) : <div className="empty-state">暂无实验报告</div>}
           </div>
         </section>
         <section className="panel">
           <div className="panel-title-row">
             <CheckCircle2 size={18} />
-            <h2>Skill Health</h2>
+            <h2>Skill 健康度</h2>
           </div>
           <div className="skill-health">
-            <div><strong>{data.skillHealth?.totalSkills ?? 0}</strong><span>Total skills</span></div>
-            <div><strong>{data.skillHealth?.brokenReferences ?? 0}</strong><span>Broken references</span></div>
-            <div><strong>{data.skillHealth?.missingScripts ?? 0}</strong><span>Missing scripts</span></div>
-            <div><strong>{data.skillHealth?.outdatedAssumptions ?? 0}</strong><span>Outdated assumptions</span></div>
+            <div><strong>{data.skillHealth?.totalSkills ?? 0}</strong><span>Skill 总数</span></div>
+            <div><strong>{data.skillHealth?.brokenReferences ?? 0}</strong><span>断裂引用</span></div>
+            <div><strong>{data.skillHealth?.missingScripts ?? 0}</strong><span>缺失脚本</span></div>
+            <div><strong>{data.skillHealth?.outdatedAssumptions ?? 0}</strong><span>旧工具假设</span></div>
           </div>
         </section>
       </section>
 
       <section className="table-grid">
         <RecordTable
-          title="Claims"
+          title="论点与证据"
           icon={<BookOpen size={18} />}
           rows={data.records.claims ?? []}
           columns={[
             { key: 'id', label: 'ID' },
-            { key: 'status', label: 'Status' },
-            { key: 'experiments', label: 'Experiments' },
-            { key: 'figures', label: 'Figures' },
-            { key: 'literature', label: 'Literature' },
+            { key: 'status', label: '状态' },
+            { key: 'experiments', label: '实验' },
+            { key: 'figures', label: '图表' },
+            { key: 'literature', label: '文献' },
           ]}
         />
         <RecordTable
-          title="Data Availability"
+          title="数据可用性"
           icon={<Database size={18} />}
           rows={data.records.datasets ?? []}
           columns={[
             { key: 'id', label: 'ID' },
-            { key: 'status', label: 'Status' },
+            { key: 'status', label: '状态' },
             { key: 'hash', label: 'Hash' },
-            { key: 'access', label: 'Access' },
-            { key: 'experiments', label: 'Experiments' },
+            { key: 'access', label: '访问条件' },
+            { key: 'experiments', label: '实验' },
           ]}
         />
       </section>
 
       <footer>
-        <span>Open Markdown source</span>
+        <span>打开 Markdown 源文件</span>
         <ArrowRight size={15} />
         <code>{data.links.dashboard ?? 'docs/thesis/workflow-dashboard.md'}</code>
       </footer>

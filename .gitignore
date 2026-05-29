@@ -17,6 +17,7 @@ dashboard-web/public/data/*.mmd
 Thumbs.db
 .vscode/
 .idea/
+.superpowers/
 
 # Secrets and credentials
 .env

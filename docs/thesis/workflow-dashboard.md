@@ -8,7 +8,7 @@ This is the project homepage for the research workflow. Update it manually durin
 python scripts/research_workflow_doctor.py --write-dashboard
 ```
 
-The local web dashboard is the operational view of the same console. Start it with:
+The local web dashboard is the operational view of the same console. It is designed as a Chinese research cockpit for daily thesis management: current stage, blockers, next action, evidence health, and common actions are visible from the first screen. Start it with:
 
 ```bash
 ./scripts/open_dashboard.sh
@@ -83,12 +83,12 @@ Or double-click `open-dashboard.command` in Finder.
 
 | Action | Script / Button | Output |
 |---|---|---|
-| Refresh dashboard data | `Refresh Dashboard` or `python scripts/research_workflow_doctor.py --write-dashboard --write-data` | `workflow-dashboard.md`, `dashboard-data.json` |
-| Export evidence graph | `Export Evidence Graph` or `python scripts/export_evidence_graph.py` | `evidence-graph.json`, `evidence-graph.mmd` |
-| Run quick health check | `Run Quick Health Check` or `python scripts/research_workflow_doctor.py --warn-only` | P0/P1 console report |
-| Create deep research task | `python scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "..."` | `deep-research-tasks.md`, section packet |
-| Create experiment report | `python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000` | `experiment-reports/EXP-001.md` |
-| Audit skills | `python scripts/audit_skills.py --warn-only --write-report` | `skill-audit-report.md` |
+| 刷新控制台数据 | `刷新控制台` or `python scripts/research_workflow_doctor.py --write-dashboard --write-data` | `workflow-dashboard.md`, `dashboard-data.json` |
+| 导出证据图谱 | `导出证据图谱` or `python scripts/export_evidence_graph.py` | `evidence-graph.json`, `evidence-graph.mmd` |
+| 快速健康检查 | `快速健康检查` or `python scripts/research_workflow_doctor.py --warn-only` | P0/P1 console report |
+| 创建深研任务 | `python scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "..."` | `deep-research-tasks.md`, section packet |
+| 创建实验报告 | `python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000` | `experiment-reports/EXP-001.md` |
+| 审计 skills | `python scripts/audit_skills.py --warn-only --write-report` | `skill-audit-report.md` |
 
 ## Quick Navigation
 

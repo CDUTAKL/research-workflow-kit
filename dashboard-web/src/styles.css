@@ -1,7 +1,7 @@
 :root {
   color: #1b2430;
   background: #f5f7fa;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -15,7 +15,7 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    linear-gradient(180deg, rgba(37, 99, 235, 0.08), transparent 260px),
+    linear-gradient(180deg, rgba(37, 99, 235, 0.07), transparent 280px),
     #f5f7fa;
 }
 
@@ -66,8 +66,8 @@ h2 {
 }
 
 h1 {
-  font-size: clamp(1.8rem, 3vw, 3.1rem);
-  line-height: 1;
+  font-size: 2.35rem;
+  line-height: 1.08;
 }
 
 h2 {
@@ -126,7 +126,7 @@ h2 {
 
 .status-band {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px) minmax(220px, 320px);
+  grid-template-columns: minmax(0, 1.35fr) minmax(180px, 240px) minmax(220px, 300px);
   gap: 16px;
   margin-top: 16px;
   padding: 18px;
@@ -135,7 +135,8 @@ h2 {
 
 .stage-headline {
   margin-bottom: 8px;
-  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  font-size: 2.15rem;
+  line-height: 1.14;
   font-weight: 800;
 }
 
@@ -180,7 +181,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 92px;
+  min-height: 86px;
   padding: 16px;
   border-radius: 8px;
 }
@@ -220,23 +221,33 @@ h2 {
 
 .action-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
 .action-grid button {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 7px;
-  min-height: 42px;
-  padding: 0 10px;
+  min-height: 44px;
+  padding: 0 12px;
   border: 1px solid #cfd8e3;
   border-radius: 8px;
   color: #1d2939;
   background: #fff;
   cursor: pointer;
   font-weight: 800;
+}
+
+.action-grid button:hover:not(:disabled) {
+  border-color: #93b4e8;
+  background: #f8fbff;
+}
+
+.action-grid button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.22);
+  outline-offset: 2px;
 }
 
 .action-grid button:disabled {
@@ -470,7 +481,7 @@ td {
 th {
   color: #667085;
   font-size: 0.76rem;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 td {
@@ -529,6 +540,14 @@ code {
   .experiment-row {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .stage-headline {
+    font-size: 1.55rem;
   }
 
   .metric-grid,
