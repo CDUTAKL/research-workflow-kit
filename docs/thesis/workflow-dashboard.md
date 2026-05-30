@@ -14,7 +14,7 @@ The local web dashboard is the operational view of the same console. It is desig
 ./scripts/open_dashboard.sh
 ```
 
-It starts a local-only control service on `127.0.0.1:8765` so the page can refresh dashboard data, export the evidence graph, run the quick health check, open whitelisted source files, and copy recommended commands.
+It starts a local-only control service on `127.0.0.1:8765` so the page can refresh dashboard data, export the evidence graph, run the quick health check, open whitelisted source files, copy recommended commands, and use the flow editor to append standard records.
 
 ## Current Status
 
@@ -41,8 +41,8 @@ It starts a local-only control service on `127.0.0.1:8765` so the page can refre
 | 8 | Results analysis and claim mapping | pending | `claim-evidence-map.md`, `data-availability.md` |  |
 | 9 | Figure and table production | pending | `figure-plan.md`, `diagram-replica-tasks.md` |  |
 | 10 | Paper writing and polishing | pending | `writing-outline.md` |  |
-| 11 | Laptop DOCX / optional LaTeX / PDF | pending | final document artifacts |  |
-| 12 | Laptop final audit and defense | pending | `final-audit.md`, `defense-prep.md` |  |
+| 11 | Laptop DOCX / optional LaTeX / PDF | pending | `final-artifact-manifest.md`, final document artifacts |  |
+| 12 | Laptop final audit and defense | pending | `final-audit.md`, `defense-prep.md`, `final-artifact-manifest.md` |  |
 
 ## Health Summary
 
@@ -108,13 +108,16 @@ Manual launchers remain available:
 | 检查 Zotero 覆盖 | `打开文献覆盖` | `zotero-collection-coverage.md` |
 | 检查 benchmark 规范 | `打开 Benchmark` | `benchmark-report-schema.md` |
 | 审计 skills | `python scripts/audit_skills.py --warn-only --write-report` | `skill-audit-report.md` |
+| 使用流程编辑器新增记录 | Dashboard `流程编辑器` | `claim-evidence-map.md`, `experiment-registry.md`, `material-passport.md`, `citation-provenance.md`, `final-artifact-manifest.md` |
+| 审计最终交付物 | `python scripts/audit_final_artifacts.py --tier quick --warn-only` | stage 11-12 handoff risk list |
+| 审计 ID 生命周期 | `python scripts/audit_id_lifecycle.py --warn-only` | orphan, unknown, deprecated, or weakly linked ID warnings |
 
 ## Quick Navigation
 
 | Need | File |
 |---|---|
 | What should happen next? | `workflow-dashboard.md`, `task-board-sync.md` |
-| What claims are safe? | `claim-evidence-map.md`, `evidence-promotion-policy.md` |
+| What claims are safe? | `claim-evidence-map.md`, `evidence-promotion-policy.md`, `id-lifecycle-policy.md` |
 | What materials identify the evidence chain? | `material-passport.md`, `research-materials-index.md` |
 | What experiments support the thesis? | `experiment-registry.md`, `experiment-runbook.md` |
 | What benchmark comparison is defensible? | `benchmark-report-schema.md`, `experiment-reports/` |
@@ -124,4 +127,20 @@ Manual launchers remain available:
 | What citation search task should run next? | `deep-research-tasks.md`, `section-research-packets/` |
 | What changed versus baseline? | `experiment-reports/` |
 | What figures are final? | `figure-plan.md`, `diagram-replica-tasks.md`, `network-architecture-figures.md` |
+| What must move to the laptop? | `final-artifact-manifest.md` |
+| What did the dashboard edit? | `workflow-edit-log.md` |
 | Is this ready for advisor or final review? | `final-audit.md` |
+
+## Flow Editor
+
+The Dashboard flow editor is a convenience layer over Markdown source files. It can:
+
+- update the current stage, blocker, next action, and audit tier in this file;
+- add `CLM-*` rows to `claim-evidence-map.md`;
+- add `EXP-*` rows to `experiment-registry.md`;
+- add `MAT-*` rows to `material-passport.md`;
+- add `CIT-*` rows to `citation-provenance.md`;
+- add final artifact rows to `final-artifact-manifest.md`;
+- update important ID lifecycle rows in `id-lifecycle-policy.md`.
+
+Every write creates a backup under `tmp/dashboard-edits/backups/` and appends `workflow-edit-log.md`.

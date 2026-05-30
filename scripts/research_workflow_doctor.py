@@ -7,12 +7,14 @@ import json
 import re
 from pathlib import Path
 
+from audit_final_artifacts import audit as audit_final_artifacts
+from audit_id_lifecycle import audit as audit_id_lifecycle
 from audit_skills import audit_repo, render_report
 from export_evidence_graph import build_graph
 
 
 THESIS_DIR = Path("docs/thesis")
-ID_RE = re.compile(r"\b(?:SEC|CLM|EXP|DATA|FIG)-(?:AUTO-)?[A-Za-z0-9.-]+\b")
+ID_RE = re.compile(r"\b(?:SEC|SEG|CLM|EXP|DATA|FIG|MAT|CIT|BMK|ZCOL|DRT|ZREV)-(?:AUTO-)?[A-Za-z0-9.-]+\b")
 
 
 def read_text(path: Path) -> str:
@@ -111,6 +113,7 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
     required_files = [
         "workflow-dashboard.md",
         "evidence-promotion-policy.md",
+        "id-lifecycle-policy.md",
         "material-passport.md",
         "claim-evidence-map.md",
         "experiment-registry.md",
@@ -122,7 +125,9 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
         "zotero-collection-coverage.md",
         "figure-plan.md",
         "diagram-replica-tasks.md",
+        "final-artifact-manifest.md",
         "final-audit.md",
+        "workflow-edit-log.md",
     ]
     for name in required_files:
         if not (thesis_dir / name).exists():
@@ -160,7 +165,18 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
         if section["coverage"].lower() in {"missing", "pending", "tbd", ""}:
             p1.append(f"{section_id} has missing section citation coverage")
 
+    final_p0, final_p1, final_info, final_artifacts = audit_final_artifacts(thesis_dir, tier="quick")
+    id_p0, id_p1, id_info, id_details = audit_id_lifecycle(thesis_dir)
+    p0.extend(final_p0)
+    p0.extend(id_p0)
+    p1.extend(final_p1)
+    p1.extend(id_p1)
+
     info.append(f"claims={len(claims)} experiments={len(experiments)} datasets={len(datasets)} figures={len(figures)} sections={len(sections)}")
+    data["final_artifacts"] = final_artifacts
+    data["id_lifecycle"] = id_details
+    info.extend(final_info)
+    info.extend(id_info)
     return p0, p1, info, data
 
 
@@ -268,6 +284,17 @@ def dashboard_data(
     graph = build_graph(thesis_dir)
     skill_health = collect_skill_health()
     experiment_reports = collect_experiment_reports(thesis_dir)
+    final_artifacts = data.get("final_artifacts", [])
+    id_lifecycle = data.get("id_lifecycle", {})
+    final_artifact_records = [
+        {
+            "id": item.get("artifact_key", "TBD"),
+            "status": item.get("transfer_status", "TBD"),
+            "row": f"{item.get('format', 'TBD')} | laptop: {item.get('laptop_target_path', 'TBD')} | verification: {item.get('laptop_verification', 'TBD')}",
+        }
+        for item in final_artifacts
+        if isinstance(item, dict)
+    ] if isinstance(final_artifacts, list) else []
     return {
         "generatedAt": dt.datetime.now().isoformat(timespec="seconds"),
         "health": health_status(p0, p1),
@@ -279,6 +306,8 @@ def dashboard_data(
             "sections": len(records.get("sections", [])),
             "graphNodes": len(graph["nodes"]),
             "graphEdges": len(graph["edges"]),
+            "finalArtifacts": len(final_artifacts) if isinstance(final_artifacts, list) else 0,
+            "idLifecycleRecords": len(id_lifecycle.get("lifecycle", {})) if isinstance(id_lifecycle, dict) else 0,
             "skillIssues": int(skill_health["brokenReferences"]) + int(skill_health["missingScripts"]) + int(skill_health["outdatedAssumptions"]),
         },
         "currentStatus": parse_current_status(thesis_dir),
@@ -287,6 +316,7 @@ def dashboard_data(
         "summary": info[0] if info else "",
         "recentExperiments": experiments[-5:],
         "experimentReports": experiment_reports[-5:],
+        "finalArtifacts": final_artifact_records[-5:],
         "skillHealth": skill_health,
         "records": records,
         "graph": graph,
@@ -298,6 +328,9 @@ def dashboard_data(
             "dataAvailability": "docs/thesis/data-availability.md",
             "materialPassport": "docs/thesis/material-passport.md",
             "citationProvenance": "docs/thesis/citation-provenance.md",
+            "finalArtifactManifest": "docs/thesis/final-artifact-manifest.md",
+            "idLifecyclePolicy": "docs/thesis/id-lifecycle-policy.md",
+            "workflowEditLog": "docs/thesis/workflow-edit-log.md",
             "figurePlan": "docs/thesis/figure-plan.md",
             "diagramReplicaTasks": "docs/thesis/diagram-replica-tasks.md",
             "zoteroScreeningLoop": "docs/thesis/zotero-screening-loop.md",

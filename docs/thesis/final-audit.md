@@ -7,6 +7,8 @@
 - Link each serious issue to the affected claim, section, figure, table, citation, or experiment.
 - Stages 11-12 are intended to be finished on the user's laptop; record the laptop artifact path or version when final production moves off the Mac research console.
 - Apply `evidence-promotion-policy.md` before promoting any `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` item to final evidence.
+- Apply `id-lifecycle-policy.md` before final writing so deprecated or superseded IDs do not leak into the thesis.
+- Use `final-artifact-manifest.md` as the stage 11-12 Mac-to-laptop handoff contract.
 - Run `scripts/research_workflow_doctor.py --write-dashboard` before advisor or final audit when the project console exists.
 
 ## Priority Legend
@@ -29,8 +31,8 @@
 | Tier | When To Run | Must Check | Output |
 |---|---|---|---|
 | quick | daily, after new experiment output, before continuing a branch | changed `CLM-*`, new `EXP-*`, new `DATA-*`, new `FIG-*`, broken citations, obvious overclaiming | short issue list and next action |
-| advisor | before supervisor meeting, milestone review, or chapter handoff | claim map, section citation coverage, figures/tables, data traceability, code contracts, 4060 snapshots, limitations | advisor-ready risk list |
-| final | before DOCX/PDF release, defense, or submission | all quick/advisor checks plus formatting, bibliography, final data availability, defense slides, laptop artifact paths | final go/no-go decision |
+| advisor | before supervisor meeting, milestone review, or chapter handoff | claim map, section citation coverage, figures/tables, data traceability, code contracts, 4060 snapshots, final artifact copied/verified status, limitations | advisor-ready risk list |
+| final | before DOCX/PDF release, defense, or submission | all quick/advisor checks plus formatting, bibliography, final data availability, defense slides, laptop artifact paths, artifact checksums, ID lifecycle conflicts | final go/no-go decision |
 
 ## Issue Table
 
@@ -82,6 +84,7 @@
 | New Zotero screening candidates are not cited before metadata/relevance checks | pending |  |
 | New core citations have `citation-provenance.md` entries before final prose use | pending |  |
 | New evidence-critical materials have `material-passport.md` entries | pending |  |
+| Dashboard flow-editor writes are reviewed in `workflow-edit-log.md` | pending |  |
 
 ## Advisor Audit Checklist
 
@@ -97,6 +100,8 @@
 | Zotero collections cover target sections in `zotero-collection-coverage.md` | pending |  |
 | Formal baseline comparisons are recorded in `benchmark-report-schema.md` | pending |  |
 | Data restrictions and availability language are advisor-reviewable | pending |  |
+| DOCX/PDF/PPTX handoff rows in `final-artifact-manifest.md` are copied or verified | pending |  |
+| Important IDs have valid lifecycle status in `id-lifecycle-policy.md` | pending |  |
 
 ## Final Audit Checklist
 
@@ -112,6 +117,8 @@
 | Material passport and benchmark report schema agree with promoted claims | pending |  |
 | `workflow-dashboard.md` and evidence graph are refreshed | pending |  |
 | Defense slides only use promoted evidence | pending |  |
+| All final artifacts are verified on the laptop with checksums | pending |  |
+| Deprecated or superseded IDs are absent from final prose, figures, and slides | pending |  |
 
 ## Export And Defense Checklist
 
@@ -131,6 +138,8 @@
 | Defense slides align with supported claims | pending |  |
 | Backup evidence files are traceable | pending |  |
 | Final laptop artifact paths or versions are recorded | pending |  |
+| `final-artifact-manifest.md` passes `scripts/audit_final_artifacts.py --tier final` | pending |  |
+| `id-lifecycle-policy.md` passes `scripts/audit_id_lifecycle.py --warn-only` without final blockers | pending |  |
 
 ## Nature-Derived Enhancement Audit
 

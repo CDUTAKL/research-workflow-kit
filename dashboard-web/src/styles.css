@@ -219,13 +219,81 @@ h2 {
   margin-top: 16px;
 }
 
+.flow-editor {
+  margin-top: 16px;
+}
+
+.editor-note {
+  margin: -6px 0 14px;
+  color: #667085;
+  font-size: 0.88rem;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.editor-form {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.editor-form h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.form-field {
+  display: grid;
+  gap: 6px;
+}
+
+.form-field span {
+  color: #475467;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #cfd8e3;
+  border-radius: 8px;
+  color: #1d2939;
+  background: #fff;
+}
+
+.form-field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  outline: 3px solid rgba(37, 99, 235, 0.18);
+  border-color: #93b4e8;
+}
+
 .action-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
-.action-grid button {
+.action-grid button,
+.editor-form button {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
@@ -240,17 +308,31 @@ h2 {
   font-weight: 800;
 }
 
+.editor-form button {
+  justify-content: center;
+  margin-top: 4px;
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
 .action-grid button:hover:not(:disabled) {
   border-color: #93b4e8;
   background: #f8fbff;
 }
 
-.action-grid button:focus-visible {
+.editor-form button:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.action-grid button:focus-visible,
+.editor-form button:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.22);
   outline-offset: 2px;
 }
 
-.action-grid button:disabled {
+.action-grid button:disabled,
+.editor-form button:disabled {
   cursor: wait;
   opacity: 0.65;
 }
@@ -522,6 +604,10 @@ code {
 
   .stage-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .editor-grid {
+    grid-template-columns: 1fr;
   }
 }
 

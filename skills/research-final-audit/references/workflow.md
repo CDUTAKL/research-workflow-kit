@@ -10,7 +10,7 @@ Use `docs/thesis/evidence-promotion-policy.md` to choose the tier before auditin
 | `advisor` | before supervisor review or milestone meetings | advisor-ready risk list across claims, citations, data, figures, and code |
 | `final` | before DOCX/PDF release, defense, or submission | full go/no-go decision with formatting and defense readiness |
 
-For all tiers, use manuscript-facing IDs: `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*`. `SEG-*` is a section-level citation unit, not a replacement for a claim ID.
+For all tiers, use `id-lifecycle-policy.md` to keep `SEC-*`, `SEG-*`, `CLM-*`, `EXP-*`, `DATA-*`, `FIG-*`, `MAT-*`, `CIT-*`, `BMK-*`, `ZCOL-*`, `DRT-*`, and `ZREV-*` consistent. `SEG-*` is a section-level citation unit, not a replacement for a claim ID.
 
 ## Claim Audit
 
@@ -150,6 +150,9 @@ Use this when `docs/thesis/` contains tool integration records.
 | `section-citation-map.md` | citation-heavy sections have verified candidate citations and support grades | related work or background has weak/unsupported citations | `$research-literature-review`, `$semanticscholar-skill`, Zotero, Scite |
 | `workflow-dashboard.md` | current stage, blockers, missing evidence, and audit tier are visible | project state is hard to understand or stale | `$research-workflow-orchestrator` |
 | `evidence-graph.json` / `evidence-graph.mmd` | core claim relationships can be inspected as a graph | hidden missing links across claim/data/figure/experiment records | `$research-workflow-orchestrator` |
+| `id-lifecycle-policy.md` | deprecated/superseded IDs are not promoted or reused in final artifacts | ID drift across claims, figures, and citations | `$research-workflow-orchestrator` |
+| `final-artifact-manifest.md` | DOCX/PDF/PPTX/final figure artifacts have Mac source path, laptop target path, checksum, and verification status | stage 11-12 laptop handoff loses files or versions | `$research-final-audit` |
+| `workflow-edit-log.md` | dashboard flow-editor writes are reviewable | low-friction edits hide where records changed | `$research-workflow-orchestrator` |
 | `autoresearch-results.tsv` / `autoresearch-state.json` | iterative experiments have verify/guard decisions and resumable state | method iteration cannot be audited | `$research-autoresearch-loop` |
 | experiment contract records | cited runs have config, smoke config, registry row, output manifest, and environment snapshot for formal GPU runs | result cannot be reproduced or tied to code | `$research-code-quality`, `$research-experiment-engineering` |
 
@@ -177,6 +180,8 @@ Use these checks when a paper, thesis section, figure package, or PPT deck has b
 | Autoresearch loop | iteration TSV, state JSON, verify gate, guard gate, and human decision | `$research-autoresearch-loop` |
 | Code contract | config, smoke config, registry row, output manifest, metrics, logs, remote 4060 handoff | `$research-code-quality` |
 | Environment snapshot | `outputs/EXP-*/environment.txt`, CUDA/PyTorch/Python/GPU/git state, fixed desktop profile when known | `$research-code-quality`, `$research-experiment-engineering` |
+| Final artifact manifest | `final-artifact-manifest.md`, artifact key, source IDs, Mac source path, laptop target path, checksum, transfer status, laptop verification | `$research-final-audit` |
+| ID lifecycle | `id-lifecycle-policy.md`, lifecycle status, replacement ID for superseded records, no deprecated final references | `$research-workflow-orchestrator`, `$research-final-audit` |
 | Manuscript prose | section job, hourglass flow, hedging, sentence clarity, citation placement, overclaim risk | `$research-paper-writing` |
 | PPTX deck | one argument spine, selected figures as evidence, Chinese slide titles as claims, speaker notes, backup evidence paths | Presentations and `$research-final-audit` |
 

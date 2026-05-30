@@ -145,6 +145,7 @@ The workflow includes optional enhancement layers:
 - `cloud_autodl` is an optional stronger fallback when the desktop 4060 is unavailable or insufficient.
 - Remote training uses macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync`; MobaXterm is a Windows-only convenience and is not assumed.
 - Stages 11-12 are intended to move to the user's laptop for final DOCX/optional Word/optional LaTeX/PDF production, final audit, and defense material finishing.
+- Before stages 11-12 move to the laptop, register DOCX/PDF/PPTX/figure/table deliverables in `docs/thesis/final-artifact-manifest.md`.
 - DOCX work uses the Documents plugin and local `.docx` files. Pages can open or review documents locally; Microsoft Word is optional when installed.
 - LaTeX is optional. Run the LaTeX doctor first, then compile only when a TeX runtime is available.
 - Diagram polish uses draw.io / draw.io MCP as the default formal redraw route for model architecture, method workflow, system architecture, and process diagrams. Presentations handles PPTX; Figma and BioRender are optional visual refinement tools when available. Canva is not assumed on this Mac.
@@ -160,6 +161,9 @@ The workflow includes optional enhancement layers:
 - One-command workflow health checks live in `scripts/research_workflow_doctor.py`.
 - Evidence graph export lives in `scripts/export_evidence_graph.py`.
 - Dashboard local control service lives in `scripts/dashboard_control_server.py`.
+- Dashboard flow-editor writes live in `scripts/edit_workflow_record.py`.
+- Final artifact handoff audits live in `scripts/audit_final_artifacts.py`.
+- ID lifecycle audits live in `scripts/audit_id_lifecycle.py`.
 - Deep research task packets are created with `scripts/new_deep_research_task.py`.
 - Experiment reports and baseline comparisons are created with `scripts/new_experiment_report.py`.
 - Skill consistency audits live in `scripts/audit_skills.py`.
@@ -204,9 +208,12 @@ Manual launchers are still available:
 
 The launcher also starts a local-only control service on `http://127.0.0.1:8765`.
 The web dashboard can then refresh workflow data, export the evidence graph, run
-the quick health check, open whitelisted source files, and copy the next terminal
-command. The service does not expose remote access, does not store credentials,
-and does not execute arbitrary commands.
+the quick health check, open whitelisted source files, copy the next terminal
+command, and use the Chinese flow editor to append standard records. Flow-editor
+writes are limited to known Markdown source files, create backups under
+`tmp/dashboard-edits/backups/`, and append `docs/thesis/workflow-edit-log.md`.
+The service does not expose remote access, does not store credentials, and does
+not execute arbitrary commands.
 
 For this Mac, prefer the Homebrew Node toolchain when running dashboard commands:
 
@@ -221,6 +228,8 @@ Useful lightweight commands:
 ```bash
 python3 scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "your section topic"
 python3 scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000
+python3 scripts/audit_final_artifacts.py --tier quick --warn-only
+python3 scripts/audit_id_lifecycle.py --warn-only
 python3 scripts/audit_skills.py --warn-only --write-report
 ```
 

@@ -13,7 +13,9 @@ import {
   FlaskConical,
   GitBranch,
   Layers3,
+  ListChecks,
   RefreshCw,
+  Save,
   Terminal,
 } from 'lucide-react';
 import { mockData } from './mockData';
@@ -178,7 +180,7 @@ async function postAction(endpoint: string, payload: object = {}) {
   if (!response.ok || !data.ok) {
     throw new Error(data.error || data.output || 'dashboard action failed');
   }
-  return data as { ok: boolean; output?: string };
+  return data as { ok: boolean; output?: string; id?: string; target?: string };
 }
 
 function ActionPanel({ onReload }: { onReload: () => void }) {
@@ -234,6 +236,15 @@ function ActionPanel({ onReload }: { onReload: () => void }) {
         <button onClick={() => run('material', () => postAction('/api/open-path', { key: 'materialPassport' }))} disabled={Boolean(busy)}>
           <Database size={16} /> 打开材料护照
         </button>
+        <button onClick={() => run('artifacts', () => postAction('/api/open-path', { key: 'finalArtifactManifest' }))} disabled={Boolean(busy)}>
+          <FileText size={16} /> 打开交付清单
+        </button>
+        <button onClick={() => run('ids', () => postAction('/api/open-path', { key: 'idLifecyclePolicy' }))} disabled={Boolean(busy)}>
+          <ListChecks size={16} /> 打开 ID 规则
+        </button>
+        <button onClick={() => run('editlog', () => postAction('/api/open-path', { key: 'workflowEditLog' }))} disabled={Boolean(busy)}>
+          <FileText size={16} /> 打开写入日志
+        </button>
         <button onClick={() => run('benchmark', () => postAction('/api/open-path', { key: 'benchmarkReportSchema' }))} disabled={Boolean(busy)}>
           <FlaskConical size={16} /> 打开 Benchmark
         </button>
@@ -248,6 +259,238 @@ function ActionPanel({ onReload }: { onReload: () => void }) {
         </button>
       </div>
       <pre className="action-output">{busy ? `正在执行 ${busy}...` : message}</pre>
+    </section>
+  );
+}
+
+type RecordType = 'claim' | 'experiment' | 'material' | 'citation';
+
+const recordTypeLabels: Record<RecordType, string> = {
+  claim: '新增论点 CLM-*',
+  experiment: '新增实验 EXP-*',
+  material: '新增材料 MAT-*',
+  citation: '新增引用 CIT-*',
+};
+
+const recordFields: Record<RecordType, Array<{ key: string; label: string; multiline?: boolean }>> = {
+  claim: [
+    { key: 'claim_draft', label: '论点内容', multiline: true },
+    { key: 'status', label: '状态' },
+    { key: 'experiment_evidence', label: '实验证据' },
+    { key: 'figure_table', label: '图表' },
+    { key: 'literature_evidence', label: '文献证据' },
+    { key: 'caveat', label: '限定条件' },
+    { key: 'next_action', label: '下一步' },
+  ],
+  experiment: [
+    { key: 'claim', label: '关联论点' },
+    { key: 'method_config', label: '方法 / 配置' },
+    { key: 'dataset_split', label: '数据 / 切分' },
+    { key: 'command', label: '命令 / Notebook' },
+    { key: 'output_path', label: '输出路径' },
+    { key: 'key_metrics', label: '关键指标' },
+    { key: 'status', label: '状态' },
+    { key: 'notes', label: '备注', multiline: true },
+  ],
+  material: [
+    { key: 'type', label: '材料类型' },
+    { key: 'title', label: '标题 / 描述', multiline: true },
+    { key: 'source_path', label: '来源路径 / URL' },
+    { key: 'owner', label: '负责人' },
+    { key: 'related_ids', label: '关联 ID' },
+    { key: 'access_level', label: '访问级别' },
+    { key: 'integrity_check', label: '完整性检查' },
+    { key: 'status', label: '状态' },
+  ],
+  citation: [
+    { key: 'section_id', label: '章节 ID' },
+    { key: 'segment_id', label: '段落 ID' },
+    { key: 'claim_id', label: '论点 ID' },
+    { key: 'title', label: '论文题名', multiline: true },
+    { key: 'identifier', label: 'DOI / arXiv / S2 / PMID' },
+    { key: 'candidate_source', label: '候选来源' },
+    { key: 'metadata_status', label: '元数据状态' },
+    { key: 'support_status', label: '支持状态' },
+    { key: 'zotero_status', label: 'Zotero 状态' },
+  ],
+};
+
+function Field({
+  label,
+  value,
+  onChange,
+  multiline = false,
+  placeholder = '待填写',
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  multiline?: boolean;
+  placeholder?: string;
+}) {
+  return (
+    <label className="form-field">
+      <span>{label}</span>
+      {multiline ? (
+        <textarea value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+      ) : (
+        <input value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+      )}
+    </label>
+  );
+}
+
+function FlowEditorPanel({ onReload }: { onReload: () => void }) {
+  const [message, setMessage] = useState('表单会写入 docs/thesis/ 的标准 Markdown 文件，并自动记录 workflow-edit-log.md');
+  const [busy, setBusy] = useState(false);
+  const [recordType, setRecordType] = useState<RecordType>('claim');
+  const [statusFields, setStatusFields] = useState<Record<string, string>>({
+    current_stage: '',
+    active_focus: '',
+    audit_tier: 'quick',
+    main_blocker: '',
+    next_action: '',
+  });
+  const [recordValues, setRecordValues] = useState<Record<string, string>>({});
+  const [artifactFields, setArtifactFields] = useState<Record<string, string>>({
+    artifact_key: '',
+    stage: '11-doc-production',
+    source_ids: '',
+    mac_source_path: '',
+    laptop_target_path: '',
+    format: 'docx',
+    checksum: '',
+    produced_by: 'Documents',
+    transfer_status: 'pending',
+    laptop_verification: 'pending',
+    notes: '',
+  });
+  const [lifecycleFields, setLifecycleFields] = useState<Record<string, string>>({
+    id: '',
+    type: '',
+    status: 'candidate',
+    primary_file: '',
+    related_ids: '',
+    replacement_id: '',
+    owner: 'user/Codex',
+    notes: '',
+  });
+
+  async function submit(endpoint: string, payload: object) {
+    setBusy(true);
+    try {
+      const result = await postAction(endpoint, payload);
+      setMessage(`已写入：${result.id ?? 'record'} -> ${result.target ?? result.output ?? 'workflow console'}`);
+      onReload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const updateRecordValue = (key: string, value: string) => setRecordValues((current) => ({ ...current, [key]: value }));
+  const updateStatusValue = (key: string, value: string) => setStatusFields((current) => ({ ...current, [key]: value }));
+  const updateArtifactValue = (key: string, value: string) => setArtifactFields((current) => ({ ...current, [key]: value }));
+  const updateLifecycleValue = (key: string, value: string) => setLifecycleFields((current) => ({ ...current, [key]: value }));
+
+  return (
+    <section className="panel flow-editor">
+      <div className="panel-title-row">
+        <ListChecks size={18} />
+        <h2>流程编辑器</h2>
+      </div>
+      <p className="editor-note">用于快速登记标准记录。复杂内容仍建议打开 Markdown 源文件细修。</p>
+      <div className="editor-grid">
+        <form
+          className="editor-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submit('/api/flow-editor/update-status', { fields: statusFields });
+          }}
+        >
+          <h3>更新当前状态</h3>
+          <Field label="当前阶段" value={statusFields.current_stage} onChange={(value) => updateStatusValue('current_stage', value)} placeholder="例如：6 实验运行与监控" />
+          <Field label="当前重点" value={statusFields.active_focus} onChange={(value) => updateStatusValue('active_focus', value)} placeholder="literature / experiment / writing" />
+          <Field label="审计等级" value={statusFields.audit_tier} onChange={(value) => updateStatusValue('audit_tier', value)} placeholder="quick / advisor / final" />
+          <Field label="主要阻塞" value={statusFields.main_blocker} onChange={(value) => updateStatusValue('main_blocker', value)} />
+          <Field label="下一步动作" value={statusFields.next_action} onChange={(value) => updateStatusValue('next_action', value)} multiline />
+          <button type="submit" disabled={busy}><Save size={16} /> 保存当前状态</button>
+        </form>
+
+        <form
+          className="editor-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submit('/api/flow-editor/create-record', { record_type: recordType, fields: recordValues });
+          }}
+        >
+          <h3>新增标准记录</h3>
+          <label className="form-field">
+            <span>记录类型</span>
+            <select value={recordType} onChange={(event) => {
+              setRecordType(event.target.value as RecordType);
+              setRecordValues({});
+            }}>
+              {(Object.keys(recordTypeLabels) as RecordType[]).map((type) => (
+                <option value={type} key={type}>{recordTypeLabels[type]}</option>
+              ))}
+            </select>
+          </label>
+          {recordFields[recordType].map((field) => (
+            <Field
+              key={`${recordType}-${field.key}`}
+              label={field.label}
+              value={recordValues[field.key] ?? ''}
+              onChange={(value) => updateRecordValue(field.key, value)}
+              multiline={field.multiline}
+            />
+          ))}
+          <button type="submit" disabled={busy}><Save size={16} /> 新增记录</button>
+        </form>
+
+        <form
+          className="editor-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submit('/api/flow-editor/create-final-artifact', { fields: artifactFields });
+          }}
+        >
+          <h3>登记最终交付物</h3>
+          <Field label="Artifact Key" value={artifactFields.artifact_key} onChange={(value) => updateArtifactValue('artifact_key', value)} placeholder="thesis-docx / final-pdf / defense-pptx" />
+          <Field label="阶段" value={artifactFields.stage} onChange={(value) => updateArtifactValue('stage', value)} />
+          <Field label="关联 Source IDs" value={artifactFields.source_ids} onChange={(value) => updateArtifactValue('source_ids', value)} />
+          <Field label="Mac 源路径" value={artifactFields.mac_source_path} onChange={(value) => updateArtifactValue('mac_source_path', value)} />
+          <Field label="笔记本目标路径" value={artifactFields.laptop_target_path} onChange={(value) => updateArtifactValue('laptop_target_path', value)} />
+          <Field label="格式" value={artifactFields.format} onChange={(value) => updateArtifactValue('format', value)} />
+          <Field label="Checksum" value={artifactFields.checksum} onChange={(value) => updateArtifactValue('checksum', value)} />
+          <Field label="生成工具" value={artifactFields.produced_by} onChange={(value) => updateArtifactValue('produced_by', value)} />
+          <Field label="交接状态" value={artifactFields.transfer_status} onChange={(value) => updateArtifactValue('transfer_status', value)} />
+          <Field label="笔记本验证" value={artifactFields.laptop_verification} onChange={(value) => updateArtifactValue('laptop_verification', value)} />
+          <Field label="备注" value={artifactFields.notes} onChange={(value) => updateArtifactValue('notes', value)} multiline />
+          <button type="submit" disabled={busy}><Save size={16} /> 登记交付物</button>
+        </form>
+
+        <form
+          className="editor-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submit('/api/flow-editor/update-id-lifecycle', { fields: lifecycleFields });
+          }}
+        >
+          <h3>更新 ID 生命周期</h3>
+          <Field label="ID" value={lifecycleFields.id} onChange={(value) => updateLifecycleValue('id', value)} placeholder="CLM-001 / EXP-001 / FIG-001" />
+          <Field label="类型" value={lifecycleFields.type} onChange={(value) => updateLifecycleValue('type', value)} placeholder="claim / experiment / figure" />
+          <Field label="生命周期状态" value={lifecycleFields.status} onChange={(value) => updateLifecycleValue('status', value)} placeholder="draft / candidate / verified / promoted" />
+          <Field label="主文件" value={lifecycleFields.primary_file} onChange={(value) => updateLifecycleValue('primary_file', value)} placeholder="docs/thesis/claim-evidence-map.md" />
+          <Field label="关联 ID" value={lifecycleFields.related_ids} onChange={(value) => updateLifecycleValue('related_ids', value)} />
+          <Field label="替代 ID" value={lifecycleFields.replacement_id} onChange={(value) => updateLifecycleValue('replacement_id', value)} />
+          <Field label="负责人" value={lifecycleFields.owner} onChange={(value) => updateLifecycleValue('owner', value)} />
+          <Field label="备注" value={lifecycleFields.notes} onChange={(value) => updateLifecycleValue('notes', value)} multiline />
+          <button type="submit" disabled={busy}><Save size={16} /> 更新生命周期</button>
+        </form>
+      </div>
+      <pre className="action-output">{busy ? '正在写入...' : message}</pre>
     </section>
   );
 }
@@ -449,6 +692,8 @@ export function App() {
 
       <ActionPanel onReload={reloadData} />
 
+      <FlowEditorPanel onReload={reloadData} />
+
       <section className="metric-grid">
         <MetricCard label="论点" value={data.counts.claims} icon={<FileText size={18} />} accent="#0f766e" />
         <MetricCard label="实验" value={data.counts.experiments} icon={<FlaskConical size={18} />} accent="#7c3aed" />
@@ -513,6 +758,23 @@ export function App() {
             <div><strong>{data.skillHealth?.brokenReferences ?? 0}</strong><span>断裂引用</span></div>
             <div><strong>{data.skillHealth?.missingScripts ?? 0}</strong><span>缺失脚本</span></div>
             <div><strong>{data.skillHealth?.outdatedAssumptions ?? 0}</strong><span>旧工具假设</span></div>
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-title-row">
+            <FileText size={18} />
+            <h2>最终交付物</h2>
+          </div>
+          <div className="experiment-list">
+            {(data.finalArtifacts ?? []).length ? data.finalArtifacts!.map((artifact) => (
+              <article className="experiment-row" key={artifact.id}>
+                <div>
+                  <strong>{artifact.id}</strong>
+                  <span>{displayText(artifact.row)}</span>
+                </div>
+                <span className={`status-pill ${statusClass(artifact.status)}`}>{displayStatus(artifact.status)}</span>
+              </article>
+            )) : <div className="empty-state">暂无最终交付物记录</div>}
           </div>
         </section>
       </section>

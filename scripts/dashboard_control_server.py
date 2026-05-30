@@ -8,6 +8,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
+from edit_workflow_record import FLOW_EDITOR_SCHEMA, handle_payload
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_HOST = "127.0.0.1"
@@ -20,6 +22,9 @@ ALLOWED_OPEN_PATHS = {
     "dataAvailability": ROOT / "docs" / "thesis" / "data-availability.md",
     "materialPassport": ROOT / "docs" / "thesis" / "material-passport.md",
     "citationProvenance": ROOT / "docs" / "thesis" / "citation-provenance.md",
+    "finalArtifactManifest": ROOT / "docs" / "thesis" / "final-artifact-manifest.md",
+    "idLifecyclePolicy": ROOT / "docs" / "thesis" / "id-lifecycle-policy.md",
+    "workflowEditLog": ROOT / "docs" / "thesis" / "workflow-edit-log.md",
     "figurePlan": ROOT / "docs" / "thesis" / "figure-plan.md",
     "finalAudit": ROOT / "docs" / "thesis" / "final-audit.md",
     "deepResearchTasks": ROOT / "docs" / "thesis" / "deep-research-tasks.md",
@@ -59,6 +64,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if path == "/api/status":
             data_path = ROOT / "dashboard-web" / "public" / "data" / "dashboard-data.json"
             json_response(self, 200, {"ok": True, "root": str(ROOT), "dataExists": data_path.exists()})
+            return
+        if path == "/api/flow-editor/schema":
+            json_response(self, 200, {"ok": True, "schema": FLOW_EDITOR_SCHEMA})
             return
         json_response(self, 404, {"ok": False, "error": "unknown endpoint"})
 
@@ -114,6 +122,24 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 return
             code, output = run_command(["open", str(target)])
             json_response(self, 200 if code == 0 else 500, {"ok": code == 0, "output": output or str(target)})
+            return
+
+        flow_actions = {
+            "/api/flow-editor/update-status": "update-status",
+            "/api/flow-editor/create-record": "create-record",
+            "/api/flow-editor/update-id-lifecycle": "update-id-lifecycle",
+            "/api/flow-editor/create-final-artifact": "create-final-artifact",
+        }
+        if path in flow_actions:
+            try:
+                result = handle_payload(ROOT, {"action": flow_actions[path], **payload})
+            except ValueError as exc:
+                json_response(self, 400, {"ok": False, "error": str(exc)})
+                return
+            except Exception as exc:  # pragma: no cover - defensive API boundary
+                json_response(self, 500, {"ok": False, "error": str(exc)})
+                return
+            json_response(self, 200, {"ok": True, "output": f"updated {result.get('target', '')}", **result})
             return
 
         json_response(self, 404, {"ok": False, "error": "unknown endpoint"})

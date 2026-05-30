@@ -25,6 +25,9 @@ NEW_DEEP_RESEARCH_TASK = REPO_ROOT / "scripts" / "new_deep_research_task.py"
 NEW_EXPERIMENT_REPORT = REPO_ROOT / "scripts" / "new_experiment_report.py"
 AUDIT_SKILLS = REPO_ROOT / "scripts" / "audit_skills.py"
 DASHBOARD_CONTROL_SERVER = REPO_ROOT / "scripts" / "dashboard_control_server.py"
+EDIT_WORKFLOW_RECORD = REPO_ROOT / "scripts" / "edit_workflow_record.py"
+AUDIT_FINAL_ARTIFACTS = REPO_ROOT / "scripts" / "audit_final_artifacts.py"
+AUDIT_ID_LIFECYCLE = REPO_ROOT / "scripts" / "audit_id_lifecycle.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -435,6 +438,7 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             )
             for name in (
                 "evidence-promotion-policy.md",
+                "id-lifecycle-policy.md",
                 "material-passport.md",
                 "section-citation-map.md",
                 "citation-provenance.md",
@@ -443,9 +447,26 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "benchmark-report-schema.md",
                 "figure-plan.md",
                 "diagram-replica-tasks.md",
+                "final-artifact-manifest.md",
                 "final-audit.md",
+                "workflow-edit-log.md",
             ):
                 (thesis / name).write_text("# placeholder\n", encoding="utf-8")
+            source = project / "outputs" / "final.pdf"
+            source.parent.mkdir(parents=True)
+            source.write_text("pdf placeholder", encoding="utf-8")
+            (thesis / "final-artifact-manifest.md").write_text(
+                "| Artifact Key | Stage | Source IDs | Mac Source Path | Laptop Target Path | Format | Checksum | Produced By | Transfer Status | Laptop Verification | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|\n"
+                f"| final-pdf | 11-doc-production | CLM-001; FIG-001; DATA-001 | {source} | /laptop/final.pdf | pdf | sha256:abc | Documents | verified | opened on laptop | test |\n",
+                encoding="utf-8",
+            )
+            (thesis / "id-lifecycle-policy.md").write_text(
+                "| ID | Type | Status | Primary File | Related IDs | Replacement ID | Owner | Updated On | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|\n"
+                "| CLM-001 | claim | verified | claim-evidence-map.md | EXP-001; FIG-001; DATA-001 |  | user | 2026-01-01 | test |\n",
+                encoding="utf-8",
+            )
             (thesis / "claim-evidence-map.md").write_text(
                 "| Claim ID | Claim Draft | Status | Experiment Evidence | Figure/Table | Literature Evidence | Caveat | Next Action |\n"
                 "|---|---|---|---|---|---|---|---|\n"
@@ -490,6 +511,128 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("skillHealth", dashboard_json)
             self.assertNotIn("old", dashboard)
 
+    def test_edit_workflow_record_creates_standard_records_and_log(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "workflow-dashboard.md").write_text(
+                "# Workflow Dashboard\n\n## Current Status\n\n| Field | Value |\n|---|---|\n| Current stage | 1-12/TBD |\n| Active focus | TBD |\n| Current audit tier | quick |\n| Main blocker | TBD |\n| Next concrete action | TBD |\n| Last dashboard refresh | TBD |\n",
+                encoding="utf-8",
+            )
+            (thesis / "claim-evidence-map.md").write_text(
+                "| Claim ID | Claim Draft | Status | Experiment Evidence | Figure/Table | Literature Evidence | Caveat | Next Action |\n|---|---|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
+            (thesis / "experiment-registry.md").write_text(
+                "| Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes |\n|---|---|---|---|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
+            (thesis / "material-passport.md").write_text(
+                "| Material ID | Type | Title / Description | Source Path / URL | Owner | Created / Updated | Related IDs | Access Level | License / Permission | Integrity Check | Repro Lock | Status | Notes |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
+            (thesis / "citation-provenance.md").write_text(
+                "| Citation ID | Section ID | Segment ID | Claim ID | Title | Identifier | Candidate Source | Metadata Status | Support Status | Zotero Status | Scite / Reader Evidence | Verified By | Verified On | Export Status | Notes |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
+            (thesis / "final-artifact-manifest.md").write_text(
+                "| Artifact Key | Stage | Source IDs | Mac Source Path | Laptop Target Path | Format | Checksum | Produced By | Transfer Status | Laptop Verification | Notes |\n|---|---|---|---|---|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
+            (thesis / "id-lifecycle-policy.md").write_text(
+                "| ID | Type | Status | Primary File | Related IDs | Replacement ID | Owner | Updated On | Notes |\n|---|---|---|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
+
+            payloads = [
+                {"action": "update-status", "fields": {"current_stage": "6 实验运行", "next_action": "run smoke"}},
+                {"action": "create-record", "record_type": "claim", "fields": {"claim_draft": "model improves accuracy", "experiment_evidence": "EXP-001"}},
+                {"action": "create-record", "record_type": "experiment", "fields": {"claim": "CLM-001", "method_config": "config.yaml", "output_path": "outputs/EXP-001"}},
+                {"action": "create-record", "record_type": "material", "fields": {"type": "figure", "title": "Figure source", "related_ids": "FIG-001"}},
+                {"action": "create-record", "record_type": "citation", "fields": {"title": "Important paper", "identifier": "10.0000/example"}},
+                {"action": "create-final-artifact", "fields": {"artifact_key": "final-pdf", "format": "pdf", "transfer_status": "copied"}},
+                {"action": "update-id-lifecycle", "fields": {"id": "CLM-001", "type": "claim", "status": "verified", "primary_file": "claim-evidence-map.md"}},
+            ]
+            for payload in payloads:
+                subprocess.run(
+                    [sys.executable, str(EDIT_WORKFLOW_RECORD), "--payload-json", json.dumps(payload)],
+                    cwd=project,
+                    text=True,
+                    capture_output=True,
+                    check=True,
+                )
+
+            self.assertIn("6 实验运行", (thesis / "workflow-dashboard.md").read_text(encoding="utf-8"))
+            self.assertIn("model improves accuracy", (thesis / "claim-evidence-map.md").read_text(encoding="utf-8"))
+            self.assertIn("outputs/EXP-001", (thesis / "experiment-registry.md").read_text(encoding="utf-8"))
+            self.assertIn("Figure source", (thesis / "material-passport.md").read_text(encoding="utf-8"))
+            self.assertIn("Important paper", (thesis / "citation-provenance.md").read_text(encoding="utf-8"))
+            self.assertIn("final-pdf", (thesis / "final-artifact-manifest.md").read_text(encoding="utf-8"))
+            self.assertIn("verified", (thesis / "id-lifecycle-policy.md").read_text(encoding="utf-8"))
+            self.assertIn("create final artifact", (thesis / "workflow-edit-log.md").read_text(encoding="utf-8"))
+            self.assertTrue((project / "tmp" / "dashboard-edits" / "backups").exists())
+
+    def test_final_artifact_audit_detects_missing_final_verification(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            source = project / "outputs" / "final.pdf"
+            source.parent.mkdir(parents=True)
+            source.write_text("pdf placeholder", encoding="utf-8")
+            (thesis / "final-artifact-manifest.md").write_text(
+                "| Artifact Key | Stage | Source IDs | Mac Source Path | Laptop Target Path | Format | Checksum | Produced By | Transfer Status | Laptop Verification | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|\n"
+                f"| final-pdf | 11-doc-production | CLM-001 | {source} | TBD | pdf | TBD | Documents | copied | pending | final pdf |\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(AUDIT_FINAL_ARTIFACTS), "--tier", "final", "--warn-only"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertIn("Final Artifacts: 1", result.stdout)
+            self.assertIn("missing checksum", result.stdout)
+            self.assertIn("not verified on the laptop", result.stdout)
+
+    def test_id_lifecycle_audit_detects_weak_links_and_deprecated_refs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "id-lifecycle-policy.md").write_text(
+                "| ID | Type | Status | Primary File | Related IDs | Replacement ID | Owner | Updated On | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|\n"
+                "| CLM-OLD | claim | deprecated | claim-evidence-map.md |  |  | user | 2026-01-01 | old claim |\n",
+                encoding="utf-8",
+            )
+            (thesis / "claim-evidence-map.md").write_text(
+                "| Claim ID | Claim Draft | Status | Experiment Evidence | Figure/Table | Literature Evidence | Caveat | Next Action |\n"
+                "|---|---|---|---|---|---|---|---|\n"
+                "| CLM-001 | unsupported claim | supported | TBD | TBD | Paper A | none | fix |\n"
+                "| CLM-OLD | old claim | supported | EXP-001 | FIG-001 | Paper B | none | remove |\n",
+                encoding="utf-8",
+            )
+            (thesis / "figure-plan.md").write_text(
+                "| Figure ID | Type | Purpose | Related Claim | Role | Source Data | Script | Visual Type | Caption | Status |\n"
+                "|---|---|---|---|---|---|---|---|---|---|\n"
+                "| FIG-001 | figure | result | TBD | support | TBD | plot.py | bar | caption | final |\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(AUDIT_ID_LIFECYCLE), "--warn-only"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertIn("CLM-001 has no EXP/DATA/CIT/FIG evidence link", result.stdout)
+            self.assertIn("CLM-OLD is deprecated", result.stdout)
+            self.assertIn("FIG-001 is final but has no CLM/EXP/DATA source link", result.stdout)
+
     def test_dashboard_control_server_rejects_unlisted_open_path(self):
         with socket.socket() as sock:
             sock.bind(("127.0.0.1", 0))
@@ -526,6 +669,20 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             with self.assertRaises(urllib.error.HTTPError) as ctx:
                 opener.open(request, timeout=1)
             self.assertEqual(403, ctx.exception.code)
+
+            with opener.open(f"http://127.0.0.1:{port}/api/flow-editor/schema", timeout=1) as response:
+                schema = json.loads(response.read().decode("utf-8"))
+            self.assertIn("claim", schema["schema"]["recordTypes"])
+
+            bad_request = urllib.request.Request(
+                f"http://127.0.0.1:{port}/api/flow-editor/create-record",
+                data=json.dumps({"record_type": "../bad", "fields": {}}).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with self.assertRaises(urllib.error.HTTPError) as bad_ctx:
+                opener.open(bad_request, timeout=1)
+            self.assertEqual(400, bad_ctx.exception.code)
         finally:
             proc.terminate()
             try:
