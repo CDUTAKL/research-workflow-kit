@@ -19,8 +19,12 @@ research-workflow-kit/
   skills/                       # Reusable Codex skills
   docs/thesis/                  # Project research console templates
   scripts/                      # Lightweight reusable automation scripts
+  dashboard-web/                # Local React/Vite workflow dashboard
+  .github/                      # CI, PR template, issue templates
   figures/                      # Figure reference/final/architecture folders
   .claude/                      # Optional Claude Code hook template
+  AGENTS.md                     # Main AI/agent project context
+  CLAUDE.md                     # Claude Code entry pointing to AGENTS.md
   init_research_workflow.py     # Initialize a project-local research console
 ```
 
@@ -133,9 +137,50 @@ The workflow includes optional enhancement layers:
 - `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
 - `$research-literature-review` supports section-level citation matching through `section-citation-map.md`, Zotero screening loops through `zotero-screening-loop.md`, citation provenance through `citation-provenance.md`, Zotero collection coverage through `zotero-collection-coverage.md`, and source-grounded readers.
 - `$research-paper-figures` supports dual-platform diagram replication: Mac draw.io MCP by default and Windows Visio when editable `.vsdx` output is useful.
+- Build Web Data Visualization is used as a design and QA guide for chart choice, statistical visual communication, dashboard views, evidence graphs, accessibility, and visual testing.
 - `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
 - `docs/thesis/material-passport.md` identifies evidence-critical materials, while `benchmark-report-schema.md` standardizes baseline/new experiment comparisons before claim promotion.
 - `docs/thesis/workflow-dashboard.md` is the daily project homepage for current stage, blockers, recent experiments, missing evidence, and audit tier.
+
+## Engineering Quality Gates
+
+This repository includes GitHub Actions CI for lightweight Python, skill, smoke, and dashboard checks. CI intentionally does not run CodeRabbit, Vercel deploys, Supabase, Overleaf, reviewer-response automation, or arXiv submission because those require account-specific state or are outside the current workflow scope.
+
+Before merging workflow changes, run:
+
+```bash
+.venv/bin/python -m py_compile scripts/*.py
+.venv/bin/python -m unittest tests.test_research_workflow_scripts -v
+.venv/bin/python scripts/audit_skills.py
+.venv/bin/python scripts/research_workflow_doctor.py --warn-only
+```
+
+For dashboard changes, also run:
+
+```bash
+cd dashboard-web
+PATH=/opt/homebrew/bin:$PATH pnpm install --frozen-lockfile
+PATH=/opt/homebrew/bin:$PATH pnpm run prepare:data
+PATH=/opt/homebrew/bin:$PATH pnpm run build
+```
+
+For template compatibility:
+
+```bash
+.venv/bin/python init_research_workflow.py --project /private/tmp/rwk-ci-smoke
+cd /private/tmp/rwk-ci-smoke
+python scripts/research_workflow_doctor.py --warn-only
+```
+
+Use `AGENTS.md` as the main context file for Codex, Claude Code, CodeRabbit, or other coding agents. `CLAUDE.md` is a short Claude Code entry that points back to `AGENTS.md` to avoid duplicated project instructions.
+
+Optional pre-merge review:
+
+```bash
+coderabbit review --agent -c AGENTS.md
+```
+
+Run it only when CodeRabbit is installed and authenticated. It is not part of default CI.
 
 ## macOS Toolchain Notes
 
@@ -248,6 +293,8 @@ Do not use AI-generated raster images directly as final thesis figures unless th
 
 Use Python or the Nature-style renderer for data-backed statistical plots. Use Figma or BioRender only as optional polish layers when draw.io/Python output needs additional design refinement.
 
+For complex charts, evidence graphs, dashboard charts, or advisor-facing visual reports, apply Build Web Data Visualization rules: choose the simplest truthful chart, show uncertainty when relevant, avoid decorative chart effects, check accessible contrast, and verify labels on desktop and mobile views.
+
 ## Literature Screening Workflow
 
 For recurring literature intake:
@@ -261,6 +308,15 @@ For recurring literature intake:
 7. Hand strong candidates to `section-citation-map.md` and `deep-research-tasks.md`.
 
 Use `docs/thesis/zotero-screening-loop.md` to record this loop. Zotero and spreadsheets are convenience layers; `docs/thesis/` remains the evidence source of truth.
+
+## Plugin Integration Boundaries
+
+- Scite: use for citation support/contrast/mention checks in literature review, claim mapping, writing, and final audit.
+- Zotero: use for local library management, metadata export, citation provenance, and section citation coverage.
+- BioRender: optional scientific schematic polish after source records and figure provenance exist.
+- Vercel: future optional route for a read-only dashboard preview only. Do not expose the local write API or private research evidence.
+- CodeRabbit: optional local or PR pre-merge code review. Do not require it for CI.
+- Supabase database migration, Overleaf sync, reviewer-response workflow, and arXiv auto-submit are intentionally not included.
 
 ## Sensitive Information Policy
 

@@ -1,0 +1,40 @@
+name: Bug report
+description: Report a broken script, dashboard issue, skill problem, or workflow regression.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What broke?
+    validations:
+      required: true
+  - type: input
+    id: area
+    attributes:
+      label: Area
+      description: Script, skill, dashboard, docs, CI, or other area.
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Commands or steps that show the problem.
+      render: bash
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Remove secrets, paths to private data, and tokens before pasting.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed private data, API keys, tokens, cookies, and credentials.
+          required: true

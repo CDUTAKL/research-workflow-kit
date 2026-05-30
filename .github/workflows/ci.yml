@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  python:
+    name: Python scripts and skills
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Check whitespace
+        run: git diff --check
+
+      - name: Compile Python scripts
+        run: python -m py_compile scripts/*.py
+
+      - name: Run unit tests
+        run: python -m unittest tests.test_research_workflow_scripts -v
+
+      - name: Audit skill structure
+        run: python scripts/audit_skills.py
+
+      - name: Run repository workflow doctor
+        run: python scripts/research_workflow_doctor.py --warn-only
+
+      - name: Initialize smoke project
+        run: python init_research_workflow.py --project /tmp/rwk-ci-smoke
+
+      - name: Run smoke workflow doctor
+        run: |
+          cd /tmp/rwk-ci-smoke
+          python scripts/research_workflow_doctor.py --warn-only
+
+  dashboard:
+    name: Dashboard build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+          cache-dependency-path: dashboard-web/pnpm-lock.yaml
+
+      - name: Install dashboard dependencies
+        working-directory: dashboard-web
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare dashboard data
+        working-directory: dashboard-web
+        run: pnpm run prepare:data
+
+      - name: Build dashboard
+        working-directory: dashboard-web
+        run: pnpm run build

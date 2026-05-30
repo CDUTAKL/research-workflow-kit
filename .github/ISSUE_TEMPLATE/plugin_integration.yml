@@ -1,0 +1,41 @@
+name: Plugin integration
+description: Propose or refine a plugin integration route.
+title: "[Plugin]: "
+labels:
+  - enhancement
+  - plugin
+body:
+  - type: input
+    id: plugin
+    attributes:
+      label: Plugin name
+      placeholder: Scite, Zotero, Vercel, Build Web Data Visualization, etc.
+    validations:
+      required: true
+  - type: dropdown
+    id: default
+    attributes:
+      label: Should this be default or optional?
+      options:
+        - Default in a specific stage
+        - Optional enhancement
+        - Future-only note
+  - type: textarea
+    id: role
+    attributes:
+      label: Intended role
+      description: What should the plugin do, and what should it not replace?
+    validations:
+      required: true
+  - type: textarea
+    id: records
+    attributes:
+      label: Primary records
+      description: Which `docs/thesis/` files should record its outputs?
+  - type: checkboxes
+    id: excluded
+    attributes:
+      label: Scope check
+      options:
+        - label: This does not add Supabase database migration, Overleaf sync, reviewer response workflow, or arXiv auto-submit.
+          required: true

@@ -1,0 +1,41 @@
+name: Workflow improvement
+description: Suggest an improvement to the 12-stage research workflow.
+title: "[Workflow]: "
+labels:
+  - enhancement
+  - workflow
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What part of the workflow feels slow, unclear, risky, or too manual?
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Main stage
+      options:
+        - "1. Paper planning"
+        - "2. Literature discovery and review"
+        - "3. Experiment question definition"
+        - "4. Experiment architecture planning"
+        - "5. Research code implementation"
+        - "6. Experiment run and monitoring"
+        - "7. Experiment recording and result scan"
+        - "8. Results analysis and claim mapping"
+        - "9. Figure/table/model diagram production"
+        - "10. Paper writing and polishing"
+        - "11. DOCX/PDF production"
+        - "12. Final audit and defense"
+        - Cross-stage
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+  - type: textarea
+    id: records
+    attributes:
+      label: Source records affected
+      description: Mention relevant `docs/thesis/` files, scripts, or skills.

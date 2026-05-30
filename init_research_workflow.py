@@ -13,7 +13,8 @@ SKIP_NAMES = {
     "evidence-graph.json",
     "evidence-graph.mmd",
 }
-SKIP_PARTS = {"node_modules", "dist"}
+SKIP_PARTS = {"node_modules", "dist", "__pycache__"}
+SKIP_SUFFIXES = {".pyc", ".pyo"}
 
 
 def copy_tree(src: Path, dst: Path, overwrite: bool) -> list[str]:
@@ -24,7 +25,7 @@ def copy_tree(src: Path, dst: Path, overwrite: bool) -> list[str]:
         if path.is_dir():
             continue
         rel = path.relative_to(src)
-        if rel.name in SKIP_NAMES or any(part in SKIP_PARTS for part in rel.parts):
+        if rel.name in SKIP_NAMES or rel.suffix in SKIP_SUFFIXES or any(part in SKIP_PARTS for part in rel.parts):
             continue
         target = dst / rel
         target.parent.mkdir(parents=True, exist_ok=True)

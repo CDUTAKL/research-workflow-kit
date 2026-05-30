@@ -16,6 +16,8 @@ The local web dashboard is the operational view of the same console. It is desig
 
 It starts a local-only control service on `127.0.0.1:8765` so the page can refresh dashboard data, export the evidence graph, run the quick health check, open whitelisted source files, copy recommended commands, and use the flow editor to append standard records.
 
+Use Build Web Data Visualization principles when the dashboard becomes advisor-facing: keep charts simple, show uncertainty or missingness when relevant, make labels readable on desktop/mobile, and do not let visual polish hide unsupported claims.
+
 ## Current Status
 
 | Field | Value |
@@ -93,6 +95,7 @@ Manual launchers remain available:
 |---|---|---|
 | `evidence-graph.json` | pending | machine-readable evidence relationship graph |
 | `evidence-graph.mmd` | pending | Mermaid diagram for quick visual inspection |
+| Visual QA | pending | check graph/chart readability, contrast, labels, and missing-evidence visibility before advisor/final review |
 
 ## Operational Actions
 
@@ -108,6 +111,7 @@ Manual launchers remain available:
 | 检查 Zotero 覆盖 | `打开文献覆盖` | `zotero-collection-coverage.md` |
 | 检查 benchmark 规范 | `打开 Benchmark` | `benchmark-report-schema.md` |
 | 审计 skills | `python scripts/audit_skills.py --warn-only --write-report` | `skill-audit-report.md` |
+| 可视化质量检查 | Build Web Data Visualization checklist | readable charts, visible uncertainty, accessible contrast, no hidden evidence gaps |
 | 使用流程编辑器新增记录 | Dashboard `流程编辑器` | `claim-evidence-map.md`, `experiment-registry.md`, `material-passport.md`, `citation-provenance.md`, `final-artifact-manifest.md` |
 | 审计最终交付物 | `python scripts/audit_final_artifacts.py --tier quick --warn-only` | stage 11-12 handoff risk list |
 | 审计 ID 生命周期 | `python scripts/audit_id_lifecycle.py --warn-only` | orphan, unknown, deprecated, or weakly linked ID warnings |

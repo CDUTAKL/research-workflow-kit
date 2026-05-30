@@ -18,6 +18,7 @@ Use this skill as the last quality gate before submission or defense. It checks 
 - Check `final-artifact-manifest.md`, `material-passport.md`, `benchmark-report-schema.md`, `citation-provenance.md`, and `zotero-collection-coverage.md` when the project uses those records.
 - Choose the audit tier explicitly: `quick`, `advisor`, or `final`.
 - Use `workflow-dashboard.md`, `research_workflow_doctor.py`, and `evidence-graph.mmd` as navigation aids when the project console is large.
+- When the dashboard or evidence graph is shown to an advisor, audit it with Build Web Data Visualization principles: simple truthful visual encodings, readable labels, accessible contrast, and no hidden uncertainty.
 - Separate scientific issues from formatting issues.
 - Prioritize fixes by submission risk.
 - Do not silently rewrite claims to be stronger than the evidence.
@@ -35,8 +36,9 @@ Read `references/workflow.md` for audit tables and checklists. Read `references/
 7. Audit data availability records, including dataset provenance, access restrictions, hash/manifest, data dictionary, and claim-to-data traceability.
 8. Check section citation coverage for citation-heavy manuscript sections.
 9. Check figures, tables, equations, numbering, captions, cross-references, rendering, and publication-grade figure readiness. For final figures, require the Nature-derived figure audit standard or explicit revision items.
-10. For defense or paper-to-PPT work, check slide claims, selected figures, speaker notes, and paper-to-slide traceability.
-11. Route each issue to the right revision skill and return a prioritized fix list.
+10. Check dashboard/evidence-graph views when they are used for advisor review, defense preparation, or project handoff.
+11. For defense or paper-to-PPT work, check slide claims, selected figures, speaker notes, and paper-to-slide traceability.
+12. Route each issue to the right revision skill and return a prioritized fix list.
 
 ## Output Contract
 
@@ -58,6 +60,7 @@ Always include:
 - data availability issues
 - section citation map issues
 - workflow dashboard and evidence graph issues
+- dashboard/evidence graph visual readability issues
 - code contract and autoresearch verify/guard issues
 - tool-layer issues: Notion sync, git traceability, spreadsheet staleness, defense slide gaps
 - audit-to-revision routing

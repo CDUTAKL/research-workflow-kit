@@ -9,6 +9,7 @@ Use `evidence-promotion-policy.md` for final visual IDs. Manuscript-facing figur
 - For model architecture, method overview, workflow, and schematic figures, create or select a visual reference first. Image Gen Skill is the preferred reference generator when visual quality matters.
 - Reference images are not final thesis figures. Check reference content accuracy, then redraw structured diagrams from source-of-truth records in draw.io by default on Mac, or Visio on Windows when editable `.vsdx` is needed.
 - Use Python or the Nature-style renderer for data-backed plots. Use Figma/BioRender only as optional visual polish after draw.io/Python output exists.
+- For complex charts, evidence graphs, Dashboard visuals, or advisor-facing visual reports, apply Build Web Data Visualization rules: simplest truthful chart, visible uncertainty or missingness when relevant, readable labels, accessible contrast, and responsive sanity checks.
 - Use `network-architecture-figures.md` for model structure diagrams; do not manage them as generic result plots.
 - Run the Nature-derived `figure-audit-standard.md` before marking final thesis, advisor-facing, or publication-ready figures as ready.
 - Use `skills/research-paper-figures/scripts/nature_plot_templates.py` for common result figures when no project-specific plotting script already exists.
@@ -31,11 +32,11 @@ Rules:
 
 ## Figure And Table List
 
-| ID | Type | Purpose | figure_claim | panel_role | source_data | script_or_notebook | Recommended Form | Caption Draft | export_status | audit_status | revision_needed | Status | Export Target |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| FIG-001 | figure | TBD | CLM-001/TBD | hero/support/TBD | TBD | TBD | flowchart/line/bar/heatmap/TBD | TBD | planned | pending | TBD | planned | PDF/SVG/PNG/TBD |
-| FIG-TABLE-001 | table | TBD | CLM-001/TBD | table/TBD | TBD | TBD | metric table/ablation table/TBD | TBD | planned | pending | TBD | planned | DOCX/optional LaTeX/TBD |
-| FIG-ARCH-001 | network architecture | explain model topology | method clarity | architecture main + inset | `.network.json` / model.py / paper source | draw.io, Windows Visio, or skills/research-paper-figures/scripts/render_network_architecture.py | feature-map stack diagram | structure-only caption | planned | pending | TBD | planned | SVG/PDF/PNG/PPTX/VSDX |
+| ID | Type | Purpose | figure_claim | panel_role | source_data | script_or_notebook | Recommended Form | Visual QA | Caption Draft | export_status | audit_status | revision_needed | Status | Export Target |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| FIG-001 | figure | TBD | CLM-001/TBD | hero/support/TBD | TBD | TBD | flowchart/line/bar/heatmap/TBD | chart choice / uncertainty / contrast / labels pending | TBD | planned | pending | TBD | planned | PDF/SVG/PNG/TBD |
+| FIG-TABLE-001 | table | TBD | CLM-001/TBD | table/TBD | TBD | TBD | metric table/ablation table/TBD | readable columns / footnotes pending | TBD | planned | pending | TBD | planned | DOCX/optional LaTeX/TBD |
+| FIG-ARCH-001 | network architecture | explain model topology | method clarity | architecture main + inset | `.network.json` / model.py / paper source | draw.io, Windows Visio, or skills/research-paper-figures/scripts/render_network_architecture.py | feature-map stack diagram | label hierarchy / contrast / source-truth pending | structure-only caption | planned | pending | TBD | planned | SVG/PDF/PNG/PPTX/VSDX |
 
 ## Publication-Grade Figure Contract
 
@@ -95,6 +96,9 @@ Use this section when a figure needs Nature-style or high-impact-journal polish.
 | Multi-panel layout has no redundant panels | pending |  |
 | Figure conclusion does not exceed evidence | pending |  |
 | Network structure figures are tracked in `network-architecture-figures.md` | pending |  |
+| Chart choice is the simplest truthful form for the data | pending |  |
+| Uncertainty, missingness, sample counts, or limitations are visible when relevant | pending |  |
+| Labels and contrast remain readable in DOCX/PDF/PPTX and dashboard contexts | pending |  |
 
 ## Figure Audit Log
 

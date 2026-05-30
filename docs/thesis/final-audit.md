@@ -10,6 +10,7 @@
 - Apply `id-lifecycle-policy.md` before final writing so deprecated or superseded IDs do not leak into the thesis.
 - Use `final-artifact-manifest.md` as the stage 11-12 Mac-to-laptop handoff contract.
 - Run `scripts/research_workflow_doctor.py --write-dashboard` before advisor or final audit when the project console exists.
+- If the Dashboard, evidence graph, or result charts will be shown to an advisor, apply Build Web Data Visualization checks for truthful chart choice, readable labels, accessible contrast, uncertainty/missingness visibility, and desktop/mobile legibility.
 
 ## Priority Legend
 
@@ -85,6 +86,7 @@
 | New core citations have `citation-provenance.md` entries before final prose use | pending |  |
 | New evidence-critical materials have `material-passport.md` entries | pending |  |
 | Dashboard flow-editor writes are reviewed in `workflow-edit-log.md` | pending |  |
+| Dashboard/evidence graph visual issues do not hide P0/P1 blockers | pending |  |
 
 ## Advisor Audit Checklist
 
@@ -100,6 +102,7 @@
 | Zotero collections cover target sections in `zotero-collection-coverage.md` | pending |  |
 | Formal baseline comparisons are recorded in `benchmark-report-schema.md` | pending |  |
 | Data restrictions and availability language are advisor-reviewable | pending |  |
+| Advisor-facing charts and evidence graph are readable and do not hide uncertainty | pending |  |
 | DOCX/PDF/PPTX handoff rows in `final-artifact-manifest.md` are copied or verified | pending |  |
 | Important IDs have valid lifecycle status in `id-lifecycle-policy.md` | pending |  |
 
@@ -116,6 +119,7 @@
 | Zotero screening feedback does not create unsupported stable screening rules | pending |  |
 | Material passport and benchmark report schema agree with promoted claims | pending |  |
 | `workflow-dashboard.md` and evidence graph are refreshed | pending |  |
+| Dashboard and evidence graph pass visual readability and accessibility checks | pending |  |
 | Defense slides only use promoted evidence | pending |  |
 | All final artifacts are verified on the laptop with checksums | pending |  |
 | Deprecated or superseded IDs are absent from final prose, figures, and slides | pending |  |

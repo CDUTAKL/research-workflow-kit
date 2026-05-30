@@ -21,6 +21,8 @@ Use this skill to transform raw experiment artifacts into trustworthy summaries 
 - For baseline comparisons, create or update `docs/thesis/experiment-reports/EXP-*.md` with `scripts/new_experiment_report.py` before promoting a result.
 - For formal benchmark comparisons, update `docs/thesis/benchmark-report-schema.md` with baseline/new values, metric definition, guard checklist, material passport link, and promotion decision.
 - For data-backed claims, route dataset traceability gaps to `$research-data-availability`.
+- Use Build Web Data Visualization as a design and QA guide when turning metrics into charts, dashboard views, baseline-delta visuals, uncertainty displays, or evidence-graph summaries.
+- Visual polish must not hide weak baselines, missing variance, incompatible splits, or unsupported claims.
 
 ## Workflow
 
@@ -33,10 +35,11 @@ Read `references/workflow.md` for result tables, claim classification, and audit
 5. Normalize metric names, datasets/splits, seeds, baselines, and model variants.
 6. Choose the right statistical summary or test before using words such as significant, robust, or consistent.
 7. Audit ground-truth provenance, metric computation, result file existence, scope, and dead-code risks.
-8. Update `docs/thesis/experiment-registry.md`, `docs/thesis/claim-evidence-map.md`, `docs/thesis/autoresearch-results.tsv`, `docs/thesis/experiment-reports/`, `docs/thesis/benchmark-report-schema.md`, `docs/thesis/material-passport.md`, and `docs/thesis/data-availability.md` when a thesis console exists and the result is used as evidence.
-9. Build a claim table with supported, weak, unsupported, and missing-evidence claims.
-10. If code architecture, run commands, machine-readable metrics, or reproducibility records are missing, route fixes to `$research-experiment-engineering`.
-11. Hand off figure/table requirements to `$research-paper-figures` and propose follow-up experiments only when they unblock a paper claim.
+8. For advisor-facing or dashboard-facing result visuals, apply Build Web Data Visualization checks: truthful chart choice, readable labels, uncertainty or sample-size visibility when relevant, accessible contrast, and mobile/desktop layout sanity.
+9. Update `docs/thesis/experiment-registry.md`, `docs/thesis/claim-evidence-map.md`, `docs/thesis/autoresearch-results.tsv`, `docs/thesis/experiment-reports/`, `docs/thesis/benchmark-report-schema.md`, `docs/thesis/material-passport.md`, and `docs/thesis/data-availability.md` when a thesis console exists and the result is used as evidence.
+10. Build a claim table with supported, weak, unsupported, and missing-evidence claims.
+11. If code architecture, run commands, machine-readable metrics, or reproducibility records are missing, route fixes to `$research-experiment-engineering`.
+12. Hand off figure/table requirements to `$research-paper-figures` and propose follow-up experiments only when they unblock a paper claim.
 
 ## Output Contract
 
@@ -52,6 +55,7 @@ Always include:
 - experiment integrity risks
 - anomalies and risks
 - figure/table handoff
+- chart/design QA notes when a result visual or dashboard chart is requested
 - thesis console update targets when applicable
 - supported claims
 - unsupported claims
