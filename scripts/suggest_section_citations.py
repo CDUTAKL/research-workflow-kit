@@ -1,4 +1,12 @@
-"""Suggest local citation candidates for a SEC-* section without network access."""
+"""Suggest local citation candidates for a SEC-* section without network access.
+
+Scoring is intentionally deterministic and conservative. It rewards evidence
+that makes a citation easier to verify locally: stable identifiers, Zotero
+presence, reader/Scite checks, strong support labels, and direct SEC/SEG links.
+It penalizes candidates already excluded, metadata-only candidates without a
+reader check, and blocked/invalid metadata. The result is a triage order for
+manual confirmation, not an automatic citation decision.
+"""
 from __future__ import annotations
 
 import argparse
@@ -7,10 +15,21 @@ import re
 from pathlib import Path
 from typing import Any
 
-
 THESIS_DIR = Path("docs/thesis")
 SUGGESTIONS = THESIS_DIR / "section-citation-suggestions.md"
 IDENTIFIER_RE = re.compile(r"(10\.\d{4,9}/\S+|arXiv:\S+|S2:\S+|PMID:\S+|PubMed:\S+)", re.IGNORECASE)
+SCORE_LEDGER = {
+    "identifier": 2,
+    "zotero": 2,
+    "reader_or_scite": 2,
+    "strong_support": 3,
+    "partial_or_background_support": 1,
+    "section_match": 3,
+    "segment_link": 1,
+    "excluded": -5,
+    "metadata_only_without_reader": -2,
+    "blocked_or_invalid": -4,
+}
 
 
 def read_text(path: Path) -> str:
@@ -220,34 +239,34 @@ def score_candidate(item: dict[str, Any], section_id: str) -> tuple[int, list[st
     segment = norm(item.get("segment_id"))
 
     if usable(identifier) and (IDENTIFIER_RE.search(identifier) or identifier.lower() not in {"doi/arxiv/s2/pmid/tbd"}):
-        score += 2
+        score += SCORE_LEDGER["identifier"]
         reasons.append("identifier")
     if "in_zotero" in zotero:
-        score += 2
+        score += SCORE_LEDGER["zotero"]
         reasons.append("zotero")
     if any(term in reader for term in ("support", "reader", "source", "checked", "directly_read")) or "claim_support_checked" in metadata:
-        score += 2
+        score += SCORE_LEDGER["reader_or_scite"]
         reasons.append("reader/scite")
     if "strong" in support or "supports" in support or "a-core" in support.lower():
-        score += 3
+        score += SCORE_LEDGER["strong_support"]
         reasons.append("strong")
     elif any(term in support for term in ("partial", "background", "b-section", "c-background")):
-        score += 1
+        score += SCORE_LEDGER["partial_or_background_support"]
         reasons.append("support")
     if section_id and section == section_id:
-        score += 3
+        score += SCORE_LEDGER["section_match"]
         reasons.append("section")
     if usable(segment) and segment != "TBD":
-        score += 1
+        score += SCORE_LEDGER["segment_link"]
         reasons.append("segment")
     if "d-exclude" in support.lower():
-        score -= 5
+        score += SCORE_LEDGER["excluded"]
         reasons.append("excluded")
     if "metadata_only" in support.lower() and not reader:
-        score -= 2
+        score += SCORE_LEDGER["metadata_only_without_reader"]
         reasons.append("metadata-only")
     if "invalid" in metadata or "blocked" in zotero:
-        score -= 4
+        score += SCORE_LEDGER["blocked_or_invalid"]
         reasons.append("blocked")
 
     use_note = "候选引用"

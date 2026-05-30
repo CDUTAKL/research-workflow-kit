@@ -9,7 +9,6 @@ from typing import Any
 
 from edit_workflow_record import append_row_to_table, log_edit, update_status
 
-
 THESIS_DIR = Path("docs/thesis")
 DAILY_ENTRY = THESIS_DIR / "daily-workflow-entry.md"
 

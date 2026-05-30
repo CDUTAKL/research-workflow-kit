@@ -15,7 +15,6 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-
 THESIS_DIR = Path("docs/thesis")
 BACKUP_DIR = Path("tmp/dashboard-edits/backups")
 

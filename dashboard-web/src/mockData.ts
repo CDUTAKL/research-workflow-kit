@@ -1,6 +1,8 @@
 import type { DashboardData } from './types';
 
-export const mockData: DashboardData = {
+// Local-only demo fallback shown when generated dashboard data is unavailable.
+// The dashboard labels this state as "示例数据" so it cannot be mistaken for source records.
+export const demoFallbackData: DashboardData = {
   generatedAt: 'not generated yet',
   health: 'warning',
   counts: {
@@ -59,6 +61,8 @@ export const mockData: DashboardData = {
   },
   skillHealth: {
     totalSkills: 0,
+    metadataIssues: 0,
+    metadataWarnings: 0,
     brokenReferences: 0,
     missingScripts: 0,
     outdatedAssumptions: 0,

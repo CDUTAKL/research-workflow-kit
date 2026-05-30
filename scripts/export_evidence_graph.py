@@ -11,7 +11,6 @@ import json
 import re
 from pathlib import Path
 
-
 THESIS_DIR = Path("docs/thesis")
 ID_RE = re.compile(r"\b(?:SEC|CLM|EXP|DATA|FIG)-(?:AUTO-)?[A-Za-z0-9.-]+\b")
 

@@ -95,6 +95,8 @@ export interface DashboardData {
   };
   skillHealth?: {
     totalSkills: number;
+    metadataIssues?: number;
+    metadataWarnings?: number;
     brokenReferences: number;
     missingScripts: number;
     outdatedAssumptions: number;

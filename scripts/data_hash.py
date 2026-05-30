@@ -96,9 +96,6 @@ def verify_manifest(data_dir: Path) -> bool:
 
     if expected != actual:
         print(f"[data_hash] MISMATCH: expected {expected[:16]}... got {actual[:16]}...", file=sys.stderr)
-        # Show which files differ
-        stored_files = set(stored.get("files", {}))
-        actual_files = set(stored.get("files", {}))  # placeholder, need re-compute
         return False
 
     print(f"[data_hash] Verified: {expected[:16]}...")

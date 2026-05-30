@@ -22,7 +22,11 @@ Notes:
 ## Test Plan
 
 - [ ] `python -m py_compile scripts/*.py`
+- [ ] `python -m ruff check scripts tests init_research_workflow.py install_skills.py`
 - [ ] `python -m unittest tests.test_research_workflow_scripts -v`
+- [ ] `python -m coverage run -m unittest tests.test_research_workflow_scripts -v`
+- [ ] `python -m coverage combine`
+- [ ] `python -m coverage report --fail-under=60`
 - [ ] `python scripts/audit_skills.py`
 - [ ] `python scripts/research_workflow_doctor.py --warn-only`
 - [ ] `python init_research_workflow.py --project /tmp/rwk-ci-smoke`

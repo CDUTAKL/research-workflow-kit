@@ -1,15 +1,14 @@
-import subprocess
+import json
 import socket
+import subprocess
 import sys
 import tempfile
 import textwrap
 import time
 import unittest
-import json
 import urllib.error
 import urllib.request
 from pathlib import Path
-
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 NEW_EXPERIMENT = REPO_ROOT / "scripts" / "new_experiment.py"
@@ -440,9 +439,36 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 capture_output=True,
                 check=True,
             )
+            self.assertIn("metadata issues: 1", result.stdout)
             self.assertIn("broken references: 1", result.stdout)
             self.assertIn("missing scripts: 1", result.stdout)
             self.assertTrue((project / "docs" / "thesis" / "skill-audit-report.md").exists())
+
+    def test_audit_skills_warns_on_unsupported_metadata_fields(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            skill = project / "skills" / "demo-skill"
+            skill.mkdir(parents=True)
+            (skill / "SKILL.md").write_text(
+                "---\n"
+                "name: demo-skill\n"
+                "description: Use when testing skill metadata policy.\n"
+                "triggers: [demo]\n"
+                "model: gpt-test\n"
+                "---\n\n"
+                "# Demo Skill\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(AUDIT_SKILLS), "--root", str(project)],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertIn("metadata issues: 0", result.stdout)
+            self.assertIn("metadata warnings: 2", result.stdout)
+            self.assertIn("not part of the current default Codex skill metadata policy", result.stdout)
 
     def test_export_evidence_graph_writes_json_and_mermaid(self):
         with tempfile.TemporaryDirectory() as tmp:

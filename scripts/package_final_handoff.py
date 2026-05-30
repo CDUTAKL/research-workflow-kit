@@ -13,7 +13,6 @@ from typing import Any
 
 from audit_final_artifacts import missing, parse_artifacts
 
-
 ROOT = Path.cwd()
 THESIS_DIR = Path("docs/thesis")
 DEFAULT_OUT_DIR = Path("handoff-packages")

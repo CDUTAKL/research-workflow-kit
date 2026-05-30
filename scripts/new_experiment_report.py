@@ -6,7 +6,6 @@ import json
 import re
 from pathlib import Path
 
-
 THESIS = Path("docs/thesis")
 REGISTRY = THESIS / "experiment-registry.md"
 AUTORESEARCH = THESIS / "autoresearch-results.tsv"

@@ -6,7 +6,6 @@ import datetime as dt
 import re
 from pathlib import Path
 
-
 TASKS = Path("docs/thesis/deep-research-tasks.md")
 PACKETS = Path("docs/thesis/section-research-packets")
 

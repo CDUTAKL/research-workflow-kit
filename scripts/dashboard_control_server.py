@@ -13,7 +13,6 @@ from edit_workflow_record import FLOW_EDITOR_SCHEMA, handle_payload
 from research_workflow_doctor import build_stage_workspace, diagnose
 from update_daily_workflow import update_daily
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765

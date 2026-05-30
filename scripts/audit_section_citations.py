@@ -6,7 +6,6 @@ import re
 import sys
 from pathlib import Path
 
-
 VALID_SUPPORT = {"strong", "partial", "background", "limiting", "contradictory", "metadata_only"}
 FINAL_STATUSES = {"metadata_verified", "in_zotero", "claim_support_checked"}
 MISSING_COVERAGE = {"", "missing", "pending", "tbd"}

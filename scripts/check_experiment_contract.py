@@ -11,7 +11,6 @@ import re
 import sys
 from pathlib import Path
 
-
 REQUIRED_OUTPUTS = ("manifest.json", "config_resolved.json", "metrics.json", "logs")
 ENVIRONMENT_SNAPSHOT = "environment.txt"
 

@@ -18,6 +18,7 @@ Create the local Python environment:
 python3 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/pip install -r requirements.txt
+.venv/bin/pip install -r requirements-dev.txt
 ```
 
 For dashboard work, use the local Node toolchain:
@@ -33,7 +34,11 @@ Before opening or merging a PR, run:
 
 ```bash
 .venv/bin/python -m py_compile scripts/*.py
+.venv/bin/python -m ruff check scripts tests init_research_workflow.py install_skills.py
 .venv/bin/python -m unittest tests.test_research_workflow_scripts -v
+.venv/bin/python -m coverage run -m unittest tests.test_research_workflow_scripts -v
+.venv/bin/python -m coverage combine
+.venv/bin/python -m coverage report --fail-under=60
 .venv/bin/python scripts/audit_skills.py
 .venv/bin/python scripts/research_workflow_doctor.py --warn-only
 ```
@@ -58,6 +63,9 @@ python scripts/research_workflow_doctor.py --warn-only
 
 When editing `skills/`:
 
+- keep `SKILL.md` frontmatter to the current Codex-supported `name` and `description` fields;
+- put trigger contexts in a `description` that starts with `Use when...`;
+- do not add unsupported `triggers`, `allowed-tools`, or `model` fields;
 - keep every skill's `SKILL.md` concise and route deeper instructions to `references/`;
 - ensure referenced `references/`, `scripts/`, `examples/`, or `templates/` paths exist;
 - avoid old assumptions such as default local GPU, required Microsoft Word, default Canva, or Mac reliance on MobaXterm;

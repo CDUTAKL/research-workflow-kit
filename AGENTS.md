@@ -34,6 +34,7 @@ Keep new features inside this stage model unless the maintainer explicitly asks 
 python3 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/pip install -r requirements.txt
+.venv/bin/pip install -r requirements-dev.txt
 ```
 
 Install or refresh local Codex skills with:
@@ -66,10 +67,18 @@ Run the smallest relevant subset while developing, and run the full set before m
 
 ```bash
 .venv/bin/python -m py_compile scripts/*.py
+.venv/bin/python -m ruff check scripts tests init_research_workflow.py install_skills.py
 .venv/bin/python -m unittest tests.test_research_workflow_scripts -v
+.venv/bin/python -m coverage run -m unittest tests.test_research_workflow_scripts -v
+.venv/bin/python -m coverage combine
+.venv/bin/python -m coverage report --fail-under=60
 .venv/bin/python scripts/audit_skills.py
 .venv/bin/python scripts/research_workflow_doctor.py --warn-only
 ```
+
+## Skill Metadata Policy
+
+Local skills use the current Codex `SKILL.md` frontmatter contract: `name` and `description`. Put trigger phrases in `description`, which should start with `Use when...`. Do not add unsupported `triggers`, `allowed-tools`, or `model` fields; `scripts/audit_skills.py` treats them as metadata warnings.
 
 For a project initialization smoke test:
 

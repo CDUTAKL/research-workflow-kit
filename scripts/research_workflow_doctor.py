@@ -12,7 +12,6 @@ from audit_id_lifecycle import audit as audit_id_lifecycle
 from audit_skills import audit_repo, render_report
 from export_evidence_graph import build_graph
 
-
 THESIS_DIR = Path("docs/thesis")
 ID_RE = re.compile(r"\b(?:SEC|SEG|CLM|EXP|DATA|FIG|MAT|CIT|BMK|ZCOL|DRT|ZREV)-(?:AUTO-)?[A-Za-z0-9.-]+\b")
 
@@ -407,6 +406,8 @@ def collect_skill_health() -> dict[str, object]:
     summary = result["summary"]  # type: ignore[index]
     return {
         "totalSkills": summary["totalSkills"],
+        "metadataIssues": summary.get("metadataIssues", 0),
+        "metadataWarnings": summary.get("metadataWarnings", 0),
         "brokenReferences": summary["brokenReferences"],
         "missingScripts": summary["missingScripts"],
         "outdatedAssumptions": summary["outdatedAssumptions"],
@@ -453,7 +454,12 @@ def dashboard_data(
             "graphEdges": len(graph["edges"]),
             "finalArtifacts": len(final_artifacts) if isinstance(final_artifacts, list) else 0,
             "idLifecycleRecords": len(id_lifecycle.get("lifecycle", {})) if isinstance(id_lifecycle, dict) else 0,
-            "skillIssues": int(skill_health["brokenReferences"]) + int(skill_health["missingScripts"]) + int(skill_health["outdatedAssumptions"]),
+            "skillIssues": (
+                int(skill_health["metadataIssues"])
+                + int(skill_health["brokenReferences"])
+                + int(skill_health["missingScripts"])
+                + int(skill_health["outdatedAssumptions"])
+            ),
             "citationSuggestions": len(citation_suggestions),
         },
         "currentStatus": parse_current_status(thesis_dir),

@@ -18,7 +18,7 @@ import {
   Save,
   Terminal,
 } from 'lucide-react';
-import { mockData } from './mockData';
+import { demoFallbackData } from './mockData';
 import type { CitationSuggestion, DashboardData, EvidenceEdge, EvidenceNode, Health, StageWorkspace, WorkflowRecord } from './types';
 
 const healthLabels: Record<Health, string> = {
@@ -820,7 +820,7 @@ function EvidenceGraph({ nodes, edges }: { nodes: EvidenceNode[]; edges: Evidenc
 }
 
 export function App() {
-  const [data, setData] = useState<DashboardData>(mockData);
+  const [data, setData] = useState<DashboardData>(demoFallbackData);
   const [loadedFromFile, setLoadedFromFile] = useState(false);
 
   function reloadData() {
@@ -834,7 +834,7 @@ export function App() {
         setLoadedFromFile(true);
       })
       .catch(() => {
-        setData(mockData);
+        setData(demoFallbackData);
         setLoadedFromFile(false);
       });
   }
@@ -952,6 +952,7 @@ export function App() {
           </div>
           <div className="skill-health">
             <div><strong>{data.skillHealth?.totalSkills ?? 0}</strong><span>Skill 总数</span></div>
+            <div><strong>{data.skillHealth?.metadataIssues ?? 0}</strong><span>元数据问题</span></div>
             <div><strong>{data.skillHealth?.brokenReferences ?? 0}</strong><span>断裂引用</span></div>
             <div><strong>{data.skillHealth?.missingScripts ?? 0}</strong><span>缺失脚本</span></div>
             <div><strong>{data.skillHealth?.outdatedAssumptions ?? 0}</strong><span>旧工具假设</span></div>

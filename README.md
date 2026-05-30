@@ -152,9 +152,19 @@ Before merging workflow changes, run:
 
 ```bash
 .venv/bin/python -m py_compile scripts/*.py
+.venv/bin/python -m ruff check scripts tests init_research_workflow.py install_skills.py
 .venv/bin/python -m unittest tests.test_research_workflow_scripts -v
+.venv/bin/python -m coverage run -m unittest tests.test_research_workflow_scripts -v
+.venv/bin/python -m coverage combine
+.venv/bin/python -m coverage report --fail-under=60
 .venv/bin/python scripts/audit_skills.py
 .venv/bin/python scripts/research_workflow_doctor.py --warn-only
+```
+
+Install development-only tools with:
+
+```bash
+.venv/bin/pip install -r requirements-dev.txt
 ```
 
 For dashboard changes, also run:
@@ -175,6 +185,10 @@ python scripts/research_workflow_doctor.py --warn-only
 ```
 
 Use `AGENTS.md` as the main context file for Codex, Claude Code, CodeRabbit, or other coding agents. `CLAUDE.md` is a short Claude Code entry that points back to `AGENTS.md` to avoid duplicated project instructions.
+
+## Skill Metadata Policy
+
+Codex skills in this kit follow the current Codex skill format: `SKILL.md` frontmatter uses `name` and `description` as the supported trigger metadata. Do not add unsupported `triggers`, `allowed-tools`, or `model` fields to local skills. Put concrete trigger contexts into the `description`; keep tool-routing and safety boundaries in the skill body, `research-workflow-orchestrator`, and repository checks.
 
 Optional pre-merge review:
 

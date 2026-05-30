@@ -6,7 +6,6 @@ import json
 import re
 from pathlib import Path
 
-
 FINAL_FORMATS = {"docx", "pdf", "pptx"}
 MISSING = {"", "tbd", "missing", "pending", "n/a", "none", "-"}
 
