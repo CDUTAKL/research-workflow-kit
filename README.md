@@ -140,7 +140,9 @@ The workflow includes optional enhancement layers:
 - Build Web Data Visualization is used as a design and QA guide for chart choice, statistical visual communication, dashboard views, evidence graphs, accessibility, and visual testing.
 - `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
 - `docs/thesis/material-passport.md` identifies evidence-critical materials, while `benchmark-report-schema.md` standardizes baseline/new experiment comparisons before claim promotion.
-- `docs/thesis/workflow-dashboard.md` is the daily project homepage for current stage, blockers, recent experiments, missing evidence, and audit tier.
+- `docs/thesis/workflow-dashboard.md` plus `daily-workflow-entry.md` are the daily project homepage for current stage, blockers, recommended actions, recent experiments, missing evidence, and audit tier.
+- `scripts/suggest_section_citations.py` gives offline citation suggestions from existing local records, helping each `SEC-*` section move from “missing coverage” to manually confirmed citations.
+- `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for Mac-to-laptop stages 11-12.
 
 ## Engineering Quality Gates
 
@@ -207,7 +209,10 @@ Run it only when CodeRabbit is installed and authenticated. It is not part of de
 - Evidence graph export lives in `scripts/export_evidence_graph.py`.
 - Dashboard local control service lives in `scripts/dashboard_control_server.py`.
 - Dashboard flow-editor writes live in `scripts/edit_workflow_record.py`.
+- Daily workflow updates live in `scripts/update_daily_workflow.py`.
+- Offline section citation suggestions live in `scripts/suggest_section_citations.py`.
 - Final artifact handoff audits live in `scripts/audit_final_artifacts.py`.
+- Final artifact handoff packaging and verification live in `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py`.
 - ID lifecycle audits live in `scripts/audit_id_lifecycle.py`.
 - Deep research task packets are created with `scripts/new_deep_research_task.py`.
 - Experiment reports and baseline comparisons are created with `scripts/new_experiment_report.py`.
@@ -254,7 +259,9 @@ Manual launchers are still available:
 The launcher also starts a local-only control service on `http://127.0.0.1:8765`.
 The web dashboard can then refresh workflow data, export the evidence graph, run
 the quick health check, open whitelisted source files, copy the next terminal
-command, and use the Chinese flow editor to append standard records. Flow-editor
+command, update the daily stage workspace, generate offline citation suggestions,
+package final handoff artifacts, verify the latest handoff package, and use the
+Chinese flow editor to append standard records. Flow-editor
 writes are limited to known Markdown source files, create backups under
 `tmp/dashboard-edits/backups/`, and append `docs/thesis/workflow-edit-log.md`.
 The service does not expose remote access, does not store credentials, and does
@@ -272,8 +279,11 @@ Useful lightweight commands:
 
 ```bash
 python3 scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "your section topic"
+python3 scripts/suggest_section_citations.py --section-id SEC-INTRO-001
 python3 scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000
 python3 scripts/audit_final_artifacts.py --tier quick --warn-only
+python3 scripts/package_final_handoff.py --update-manifest-checksums
+python3 scripts/verify_final_handoff.py --latest --write-report docs/thesis/final-handoff-verify-report.md
 python3 scripts/audit_id_lifecycle.py --warn-only
 python3 scripts/audit_skills.py --warn-only --write-report
 ```

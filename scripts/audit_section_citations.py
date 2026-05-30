@@ -9,6 +9,7 @@ from pathlib import Path
 
 VALID_SUPPORT = {"strong", "partial", "background", "limiting", "contradictory", "metadata_only"}
 FINAL_STATUSES = {"metadata_verified", "in_zotero", "claim_support_checked"}
+MISSING_COVERAGE = {"", "missing", "pending", "tbd"}
 
 
 def markdown_rows(text: str) -> list[list[str]]:
@@ -22,6 +23,17 @@ def markdown_rows(text: str) -> list[list[str]]:
             continue
         rows.append(cells)
     return rows
+
+
+def suggestion_sections(path: Path) -> set[str]:
+    suggestions_path = path.parent / "section-citation-suggestions.md"
+    found: set[str] = set()
+    if not suggestions_path.exists():
+        return found
+    for cells in markdown_rows(suggestions_path.read_text(encoding="utf-8")):
+        if len(cells) >= 4 and re.fullmatch(r"SEC-[A-Za-z0-9.-]+", cells[2]):
+            found.add(cells[2])
+    return found
 
 
 def main() -> None:
@@ -39,14 +51,14 @@ def main() -> None:
         sys.exit(0 if args.warn_only else 1)
 
     rows = markdown_rows(path.read_text(encoding="utf-8"))
-    sections: set[str] = set()
+    sections: dict[str, str] = {}
     segments: list[dict[str, str]] = []
     for cells in rows:
         if not cells:
             continue
         if re.fullmatch(r"SEC-[A-Za-z0-9.-]+", cells[0]):
-            sections.add(cells[0])
-        if re.fullmatch(r"SEG-\d+", cells[0]):
+            sections[cells[0]] = cells[4].lower() if len(cells) > 4 else ""
+        if re.fullmatch(r"SEG-[A-Za-z0-9.-]+", cells[0]):
             segments.append(
                 {
                     "segment": cells[0],
@@ -58,6 +70,14 @@ def main() -> None:
                     "reader_status": cells[8].lower() if len(cells) > 8 else "",
                 }
             )
+
+    suggested = suggestion_sections(path)
+    for section_id, coverage in sections.items():
+        if coverage in MISSING_COVERAGE:
+            if section_id in suggested:
+                warnings.append(f"{section_id} coverage is missing, but local citation suggestions are ready for confirmation")
+            else:
+                warnings.append(f"{section_id} has missing section citation coverage and no local suggestions yet")
 
     for seg in segments:
         if seg["section"] not in sections:

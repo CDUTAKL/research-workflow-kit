@@ -6,6 +6,18 @@ Use this file as the handoff manifest for stages 11-12, when final DOCX, PDF, PP
 
 This file does not replace the source records. It records which final artifacts exist, where they live on the Mac, where they should land on the laptop, and whether the copied version was verified.
 
+Use the packaging helper before moving to the laptop:
+
+```bash
+python scripts/package_final_handoff.py --update-manifest-checksums
+```
+
+After copying the generated zip or extracted directory to the laptop, verify it with:
+
+```bash
+python scripts/verify_final_handoff.py final-handoff-YYYYMMDD-HHMMSS.zip --write-report docs/thesis/final-handoff-verify-report.md
+```
+
 ## Update Rules
 
 - Register every final thesis, defense, appendix, figure export, and spreadsheet artifact before laptop handoff.
@@ -40,4 +52,5 @@ This file does not replace the source records. It records which final artifacts 
 | Checksums are recorded for advisor-ready and final artifacts | pending |  |
 | Laptop target paths are filled before final audit | pending |  |
 | Laptop copies are opened and verified | pending |  |
+| Handoff package checksum verification report exists | pending | `final-handoff-verify-report.md` |
 | Final artifact versions match `final-audit.md` and `defense-prep.md` | pending |  |

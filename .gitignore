@@ -40,6 +40,7 @@ output/
 experiments/checkpoints/
 checkpoints/
 artifacts/
+handoff-packages/
 external-skill-candidates/
 *.pth
 *.pt

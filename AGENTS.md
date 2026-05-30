@@ -5,7 +5,7 @@ This repository is a reusable Codex research workflow kit for thesis and paper p
 ## Source Of Truth
 
 - `docs/thesis/` is the evidence source of truth.
-- `dashboard-web/` is a local view and light editor for those source records; it must not become the only copy of any research decision.
+- `dashboard-web/` is a local view and light editor for those source records; it can update the daily workspace, generate local citation suggestions, and package final handoff files, but it must not become the only copy of any research decision.
 - External tools such as Notion, Zotero, Spreadsheets, draw.io, BioRender, Vercel, or presentation tools are convenience layers unless a source record in `docs/thesis/` points to their exported artifact.
 - If a generated or external artifact supports a thesis claim, record the relevant `SEC-*`, `SEG-*`, `CLM-*`, `EXP-*`, `DATA-*`, `FIG-*`, `MAT-*`, `CIT-*`, or `BMK-*` relationship before treating it as evidence.
 
@@ -51,6 +51,15 @@ PATH=/opt/homebrew/bin:$PATH pnpm run prepare:data
 PATH=/opt/homebrew/bin:$PATH pnpm run build
 ```
 
+Daily workflow and final handoff helpers:
+
+```bash
+.venv/bin/python scripts/update_daily_workflow.py --stage "2 文献发现与综述" --next-action "confirm citations"
+.venv/bin/python scripts/suggest_section_citations.py --section-id SEC-INTRO-001
+.venv/bin/python scripts/package_final_handoff.py --update-manifest-checksums
+.venv/bin/python scripts/verify_final_handoff.py --latest --write-report docs/thesis/final-handoff-verify-report.md
+```
+
 ## Verification Commands
 
 Run the smallest relevant subset while developing, and run the full set before merging:
@@ -88,6 +97,7 @@ Do not commit:
 - `.venv/`, `node_modules/`, dashboard build artifacts, generated dashboard data, or caches;
 - `.env` files, API tokens, SSH keys, cookies, credentials, or recovery codes;
 - external reference repositories cloned under `external-skill-candidates/`.
+- generated handoff packages under `handoff-packages/`.
 
 When a change touches skills, update installed skills only after repository tests pass, then run `scripts/audit_skills.py` again.
 

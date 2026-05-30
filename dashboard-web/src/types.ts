@@ -34,6 +34,31 @@ export interface WorkflowRecord {
   literature?: string;
 }
 
+export interface StageWorkspace {
+  stage: string;
+  name: string;
+  fileKeys: string[];
+  commands: string[];
+  recommendedActions: string[];
+  issues: {
+    p0: string[];
+    p1: string[];
+  };
+}
+
+export interface CitationSuggestion {
+  rank: string;
+  score: string;
+  sectionId: string;
+  segmentId: string;
+  candidateReference: string;
+  identifier: string;
+  source: string;
+  status: string;
+  suggestedUse: string;
+  reasons: string;
+}
+
 export interface DashboardData {
   generatedAt: string;
   health: Health;
@@ -48,8 +73,10 @@ export interface DashboardData {
     finalArtifacts?: number;
     idLifecycleRecords?: number;
     skillIssues?: number;
+    citationSuggestions?: number;
   };
   currentStatus: Record<string, string>;
+  activeStageWorkspace?: StageWorkspace;
   stages: WorkflowStage[];
   issues: {
     p0: string[];
@@ -58,7 +85,14 @@ export interface DashboardData {
   summary: string;
   recentExperiments: WorkflowRecord[];
   experimentReports?: WorkflowRecord[];
+  citationSuggestions?: CitationSuggestion[];
   finalArtifacts?: WorkflowRecord[];
+  handoffPackage?: {
+    exists: string;
+    latestZip: string;
+    latestDir: string;
+    verifyReport: string;
+  };
   skillHealth?: {
     totalSkills: number;
     brokenReferences: number;

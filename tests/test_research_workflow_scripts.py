@@ -28,6 +28,10 @@ DASHBOARD_CONTROL_SERVER = REPO_ROOT / "scripts" / "dashboard_control_server.py"
 EDIT_WORKFLOW_RECORD = REPO_ROOT / "scripts" / "edit_workflow_record.py"
 AUDIT_FINAL_ARTIFACTS = REPO_ROOT / "scripts" / "audit_final_artifacts.py"
 AUDIT_ID_LIFECYCLE = REPO_ROOT / "scripts" / "audit_id_lifecycle.py"
+UPDATE_DAILY_WORKFLOW = REPO_ROOT / "scripts" / "update_daily_workflow.py"
+SUGGEST_SECTION_CITATIONS = REPO_ROOT / "scripts" / "suggest_section_citations.py"
+PACKAGE_FINAL_HANDOFF = REPO_ROOT / "scripts" / "package_final_handoff.py"
+VERIFY_FINAL_HANDOFF = REPO_ROOT / "scripts" / "verify_final_handoff.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -223,6 +227,68 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             )
             self.assertIn("Sections: 1  |  Segments: 1", result.stdout)
             self.assertIn("Errors: 0", result.stdout)
+
+    def test_section_citation_audit_reports_pending_suggestions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "section-citation-map.md").write_text(
+                "| Section ID | Thesis Location | Section Purpose | Required Literature Role | Coverage Status | Notes |\n"
+                "|---|---|---|---|---|---|\n"
+                "| SEC-INTRO-001 | Ch1 | background | foundational | missing |  |\n",
+                encoding="utf-8",
+            )
+            (thesis / "section-citation-suggestions.md").write_text(
+                "| Rank | Score | Section ID | Segment ID | Candidate Reference | Identifier | Source | Zotero / Scite / Reader | Suggested Use | Reasons |\n"
+                "|---:|---:|---|---|---|---|---|---|---|---|\n"
+                "| 1 | 8 | SEC-INTRO-001 | SEG-001 | Paper A | 10.0000/example | local | in_zotero | 优先核查 | section |\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(AUDIT_SECTION_CITATIONS), "--warn-only"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertIn("local citation suggestions are ready", result.stdout)
+
+    def test_suggest_section_citations_ranks_local_candidates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "section-citation-map.md").write_text(
+                "| Section ID | Thesis Location | Section Purpose | Required Literature Role | Coverage Status | Notes |\n"
+                "|---|---|---|---|---|---|\n"
+                "| SEC-INTRO-001 | Ch1 | background | foundational | missing |  |\n\n"
+                "| Segment ID | Section ID | Segment / Claim Draft | Candidate Reference | DOI / arXiv / S2 ID | Support Grade | Source Status | Zotero Status | Scite / Reader Status | Export Format | Next Action |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|\n"
+                "| SEG-001 | SEC-INTRO-001 | claim | Strong Paper | 10.0000/example | strong | metadata_verified | in_zotero | supports_claim | bibtex | cite |\n",
+                encoding="utf-8",
+            )
+            json_out = project / "dashboard-web" / "public" / "data" / "citation-suggestions.json"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SUGGEST_SECTION_CITATIONS),
+                    "--section-id",
+                    "SEC-INTRO-001",
+                    "--json-out",
+                    str(json_out),
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            suggestions_md = (thesis / "section-citation-suggestions.md").read_text(encoding="utf-8")
+            suggestions_json = json.loads(json_out.read_text(encoding="utf-8"))
+            self.assertIn("suggestions: 1", result.stdout)
+            self.assertIn("Strong Paper", suggestions_md)
+            self.assertEqual("SEC-INTRO-001", suggestions_json["sectionId"])
+            self.assertGreaterEqual(suggestions_json["suggestions"][0]["score"], 10)
 
     def test_data_availability_audit_detects_traceable_data(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -437,6 +503,7 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 encoding="utf-8",
             )
             for name in (
+                "daily-workflow-entry.md",
                 "evidence-promotion-policy.md",
                 "id-lifecycle-policy.md",
                 "material-passport.md",
@@ -573,6 +640,46 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("create final artifact", (thesis / "workflow-edit-log.md").read_text(encoding="utf-8"))
             self.assertTrue((project / "tmp" / "dashboard-edits" / "backups").exists())
 
+    def test_update_daily_workflow_updates_dashboard_and_log(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "workflow-dashboard.md").write_text(
+                "# Workflow Dashboard\n\n## Current Status\n\n"
+                "| Field | Value |\n|---|---|\n"
+                "| Current stage | 1-12/TBD |\n"
+                "| Active focus | TBD |\n"
+                "| Current audit tier | quick |\n"
+                "| Main blocker | TBD |\n"
+                "| Next concrete action | TBD |\n"
+                "| Last dashboard refresh | TBD |\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(UPDATE_DAILY_WORKFLOW),
+                    "--stage",
+                    "2 文献发现与综述",
+                    "--focus",
+                    "citation coverage",
+                    "--next-action",
+                    "confirm section citations",
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            daily = (thesis / "daily-workflow-entry.md").read_text(encoding="utf-8")
+            dashboard = (thesis / "workflow-dashboard.md").read_text(encoding="utf-8")
+            edit_log = (thesis / "workflow-edit-log.md").read_text(encoding="utf-8")
+            self.assertIn("updated daily workflow entry", result.stdout)
+            self.assertIn("2 文献发现与综述", daily)
+            self.assertIn("citation coverage", dashboard)
+            self.assertIn("update daily workflow", edit_log)
+
     def test_final_artifact_audit_detects_missing_final_verification(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)
@@ -597,6 +704,48 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("Final Artifacts: 1", result.stdout)
             self.assertIn("missing checksum", result.stdout)
             self.assertIn("not verified on the laptop", result.stdout)
+
+    def test_final_handoff_package_and_verify_roundtrip(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            source = project / "outputs" / "final.pdf"
+            source.parent.mkdir(parents=True)
+            source.write_text("pdf placeholder", encoding="utf-8")
+            (thesis / "final-artifact-manifest.md").write_text(
+                "| Artifact Key | Stage | Source IDs | Mac Source Path | Laptop Target Path | Format | Checksum | Produced By | Transfer Status | Laptop Verification | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|\n"
+                f"| final-pdf | 11-doc-production | CLM-001 | {source} | /laptop/final.pdf | pdf | TBD | Documents | copied | pending | final pdf |\n",
+                encoding="utf-8",
+            )
+            package_result = subprocess.run(
+                [sys.executable, str(PACKAGE_FINAL_HANDOFF), "--update-manifest-checksums", "--json"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            package_json = json.loads(package_result.stdout)
+            self.assertEqual(1, len(package_json["packaged"]))
+            self.assertTrue(Path(package_json["zip_path"]).exists())
+            self.assertIn("sha256:", (thesis / "final-artifact-manifest.md").read_text(encoding="utf-8"))
+
+            verify_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(VERIFY_FINAL_HANDOFF),
+                    "--latest",
+                    "--write-report",
+                    "docs/thesis/final-handoff-verify-report.md",
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertIn("Final handoff verify: PASS", verify_result.stdout)
+            self.assertIn("Status: `pass`", (thesis / "final-handoff-verify-report.md").read_text(encoding="utf-8"))
 
     def test_id_lifecycle_audit_detects_weak_links_and_deprecated_refs(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -673,6 +822,20 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             with opener.open(f"http://127.0.0.1:{port}/api/flow-editor/schema", timeout=1) as response:
                 schema = json.loads(response.read().decode("utf-8"))
             self.assertIn("claim", schema["schema"]["recordTypes"])
+
+            with opener.open(f"http://127.0.0.1:{port}/api/stage-workspace", timeout=1) as response:
+                workspace = json.loads(response.read().decode("utf-8"))
+            self.assertIn("workspace", workspace)
+
+            bad_section_request = urllib.request.Request(
+                f"http://127.0.0.1:{port}/api/suggest-section-citations",
+                data=json.dumps({"section_id": "../bad"}).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with self.assertRaises(urllib.error.HTTPError) as section_ctx:
+                opener.open(bad_section_request, timeout=1)
+            self.assertEqual(400, section_ctx.exception.code)
 
             bad_request = urllib.request.Request(
                 f"http://127.0.0.1:{port}/api/flow-editor/create-record",

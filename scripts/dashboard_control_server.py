@@ -3,12 +3,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
 from edit_workflow_record import FLOW_EDITOR_SCHEMA, handle_payload
+from research_workflow_doctor import build_stage_workspace, diagnose
+from update_daily_workflow import update_daily
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,13 +19,17 @@ DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 ALLOWED_OPEN_PATHS = {
     "dashboard": ROOT / "docs" / "thesis" / "workflow-dashboard.md",
+    "dailyWorkflowEntry": ROOT / "docs" / "thesis" / "daily-workflow-entry.md",
     "claimMap": ROOT / "docs" / "thesis" / "claim-evidence-map.md",
     "experimentRegistry": ROOT / "docs" / "thesis" / "experiment-registry.md",
     "benchmarkReportSchema": ROOT / "docs" / "thesis" / "benchmark-report-schema.md",
     "dataAvailability": ROOT / "docs" / "thesis" / "data-availability.md",
     "materialPassport": ROOT / "docs" / "thesis" / "material-passport.md",
     "citationProvenance": ROOT / "docs" / "thesis" / "citation-provenance.md",
+    "sectionCitationMap": ROOT / "docs" / "thesis" / "section-citation-map.md",
+    "sectionCitationSuggestions": ROOT / "docs" / "thesis" / "section-citation-suggestions.md",
     "finalArtifactManifest": ROOT / "docs" / "thesis" / "final-artifact-manifest.md",
+    "finalHandoffVerifyReport": ROOT / "docs" / "thesis" / "final-handoff-verify-report.md",
     "idLifecyclePolicy": ROOT / "docs" / "thesis" / "id-lifecycle-policy.md",
     "workflowEditLog": ROOT / "docs" / "thesis" / "workflow-edit-log.md",
     "figurePlan": ROOT / "docs" / "thesis" / "figure-plan.md",
@@ -68,6 +75,11 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if path == "/api/flow-editor/schema":
             json_response(self, 200, {"ok": True, "schema": FLOW_EDITOR_SCHEMA})
             return
+        if path == "/api/stage-workspace":
+            thesis_dir = ROOT / "docs" / "thesis"
+            p0, p1, _info, _data = diagnose(thesis_dir)
+            json_response(self, 200, {"ok": True, "workspace": build_stage_workspace(thesis_dir, p0, p1)})
+            return
         json_response(self, 404, {"ok": False, "error": "unknown endpoint"})
 
     def do_POST(self) -> None:  # noqa: N802
@@ -108,6 +120,49 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         if path == "/api/run-doctor":
             code, output = run_command(["python3", "scripts/research_workflow_doctor.py", "--warn-only"])
+            json_response(self, 200 if code == 0 else 500, {"ok": code == 0, "output": output})
+            return
+
+        if path == "/api/daily-workflow/update":
+            fields = payload.get("fields") if isinstance(payload.get("fields"), dict) else payload
+            try:
+                result = update_daily(ROOT, fields)
+            except Exception as exc:  # pragma: no cover - defensive API boundary
+                json_response(self, 500, {"ok": False, "error": str(exc)})
+                return
+            json_response(self, 200, {"ok": True, "output": f"updated {result.get('target', '')}", **result})
+            return
+
+        if path == "/api/suggest-section-citations":
+            section_id = str(payload.get("section_id", "") or payload.get("sectionId", "")).strip()
+            if section_id and not re.fullmatch(r"SEC-[A-Za-z0-9.-]+", section_id):
+                json_response(self, 400, {"ok": False, "error": "section_id must be empty or a SEC-* ID"})
+                return
+            command = [
+                "python3",
+                "scripts/suggest_section_citations.py",
+                "--json-out",
+                "dashboard-web/public/data/citation-suggestions.json",
+            ]
+            if section_id:
+                command.extend(["--section-id", section_id])
+            code, output = run_command(command)
+            json_response(self, 200 if code == 0 else 500, {"ok": code == 0, "output": output})
+            return
+
+        if path == "/api/package-final-handoff":
+            code, output = run_command(["python3", "scripts/package_final_handoff.py", "--json"])
+            json_response(self, 200 if code == 0 else 500, {"ok": code == 0, "output": output})
+            return
+
+        if path == "/api/verify-final-handoff":
+            code, output = run_command([
+                "python3",
+                "scripts/verify_final_handoff.py",
+                "--latest",
+                "--write-report",
+                "docs/thesis/final-handoff-verify-report.md",
+            ])
             json_response(self, 200 if code == 0 else 500, {"ok": code == 0, "output": output})
             return
 

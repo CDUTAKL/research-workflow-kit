@@ -16,6 +16,81 @@ from export_evidence_graph import build_graph
 THESIS_DIR = Path("docs/thesis")
 ID_RE = re.compile(r"\b(?:SEC|SEG|CLM|EXP|DATA|FIG|MAT|CIT|BMK|ZCOL|DRT|ZREV)-(?:AUTO-)?[A-Za-z0-9.-]+\b")
 
+STAGE_WORKSPACES = {
+    "1": {
+        "name": "Paper planning",
+        "fileKeys": ["dashboard", "dailyWorkflowEntry"],
+        "commands": ["python scripts/research_workflow_doctor.py --warn-only"],
+        "recommendedActions": ["Clarify current thesis topic, blocker, and next concrete action."],
+    },
+    "2": {
+        "name": "Literature discovery and review",
+        "fileKeys": ["sectionCitationMap", "deepResearchTasks", "citationProvenance", "zoteroScreeningLoop"],
+        "commands": ["python scripts/suggest_section_citations.py --section-id SEC-INTRO-001"],
+        "recommendedActions": ["Check citation coverage and confirm which suggested papers should become formal citation evidence."],
+    },
+    "3": {
+        "name": "Experiment question definition",
+        "fileKeys": ["claimMap", "dailyWorkflowEntry"],
+        "commands": ["python scripts/research_workflow_doctor.py --warn-only"],
+        "recommendedActions": ["Map the next thesis claim to required experiment, data, citation, or figure evidence."],
+    },
+    "4": {
+        "name": "Experiment architecture planning",
+        "fileKeys": ["experimentRegistry", "benchmarkReportSchema"],
+        "commands": ["python scripts/check_experiment_contract.py --experiment-id EXP-001 --warn-only"],
+        "recommendedActions": ["Define config, split, metric, output path, and smoke-test contract before coding."],
+    },
+    "5": {
+        "name": "Research code implementation",
+        "fileKeys": ["experimentRegistry", "benchmarkReportSchema"],
+        "commands": ["python scripts/check_experiment_contract.py --experiment-id EXP-001 --warn-only"],
+        "recommendedActions": ["Keep code config-driven and make the next experiment runnable as a smoke test."],
+    },
+    "6": {
+        "name": "Experiment run and monitoring",
+        "fileKeys": ["experimentRegistry", "benchmarkReportSchema"],
+        "commands": ["python scripts/write_environment_snapshot.py --out outputs/EXP-001/environment.txt --label remote_desktop_4060"],
+        "recommendedActions": ["Run local smoke first, then 4060 formal run with environment snapshot and output manifest."],
+    },
+    "7": {
+        "name": "Experiment recording and result scan",
+        "fileKeys": ["experimentRegistry", "dataAvailability"],
+        "commands": ["python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000"],
+        "recommendedActions": ["Record outputs, metrics, baseline delta, and data trace before promoting evidence."],
+    },
+    "8": {
+        "name": "Results analysis and claim mapping",
+        "fileKeys": ["claimMap", "dataAvailability", "benchmarkReportSchema"],
+        "commands": ["python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000"],
+        "recommendedActions": ["Promote only conservative claims that match result, data, and citation evidence."],
+    },
+    "9": {
+        "name": "Figure and table production",
+        "fileKeys": ["figurePlan", "diagramReplicaTasks"],
+        "commands": ["python scripts/export_evidence_graph.py"],
+        "recommendedActions": ["Check source data and source-of-truth notes before final draw.io/Python/PPTX exports."],
+    },
+    "10": {
+        "name": "Paper writing and polishing",
+        "fileKeys": ["sectionCitationMap", "citationProvenance", "claimMap"],
+        "commands": ["python scripts/audit_section_citations.py --warn-only"],
+        "recommendedActions": ["Write only from supported claims and verified section citation coverage."],
+    },
+    "11": {
+        "name": "Laptop DOCX / PDF production",
+        "fileKeys": ["finalArtifactManifest", "dailyWorkflowEntry"],
+        "commands": ["python scripts/package_final_handoff.py"],
+        "recommendedActions": ["Package final artifacts from the manifest and move the zip to the laptop."],
+    },
+    "12": {
+        "name": "Final audit and defense",
+        "fileKeys": ["finalAudit", "finalArtifactManifest"],
+        "commands": ["python scripts/audit_final_artifacts.py --tier final --warn-only"],
+        "recommendedActions": ["Verify laptop artifacts, checksums, final audit tier, and defense slide evidence."],
+    },
+}
+
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
@@ -112,6 +187,7 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
 
     required_files = [
         "workflow-dashboard.md",
+        "daily-workflow-entry.md",
         "evidence-promotion-policy.md",
         "id-lifecycle-policy.md",
         "material-passport.md",
@@ -260,6 +336,72 @@ def collect_experiment_reports(thesis_dir: Path) -> list[dict[str, str]]:
     return reports
 
 
+def collect_citation_suggestions(thesis_dir: Path) -> list[dict[str, str]]:
+    suggestions: list[dict[str, str]] = []
+    for cells in markdown_rows(read_text(thesis_dir / "section-citation-suggestions.md")):
+        if len(cells) >= 10 and cells[0].isdigit():
+            suggestions.append(
+                {
+                    "rank": cells[0],
+                    "score": cells[1],
+                    "sectionId": cells[2],
+                    "segmentId": cells[3],
+                    "candidateReference": cells[4],
+                    "identifier": cells[5],
+                    "source": cells[6],
+                    "status": cells[7],
+                    "suggestedUse": cells[8],
+                    "reasons": cells[9],
+                }
+            )
+    return suggestions[:10]
+
+
+def collect_handoff_package(root: Path) -> dict[str, str]:
+    zips = sorted((root / "handoff-packages").glob("final-handoff-*/*.zip"))
+    if not zips:
+        return {"exists": "false", "latestZip": "", "latestDir": "", "verifyReport": ""}
+    latest = zips[-1]
+    return {
+        "exists": "true",
+        "latestZip": latest.as_posix(),
+        "latestDir": latest.parent.as_posix(),
+        "verifyReport": "docs/thesis/final-handoff-verify-report.md",
+    }
+
+
+def active_stage_number(current_status: dict[str, str]) -> str:
+    raw = current_status.get("Current stage", "")
+    match = re.search(r"\b(1[0-2]|[1-9])\b", raw)
+    return match.group(1) if match else ""
+
+
+def build_stage_workspace(thesis_dir: Path, p0: list[str], p1: list[str]) -> dict[str, object]:
+    current = parse_current_status(thesis_dir)
+    stage_no = active_stage_number(current)
+    base = STAGE_WORKSPACES.get(stage_no)
+    if base is None:
+        return {
+            "stage": "",
+            "name": "Select a stage",
+            "fileKeys": ["dashboard", "dailyWorkflowEntry"],
+            "commands": ["python scripts/research_workflow_doctor.py --warn-only"],
+            "recommendedActions": ["Set the current stage in the Dashboard flow editor or daily workflow entry."],
+            "issues": {"p0": p0[:3], "p1": p1[:5]},
+        }
+    file_keys = list(base["fileKeys"])  # type: ignore[index]
+    if "dailyWorkflowEntry" not in file_keys:
+        file_keys.insert(0, "dailyWorkflowEntry")
+    return {
+        "stage": stage_no,
+        "name": base["name"],
+        "fileKeys": file_keys,
+        "commands": base["commands"],
+        "recommendedActions": base["recommendedActions"],
+        "issues": {"p0": p0[:3], "p1": p1[:5]},
+    }
+
+
 def collect_skill_health() -> dict[str, object]:
     result = audit_repo(Path("."))
     summary = result["summary"]  # type: ignore[index]
@@ -284,8 +426,11 @@ def dashboard_data(
     graph = build_graph(thesis_dir)
     skill_health = collect_skill_health()
     experiment_reports = collect_experiment_reports(thesis_dir)
+    citation_suggestions = collect_citation_suggestions(thesis_dir)
+    handoff_package = collect_handoff_package(thesis_dir.resolve().parents[1] if thesis_dir.name == "thesis" and thesis_dir.parent.name == "docs" else Path("."))
     final_artifacts = data.get("final_artifacts", [])
     id_lifecycle = data.get("id_lifecycle", {})
+    active_workspace = build_stage_workspace(thesis_dir, p0, p1)
     final_artifact_records = [
         {
             "id": item.get("artifact_key", "TBD"),
@@ -309,25 +454,32 @@ def dashboard_data(
             "finalArtifacts": len(final_artifacts) if isinstance(final_artifacts, list) else 0,
             "idLifecycleRecords": len(id_lifecycle.get("lifecycle", {})) if isinstance(id_lifecycle, dict) else 0,
             "skillIssues": int(skill_health["brokenReferences"]) + int(skill_health["missingScripts"]) + int(skill_health["outdatedAssumptions"]),
+            "citationSuggestions": len(citation_suggestions),
         },
         "currentStatus": parse_current_status(thesis_dir),
+        "activeStageWorkspace": active_workspace,
         "stages": parse_stage_snapshot(thesis_dir),
         "issues": {"p0": p0, "p1": p1},
         "summary": info[0] if info else "",
         "recentExperiments": experiments[-5:],
         "experimentReports": experiment_reports[-5:],
+        "citationSuggestions": citation_suggestions,
         "finalArtifacts": final_artifact_records[-5:],
+        "handoffPackage": handoff_package,
         "skillHealth": skill_health,
         "records": records,
         "graph": graph,
         "links": {
             "dashboard": "docs/thesis/workflow-dashboard.md",
+            "dailyWorkflowEntry": "docs/thesis/daily-workflow-entry.md",
             "claimMap": "docs/thesis/claim-evidence-map.md",
             "experimentRegistry": "docs/thesis/experiment-registry.md",
             "benchmarkReportSchema": "docs/thesis/benchmark-report-schema.md",
             "dataAvailability": "docs/thesis/data-availability.md",
             "materialPassport": "docs/thesis/material-passport.md",
             "citationProvenance": "docs/thesis/citation-provenance.md",
+            "sectionCitationMap": "docs/thesis/section-citation-map.md",
+            "deepResearchTasks": "docs/thesis/deep-research-tasks.md",
             "finalArtifactManifest": "docs/thesis/final-artifact-manifest.md",
             "idLifecyclePolicy": "docs/thesis/id-lifecycle-policy.md",
             "workflowEditLog": "docs/thesis/workflow-edit-log.md",

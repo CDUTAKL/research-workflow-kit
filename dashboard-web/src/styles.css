@@ -219,6 +219,158 @@ h2 {
   margin-top: 16px;
 }
 
+.workspace-panel {
+  margin-top: 16px;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 14px;
+}
+
+.workspace-main,
+.workspace-side {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.workspace-main h3 {
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+}
+
+.workspace-actions,
+.workspace-side {
+  display: grid;
+  gap: 10px;
+}
+
+.workspace-files,
+.workspace-command-row,
+.inline-form,
+.handoff-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.workspace-files button,
+.workspace-command-row button,
+.inline-form button,
+.handoff-actions button,
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 11px;
+  border: 1px solid #cfd8e3;
+  border-radius: 8px;
+  color: #1d2939;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.primary-button {
+  width: 100%;
+  border-color: #1d4ed8;
+  color: #fff;
+  background: #1d4ed8;
+}
+
+.compact-output {
+  max-height: 120px;
+  min-height: 46px;
+}
+
+.inline-form input {
+  flex: 1 1 220px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #cfd8e3;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.suggestion-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.suggestion-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.suggestion-row div:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.suggestion-row strong,
+.suggestion-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestion-row span {
+  color: #667085;
+  font-size: 0.82rem;
+}
+
+.suggestion-meta {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.handoff-counts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.handoff-counts div {
+  min-height: 64px;
+  padding: 10px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.handoff-counts strong {
+  display: block;
+  font-size: 1.35rem;
+}
+
+.handoff-counts span,
+.handoff-latest span {
+  color: #667085;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.handoff-latest {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
 .flow-editor {
   margin-top: 16px;
 }
@@ -597,6 +749,7 @@ code {
   }
 
   .status-band,
+  .workspace-grid,
   .wide-left,
   .table-grid {
     grid-template-columns: 1fr;
@@ -639,7 +792,9 @@ code {
   .metric-grid,
   .stage-grid,
   .action-grid,
-  .skill-health {
+  .skill-health,
+  .handoff-counts,
+  .suggestion-row {
     grid-template-columns: 1fr;
   }
 

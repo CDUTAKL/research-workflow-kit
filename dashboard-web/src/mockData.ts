@@ -12,6 +12,7 @@ export const mockData: DashboardData = {
     graphNodes: 5,
     graphEdges: 4,
     skillIssues: 0,
+    citationSuggestions: 0,
   },
   currentStatus: {
     'Current stage': '1-12/待填写',
@@ -19,6 +20,14 @@ export const mockData: DashboardData = {
     'Current audit tier': 'quick/advisor/final/TBD',
     'Main blocker': '请先运行 pnpm run prepare:data 生成真实数据',
     'Next concrete action': '运行工作流健康检查',
+  },
+  activeStageWorkspace: {
+    stage: '',
+    name: '选择阶段',
+    fileKeys: ['dashboard', 'dailyWorkflowEntry'],
+    commands: ['python scripts/research_workflow_doctor.py --warn-only'],
+    recommendedActions: ['先设置当前阶段，再查看本阶段推荐动作。'],
+    issues: { p0: [], p1: ['尚未生成真实 dashboard 数据。'] },
   },
   stages: [
     { stage: '1', name: '论文规划', status: 'pending', record: 'thesis-brief.md', notes: '' },
@@ -41,6 +50,13 @@ export const mockData: DashboardData = {
   summary: '示例数据',
   recentExperiments: [{ id: 'EXP-001', status: 'planned', output: 'outputs/EXP-001' }],
   experimentReports: [],
+  citationSuggestions: [],
+  handoffPackage: {
+    exists: 'false',
+    latestZip: '',
+    latestDir: '',
+    verifyReport: '',
+  },
   skillHealth: {
     totalSkills: 0,
     brokenReferences: 0,

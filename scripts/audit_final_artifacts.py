@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 
@@ -55,6 +56,27 @@ def parse_artifacts(thesis_dir: Path) -> list[dict[str, str]]:
     return artifacts
 
 
+def project_root_from_thesis(thesis_dir: Path) -> Path:
+    return thesis_dir.resolve().parents[1] if thesis_dir.name == "thesis" and thesis_dir.parent.name == "docs" else Path.cwd()
+
+
+def has_handoff_package(thesis_dir: Path) -> bool:
+    root = project_root_from_thesis(thesis_dir)
+    return any((root / "handoff-packages").glob("final-handoff-*/*.zip"))
+
+
+def verify_report_has_failures(thesis_dir: Path) -> tuple[bool, str]:
+    path = thesis_dir / "final-handoff-verify-report.md"
+    if not path.exists():
+        return True, "missing final-handoff-verify-report.md"
+    text = path.read_text(encoding="utf-8").lower()
+    if "| package | fail |" in text or re.search(r"\|\s*[^|]+\s*\|\s*(fail|missing)\s*\|", text):
+        return True, "final-handoff-verify-report.md contains fail or missing entries"
+    if "status: `fail`" in text:
+        return True, "final-handoff-verify-report.md status is fail"
+    return False, ""
+
+
 def audit(thesis_dir: Path, tier: str = "quick") -> tuple[list[str], list[str], list[str], list[dict[str, str]]]:
     path = thesis_dir / "final-artifact-manifest.md"
     p0: list[str] = []
@@ -71,6 +93,7 @@ def audit(thesis_dir: Path, tier: str = "quick") -> tuple[list[str], list[str], 
     artifacts = parse_artifacts(thesis_dir)
     if not artifacts:
         p1.append("final-artifact-manifest.md has no artifact rows")
+    package_exists = has_handoff_package(thesis_dir)
 
     for item in artifacts:
         key = item["artifact_key"]
@@ -103,6 +126,13 @@ def audit(thesis_dir: Path, tier: str = "quick") -> tuple[list[str], list[str], 
             p1.append(f"{key} is verified but laptop verification note is missing")
         if tier == "final" and missing(item["laptop_target_path"]):
             p0.append(f"{key} is missing laptop target path for final audit")
+
+    if package_exists and any(item["transfer_status"] == "pending" for item in artifacts):
+        p1.append("handoff package exists, but some manifest artifacts are still pending laptop verification")
+    if tier == "final":
+        failed, message = verify_report_has_failures(thesis_dir)
+        if failed:
+            p0.append(message)
 
     info.append(f"final_artifacts={len(artifacts)} tier={tier}")
     return p0, p1, info, artifacts

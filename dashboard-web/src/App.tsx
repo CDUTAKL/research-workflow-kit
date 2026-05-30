@@ -19,7 +19,7 @@ import {
   Terminal,
 } from 'lucide-react';
 import { mockData } from './mockData';
-import type { DashboardData, EvidenceEdge, EvidenceNode, Health, WorkflowRecord } from './types';
+import type { CitationSuggestion, DashboardData, EvidenceEdge, EvidenceNode, Health, StageWorkspace, WorkflowRecord } from './types';
 
 const healthLabels: Record<Health, string> = {
   ok: '健康',
@@ -59,7 +59,10 @@ const stageNameLabels: Record<string, string> = {
   'Figure and table production': '图表与模型结构图制作',
   'Paper writing and polishing': '论文写作与润色',
   'Laptop DOCX / optional LaTeX / PDF': '笔记本 DOCX / 可选 LaTeX / PDF',
+  'Laptop DOCX / PDF production': '笔记本 DOCX / PDF 生产',
   'Laptop final audit and defense': '笔记本终审与答辩准备',
+  'Final audit and defense': '终审与答辩准备',
+  'Select a stage': '选择阶段',
 };
 
 const relationLabels: Record<string, string> = {
@@ -259,6 +262,195 @@ function ActionPanel({ onReload }: { onReload: () => void }) {
         </button>
       </div>
       <pre className="action-output">{busy ? `正在执行 ${busy}...` : message}</pre>
+    </section>
+  );
+}
+
+function StageWorkspacePanel({ workspace, links, onReload }: { workspace?: StageWorkspace; links: Record<string, string>; onReload: () => void }) {
+  const [message, setMessage] = useState('记录今日目标、阻塞项和下一步，会写入 daily-workflow-entry.md');
+  const [busy, setBusy] = useState(false);
+  const [fields, setFields] = useState<Record<string, string>>({
+    stage: workspace?.stage ? `${workspace.stage} ${workspace.name}` : '',
+    focus: '',
+    blocker: '',
+    next_action: '',
+    done_note: '',
+  });
+
+  async function saveDaily() {
+    setBusy(true);
+    try {
+      const result = await postAction('/api/daily-workflow/update', { fields });
+      setMessage(result.output ?? '今日工作区已更新');
+      onReload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const active = workspace ?? {
+    stage: '',
+    name: '选择阶段',
+    fileKeys: ['dashboard', 'dailyWorkflowEntry'],
+    commands: ['python scripts/research_workflow_doctor.py --warn-only'],
+    recommendedActions: ['设置当前阶段后，这里会显示本阶段推荐动作。'],
+    issues: { p0: [], p1: [] },
+  };
+
+  return (
+    <section className="panel workspace-panel">
+      <div className="panel-title-row">
+        <ListChecks size={18} />
+        <h2>今日工作区</h2>
+      </div>
+      <div className="workspace-grid">
+        <div className="workspace-main">
+          <p className="eyebrow">当前阶段</p>
+          <h3>{active.stage ? `${active.stage}. ${displayStageName(active.name)}` : displayStageName(active.name)}</h3>
+          <div className="workspace-actions">
+            {active.recommendedActions.map((action) => <div className="issue-item" key={action}>{displayText(action)}</div>)}
+          </div>
+          <div className="workspace-files">
+            {active.fileKeys.map((key) => (
+              <button key={key} onClick={() => postAction('/api/open-path', { key }).catch((error) => setMessage(error instanceof Error ? error.message : String(error)))}>
+                <ExternalLink size={15} /> {links[key] ?? key}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="workspace-side">
+          <label className="form-field">
+            <span>当前阶段</span>
+            <input value={fields.stage} placeholder="例如：2 文献发现与综述" onChange={(event) => setFields((current) => ({ ...current, stage: event.target.value }))} />
+          </label>
+          <label className="form-field">
+            <span>今日重点</span>
+            <input value={fields.focus} placeholder="今天主要推进什么" onChange={(event) => setFields((current) => ({ ...current, focus: event.target.value }))} />
+          </label>
+          <label className="form-field">
+            <span>阻塞项</span>
+            <input value={fields.blocker} placeholder="没有就留空" onChange={(event) => setFields((current) => ({ ...current, blocker: event.target.value }))} />
+          </label>
+          <label className="form-field">
+            <span>下一步动作</span>
+            <textarea value={fields.next_action} placeholder="下一步具体做什么" onChange={(event) => setFields((current) => ({ ...current, next_action: event.target.value }))} />
+          </label>
+          <label className="form-field">
+            <span>完成记录</span>
+            <input value={fields.done_note} placeholder="刚完成了什么" onChange={(event) => setFields((current) => ({ ...current, done_note: event.target.value }))} />
+          </label>
+          <button className="primary-button" onClick={saveDaily} disabled={busy}><Save size={16} /> 保存今日记录</button>
+          <pre className="action-output compact-output">{busy ? '正在写入...' : message}</pre>
+        </div>
+      </div>
+      <div className="workspace-command-row">
+        {active.commands.map((command) => (
+          <button key={command} onClick={() => navigator.clipboard.writeText(command).then(() => setMessage(`已复制：${command}`))}>
+            <Terminal size={15} /> {command}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function CitationSuggestionPanel({ suggestions, onReload }: { suggestions: CitationSuggestion[]; onReload: () => void }) {
+  const [sectionId, setSectionId] = useState('');
+  const [message, setMessage] = useState('基于已有文献、Zotero、章节表和深研任务包做离线排序，不自动写入正式引用。');
+  const [busy, setBusy] = useState(false);
+
+  async function runSuggestions() {
+    setBusy(true);
+    try {
+      const result = await postAction('/api/suggest-section-citations', { section_id: sectionId });
+      setMessage(result.output ?? '引用推荐已生成');
+      onReload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="panel citation-panel">
+      <div className="panel-title-row">
+        <BookOpen size={18} />
+        <h2>引用推荐</h2>
+      </div>
+      <div className="inline-form">
+        <input value={sectionId} placeholder="SEC-INTRO-001，可留空生成全部" onChange={(event) => setSectionId(event.target.value)} />
+        <button onClick={runSuggestions} disabled={busy}><RefreshCw size={16} /> 生成推荐</button>
+        <button onClick={() => postAction('/api/open-path', { key: 'sectionCitationSuggestions' }).catch((error) => setMessage(error instanceof Error ? error.message : String(error)))} disabled={busy}>
+          <ExternalLink size={16} /> 打开推荐表
+        </button>
+      </div>
+      <pre className="action-output compact-output">{busy ? '正在生成...' : message}</pre>
+      <div className="suggestion-list">
+        {suggestions.length ? suggestions.slice(0, 5).map((item) => (
+          <article className="suggestion-row" key={`${item.rank}-${item.sectionId}-${item.candidateReference}`}>
+            <div>
+              <strong>{item.candidateReference}</strong>
+              <span>{displayText(item.sectionId)} / {displayText(item.segmentId)} / {displayText(item.identifier)}</span>
+            </div>
+            <div className="suggestion-meta">
+              <span className="status-pill is-ok">分数 {item.score}</span>
+              <span>{displayText(item.suggestedUse)}</span>
+            </div>
+          </article>
+        )) : <div className="empty-state">暂无推荐，请先生成或补充本地文献记录</div>}
+      </div>
+    </section>
+  );
+}
+
+function HandoffPanel({ data, onReload }: { data: DashboardData; onReload: () => void }) {
+  const [message, setMessage] = useState('只打包 final-artifact-manifest.md 中登记且未 blocked 的文件。');
+  const [busy, setBusy] = useState<string | null>(null);
+  async function run(label: string, endpoint: string) {
+    setBusy(label);
+    try {
+      const result = await postAction(endpoint);
+      setMessage(result.output ?? '已完成');
+      onReload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(null);
+    }
+  }
+  const artifacts = data.finalArtifacts ?? [];
+  const counts = artifacts.reduce<Record<string, number>>((acc, item) => {
+    const status = (item.status ?? 'pending').toLowerCase();
+    acc[status] = (acc[status] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  return (
+    <section className="panel handoff-panel">
+      <div className="panel-title-row">
+        <FileText size={18} />
+        <h2>最终交接</h2>
+      </div>
+      <div className="handoff-counts">
+        {['pending', 'copied', 'verified', 'blocked'].map((key) => (
+          <div key={key}><strong>{counts[key] ?? 0}</strong><span>{displayStatus(key)}</span></div>
+        ))}
+      </div>
+      <div className="handoff-actions">
+        <button onClick={() => run('package', '/api/package-final-handoff')} disabled={Boolean(busy)}><Save size={16} /> 打包交接包</button>
+        <button onClick={() => run('verify', '/api/verify-final-handoff')} disabled={Boolean(busy)}><CheckCircle2 size={16} /> 校验最新包</button>
+        <button onClick={() => postAction('/api/open-path', { key: 'finalArtifactManifest' }).catch((error) => setMessage(error instanceof Error ? error.message : String(error)))} disabled={Boolean(busy)}>
+          <ExternalLink size={16} /> 打开交接清单
+        </button>
+      </div>
+      <pre className="action-output compact-output">{busy ? `正在执行 ${busy}...` : message}</pre>
+      <div className="handoff-latest">
+        <span>最新包</span>
+        <code>{displayText(data.handoffPackage?.latestZip ?? '', '尚未打包')}</code>
+      </div>
     </section>
   );
 }
@@ -690,9 +882,9 @@ export function App() {
         </div>
       </section>
 
-      <ActionPanel onReload={reloadData} />
+      <StageWorkspacePanel workspace={data.activeStageWorkspace} links={data.links} onReload={reloadData} />
 
-      <FlowEditorPanel onReload={reloadData} />
+      <ActionPanel onReload={reloadData} />
 
       <section className="metric-grid">
         <MetricCard label="论点" value={data.counts.claims} icon={<FileText size={18} />} accent="#0f766e" />
@@ -708,6 +900,11 @@ export function App() {
       </section>
 
       <StageRail data={data} />
+
+      <section className="content-grid">
+        <CitationSuggestionPanel suggestions={data.citationSuggestions ?? []} onReload={reloadData} />
+        <HandoffPanel data={data} onReload={reloadData} />
+      </section>
 
       <section className="content-grid wide-left">
         <EvidenceGraph nodes={data.graph.nodes} edges={data.graph.edges} />
@@ -805,6 +1002,8 @@ export function App() {
           ]}
         />
       </section>
+
+      <FlowEditorPanel onReload={reloadData} />
 
       <footer>
         <span>打开 Markdown 源文件</span>
