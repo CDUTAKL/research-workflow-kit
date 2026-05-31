@@ -578,6 +578,21 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "| DATA-001 | dataset | CLM-001 | EXP-001 | data | remote | sha256:abc | private | ok | dict | prepare | reviewed |  |\n",
                 encoding="utf-8",
             )
+            (thesis / "section-citation-map.md").write_text(
+                "| Section ID | Thesis Location | Section Purpose | Required Literature Role | Coverage Status | Notes |\n"
+                "|---|---|---|---|---|---|\n"
+                "| SEC-INTRO-001 | Ch1 | background | foundational | partial | ready |\n\n"
+                "| Segment ID | Section ID | Segment / Claim Draft | Candidate Reference | DOI / arXiv / S2 ID | Support Grade | Source Status | Zotero Status | Scite / Reader Status | Export Format | Next Action |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|\n"
+                "| SEG-001 | SEC-INTRO-001 | claim | Strong Paper | 10.0000/example | strong | metadata_verified | in_zotero | supports_claim | bibtex | cite |\n",
+                encoding="utf-8",
+            )
+            (thesis / "citation-provenance.md").write_text(
+                "| Citation ID | Section ID | Segment ID | Claim ID | Title | Identifier | Candidate Source | Metadata Status | Support Status | Zotero Status | Scite / Reader Evidence | Verified By | Verified On | Export Status | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n"
+                "| CIT-001 | SEC-INTRO-001 | SEG-001 | CLM-001 | Strong Paper | 10.0000/example | Zotero | metadata_verified | supports | in_zotero | reader | user | 2026-01-01 | bibtex | ready |\n",
+                encoding="utf-8",
+            )
 
             result = subprocess.run(
                 [
@@ -602,6 +617,13 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertEqual("ok", dashboard_json["health"])
             self.assertEqual(1, dashboard_json["counts"]["claims"])
             self.assertIn("skillHealth", dashboard_json)
+            segment_coverage = {
+                item["segmentId"]: item
+                for item in dashboard_json["sectionCitationCoverage"]
+                if item.get("segmentId")
+            }
+            self.assertEqual("verified", segment_coverage["SEG-001"]["status"])
+            self.assertEqual("verified", segment_coverage["SEG-001"]["strong"])
             self.assertNotIn("old", dashboard)
 
     def test_edit_workflow_record_creates_standard_records_and_log(self):

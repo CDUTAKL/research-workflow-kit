@@ -16,6 +16,10 @@ The local web dashboard is the operational view of the same console. It is desig
 
 It starts a local-only control service on `127.0.0.1:8765` so the page can refresh dashboard data, export the evidence graph, run the quick health check, open whitelisted source files, copy recommended commands, update the daily stage workspace, generate local citation suggestions, package final handoff artifacts, verify the latest handoff package, and use the flow editor to append standard records.
 
+The web dashboard is organized as a daily workspace instead of a long report page. The first screen answers: current stage, today's focus, blocker, next action, P0/P1 evidence gaps, audit tier, latest experiment, and the three most common actions. Lower-frequency views live in tabs: overview, today, literature/citation, experiment loop, evidence graph, final handoff, record editor, and system health.
+
+The evidence graph is rendered inside the page from `dashboard-data.json` and remains exportable as JSON/Mermaid for draw.io or static review. The section citation heatmap summarizes `SEC-*` / `SEG-*` coverage across strong, partial, background, contradictory, Zotero, and Reader/Scite dimensions. It is a triage view only; confirmed citations still need `section-citation-map.md` and `citation-provenance.md` updates.
+
 Use Build Web Data Visualization principles when the dashboard becomes advisor-facing: keep charts simple, show uncertainty or missingness when relevant, make labels readable on desktop/mobile, and do not let visual polish hide unsupported claims.
 
 ## Current Status
@@ -49,7 +53,31 @@ Use Build Web Data Visualization principles when the dashboard becomes advisor-f
 ## Health Summary
 
 <!-- workflow-doctor:start -->
-Run `python scripts/research_workflow_doctor.py --write-dashboard` to refresh this section.
+Generated: 2026-05-30T21:45:39
+
+**Workflow Health:** `warning`
+
+### Counts
+
+- claims=1 experiments=1 datasets=1 figures=4 sections=1
+
+### P0 Blockers
+
+- none
+
+### P1 Issues
+
+- SEC-INTRO-001 has missing section citation coverage
+- thesis-docx is still pending laptop handoff
+- thesis-docx is missing checksum
+- final-pdf is still pending laptop handoff
+- final-pdf is missing checksum
+- defense-pptx is still pending laptop handoff
+- defense-pptx is missing checksum
+
+### Recent Experiment Candidates
+
+- EXP-001
 <!-- workflow-doctor:end -->
 
 ## Evidence Graph
@@ -107,6 +135,8 @@ Manual launchers remain available:
 | 快速健康检查 | `快速健康检查` or `python scripts/research_workflow_doctor.py --warn-only` | P0/P1 console report |
 | 创建深研任务 | `python scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "..."` | `deep-research-tasks.md`, section packet |
 | 生成本地引用推荐 | Dashboard `引用推荐` or `python scripts/suggest_section_citations.py --section-id SEC-INTRO-001` | `section-citation-suggestions.md`, optional dashboard JSON |
+| 查看章节引用覆盖 | Dashboard `文献引用` tab | `section-citation-map.md`, `citation-provenance.md`, `section-citation-suggestions.md` |
+| 查看交互证据图谱 | Dashboard `证据图谱` tab | `dashboard-data.json`, `evidence-graph.json`, `evidence-graph.mmd` |
 | 创建实验报告 | `python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000` | `experiment-reports/EXP-001.md` |
 | 检查材料护照 | `打开材料护照` | `material-passport.md` |
 | 检查引用溯源 | `打开引用溯源` | `citation-provenance.md` |

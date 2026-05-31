@@ -356,6 +356,153 @@ def collect_citation_suggestions(thesis_dir: Path) -> list[dict[str, str]]:
     return suggestions[:10]
 
 
+def truthy_status(value: str, positive: set[str]) -> str:
+    normalized = value.strip().lower()
+    if not normalized or normalized in {"tbd", "missing", "not_checked", "not_added", "unchecked", "pending"}:
+        return "missing"
+    if "/" in normalized and "tbd" in normalized:
+        return "missing"
+    return "verified" if normalized in positive else "candidate"
+
+
+def support_cell_status(support: str, source_status: str, reader_status: str) -> str:
+    support_normalized = support.strip().lower()
+    if support_normalized in {"contradictory", "contradicts", "limiting", "limit"}:
+        return "risk"
+    if support_normalized in {"strong", "partial", "background", "supports", "support"}:
+        if truthy_status(source_status, {"metadata_verified", "verified", "final"}) == "verified" or truthy_status(
+            reader_status,
+            {"supports", "supports_claim", "partial", "background", "source_map", "reader_checked", "directly_read"},
+        ) == "verified":
+            return "verified"
+        return "candidate"
+    return "missing"
+
+
+def stronger_status(current: str, candidate: str) -> str:
+    order = {"missing": 0, "candidate": 1, "verified": 2, "risk": 3}
+    return candidate if order.get(candidate, 0) > order.get(current, 0) else current
+
+
+def collect_section_citation_coverage(thesis_dir: Path) -> list[dict[str, str]]:
+    coverage: dict[str, dict[str, str]] = {}
+
+    def ensure(section_id: str, segment_id: str = "") -> dict[str, str]:
+        key = segment_id or section_id
+        item = coverage.setdefault(
+            key,
+            {
+                "sectionId": section_id,
+                "segmentId": segment_id,
+                "strong": "missing",
+                "partial": "missing",
+                "background": "missing",
+                "contradictory": "missing",
+                "zoteroChecked": "missing",
+                "readerChecked": "missing",
+                "status": "missing",
+                "candidateReferences": "",
+                "identifiers": "",
+                "zoteroStatus": "",
+                "readerStatus": "",
+                "nextAction": "",
+            },
+        )
+        return item
+
+    def add_detail(item: dict[str, str], field: str, value: str) -> None:
+        clean = value.strip()
+        if missing(clean):
+            return
+        parts = [part.strip() for part in item[field].split(";") if part.strip()]
+        if clean not in parts:
+            parts.append(clean)
+        item[field] = "; ".join(parts)
+
+    for cells in markdown_rows(read_text(thesis_dir / "section-citation-map.md")):
+        if len(cells) >= 6 and re.fullmatch(r"SEC-[A-Za-z0-9.-]+", cells[0]):
+            item = ensure(cells[0])
+            status = cells[4].strip().lower()
+            item["status"] = "missing" if status in {"missing", "pending", "tbd", ""} else "candidate"
+            add_detail(item, "nextAction", cells[5] if len(cells) > 5 else "")
+        elif len(cells) >= 11 and re.fullmatch(r"SEG-[A-Za-z0-9.-]+", cells[0]):
+            item = ensure(cells[1], cells[0])
+            support = cells[5]
+            source_status = cells[6]
+            zotero_status = cells[7]
+            reader_status = cells[8]
+            support_status = support_cell_status(support, source_status, reader_status)
+            support_lower = support.strip().lower()
+            if support_lower == "strong":
+                item["strong"] = stronger_status(item["strong"], support_status)
+            elif support_lower == "partial":
+                item["partial"] = stronger_status(item["partial"], support_status)
+            elif support_lower == "background":
+                item["background"] = stronger_status(item["background"], support_status)
+            elif support_lower in {"limiting", "contradictory"}:
+                item["contradictory"] = stronger_status(item["contradictory"], "risk")
+            item["zoteroChecked"] = stronger_status(item["zoteroChecked"], truthy_status(zotero_status, {"in_zotero", "final"}))
+            item["readerChecked"] = stronger_status(
+                item["readerChecked"],
+                truthy_status(reader_status, {"supports_claim", "supports", "source_map", "reader_checked", "directly_read"}),
+            )
+            add_detail(item, "candidateReferences", cells[3])
+            add_detail(item, "identifiers", cells[4])
+            add_detail(item, "zoteroStatus", zotero_status)
+            add_detail(item, "readerStatus", reader_status)
+            add_detail(item, "nextAction", cells[10])
+
+    for cells in markdown_rows(read_text(thesis_dir / "citation-provenance.md")):
+        if len(cells) >= 15 and re.fullmatch(r"CIT-[A-Za-z0-9.-]+", cells[0]):
+            item = ensure(cells[1], "" if missing(cells[2]) else cells[2])
+            support_status = cells[8].strip().lower()
+            if support_status == "supports":
+                item["strong"] = stronger_status(item["strong"], "verified")
+            elif support_status == "partial":
+                item["partial"] = stronger_status(item["partial"], "verified")
+            elif support_status == "background":
+                item["background"] = stronger_status(item["background"], "verified")
+            elif support_status in {"contradicts", "contradictory"}:
+                item["contradictory"] = stronger_status(item["contradictory"], "risk")
+            item["zoteroChecked"] = stronger_status(item["zoteroChecked"], truthy_status(cells[9], {"in_zotero", "final"}))
+            item["readerChecked"] = stronger_status(
+                item["readerChecked"],
+                truthy_status(cells[10], {"scite", "reader", "source_map", "supports", "directly_read"}),
+            )
+            add_detail(item, "candidateReferences", cells[4])
+            add_detail(item, "identifiers", cells[5])
+            add_detail(item, "zoteroStatus", cells[9])
+            add_detail(item, "readerStatus", cells[10])
+            add_detail(item, "nextAction", cells[14])
+
+    for cells in markdown_rows(read_text(thesis_dir / "section-citation-suggestions.md")):
+        if len(cells) >= 10 and cells[0].isdigit() and re.fullmatch(r"SEC-[A-Za-z0-9.-]+", cells[2]):
+            item = ensure(cells[2], "" if missing(cells[3]) else cells[3])
+            use = cells[8].lower()
+            if "strong" in use or "support" in use or "优先" in use:
+                item["strong"] = stronger_status(item["strong"], "candidate")
+            elif "background" in use or "背景" in use:
+                item["background"] = stronger_status(item["background"], "candidate")
+            else:
+                item["partial"] = stronger_status(item["partial"], "candidate")
+            add_detail(item, "candidateReferences", cells[4])
+            add_detail(item, "identifiers", cells[5])
+            add_detail(item, "nextAction", cells[8])
+
+    for item in coverage.values():
+        evidence_values = [item["strong"], item["partial"], item["background"], item["contradictory"]]
+        if "risk" in evidence_values:
+            item["status"] = "risk"
+        elif "verified" in evidence_values and (item["zoteroChecked"] == "verified" or item["readerChecked"] == "verified"):
+            item["status"] = "verified"
+        elif "candidate" in evidence_values or "verified" in evidence_values:
+            item["status"] = "candidate"
+        elif not item["status"] or item["status"] == "missing":
+            item["status"] = "missing"
+
+    return sorted(coverage.values(), key=lambda item: (item["sectionId"], item["segmentId"]))
+
+
 def collect_handoff_package(root: Path) -> dict[str, str]:
     zips = sorted((root / "handoff-packages").glob("final-handoff-*/*.zip"))
     if not zips:
@@ -428,6 +575,7 @@ def dashboard_data(
     skill_health = collect_skill_health()
     experiment_reports = collect_experiment_reports(thesis_dir)
     citation_suggestions = collect_citation_suggestions(thesis_dir)
+    section_citation_coverage = collect_section_citation_coverage(thesis_dir)
     handoff_package = collect_handoff_package(thesis_dir.resolve().parents[1] if thesis_dir.name == "thesis" and thesis_dir.parent.name == "docs" else Path("."))
     final_artifacts = data.get("final_artifacts", [])
     id_lifecycle = data.get("id_lifecycle", {})
@@ -470,6 +618,7 @@ def dashboard_data(
         "recentExperiments": experiments[-5:],
         "experimentReports": experiment_reports[-5:],
         "citationSuggestions": citation_suggestions,
+        "sectionCitationCoverage": section_citation_coverage,
         "finalArtifacts": final_artifact_records[-5:],
         "handoffPackage": handoff_package,
         "skillHealth": skill_health,

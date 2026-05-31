@@ -59,6 +59,23 @@ export interface CitationSuggestion {
   reasons: string;
 }
 
+export interface SectionCitationCoverage {
+  sectionId: string;
+  segmentId: string;
+  strong: string;
+  partial: string;
+  background: string;
+  contradictory: string;
+  zoteroChecked: string;
+  readerChecked: string;
+  status: string;
+  candidateReferences?: string;
+  identifiers?: string;
+  zoteroStatus?: string;
+  readerStatus?: string;
+  nextAction?: string;
+}
+
 export interface DashboardData {
   generatedAt: string;
   health: Health;
@@ -86,6 +103,7 @@ export interface DashboardData {
   recentExperiments: WorkflowRecord[];
   experimentReports?: WorkflowRecord[];
   citationSuggestions?: CitationSuggestion[];
+  sectionCitationCoverage?: SectionCitationCoverage[];
   finalArtifacts?: WorkflowRecord[];
   handoffPackage?: {
     exists: string;

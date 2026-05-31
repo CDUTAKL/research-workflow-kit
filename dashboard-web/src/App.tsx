@@ -18,6 +18,12 @@ import {
   Save,
   Terminal,
 } from 'lucide-react';
+import { postAction } from './api/client';
+import { DashboardTabs, type DashboardTab } from './components/DashboardTabs';
+import { InteractiveEvidenceGraph } from './components/InteractiveEvidenceGraph';
+import { SectionCitationHeatmap } from './components/SectionCitationHeatmap';
+import { SystemHealthPanel } from './components/SystemHealthPanel';
+import { TodayWorkspace } from './components/TodayWorkspace';
 import { demoFallbackData } from './mockData';
 import type { CitationSuggestion, DashboardData, EvidenceEdge, EvidenceNode, Health, StageWorkspace, WorkflowRecord } from './types';
 
@@ -171,19 +177,6 @@ function MetricCard({
       </div>
     </section>
   );
-}
-
-async function postAction(endpoint: string, payload: object = {}) {
-  const response = await fetch(`http://127.0.0.1:8765${endpoint}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  const data = await response.json();
-  if (!response.ok || !data.ok) {
-    throw new Error(data.error || data.output || 'dashboard action failed');
-  }
-  return data as { ok: boolean; output?: string; id?: string; target?: string };
 }
 
 function ActionPanel({ onReload }: { onReload: () => void }) {
@@ -822,6 +815,7 @@ function EvidenceGraph({ nodes, edges }: { nodes: EvidenceNode[]; edges: Evidenc
 export function App() {
   const [data, setData] = useState<DashboardData>(demoFallbackData);
   const [loadedFromFile, setLoadedFromFile] = useState(false);
+  const [activeTab, setActiveTab] = useState<DashboardTab>('today');
 
   function reloadData() {
     fetch('/data/dashboard-data.json', { cache: 'no-store' })
@@ -843,49 +837,8 @@ export function App() {
     reloadData();
   }, []);
 
-  const auditTier = displayAuditTier(data.currentStatus['Current audit tier'] ?? 'quick/advisor/final/TBD');
-  const currentStage = displayText(data.currentStatus['Current stage'] ?? '1-12/TBD');
-  const nextAction = displayText(data.currentStatus['Next concrete action'] ?? '请运行健康检查或刷新控制台');
-
-  return (
-    <main className="app-shell">
-      <header className="topbar">
-        <div>
-          <p className="eyebrow">Research Workflow Kit</p>
-          <h1>科研工作流总控台</h1>
-        </div>
-        <div className="top-actions">
-          <span className={`health-badge ${data.health}`}>
-            {data.health === 'ok' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
-            {healthLabels[data.health]}
-          </span>
-          <span className="data-source">
-            <RefreshCw size={15} />
-            {loadedFromFile ? '实时数据' : '示例数据'}
-          </span>
-        </div>
-      </header>
-
-      <section className="status-band">
-        <div className="status-copy">
-          <p className="eyebrow">当前阶段</p>
-          <div className="stage-headline">{currentStage}</div>
-          <p>{nextAction}</p>
-        </div>
-        <div className="audit-chip">
-          <span>审计等级</span>
-          <strong>{auditTier}</strong>
-        </div>
-        <div className="generated">
-          <span>更新时间</span>
-          <strong>{data.generatedAt}</strong>
-        </div>
-      </section>
-
-      <StageWorkspacePanel workspace={data.activeStageWorkspace} links={data.links} onReload={reloadData} />
-
-      <ActionPanel onReload={reloadData} />
-
+  const overviewPanel = (
+    <>
       <section className="metric-grid">
         <MetricCard label="论点" value={data.counts.claims} icon={<FileText size={18} />} accent="#0f766e" />
         <MetricCard label="实验" value={data.counts.experiments} icon={<FlaskConical size={18} />} accent="#7c3aed" />
@@ -893,90 +846,11 @@ export function App() {
         <MetricCard label="图表" value={data.counts.figures} icon={<BarChart3 size={18} />} accent="#be123c" />
         <MetricCard label="证据关系" value={data.counts.graphEdges} icon={<GitBranch size={18} />} accent="#2563eb" />
       </section>
-
       <section className="content-grid">
         <IssueList title="P0 阻塞项" items={data.issues.p0} tone="p0" />
         <IssueList title="P1 待补项" items={data.issues.p1} tone="p1" />
       </section>
-
       <StageRail data={data} />
-
-      <section className="content-grid">
-        <CitationSuggestionPanel suggestions={data.citationSuggestions ?? []} onReload={reloadData} />
-        <HandoffPanel data={data} onReload={reloadData} />
-      </section>
-
-      <section className="content-grid wide-left">
-        <EvidenceGraph nodes={data.graph.nodes} edges={data.graph.edges} />
-        <section className="panel">
-          <div className="panel-title-row">
-            <Activity size={18} />
-            <h2>最近实验</h2>
-          </div>
-          <div className="experiment-list">
-            {data.recentExperiments.length ? data.recentExperiments.map((experiment) => (
-              <article className="experiment-row" key={experiment.id}>
-                <div>
-                  <strong>{experiment.id}</strong>
-                  <span>{displayText(experiment.output)}</span>
-                </div>
-                <span className={`status-pill ${statusClass(experiment.status)}`}>{displayStatus(experiment.status)}</span>
-              </article>
-            )) : <div className="empty-state">暂无</div>}
-          </div>
-        </section>
-      </section>
-
-      <section className="content-grid">
-        <section className="panel">
-          <div className="panel-title-row">
-            <FlaskConical size={18} />
-            <h2>实验闭环</h2>
-          </div>
-          <div className="experiment-list">
-            {(data.experimentReports ?? []).length ? data.experimentReports!.map((report) => (
-              <article className="experiment-row" key={report.id}>
-                <div>
-                  <strong>{report.id}</strong>
-                  <span>{displayText(report.row)}</span>
-                </div>
-                <span className={`status-pill ${statusClass(report.status)}`}>{displayStatus(report.status)}</span>
-              </article>
-            )) : <div className="empty-state">暂无实验报告</div>}
-          </div>
-        </section>
-        <section className="panel">
-          <div className="panel-title-row">
-            <CheckCircle2 size={18} />
-            <h2>Skill 健康度</h2>
-          </div>
-          <div className="skill-health">
-            <div><strong>{data.skillHealth?.totalSkills ?? 0}</strong><span>Skill 总数</span></div>
-            <div><strong>{data.skillHealth?.metadataIssues ?? 0}</strong><span>元数据问题</span></div>
-            <div><strong>{data.skillHealth?.brokenReferences ?? 0}</strong><span>断裂引用</span></div>
-            <div><strong>{data.skillHealth?.missingScripts ?? 0}</strong><span>缺失脚本</span></div>
-            <div><strong>{data.skillHealth?.outdatedAssumptions ?? 0}</strong><span>旧工具假设</span></div>
-          </div>
-        </section>
-        <section className="panel">
-          <div className="panel-title-row">
-            <FileText size={18} />
-            <h2>最终交付物</h2>
-          </div>
-          <div className="experiment-list">
-            {(data.finalArtifacts ?? []).length ? data.finalArtifacts!.map((artifact) => (
-              <article className="experiment-row" key={artifact.id}>
-                <div>
-                  <strong>{artifact.id}</strong>
-                  <span>{displayText(artifact.row)}</span>
-                </div>
-                <span className={`status-pill ${statusClass(artifact.status)}`}>{displayStatus(artifact.status)}</span>
-              </article>
-            )) : <div className="empty-state">暂无最终交付物记录</div>}
-          </div>
-        </section>
-      </section>
-
       <section className="table-grid">
         <RecordTable
           title="论点与证据"
@@ -1003,8 +877,114 @@ export function App() {
           ]}
         />
       </section>
+    </>
+  );
 
-      <FlowEditorPanel onReload={reloadData} />
+  const experimentsPanel = (
+    <section className="content-grid">
+      <section className="panel">
+        <div className="panel-title-row">
+          <Activity size={18} />
+          <h2>最近实验</h2>
+        </div>
+        <div className="experiment-list">
+          {data.recentExperiments.length ? data.recentExperiments.map((experiment) => (
+            <article className="experiment-row" key={experiment.id}>
+              <div>
+                <strong>{experiment.id}</strong>
+                <span>{displayText(experiment.output)}</span>
+              </div>
+              <span className={`status-pill ${statusClass(experiment.status)}`}>{displayStatus(experiment.status)}</span>
+            </article>
+          )) : <div className="empty-state">暂无</div>}
+        </div>
+      </section>
+      <section className="panel">
+        <div className="panel-title-row">
+          <FlaskConical size={18} />
+          <h2>实验报告</h2>
+        </div>
+        <div className="experiment-list">
+          {(data.experimentReports ?? []).length ? data.experimentReports!.map((report) => (
+            <article className="experiment-row" key={report.id}>
+              <div>
+                <strong>{report.id}</strong>
+                <span>{displayText(report.row)}</span>
+              </div>
+              <span className={`status-pill ${statusClass(report.status)}`}>{displayStatus(report.status)}</span>
+            </article>
+          )) : <div className="empty-state">暂无实验报告</div>}
+        </div>
+      </section>
+    </section>
+  );
+
+  const handoffPanel = (
+    <section className="content-grid">
+      <HandoffPanel data={data} onReload={reloadData} />
+      <section className="panel">
+        <div className="panel-title-row">
+          <FileText size={18} />
+          <h2>最终交付物</h2>
+        </div>
+        <div className="experiment-list">
+          {(data.finalArtifacts ?? []).length ? data.finalArtifacts!.map((artifact) => (
+            <article className="experiment-row" key={artifact.id}>
+              <div>
+                <strong>{artifact.id}</strong>
+                <span>{displayText(artifact.row)}</span>
+              </div>
+              <span className={`status-pill ${statusClass(artifact.status)}`}>{displayStatus(artifact.status)}</span>
+            </article>
+          )) : <div className="empty-state">暂无最终交付物记录</div>}
+        </div>
+      </section>
+    </section>
+  );
+
+  const tabContent: Record<DashboardTab, JSX.Element> = {
+    overview: overviewPanel,
+    today: (
+      <>
+        <StageWorkspacePanel workspace={data.activeStageWorkspace} links={data.links} onReload={reloadData} />
+        <ActionPanel onReload={reloadData} />
+      </>
+    ),
+    citation: (
+      <section className="content-grid citation-grid">
+        <SectionCitationHeatmap coverage={data.sectionCitationCoverage ?? []} onReload={reloadData} />
+        <CitationSuggestionPanel suggestions={data.citationSuggestions ?? []} onReload={reloadData} />
+      </section>
+    ),
+    experiments: experimentsPanel,
+    graph: <InteractiveEvidenceGraph nodes={data.graph.nodes} edges={data.graph.edges} issues={data.issues} />,
+    handoff: handoffPanel,
+    editor: <FlowEditorPanel onReload={reloadData} />,
+    health: <SystemHealthPanel data={data} />,
+  };
+
+  return (
+    <main className="app-shell">
+      <header className="topbar">
+        <div>
+          <p className="eyebrow">Research Workflow Kit</p>
+          <h1>科研工作流总控台</h1>
+        </div>
+        <div className="top-actions">
+          <span className={`health-badge ${data.health}`}>
+            {data.health === 'ok' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+            {healthLabels[data.health]}
+          </span>
+          <span className="data-source">
+            <RefreshCw size={15} />
+            {loadedFromFile ? '实时数据' : '示例数据'}
+          </span>
+        </div>
+      </header>
+
+      <TodayWorkspace data={data} onReload={reloadData} />
+      <DashboardTabs activeTab={activeTab} onChange={setActiveTab} />
+      <section className="tab-content">{tabContent[activeTab]}</section>
 
       <footer>
         <span>打开 Markdown 源文件</span>

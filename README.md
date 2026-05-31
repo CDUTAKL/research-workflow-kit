@@ -141,6 +141,7 @@ The workflow includes optional enhancement layers:
 - `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
 - `docs/thesis/material-passport.md` identifies evidence-critical materials, while `benchmark-report-schema.md` standardizes baseline/new experiment comparisons before claim promotion.
 - `docs/thesis/workflow-dashboard.md` plus `daily-workflow-entry.md` are the daily project homepage for current stage, blockers, recommended actions, recent experiments, missing evidence, and audit tier.
+- The local React/Vite Dashboard opens with a Chinese daily workspace, tabbed workflow views, an interactive evidence graph, and a section citation coverage heatmap. It is a view/editor over `docs/thesis/`, not a replacement source of truth.
 - `scripts/suggest_section_citations.py` gives offline citation suggestions from existing local records, helping each `SEC-*` section move from “missing coverage” to manually confirmed citations.
 - `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for Mac-to-laptop stages 11-12.
 
@@ -274,8 +275,9 @@ The launcher also starts a local-only control service on `http://127.0.0.1:8765`
 The web dashboard can then refresh workflow data, export the evidence graph, run
 the quick health check, open whitelisted source files, copy the next terminal
 command, update the daily stage workspace, generate offline citation suggestions,
-package final handoff artifacts, verify the latest handoff package, and use the
-Chinese flow editor to append standard records. Flow-editor
+package final handoff artifacts, verify the latest handoff package, show an
+interactive evidence graph, summarize section citation coverage as a heatmap,
+and use the Chinese flow editor to append standard records. Flow-editor
 writes are limited to known Markdown source files, create backups under
 `tmp/dashboard-edits/backups/`, and append `docs/thesis/workflow-edit-log.md`.
 The service does not expose remote access, does not store credentials, and does

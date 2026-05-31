@@ -43,7 +43,7 @@ Install or refresh local Codex skills with:
 .venv/bin/python install_skills.py --overwrite
 ```
 
-The web dashboard uses the lightweight `dashboard-web/` app:
+The web dashboard uses the lightweight `dashboard-web/` app. It should open to the Chinese daily workspace first, with lower-frequency views in tabs. Interactive evidence graph and section citation heatmap views must remain backed by generated JSON from Markdown source records.
 
 ```bash
 cd dashboard-web
