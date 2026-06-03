@@ -187,7 +187,9 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
 
     required_files = [
         "workflow-dashboard.md",
+        "console-file-index.md",
         "daily-workflow-entry.md",
+        "weekly-review.md",
         "evidence-promotion-policy.md",
         "id-lifecycle-policy.md",
         "material-passport.md",
@@ -351,6 +353,138 @@ def collect_experiment_reports(thesis_dir: Path) -> list[dict[str, str]]:
             }
         )
     return reports
+
+
+def collect_experiment_comparisons(thesis_dir: Path, records: dict[str, list[dict[str, str]]]) -> list[dict[str, str]]:
+    reports_dir = thesis_dir / "experiment-reports"
+    registry_records = {item.get("id", ""): item for item in records.get("experiments", [])}
+    comparisons: list[dict[str, str]] = []
+    if reports_dir.exists():
+        for path in sorted(reports_dir.glob("EXP-*.md")):
+            text = read_text(path)
+            exp_id = path.stem
+            baseline = "none"
+            metric = "TBD"
+            base_value = "TBD"
+            new_value = "TBD"
+            delta = "TBD"
+            env_status = "TBD"
+            guard_status = "pending"
+            verify_status = "pending"
+            for cells in markdown_rows(text):
+                if len(cells) >= 2 and cells[0] == "Baseline":
+                    baseline = cells[1]
+                elif len(cells) >= 2 and cells[0] == "Environment Snapshot":
+                    env_status = cells[1]
+                elif len(cells) >= 4 and cells[0] not in {"Metric", "Gate"} and cells[1].replace(".", "", 1).replace("-", "", 1).isdigit():
+                    metric, base_value, new_value, delta = cells[0], cells[1], cells[2], cells[3]
+                elif len(cells) >= 3 and cells[0] == "verify":
+                    verify_status = cells[2]
+                elif len(cells) >= 3 and cells[0] == "guard":
+                    guard_status = cells[2]
+            comparisons.append(
+                {
+                    "id": exp_id,
+                    "baseline": baseline,
+                    "metric": metric,
+                    "baselineValue": base_value,
+                    "newValue": new_value,
+                    "delta": delta,
+                    "verifyStatus": verify_status,
+                    "guardStatus": guard_status,
+                    "environmentSnapshot": env_status,
+                    "status": registry_records.get(exp_id, {}).get("status", "TBD"),
+                    "nextAction": "review verify/guard gates before promoting to CLM evidence",
+                    "path": path.as_posix(),
+                }
+            )
+    if comparisons:
+        return comparisons[-6:]
+    return [
+        {
+            "id": item.get("id", "TBD"),
+            "baseline": "TBD",
+            "metric": item.get("metrics", "TBD"),
+            "baselineValue": "TBD",
+            "newValue": item.get("metrics", "TBD"),
+            "delta": "TBD",
+            "verifyStatus": "pending",
+            "guardStatus": "pending",
+            "environmentSnapshot": "missing" if "remote_desktop_4060" in item.get("row", "") else "TBD",
+            "status": item.get("status", "TBD"),
+            "nextAction": "generate experiment report for baseline comparison",
+            "path": "docs/thesis/experiment-reports/",
+        }
+        for item in records.get("experiments", [])[-6:]
+    ]
+
+
+def console_file_layers() -> list[dict[str, str]]:
+    return [
+        {
+            "layer": "当前工作区",
+            "when": "开始或恢复工作",
+            "files": "workflow-dashboard.md; daily-workflow-entry.md; task-board-sync.md",
+            "rule": "先看这里，只决定当前做什么。",
+        },
+        {
+            "layer": "证据核心",
+            "when": "升级论点、实验、引用或图表前",
+            "files": "claim-evidence-map.md; experiment-registry.md; section-citation-map.md; citation-provenance.md; data-availability.md; figure-plan.md",
+            "rule": "正式证据源记录，只改必要项。",
+        },
+        {
+            "layer": "阶段工作区",
+            "when": "当前阶段需要",
+            "files": "literature-matrix.md; deep-research-tasks.md; experiment-reports/; writing-outline.md",
+            "rule": "按阶段打开，不要全开。",
+        },
+        {
+            "layer": "终稿交接",
+            "when": "第 11-12 步",
+            "files": "final-artifact-manifest.md; final-handoff-verify-report.md; final-audit.md; defense-prep.md",
+            "rule": "只在交接、终审、答辩时使用。",
+        },
+        {
+            "layer": "审计维护",
+            "when": "每周、合并前、终审前",
+            "files": "id-lifecycle-policy.md; evidence-promotion-policy.md; plugin-review-log.md; skill-audit-report.md; workflow-edit-log.md",
+            "rule": "Dashboard 提醒时再打开。",
+        },
+    ]
+
+
+def collect_weekly_review(thesis_dir: Path) -> dict[str, object]:
+    text = read_text(thesis_dir / "weekly-review.md")
+    summary: dict[str, str] = {}
+    reviews: list[dict[str, str]] = []
+    for cells in markdown_rows(text):
+        if len(cells) >= 2 and cells[0] in {
+            "Current week",
+            "Main focus",
+            "Current best experiment",
+            "Strongest evidence",
+            "Biggest risk",
+            "Next action 1",
+            "Next action 2",
+            "Next action 3",
+        }:
+            summary[cells[0]] = cells[1]
+        elif len(cells) >= 9 and re.fullmatch(r"\d{4}-W\d{2}|TBD", cells[0]):
+            reviews.append(
+                {
+                    "week": cells[0],
+                    "focus": cells[1],
+                    "completed": cells[2],
+                    "evidenceStronger": cells[3],
+                    "risk": cells[4],
+                    "bestExperiment": cells[5],
+                    "nextActions": cells[6],
+                    "filesToIgnore": cells[7],
+                    "notes": cells[8],
+                }
+            )
+    return {"summary": summary, "recent": reviews[-4:]}
 
 
 def collect_citation_suggestions(thesis_dir: Path) -> list[dict[str, str]]:
@@ -684,8 +818,10 @@ def dashboard_data(
     graph = build_graph(thesis_dir)
     skill_health = collect_skill_health()
     experiment_reports = collect_experiment_reports(thesis_dir)
+    experiment_comparisons = collect_experiment_comparisons(thesis_dir, records)
     citation_suggestions = collect_citation_suggestions(thesis_dir)
     section_citation_coverage = collect_section_citation_coverage(thesis_dir)
+    weekly_review = collect_weekly_review(thesis_dir)
     handoff_package = collect_handoff_package(thesis_dir.resolve().parents[1] if thesis_dir.name == "thesis" and thesis_dir.parent.name == "docs" else Path("."))
     final_artifacts = data.get("final_artifacts", [])
     id_lifecycle = data.get("id_lifecycle", {})
@@ -732,6 +868,7 @@ def dashboard_data(
             ),
             "citationSuggestions": len(citation_suggestions),
             "pluginRecommendations": len(plugin_recommendations) if isinstance(plugin_recommendations, list) else 0,
+            "experimentComparisons": len(experiment_comparisons),
         },
         "currentStatus": parse_current_status(thesis_dir),
         "currentWorkspaceSummary": {
@@ -752,8 +889,11 @@ def dashboard_data(
         "summary": info[0] if info else "",
         "recentExperiments": experiments[-5:],
         "experimentReports": experiment_reports[-5:],
+        "experimentComparisons": experiment_comparisons,
         "citationSuggestions": citation_suggestions,
         "sectionCitationCoverage": section_citation_coverage,
+        "consoleFileLayers": console_file_layers(),
+        "weeklyReview": weekly_review,
         "pluginRecommendations": plugin_recommendations if isinstance(plugin_recommendations, list) else [],
         "pluginGateHealth": plugin_gate_health if isinstance(plugin_gate_health, dict) else {},
         "finalArtifacts": final_artifact_records[-5:],
@@ -763,7 +903,9 @@ def dashboard_data(
         "graph": graph,
         "links": {
             "dashboard": "docs/thesis/workflow-dashboard.md",
+            "consoleFileIndex": "docs/thesis/console-file-index.md",
             "dailyWorkflowEntry": "docs/thesis/daily-workflow-entry.md",
+            "weeklyReview": "docs/thesis/weekly-review.md",
             "claimMap": "docs/thesis/claim-evidence-map.md",
             "experimentRegistry": "docs/thesis/experiment-registry.md",
             "benchmarkReportSchema": "docs/thesis/benchmark-report-schema.md",

@@ -16,6 +16,7 @@ export const demoFallbackData: DashboardData = {
     skillIssues: 0,
     citationSuggestions: 0,
     pluginRecommendations: 1,
+    experimentComparisons: 1,
   },
   currentStatus: {
     'Current stage': '1-12/待填写',
@@ -66,6 +67,22 @@ export const demoFallbackData: DashboardData = {
   summary: '示例数据',
   recentExperiments: [{ id: 'EXP-001', status: 'planned', output: 'outputs/EXP-001' }],
   experimentReports: [],
+  experimentComparisons: [
+    {
+      id: 'EXP-001',
+      baseline: 'EXP-000',
+      metric: 'accuracy',
+      baselineValue: 'TBD',
+      newValue: 'TBD',
+      delta: 'TBD',
+      verifyStatus: 'pending',
+      guardStatus: 'pending',
+      environmentSnapshot: 'missing',
+      status: 'planned',
+      nextAction: '生成实验报告后再判断是否能升级为论点证据',
+      path: 'docs/thesis/experiment-reports/EXP-001.md',
+    },
+  ],
   citationSuggestions: [],
   sectionCitationCoverage: [
     {
@@ -90,6 +107,31 @@ export const demoFallbackData: DashboardData = {
     candidate: 1,
     verified: 0,
     risk: 0,
+  },
+  consoleFileLayers: [
+    {
+      layer: '当前工作区',
+      when: '开始或恢复工作',
+      files: 'workflow-dashboard.md; daily-workflow-entry.md',
+      rule: '先看这里，只决定当前做什么。',
+    },
+    {
+      layer: '证据核心',
+      when: '升级论点、实验、引用或图表前',
+      files: 'claim-evidence-map.md; experiment-registry.md; section-citation-map.md',
+      rule: '正式证据源记录，只改必要项。',
+    },
+  ],
+  weeklyReview: {
+    summary: {
+      'Current week': 'TBD',
+      'Main focus': '先生成真实 Dashboard 数据',
+      'Current best experiment': 'EXP-001',
+      'Strongest evidence': 'TBD',
+      'Biggest risk': '示例数据',
+      'Next action 1': '运行刷新检查',
+    },
+    recent: [],
   },
   pluginRecommendations: [
     {
@@ -162,7 +204,9 @@ export const demoFallbackData: DashboardData = {
   },
   links: {
     dashboard: 'docs/thesis/workflow-dashboard.md',
+    consoleFileIndex: 'docs/thesis/console-file-index.md',
     dailyWorkflowEntry: 'docs/thesis/daily-workflow-entry.md',
+    weeklyReview: 'docs/thesis/weekly-review.md',
     sectionCitationMap: 'docs/thesis/section-citation-map.md',
     claimMap: 'docs/thesis/claim-evidence-map.md',
     pluginGatePolicy: 'docs/thesis/plugin-gate-policy.md',

@@ -28,6 +28,7 @@ EDIT_WORKFLOW_RECORD = REPO_ROOT / "scripts" / "edit_workflow_record.py"
 AUDIT_FINAL_ARTIFACTS = REPO_ROOT / "scripts" / "audit_final_artifacts.py"
 AUDIT_ID_LIFECYCLE = REPO_ROOT / "scripts" / "audit_id_lifecycle.py"
 UPDATE_DAILY_WORKFLOW = REPO_ROOT / "scripts" / "update_daily_workflow.py"
+UPDATE_WEEKLY_REVIEW = REPO_ROOT / "scripts" / "update_weekly_review.py"
 SUGGEST_SECTION_CITATIONS = REPO_ROOT / "scripts" / "suggest_section_citations.py"
 PACKAGE_FINAL_HANDOFF = REPO_ROOT / "scripts" / "package_final_handoff.py"
 VERIFY_FINAL_HANDOFF = REPO_ROOT / "scripts" / "verify_final_handoff.py"
@@ -530,7 +531,9 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 encoding="utf-8",
             )
             for name in (
+                "console-file-index.md",
                 "daily-workflow-entry.md",
+                "weekly-review.md",
                 "evidence-promotion-policy.md",
                 "id-lifecycle-policy.md",
                 "material-passport.md",
@@ -626,6 +629,9 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("skillHealth", dashboard_json)
             self.assertIn("pluginRecommendations", dashboard_json)
             self.assertIn("pluginGateHealth", dashboard_json)
+            self.assertIn("consoleFileLayers", dashboard_json)
+            self.assertIn("weeklyReview", dashboard_json)
+            self.assertIn("experimentComparisons", dashboard_json)
             segment_coverage = {
                 item["segmentId"]: item
                 for item in dashboard_json["sectionCitationCoverage"]
@@ -812,6 +818,60 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("2 文献发现与综述", daily)
             self.assertIn("citation coverage", dashboard)
             self.assertIn("update current workspace", edit_log)
+
+    def test_update_weekly_review_updates_summary_and_log(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "workflow-dashboard.md").write_text(
+                "# Workflow Dashboard\n\n"
+                "| Field | Value |\n"
+                "|---|---|\n"
+                "| Current stage | 2 文献发现与综述 |\n"
+                "| Active focus | TBD |\n"
+                "| Current audit tier | quick |\n"
+                "| Main blocker | TBD |\n"
+                "| Next concrete action | TBD |\n",
+                encoding="utf-8",
+            )
+            (thesis / "workflow-edit-log.md").write_text(
+                "| Timestamp | Action | Target | Generated ID | Summary |\n"
+                "|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(UPDATE_WEEKLY_REVIEW),
+                    "--focus",
+                    "citation precision",
+                    "--completed",
+                    "screened 5 papers",
+                    "--evidence-stronger",
+                    "SEC-INTRO-001",
+                    "--evidence-risk",
+                    "missing 4060 result",
+                    "--best-experiment",
+                    "EXP-001",
+                    "--next-actions",
+                    "confirm strong citations; generate EXP report",
+                    "--files-to-ignore",
+                    "final-audit.md",
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            weekly = (thesis / "weekly-review.md").read_text(encoding="utf-8")
+            dashboard = (thesis / "workflow-dashboard.md").read_text(encoding="utf-8")
+            edit_log = (thesis / "workflow-edit-log.md").read_text(encoding="utf-8")
+            self.assertIn("updated weekly review", result.stdout)
+            self.assertIn("citation precision", weekly)
+            self.assertIn("EXP-001", weekly)
+            self.assertIn("confirm strong citations", dashboard)
+            self.assertIn("update weekly review", edit_log)
 
     def test_final_artifact_audit_detects_missing_final_verification(self):
         with tempfile.TemporaryDirectory() as tmp:

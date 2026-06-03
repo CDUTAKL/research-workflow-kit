@@ -94,6 +94,43 @@ export interface PluginGateHealth {
   optionalSuggestions?: number;
 }
 
+export interface ConsoleFileLayer {
+  layer: string;
+  when: string;
+  files: string;
+  rule: string;
+}
+
+export interface ExperimentComparison {
+  id: string;
+  baseline: string;
+  metric: string;
+  baselineValue: string;
+  newValue: string;
+  delta: string;
+  verifyStatus: string;
+  guardStatus: string;
+  environmentSnapshot: string;
+  status: string;
+  nextAction: string;
+  path: string;
+}
+
+export interface WeeklyReview {
+  summary: Record<string, string>;
+  recent: Array<{
+    week: string;
+    focus: string;
+    completed: string;
+    evidenceStronger: string;
+    risk: string;
+    bestExperiment: string;
+    nextActions: string;
+    filesToIgnore: string;
+    notes: string;
+  }>;
+}
+
 export interface DashboardData {
   generatedAt: string;
   health: Health;
@@ -110,6 +147,7 @@ export interface DashboardData {
     skillIssues?: number;
     citationSuggestions?: number;
     pluginRecommendations?: number;
+    experimentComparisons?: number;
   };
   currentStatus: Record<string, string>;
   activeStageWorkspace?: StageWorkspace;
@@ -141,8 +179,11 @@ export interface DashboardData {
   summary: string;
   recentExperiments: WorkflowRecord[];
   experimentReports?: WorkflowRecord[];
+  experimentComparisons?: ExperimentComparison[];
   citationSuggestions?: CitationSuggestion[];
   sectionCitationCoverage?: SectionCitationCoverage[];
+  consoleFileLayers?: ConsoleFileLayer[];
+  weeklyReview?: WeeklyReview;
   pluginRecommendations?: PluginRecommendation[];
   pluginGateHealth?: PluginGateHealth;
   finalArtifacts?: WorkflowRecord[];

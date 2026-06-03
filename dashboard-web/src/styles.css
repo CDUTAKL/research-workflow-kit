@@ -616,6 +616,120 @@ h2 {
   margin-top: 10px;
 }
 
+.console-layer-list,
+.weekly-recent,
+.comparison-list {
+  display: grid;
+  gap: 10px;
+}
+
+.console-layer-row,
+.comparison-row,
+.weekly-recent article {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.console-layer-row strong,
+.comparison-row strong,
+.weekly-recent strong {
+  color: #1d2939;
+}
+
+.console-layer-row span,
+.console-layer-row p,
+.comparison-row span,
+.comparison-row p,
+.weekly-recent span {
+  margin: 0;
+  color: #667085;
+  line-height: 1.45;
+}
+
+.console-layer-row code {
+  overflow-wrap: anywhere;
+}
+
+.weekly-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.weekly-summary article {
+  min-height: 72px;
+  padding: 10px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.weekly-summary span,
+.weekly-summary strong {
+  display: block;
+}
+
+.weekly-summary span {
+  margin-bottom: 4px;
+  color: #667085;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.weekly-summary strong {
+  overflow-wrap: anywhere;
+}
+
+.weekly-editor {
+  margin-bottom: 12px;
+}
+
+.weekly-editor summary {
+  cursor: pointer;
+  color: #475467;
+  font-weight: 800;
+}
+
+.weekly-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.weekly-form .form-field:has(textarea),
+.weekly-form .primary-button {
+  grid-column: 1 / -1;
+}
+
+.experiment-comparison-panel {
+  margin-top: 0;
+}
+
+.comparison-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.comparison-row p {
+  grid-column: 1 / -1;
+}
+
+.comparison-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
 .flow-editor {
   margin-top: 16px;
 }
@@ -1332,6 +1446,7 @@ code {
   .current-workbench-layout,
   .workspace-grid,
   .plugin-row,
+  .comparison-row,
   .interactive-graph-layout,
   .heatmap-layout,
   .citation-grid,
@@ -1345,6 +1460,7 @@ code {
   }
 
   .editor-grid,
+  .weekly-form,
   .quick-editor-grid,
   .quick-editor-form {
     grid-template-columns: 1fr;
@@ -1394,9 +1510,14 @@ code {
   .secondary-action-grid,
   .skill-health,
   .handoff-counts,
+  .weekly-summary,
   .coverage-summary,
   .suggestion-row {
     grid-template-columns: 1fr;
+  }
+
+  .comparison-pills {
+    justify-content: flex-start;
   }
 
   .graph-panel svg {

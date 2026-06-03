@@ -24,6 +24,12 @@ The Dashboard also shows plugin gate recommendations from `scripts/plugin_gate_a
 
 The evidence graph is rendered inside the page from `dashboard-data.json`. It defaults to a focused evidence chain for the current stage or selected node, with an optional full-project view. It remains exportable as JSON/Mermaid for draw.io or static review. The section citation view is gap-first: missing strong support, Zotero checks, Reader/Scite checks, and risk rows appear before low-risk rows. It is a triage view only; confirmed citations still need `section-citation-map.md` and `citation-provenance.md` updates.
 
+The Dashboard also includes three convergence aids:
+
+- `console-file-index.md` groups source records into file layers so daily work opens fewer files.
+- `experiment-reports/` and the experiment comparison panel show baseline -> new metric delta, verify gate, guard gate, and environment snapshot status.
+- `weekly-review.md` records what became stronger or weaker, the current best experiment, and only 1-3 next actions.
+
 Use Build Web Data Visualization principles when the dashboard becomes advisor-facing: keep charts simple, show uncertainty or missingness when relevant, make labels readable on desktop/mobile, and do not let visual polish hide unsupported claims.
 
 ## Current Status
@@ -134,6 +140,8 @@ Manual launchers remain available:
 | Action | Script / Button | Output |
 |---|---|---|
 | 更新当前科研工作区 | Dashboard `当前工作区` or `python scripts/update_daily_workflow.py --stage "2 文献发现与综述" --next-action "..."` | `daily-workflow-entry.md`, `workflow-dashboard.md`, `workflow-edit-log.md` |
+| 查看文件分层 | Dashboard `文件分层` or `console-file-index.md` | lower-noise source-file map |
+| 更新每周复盘 | Dashboard `每周复盘` or `python scripts/update_weekly_review.py --focus "..." --next-actions "..."` | `weekly-review.md`, `workflow-edit-log.md` |
 | 刷新控制台数据 | `刷新控制台` or `python scripts/research_workflow_doctor.py --write-dashboard --write-data` | `workflow-dashboard.md`, `dashboard-data.json` |
 | 导出证据图谱 | `导出证据图谱` or `python scripts/export_evidence_graph.py` | `evidence-graph.json`, `evidence-graph.mmd` |
 | 快速健康检查 | `快速健康检查` or `python scripts/research_workflow_doctor.py --warn-only` | P0/P1 console report |
@@ -161,6 +169,8 @@ Manual launchers remain available:
 | Need | File |
 |---|---|
 | What should happen next? | `workflow-dashboard.md`, `task-board-sync.md` |
+| Which files should I open now? | `console-file-index.md` |
+| What changed this week? | `weekly-review.md` |
 | What claims are safe? | `claim-evidence-map.md`, `evidence-promotion-policy.md`, `id-lifecycle-policy.md` |
 | What materials identify the evidence chain? | `material-passport.md`, `research-materials-index.md` |
 | What experiments support the thesis? | `experiment-registry.md`, `experiment-runbook.md` |

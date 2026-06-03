@@ -36,7 +36,7 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 - Product Design: use in stages 9 and 12 for advisor-facing Dashboard, figure, diagram, and defense-slide readability or visual hierarchy review.
 - Device workflow: treat `local_mac` as the stages 1-10 research console, `remote_desktop_4060` as the primary GPU execution target, `cloud_autodl` as a stronger fallback, and the user's laptop as the stage 11-12 finalization machine.
 - Evidence workflow: use `evidence-promotion-policy.md` and `id-lifecycle-policy.md` to keep `SEC-*`, `SEG-*`, `CLM-*`, `EXP-*`, `DATA-*`, `FIG-*`, `MAT-*`, `CIT-*`, `BMK-*`, `ZCOL-*`, `DRT-*`, and `ZREV-*` relationships consistent before final writing or defense.
-- Project overview: use `workflow-dashboard.md`, the legacy-compatible `daily-workflow-entry.md`, `scripts/research_workflow_doctor.py`, `scripts/update_daily_workflow.py`, `scripts/export_evidence_graph.py`, `scripts/dashboard_control_server.py`, `scripts/edit_workflow_record.py`, and `dashboard-web/` when the user needs a one-page status view, current research workspace, health check, focused evidence chain, or local web dashboard with refresh/open/export/edit actions.
+- Project overview: use `workflow-dashboard.md`, `console-file-index.md`, `weekly-review.md`, the legacy-compatible `daily-workflow-entry.md`, `scripts/research_workflow_doctor.py`, `scripts/update_daily_workflow.py`, `scripts/update_weekly_review.py`, `scripts/export_evidence_graph.py`, `scripts/dashboard_control_server.py`, `scripts/edit_workflow_record.py`, and `dashboard-web/` when the user needs a one-page status view, file-layer guidance, weekly convergence, current research workspace, health check, focused evidence chain, experiment comparison, or local web dashboard with refresh/open/export/edit actions.
 - Read-only dashboard publishing: Vercel may be considered later for an advisor/demo preview, but the local write API, private research data, and unpublished thesis evidence must not be deployed.
 - Skill maintenance: use `scripts/audit_skills.py` when changing or installing skills, or before merging workflow changes, to catch missing references, missing scripts, and old tool assumptions.
 - Engineering discipline: use Superpowers for TDD, systematic debugging, verification, and code review during implementation work.
@@ -89,6 +89,8 @@ docs/thesis/
   thesis-brief.md
   tool-integration-map.md
   task-board-sync.md
+  console-file-index.md
+  weekly-review.md
   git-version-log.md
   literature-matrix.md
   zotero-screening-loop.md
@@ -141,6 +143,8 @@ The core console files are:
 | `thesis-brief.md` | Topic, research question, contributions, constraints, timeline |
 | `tool-integration-map.md` | plugin/skill roles by workflow stage |
 | `workflow-dashboard.md` | one-page current stage, blockers, recent experiments, evidence gaps, audit tier |
+| `console-file-index.md` | layered source-file map to reduce daily cognitive load |
+| `weekly-review.md` | short weekly convergence record: stronger/weaker evidence, best experiment, next 1-3 actions |
 | `daily-workflow-entry.md` | legacy-compatible current research workspace record: focus, blocker, next action, done note |
 | `dashboard-web/` | React/Vite local web dashboard rendering generated workflow data |
 | `workflow-edit-log.md` | audit trail for flow-editor writes to Markdown source records |

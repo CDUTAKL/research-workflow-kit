@@ -26,7 +26,7 @@ import { SectionCitationHeatmap } from './components/SectionCitationHeatmap';
 import { SystemHealthPanel } from './components/SystemHealthPanel';
 import { CurrentWorkspace } from './components/TodayWorkspace';
 import { demoFallbackData } from './mockData';
-import type { CitationSuggestion, DashboardData, EvidenceEdge, EvidenceNode, Health, StageWorkspace, WorkflowRecord } from './types';
+import type { CitationSuggestion, DashboardData, EvidenceEdge, EvidenceNode, ExperimentComparison, Health, StageWorkspace, WorkflowRecord } from './types';
 
 const healthLabels: Record<Health, string> = {
   ok: '健康',
@@ -450,6 +450,137 @@ function HandoffPanel({ data, onReload }: { data: DashboardData; onReload: () =>
       <div className="handoff-latest">
         <span>最新包</span>
         <code>{displayText(data.handoffPackage?.latestZip ?? '', '尚未打包')}</code>
+      </div>
+    </section>
+  );
+}
+
+function ConsoleFileLayerPanel({ data }: { data: DashboardData }) {
+  const layers = data.consoleFileLayers ?? [];
+  return (
+    <section className="panel console-layer-panel">
+      <div className="panel-title-row">
+        <ListChecks size={18} />
+        <h2>文件分层</h2>
+      </div>
+      <p className="panel-note">只打开当前任务需要的文件，避免控制台文件太多带来的认知负担。</p>
+      <div className="console-layer-list">
+        {layers.length ? layers.map((item) => (
+          <article className="console-layer-row" key={item.layer}>
+            <strong>{item.layer}</strong>
+            <span>{item.when}</span>
+            <p>{item.rule}</p>
+            <code>{item.files}</code>
+          </article>
+        )) : <div className="empty-state">暂无文件分层数据</div>}
+      </div>
+      <div className="detail-actions">
+        <button type="button" onClick={() => postAction('/api/open-path', { key: 'consoleFileIndex' })}>
+          <ExternalLink size={15} /> 打开文件索引
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function WeeklyReviewPanel({ data, onReload }: { data: DashboardData; onReload: () => void }) {
+  const [message, setMessage] = useState('每周只保留 1-3 个下一步动作，防止研究任务发散。');
+  const [busy, setBusy] = useState(false);
+  const [fields, setFields] = useState<Record<string, string>>({
+    focus: '',
+    completed: '',
+    evidence_stronger: '',
+    evidence_risk: '',
+    best_experiment: '',
+    next_actions: '',
+    files_to_ignore: '',
+  });
+  const summary = data.weeklyReview?.summary ?? {};
+  const recent = data.weeklyReview?.recent ?? [];
+
+  function setField(key: string, value: string) {
+    setFields((current) => ({ ...current, [key]: value }));
+  }
+
+  async function saveWeekly() {
+    setBusy(true);
+    try {
+      const result = await postAction('/api/weekly-review/update', { fields });
+      setMessage(result.output ?? '每周复盘已更新');
+      onReload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="panel weekly-review-panel">
+      <div className="panel-title-row">
+        <ListChecks size={18} />
+        <h2>每周复盘</h2>
+      </div>
+      <div className="weekly-summary">
+        <article><span>本周重点</span><strong>{displayText(summary['Main focus'] ?? '')}</strong></article>
+        <article><span>最佳实验</span><strong>{displayText(summary['Current best experiment'] ?? '')}</strong></article>
+        <article><span>最大风险</span><strong>{displayText(summary['Biggest risk'] ?? '')}</strong></article>
+        <article><span>下一步</span><strong>{displayText(summary['Next action 1'] ?? summary['Next action 2'] ?? '')}</strong></article>
+      </div>
+      <details className="weekly-editor">
+        <summary>填写本周复盘</summary>
+        <div className="weekly-form">
+          <Field label="本周重点" value={fields.focus} onChange={(value) => setField('focus', value)} />
+          <Field label="已完成" value={fields.completed} onChange={(value) => setField('completed', value)} />
+          <Field label="变强的证据" value={fields.evidence_stronger} onChange={(value) => setField('evidence_stronger', value)} />
+          <Field label="风险 / 变弱证据" value={fields.evidence_risk} onChange={(value) => setField('evidence_risk', value)} />
+          <Field label="当前最佳实验" value={fields.best_experiment} onChange={(value) => setField('best_experiment', value)} />
+          <Field label="下周 1-3 个动作" value={fields.next_actions} onChange={(value) => setField('next_actions', value)} multiline />
+          <Field label="下周暂时不看的文件" value={fields.files_to_ignore} onChange={(value) => setField('files_to_ignore', value)} />
+          <button className="primary-button" type="button" onClick={saveWeekly} disabled={busy}><Save size={16} /> 保存复盘</button>
+        </div>
+      </details>
+      <div className="weekly-recent">
+        {recent.length ? recent.map((item) => (
+          <article key={item.week}>
+            <strong>{item.week}</strong>
+            <span>{displayText(item.focus)} · {displayText(item.nextActions)}</span>
+          </article>
+        )) : <div className="empty-state">暂无周复盘记录</div>}
+      </div>
+      <div className="detail-actions">
+        <button type="button" onClick={() => postAction('/api/open-path', { key: 'weeklyReview' })}>
+          <ExternalLink size={15} /> 打开周复盘
+        </button>
+      </div>
+      <pre className="action-output compact-output">{busy ? '正在写入...' : message}</pre>
+    </section>
+  );
+}
+
+function ExperimentComparisonPanel({ comparisons }: { comparisons: ExperimentComparison[] }) {
+  return (
+    <section className="panel experiment-comparison-panel">
+      <div className="panel-title-row">
+        <FlaskConical size={18} />
+        <h2>Baseline 对比</h2>
+      </div>
+      <p className="panel-note">先看 baseline、delta、verify gate、guard gate，再决定实验能否升级为论文论点证据。</p>
+      <div className="comparison-list">
+        {comparisons.length ? comparisons.map((item) => (
+          <article className="comparison-row" key={item.id}>
+            <div>
+              <strong>{item.id}</strong>
+              <span>{displayText(item.metric)}：{displayText(item.baselineValue)} 到 {displayText(item.newValue)}，delta {displayText(item.delta)}</span>
+            </div>
+            <div className="comparison-pills">
+              <span className={`status-pill ${statusClass(item.verifyStatus)}`}>verify {displayStatus(item.verifyStatus)}</span>
+              <span className={`status-pill ${statusClass(item.guardStatus)}`}>guard {displayStatus(item.guardStatus)}</span>
+              <span className={`status-pill ${item.environmentSnapshot === 'present' ? 'is-ok' : 'is-warning'}`}>env {displayText(item.environmentSnapshot)}</span>
+            </div>
+            <p>{displayText(item.nextAction)}</p>
+          </article>
+        )) : <div className="empty-state">暂无实验对比。先生成 experiment report。</div>}
       </div>
     </section>
   );
@@ -1028,42 +1159,45 @@ export function App() {
   );
 
   const experimentsPanel = (
-    <section className="content-grid">
-      <section className="panel">
-        <div className="panel-title-row">
-          <Activity size={18} />
-          <h2>最近实验</h2>
-        </div>
-        <div className="experiment-list">
-          {data.recentExperiments.length ? data.recentExperiments.map((experiment) => (
-            <article className="experiment-row" key={experiment.id}>
-              <div>
-                <strong>{experiment.id}</strong>
-                <span>{displayText(experiment.output)}</span>
-              </div>
-              <span className={`status-pill ${statusClass(experiment.status)}`}>{displayStatus(experiment.status)}</span>
-            </article>
-          )) : <div className="empty-state">暂无</div>}
-        </div>
+    <>
+      <ExperimentComparisonPanel comparisons={data.experimentComparisons ?? []} />
+      <section className="content-grid">
+        <section className="panel">
+          <div className="panel-title-row">
+            <Activity size={18} />
+            <h2>最近实验</h2>
+          </div>
+          <div className="experiment-list">
+            {data.recentExperiments.length ? data.recentExperiments.map((experiment) => (
+              <article className="experiment-row" key={experiment.id}>
+                <div>
+                  <strong>{experiment.id}</strong>
+                  <span>{displayText(experiment.output)}</span>
+                </div>
+                <span className={`status-pill ${statusClass(experiment.status)}`}>{displayStatus(experiment.status)}</span>
+              </article>
+            )) : <div className="empty-state">暂无</div>}
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-title-row">
+            <FlaskConical size={18} />
+            <h2>实验报告</h2>
+          </div>
+          <div className="experiment-list">
+            {(data.experimentReports ?? []).length ? data.experimentReports!.map((report) => (
+              <article className="experiment-row" key={report.id}>
+                <div>
+                  <strong>{report.id}</strong>
+                  <span>{displayText(report.row)}</span>
+                </div>
+                <span className={`status-pill ${statusClass(report.status)}`}>{displayStatus(report.status)}</span>
+              </article>
+            )) : <div className="empty-state">暂无实验报告</div>}
+          </div>
+        </section>
       </section>
-      <section className="panel">
-        <div className="panel-title-row">
-          <FlaskConical size={18} />
-          <h2>实验报告</h2>
-        </div>
-        <div className="experiment-list">
-          {(data.experimentReports ?? []).length ? data.experimentReports!.map((report) => (
-            <article className="experiment-row" key={report.id}>
-              <div>
-                <strong>{report.id}</strong>
-                <span>{displayText(report.row)}</span>
-              </div>
-              <span className={`status-pill ${statusClass(report.status)}`}>{displayStatus(report.status)}</span>
-            </article>
-          )) : <div className="empty-state">暂无实验报告</div>}
-        </div>
-      </section>
-    </section>
+    </>
   );
 
   const handoffPanel = (
@@ -1100,6 +1234,10 @@ export function App() {
             <PluginGatePanel data={data} />
             <ActionPanel onReload={reloadData} />
           </aside>
+        </section>
+        <section className="content-grid">
+          <ConsoleFileLayerPanel data={data} />
+          <WeeklyReviewPanel data={data} onReload={reloadData} />
         </section>
       </>
     ),

@@ -142,7 +142,9 @@ The workflow includes optional enhancement layers:
 - `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
 - `docs/thesis/material-passport.md` identifies evidence-critical materials, while `benchmark-report-schema.md` standardizes baseline/new experiment comparisons before claim promotion.
 - `docs/thesis/workflow-dashboard.md` plus the legacy-compatible `daily-workflow-entry.md` are the current research workspace records for current stage, blockers, recommended actions, recent experiments, missing evidence, and audit tier.
-- The local React/Vite Dashboard opens with a Chinese current research workspace, tabbed workflow views, a default local evidence chain, and a gap-first section citation coverage view. It is a view/editor over `docs/thesis/`, not a replacement source of truth.
+- `docs/thesis/console-file-index.md` keeps console files layered into current workspace, evidence core, stage workspace, final handoff, and audit/maintenance so daily work stays focused.
+- `docs/thesis/weekly-review.md` keeps a short weekly review: what became stronger/weaker, current best experiment, next 1-3 actions, and files to ignore next week.
+- The local React/Vite Dashboard opens with a Chinese current research workspace, tabbed workflow views, a default local evidence chain, gap-first section citation coverage, baseline experiment comparison, file-layer guidance, and weekly review. It is a view/editor over `docs/thesis/`, not a replacement source of truth.
 - `scripts/suggest_section_citations.py` gives offline citation suggestions from existing local records, helping each `SEC-*` section move from “missing coverage” to manually confirmed citations.
 - `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for Mac-to-laptop stages 11-12.
 
@@ -226,6 +228,7 @@ Run it only when CodeRabbit is installed and authenticated. It is not part of de
 - Evidence graph export lives in `scripts/export_evidence_graph.py`.
 - Dashboard local control service lives in `scripts/dashboard_control_server.py`.
 - Dashboard flow-editor writes live in `scripts/edit_workflow_record.py`.
+- Weekly review writes live in `scripts/update_weekly_review.py`.
 - Daily workflow updates live in `scripts/update_daily_workflow.py`.
 - Offline section citation suggestions live in `scripts/suggest_section_citations.py`.
 - Final artifact handoff audits live in `scripts/audit_final_artifacts.py`.

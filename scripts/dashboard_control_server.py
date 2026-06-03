@@ -12,13 +12,16 @@ from urllib.parse import urlparse
 from edit_workflow_record import FLOW_EDITOR_SCHEMA, handle_payload
 from research_workflow_doctor import build_stage_workspace, diagnose
 from update_daily_workflow import update_daily
+from update_weekly_review import update_weekly
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 ALLOWED_OPEN_PATHS = {
     "dashboard": ROOT / "docs" / "thesis" / "workflow-dashboard.md",
+    "consoleFileIndex": ROOT / "docs" / "thesis" / "console-file-index.md",
     "dailyWorkflowEntry": ROOT / "docs" / "thesis" / "daily-workflow-entry.md",
+    "weeklyReview": ROOT / "docs" / "thesis" / "weekly-review.md",
     "claimMap": ROOT / "docs" / "thesis" / "claim-evidence-map.md",
     "experimentRegistry": ROOT / "docs" / "thesis" / "experiment-registry.md",
     "benchmarkReportSchema": ROOT / "docs" / "thesis" / "benchmark-report-schema.md",
@@ -132,6 +135,16 @@ class DashboardHandler(BaseHTTPRequestHandler):
             fields = payload.get("fields") if isinstance(payload.get("fields"), dict) else payload
             try:
                 result = update_daily(ROOT, fields)
+            except Exception as exc:  # pragma: no cover - defensive API boundary
+                json_response(self, 500, {"ok": False, "error": str(exc)})
+                return
+            json_response(self, 200, {"ok": True, "output": f"updated {result.get('target', '')}", **result})
+            return
+
+        if path == "/api/weekly-review/update":
+            fields = payload.get("fields") if isinstance(payload.get("fields"), dict) else payload
+            try:
+                result = update_weekly(ROOT, fields)
             except Exception as exc:  # pragma: no cover - defensive API boundary
                 json_response(self, 500, {"ok": False, "error": str(exc)})
                 return
