@@ -996,6 +996,57 @@ function CompactStageNav({ data }: { data: DashboardData }) {
   );
 }
 
+function AppSidebar({
+  data,
+  activeTab,
+  onTabChange,
+}: {
+  data: DashboardData;
+  activeTab: DashboardTab;
+  onTabChange: (tab: DashboardTab) => void;
+}) {
+  const currentStage = compact(data.activeStageWorkspace?.stage ?? '', 'TBD');
+  const navItems: Array<{ id: DashboardTab; label: string; icon: JSX.Element }> = [
+    { id: 'today', label: '当前工作区', icon: <ListChecks size={16} /> },
+    { id: 'citation', label: '文献引用', icon: <BookOpen size={16} /> },
+    { id: 'experiments', label: '实验闭环', icon: <FlaskConical size={16} /> },
+    { id: 'graph', label: '证据图谱', icon: <GitBranch size={16} /> },
+    { id: 'handoff', label: '最终交接', icon: <Save size={16} /> },
+    { id: 'overview', label: '总览', icon: <Activity size={16} /> },
+    { id: 'editor', label: '记录编辑', icon: <FileText size={16} /> },
+    { id: 'health', label: '系统健康', icon: <CheckCircle2 size={16} /> },
+  ];
+  return (
+    <aside className="app-sidebar">
+      <div className="sidebar-brand">
+        <div className="brand-mark">RW</div>
+        <div>
+          <strong>Research Kit</strong>
+          <span>科研总控台</span>
+        </div>
+      </div>
+      <nav className="sidebar-nav" aria-label="Dashboard navigation">
+        {navItems.map((item) => (
+          <button type="button" key={item.id} className={activeTab === item.id ? 'is-active' : ''} onClick={() => onTabChange(item.id)}>
+            {item.icon}
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+      <div className="sidebar-stage-card">
+        <span>当前阶段</span>
+        <strong>{currentStage}</strong>
+        <p>{displayStageName(data.activeStageWorkspace?.name ?? data.currentStatus['Current stage'] ?? '选择阶段')}</p>
+      </div>
+      <div className="sidebar-mini-stages">
+        {data.stages.slice(0, 12).map((stage) => (
+          <span className={currentStage.includes(stage.stage) ? 'is-current' : ''} key={stage.stage}>{stage.stage}</span>
+        ))}
+      </div>
+    </aside>
+  );
+}
+
 function RecordTable({ title, icon, rows, columns }: {
   title: string;
   icon: JSX.Element;
@@ -1255,33 +1306,36 @@ export function App() {
   };
 
   return (
-    <main className="app-shell">
-      <header className="topbar">
-        <div>
-          <p className="eyebrow">Research Workflow Kit</p>
-          <h1>科研工作流总控台</h1>
-        </div>
-        <div className="top-actions">
-          <span className={`health-badge ${data.health}`}>
-            {data.health === 'ok' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
-            {healthLabels[data.health]}
-          </span>
-          <span className="data-source">
-            <RefreshCw size={15} />
-            {loadedFromFile ? '实时数据' : '示例数据'}
-          </span>
-        </div>
-      </header>
+    <main className="app-frame">
+      <AppSidebar data={data} activeTab={activeTab} onTabChange={setActiveTab} />
+      <section className="app-shell">
+        <header className="topbar">
+          <div>
+            <p className="eyebrow">Research Workflow Kit</p>
+            <h1>科研工作流总控台</h1>
+          </div>
+          <div className="top-actions">
+            <span className={`health-badge ${data.health}`}>
+              {data.health === 'ok' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+              {healthLabels[data.health]}
+            </span>
+            <span className="data-source">
+              <RefreshCw size={15} />
+              {loadedFromFile ? '实时数据' : '示例数据'}
+            </span>
+          </div>
+        </header>
 
-      <CurrentWorkspace data={data} onReload={reloadData} />
-      <DashboardTabs activeTab={activeTab} onChange={setActiveTab} />
-      <section className="tab-content">{tabContent[activeTab]}</section>
+        <CurrentWorkspace data={data} onReload={reloadData} />
+        <DashboardTabs activeTab={activeTab} onChange={setActiveTab} />
+        <section className="tab-content">{tabContent[activeTab]}</section>
 
-      <footer>
-        <span>打开 Markdown 源文件</span>
-        <ArrowRight size={15} />
-        <code>{data.links.dashboard ?? 'docs/thesis/workflow-dashboard.md'}</code>
-      </footer>
+        <footer>
+          <span>打开 Markdown 源文件</span>
+          <ArrowRight size={15} />
+          <code>{data.links.dashboard ?? 'docs/thesis/workflow-dashboard.md'}</code>
+        </footer>
+      </section>
     </main>
   );
 }
