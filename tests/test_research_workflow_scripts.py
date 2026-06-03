@@ -808,10 +808,10 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             daily = (thesis / "daily-workflow-entry.md").read_text(encoding="utf-8")
             dashboard = (thesis / "workflow-dashboard.md").read_text(encoding="utf-8")
             edit_log = (thesis / "workflow-edit-log.md").read_text(encoding="utf-8")
-            self.assertIn("updated daily workflow entry", result.stdout)
+            self.assertIn("updated current workspace entry", result.stdout)
             self.assertIn("2 文献发现与综述", daily)
             self.assertIn("citation coverage", dashboard)
-            self.assertIn("update daily workflow", edit_log)
+            self.assertIn("update current workspace", edit_log)
 
     def test_final_artifact_audit_detects_missing_final_verification(self):
         with tempfile.TemporaryDirectory() as tmp:

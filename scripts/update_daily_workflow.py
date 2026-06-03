@@ -1,4 +1,4 @@
-"""Update the lightweight daily workflow entry and dashboard status."""
+"""Update the lightweight current workspace entry and dashboard status."""
 from __future__ import annotations
 
 import argparse
@@ -28,10 +28,10 @@ def ensure_daily_file(root: Path) -> Path:
         return path
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
-        "# Daily Workflow Entry\n\n"
+        "# Current Research Workspace Entry\n\n"
         "## Purpose\n\n"
-        "Use this file as the lightweight daily entry point for the research workflow.\n\n"
-        "## Daily Entries\n\n"
+        "Use this legacy-compatible file as the lightweight current workspace entry point for the research workflow.\n\n"
+        "## Current Workspace Entries\n\n"
         "| Date | Stage | Focus | Goal | Blocker | Next Action | Done Note | Tomorrow |\n"
         "|---|---|---|---|---|---|---|---|\n",
         encoding="utf-8",
@@ -52,7 +52,7 @@ def update_daily(root: Path, fields: dict[str, Any]) -> dict[str, Any]:
         fields.get("tomorrow"),
     ]
     append_row_to_table(root, path, "Date", row)
-    log_edit(root, "update daily workflow", path, "daily", cell(fields.get("next_action"), "daily workflow update"))
+    log_edit(root, "update current workspace", path, "current", cell(fields.get("next_action"), "current workspace update"))
 
     status_fields = {
         "current_stage": fields.get("stage"),
@@ -68,7 +68,7 @@ def update_daily(root: Path, fields: dict[str, Any]) -> dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Update daily workflow entry and dashboard status.")
+    parser = argparse.ArgumentParser(description="Update current research workspace entry and dashboard status.")
     parser.add_argument("--root", default=".")
     parser.add_argument("--date")
     parser.add_argument("--stage")
@@ -98,7 +98,7 @@ def main() -> None:
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     else:
-        print(f"updated daily workflow entry: {result['target']}")
+        print(f"updated current workspace entry: {result['target']}")
 
 
 if __name__ == "__main__":

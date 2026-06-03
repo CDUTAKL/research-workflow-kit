@@ -19,6 +19,18 @@ const statusLabels: Record<string, string> = {
   risk: '有风险',
 };
 
+function riskScore(row: SectionCitationCoverage) {
+  let score = 0;
+  if (cellClass(row.strong) === 'coverage-missing') score += 8;
+  if (cellClass(row.zoteroChecked) === 'coverage-missing') score += 4;
+  if (cellClass(row.readerChecked) === 'coverage-missing') score += 4;
+  if (cellClass(row.strong) === 'coverage-candidate') score += 3;
+  if (cellClass(row.partial) === 'coverage-candidate') score += 2;
+  if (cellClass(row.contradictory) === 'coverage-risk' || cellClass(row.status) === 'coverage-risk') score += 6;
+  if (cellClass(row.background) === 'coverage-verified' && cellClass(row.strong) !== 'coverage-verified') score += 2;
+  return score;
+}
+
 function cellClass(value = '') {
   const normalized = value.toLowerCase();
   if (normalized === 'verified') return 'coverage-verified';
@@ -40,7 +52,19 @@ export function SectionCitationHeatmap({
   onReload: () => void;
 }) {
   const [selected, setSelected] = useState<SectionCitationCoverage | null>(coverage[0] ?? null);
-  const rows = useMemo(() => coverage.slice(0, 30), [coverage]);
+  const rows = useMemo(() => [...coverage].sort((a, b) => riskScore(b) - riskScore(a)).slice(0, 30), [coverage]);
+  const summary = useMemo(() => {
+    return coverage.reduce(
+      (acc, row) => {
+        if (cellClass(row.strong) === 'coverage-missing') acc.missingStrong += 1;
+        if (Object.values(row).some((value) => cellClass(String(value ?? '')) === 'coverage-candidate')) acc.candidate += 1;
+        if (cellClass(row.status) === 'coverage-verified' || cellClass(row.strong) === 'coverage-verified') acc.verified += 1;
+        if (cellClass(row.status) === 'coverage-risk' || cellClass(row.contradictory) === 'coverage-risk') acc.risk += 1;
+        return acc;
+      },
+      { missingStrong: 0, candidate: 0, verified: 0, risk: 0 },
+    );
+  }, [coverage]);
 
   useEffect(() => {
     if (!selected && coverage.length) setSelected(coverage[0]);
@@ -56,8 +80,15 @@ export function SectionCitationHeatmap({
     <section className="panel citation-heatmap-panel">
       <div className="panel-title-row">
         <BookOpen size={18} />
-        <h2>章节引用覆盖</h2>
+        <h2>章节引用缺口</h2>
       </div>
+      <div className="coverage-summary">
+        <article><strong>{summary.missingStrong}</strong><span>缺强支持</span></article>
+        <article><strong>{summary.candidate}</strong><span>有候选待确认</span></article>
+        <article><strong>{summary.verified}</strong><span>已验证</span></article>
+        <article><strong>{summary.risk}</strong><span>有风险</span></article>
+      </div>
+      <p className="panel-note">默认按缺口风险排序：缺强支持、缺 Zotero、缺 Reader/Scite 和限制/反例会排在前面。</p>
       <div className="heatmap-layout">
         <div className="heatmap-table-wrap">
           {rows.length ? (

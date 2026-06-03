@@ -14,13 +14,15 @@ The local web dashboard is the operational view of the same console. It is desig
 ./scripts/open_dashboard.sh
 ```
 
-It starts a local-only control service on `127.0.0.1:8765` so the page can refresh dashboard data, export the evidence graph, run the quick health check, open whitelisted source files, copy recommended commands, update the daily stage workspace, generate local citation suggestions, package final handoff artifacts, verify the latest handoff package, and use the flow editor to append standard records.
+It starts a local-only control service on `127.0.0.1:8765` so the page can refresh dashboard data, export the evidence graph, run the quick health check, open whitelisted source files, copy recommended commands, update the current research workspace, generate local citation suggestions, package final handoff artifacts, verify the latest handoff package, and use the flow editor to append standard records.
 
-The web dashboard is organized as a daily workspace instead of a long report page. The first screen answers: current stage, today's focus, blocker, next action, P0/P1 evidence gaps, audit tier, latest experiment, and the three most common actions. Lower-frequency views live in tabs: overview, today, literature/citation, experiment loop, evidence graph, final handoff, record editor, and system health.
+The web dashboard is organized as a current research workspace instead of a long report page. The first screen answers: current stage, current focus, blocker, next action, P0/P1 evidence gaps, audit tier, latest experiment, and the three most common actions. Lower-frequency views live in tabs: overview, current workspace, literature/citation, experiment loop, evidence graph, final handoff, record editor, and system health.
+
+`daily-workflow-entry.md` is retained as a legacy-compatible file name. In the web UI and operating language, treat it as the current research workspace record.
 
 The Dashboard also shows plugin gate recommendations from `scripts/plugin_gate_advisor.py`. These recommendations route Codex Security, Build Web Apps, Data Analytics, Product Design, and CodeRabbit checks to the right stage. They are quality gates and review notes; confirmed evidence still lives in Markdown/TSV/JSON source records.
 
-The evidence graph is rendered inside the page from `dashboard-data.json` and remains exportable as JSON/Mermaid for draw.io or static review. The section citation heatmap summarizes `SEC-*` / `SEG-*` coverage across strong, partial, background, contradictory, Zotero, and Reader/Scite dimensions. It is a triage view only; confirmed citations still need `section-citation-map.md` and `citation-provenance.md` updates.
+The evidence graph is rendered inside the page from `dashboard-data.json`. It defaults to a focused evidence chain for the current stage or selected node, with an optional full-project view. It remains exportable as JSON/Mermaid for draw.io or static review. The section citation view is gap-first: missing strong support, Zotero checks, Reader/Scite checks, and risk rows appear before low-risk rows. It is a triage view only; confirmed citations still need `section-citation-map.md` and `citation-provenance.md` updates.
 
 Use Build Web Data Visualization principles when the dashboard becomes advisor-facing: keep charts simple, show uncertainty or missingness when relevant, make labels readable on desktop/mobile, and do not let visual polish hide unsupported claims.
 
@@ -131,14 +133,14 @@ Manual launchers remain available:
 
 | Action | Script / Button | Output |
 |---|---|---|
-| 更新今日工作区 | Dashboard `今日工作区` or `python scripts/update_daily_workflow.py --stage "2 文献发现与综述" --next-action "..."` | `daily-workflow-entry.md`, `workflow-dashboard.md`, `workflow-edit-log.md` |
+| 更新当前科研工作区 | Dashboard `当前工作区` or `python scripts/update_daily_workflow.py --stage "2 文献发现与综述" --next-action "..."` | `daily-workflow-entry.md`, `workflow-dashboard.md`, `workflow-edit-log.md` |
 | 刷新控制台数据 | `刷新控制台` or `python scripts/research_workflow_doctor.py --write-dashboard --write-data` | `workflow-dashboard.md`, `dashboard-data.json` |
 | 导出证据图谱 | `导出证据图谱` or `python scripts/export_evidence_graph.py` | `evidence-graph.json`, `evidence-graph.mmd` |
 | 快速健康检查 | `快速健康检查` or `python scripts/research_workflow_doctor.py --warn-only` | P0/P1 console report |
 | 创建深研任务 | `python scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "..."` | `deep-research-tasks.md`, section packet |
 | 生成本地引用推荐 | Dashboard `引用推荐` or `python scripts/suggest_section_citations.py --section-id SEC-INTRO-001` | `section-citation-suggestions.md`, optional dashboard JSON |
 | 查看章节引用覆盖 | Dashboard `文献引用` tab | `section-citation-map.md`, `citation-provenance.md`, `section-citation-suggestions.md` |
-| 查看交互证据图谱 | Dashboard `证据图谱` tab | `dashboard-data.json`, `evidence-graph.json`, `evidence-graph.mmd` |
+| 查看局部证据链 / 全项目图谱 | Dashboard `证据图谱` tab | `dashboard-data.json`, `evidence-graph.json`, `evidence-graph.mmd` |
 | 创建实验报告 | `python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000` | `experiment-reports/EXP-001.md` |
 | 检查材料护照 | `打开材料护照` | `material-passport.md` |
 | 检查引用溯源 | `打开引用溯源` | `citation-provenance.md` |

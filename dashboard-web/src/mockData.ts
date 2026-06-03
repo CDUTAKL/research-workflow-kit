@@ -24,6 +24,19 @@ export const demoFallbackData: DashboardData = {
     'Main blocker': '请先运行 pnpm run prepare:data 生成真实数据',
     'Next concrete action': '运行工作流健康检查',
   },
+  currentWorkspaceSummary: {
+    stage: '1-12/待填写',
+    focus: '规划/文献/实验/写作/终审/待填写',
+    blocker: '请先运行 pnpm run prepare:data 生成真实数据',
+    nextAction: '运行工作流健康检查',
+    auditTier: 'quick/advisor/final/TBD',
+    evidenceGapCount: 1,
+    recentExperiment: 'EXP-001 · planned',
+  },
+  nextRecommendations: [
+    '建议：运行刷新检查，生成真实 Dashboard 数据。',
+    '建议：设置当前阶段，然后只处理该阶段的关键文件和阻塞项。',
+  ],
   activeStageWorkspace: {
     stage: '',
     name: '选择阶段',
@@ -54,6 +67,30 @@ export const demoFallbackData: DashboardData = {
   recentExperiments: [{ id: 'EXP-001', status: 'planned', output: 'outputs/EXP-001' }],
   experimentReports: [],
   citationSuggestions: [],
+  sectionCitationCoverage: [
+    {
+      sectionId: 'SEC-INTRO-001',
+      segmentId: 'SEG-INTRO-001',
+      strong: 'missing',
+      partial: 'candidate',
+      background: 'verified',
+      contradictory: 'missing',
+      zoteroChecked: 'missing',
+      readerChecked: 'candidate',
+      status: 'candidate',
+      candidateReferences: '示例候选论文',
+      identifiers: 'DOI:TBD',
+      zoteroStatus: '待加入 Zotero',
+      readerStatus: '待 Reader/Scite 检查',
+      nextAction: '确认 strong support 文献后写入正式引用表',
+    },
+  ],
+  citationCoverageSummary: {
+    missingStrong: 1,
+    candidate: 1,
+    verified: 0,
+    risk: 0,
+  },
   pluginRecommendations: [
     {
       plugin: 'Build Web Apps',
@@ -108,7 +145,26 @@ export const demoFallbackData: DashboardData = {
       { source: 'FIG-001', target: 'CLM-001', relation: 'visualizes' },
     ],
   },
+  focusedEvidenceGraph: {
+    nodes: [
+      { id: 'SEC-INTRO-001', kind: 'SEC', label: 'SEC-INTRO-001' },
+      { id: 'CLM-001', kind: 'CLM', label: 'CLM-001' },
+      { id: 'EXP-001', kind: 'EXP', label: 'EXP-001' },
+      { id: 'DATA-001', kind: 'DATA', label: 'DATA-001' },
+      { id: 'FIG-001', kind: 'FIG', label: 'FIG-001' },
+    ],
+    edges: [
+      { source: 'SEC-INTRO-001', target: 'CLM-001', relation: 'contains_claim' },
+      { source: 'CLM-001', target: 'EXP-001', relation: 'supported_by' },
+      { source: 'CLM-001', target: 'DATA-001', relation: 'traces_to' },
+      { source: 'FIG-001', target: 'CLM-001', relation: 'visualizes' },
+    ],
+  },
   links: {
+    dashboard: 'docs/thesis/workflow-dashboard.md',
+    dailyWorkflowEntry: 'docs/thesis/daily-workflow-entry.md',
+    sectionCitationMap: 'docs/thesis/section-citation-map.md',
+    claimMap: 'docs/thesis/claim-evidence-map.md',
     pluginGatePolicy: 'docs/thesis/plugin-gate-policy.md',
     pluginReviewLog: 'docs/thesis/plugin-review-log.md',
     dashboardUxQa: 'docs/thesis/dashboard-ux-qa.md',

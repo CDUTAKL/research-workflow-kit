@@ -17,15 +17,18 @@ function translateStage(value = '') {
   return clean(value, '请先设置当前阶段');
 }
 
-export function TodayWorkspace({ data, onReload }: { data: DashboardData; onReload: () => void }) {
-  const currentStage = translateStage(data.currentStatus['Current stage']);
-  const todayFocus = clean(data.currentStatus['Active focus'], '今天的重点还未填写');
-  const blocker = clean(data.currentStatus['Main blocker'], '暂无明确阻塞项');
-  const nextAction = clean(data.currentStatus['Next concrete action'], '运行快速健康检查，确认下一步');
-  const auditTier = clean(data.currentStatus['Current audit tier'], 'quick / advisor / final');
+export function CurrentWorkspace({ data, onReload }: { data: DashboardData; onReload: () => void }) {
+  const summary = data.currentWorkspaceSummary;
+  const currentStage = translateStage(summary?.stage ?? data.currentStatus['Current stage']);
+  const currentFocus = clean(summary?.focus ?? data.currentStatus['Active focus'], '当前目标还未填写');
+  const blocker = clean(summary?.blocker ?? data.currentStatus['Main blocker'], '暂无明确阻塞项');
+  const nextAction = clean(summary?.nextAction ?? data.currentStatus['Next concrete action'], '运行快速健康检查，确认下一步');
+  const auditTier = clean(summary?.auditTier ?? data.currentStatus['Current audit tier'], 'quick / advisor / final');
   const p0Count = data.issues.p0.length;
   const p1Count = data.issues.p1.length;
   const recentExperiment = data.recentExperiments[0];
+  const evidenceGapCount = summary?.evidenceGapCount ?? p0Count + p1Count;
+  const topRecommendation = data.nextRecommendations?.[0] ?? nextAction;
 
   async function run(endpoint: string, payload: object = {}) {
     await postAction(endpoint, payload);
@@ -35,18 +38,18 @@ export function TodayWorkspace({ data, onReload }: { data: DashboardData; onRelo
   return (
     <section className="today-workspace">
       <div className="today-primary">
-        <p className="eyebrow">今日科研工作区</p>
+        <p className="eyebrow">当前科研工作区</p>
         <h2>{currentStage}</h2>
-        <p>{nextAction}</p>
+        <p>{topRecommendation}</p>
         <div className="today-actions">
           <button type="button" onClick={() => run('/api/refresh-dashboard')}>
-            <RefreshCw size={16} /> 刷新数据
-          </button>
-          <button type="button" onClick={() => run('/api/run-doctor')}>
-            <Activity size={16} /> 快速检查
+            <RefreshCw size={16} /> 刷新检查
           </button>
           <button type="button" onClick={() => postAction('/api/open-path', { key: 'dailyWorkflowEntry' })}>
-            <ExternalLink size={16} /> 打开今日记录
+            <Activity size={16} /> 记录进展
+          </button>
+          <button type="button" onClick={() => postAction('/api/open-path', { key: 'dashboard' })}>
+            <ExternalLink size={16} /> 打开关键文件
           </button>
         </div>
       </div>
@@ -59,10 +62,11 @@ export function TodayWorkspace({ data, onReload }: { data: DashboardData; onRelo
           <span className="status-pill is-neutral">审计：{auditTier}</span>
         </div>
         <div className="today-brief-grid">
-          <article><span>今日重点</span><strong>{todayFocus}</strong></article>
+          <article><span>当前目标</span><strong>{currentFocus}</strong></article>
+          <article><span>下一步动作</span><strong>{nextAction}</strong></article>
           <article><span>阻塞项</span><strong>{blocker}</strong></article>
-          <article><span>待补证据</span><strong>{p0Count} 个 P0 / {p1Count} 个 P1</strong></article>
-          <article><span>最近实验</span><strong>{recentExperiment ? `${recentExperiment.id} · ${clean(recentExperiment.status, '待处理')}` : '暂无实验记录'}</strong></article>
+          <article><span>待补证据</span><strong>{evidenceGapCount} 项，其中 {p0Count} 个 P0 / {p1Count} 个 P1</strong></article>
+          <article><span>最近实验</span><strong>{summary?.recentExperiment || (recentExperiment ? `${recentExperiment.id} · ${clean(recentExperiment.status, '待处理')}` : '暂无实验记录')}</strong></article>
         </div>
         <div className="today-links">
           <button type="button" onClick={() => postAction('/api/open-path', { key: 'sectionCitationMap' })}>

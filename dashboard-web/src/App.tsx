@@ -24,7 +24,7 @@ import { InteractiveEvidenceGraph } from './components/InteractiveEvidenceGraph'
 import { PluginGatePanel } from './components/PluginGatePanel';
 import { SectionCitationHeatmap } from './components/SectionCitationHeatmap';
 import { SystemHealthPanel } from './components/SystemHealthPanel';
-import { TodayWorkspace } from './components/TodayWorkspace';
+import { CurrentWorkspace } from './components/TodayWorkspace';
 import { demoFallbackData } from './mockData';
 import type { CitationSuggestion, DashboardData, EvidenceEdge, EvidenceNode, Health, StageWorkspace, WorkflowRecord } from './types';
 
@@ -183,6 +183,7 @@ function MetricCard({
 function ActionPanel({ onReload }: { onReload: () => void }) {
   const [message, setMessage] = useState('本地控制服务使用 http://127.0.0.1:8765，只在本机访问');
   const [busy, setBusy] = useState<string | null>(null);
+  const [showMore, setShowMore] = useState(false);
 
   async function run(label: string, action: () => Promise<unknown>, reload = false) {
     setBusy(label);
@@ -203,20 +204,25 @@ function ActionPanel({ onReload }: { onReload: () => void }) {
     <section className="panel action-panel">
       <div className="panel-title-row">
         <Terminal size={18} />
-        <h2>一键操作</h2>
+        <h2>常用操作</h2>
       </div>
       <div className="action-grid">
         <button onClick={() => run('refresh', () => postAction('/api/refresh-dashboard'), true)} disabled={Boolean(busy)}>
-          <RefreshCw size={16} /> 刷新控制台
-        </button>
-        <button onClick={() => run('graph', () => postAction('/api/export-evidence-graph'), true)} disabled={Boolean(busy)}>
-          <GitBranch size={16} /> 导出证据图谱
+          <RefreshCw size={16} /> 刷新检查
         </button>
         <button onClick={() => run('doctor', () => postAction('/api/run-doctor'))} disabled={Boolean(busy)}>
           <Activity size={16} /> 快速健康检查
         </button>
         <button onClick={() => run('open', () => postAction('/api/open-path', { key: 'dashboard' }))} disabled={Boolean(busy)}>
           <ExternalLink size={16} /> 打开控制台源文件
+        </button>
+      </div>
+      <button className="subtle-toggle" type="button" onClick={() => setShowMore((value) => !value)}>
+        {showMore ? '收起更多文件' : '展开更多文件与命令'}
+      </button>
+      {showMore ? <div className="action-grid secondary-action-grid">
+        <button onClick={() => run('graph', () => postAction('/api/export-evidence-graph'), true)} disabled={Boolean(busy)}>
+          <GitBranch size={16} /> 导出证据图谱
         </button>
         <button onClick={() => run('tasks', () => postAction('/api/open-path', { key: 'deepResearchTasks' }))} disabled={Boolean(busy)}>
           <BookOpen size={16} /> 打开深研任务
@@ -254,14 +260,14 @@ function ActionPanel({ onReload }: { onReload: () => void }) {
         <button onClick={() => navigator.clipboard.writeText(nextCommand).then(() => setMessage(`已复制：${nextCommand}`))} disabled={Boolean(busy)}>
           <FileText size={16} /> 复制启动命令
         </button>
-      </div>
+      </div> : null}
       <pre className="action-output">{busy ? `正在执行 ${busy}...` : message}</pre>
     </section>
   );
 }
 
 function StageWorkspacePanel({ workspace, links, onReload }: { workspace?: StageWorkspace; links: Record<string, string>; onReload: () => void }) {
-  const [message, setMessage] = useState('记录今日目标、阻塞项和下一步，会写入 daily-workflow-entry.md');
+  const [message, setMessage] = useState('记录当前目标、阻塞项和下一步，会写入兼容文件 daily-workflow-entry.md');
   const [busy, setBusy] = useState(false);
   const [fields, setFields] = useState<Record<string, string>>({
     stage: workspace?.stage ? `${workspace.stage} ${workspace.name}` : '',
@@ -275,7 +281,7 @@ function StageWorkspacePanel({ workspace, links, onReload }: { workspace?: Stage
     setBusy(true);
     try {
       const result = await postAction('/api/daily-workflow/update', { fields });
-      setMessage(result.output ?? '今日工作区已更新');
+      setMessage(result.output ?? '当前科研工作区已更新');
       onReload();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : String(error));
@@ -297,7 +303,7 @@ function StageWorkspacePanel({ workspace, links, onReload }: { workspace?: Stage
     <section className="panel workspace-panel">
       <div className="panel-title-row">
         <ListChecks size={18} />
-        <h2>今日工作区</h2>
+        <h2>当前科研工作区</h2>
       </div>
       <div className="workspace-grid">
         <div className="workspace-main">
@@ -320,8 +326,8 @@ function StageWorkspacePanel({ workspace, links, onReload }: { workspace?: Stage
             <input value={fields.stage} placeholder="例如：2 文献发现与综述" onChange={(event) => setFields((current) => ({ ...current, stage: event.target.value }))} />
           </label>
           <label className="form-field">
-            <span>今日重点</span>
-            <input value={fields.focus} placeholder="今天主要推进什么" onChange={(event) => setFields((current) => ({ ...current, focus: event.target.value }))} />
+            <span>当前目标</span>
+            <input value={fields.focus} placeholder="当前主要推进什么" onChange={(event) => setFields((current) => ({ ...current, focus: event.target.value }))} />
           </label>
           <label className="form-field">
             <span>阻塞项</span>
@@ -335,7 +341,7 @@ function StageWorkspacePanel({ workspace, links, onReload }: { workspace?: Stage
             <span>完成记录</span>
             <input value={fields.done_note} placeholder="刚完成了什么" onChange={(event) => setFields((current) => ({ ...current, done_note: event.target.value }))} />
           </label>
-          <button className="primary-button" onClick={saveDaily} disabled={busy}><Save size={16} /> 保存今日记录</button>
+          <button className="primary-button" onClick={saveDaily} disabled={busy}><Save size={16} /> 保存当前记录</button>
           <pre className="action-output compact-output">{busy ? '正在写入...' : message}</pre>
         </div>
       </div>
@@ -450,6 +456,7 @@ function HandoffPanel({ data, onReload }: { data: DashboardData; onReload: () =>
 }
 
 type RecordType = 'claim' | 'experiment' | 'material' | 'citation';
+type QuickMode = 'status' | 'claim' | 'experiment' | 'citation' | 'blocker';
 
 const recordTypeLabels: Record<RecordType, string> = {
   claim: '新增论点 CLM-*',
@@ -530,6 +537,16 @@ function FlowEditorPanel({ onReload }: { onReload: () => void }) {
   const [message, setMessage] = useState('表单会写入 docs/thesis/ 的标准 Markdown 文件，并自动记录 workflow-edit-log.md');
   const [busy, setBusy] = useState(false);
   const [recordType, setRecordType] = useState<RecordType>('claim');
+  const [quickMode, setQuickMode] = useState<QuickMode>('status');
+  const [quickFields, setQuickFields] = useState<Record<string, string>>({
+    current_stage: '',
+    active_focus: '',
+    main_blocker: '',
+    next_action: '',
+    claim_draft: '',
+    experiment_id: '',
+    citation_title: '',
+  });
   const [statusFields, setStatusFields] = useState<Record<string, string>>({
     current_stage: '',
     active_focus: '',
@@ -579,6 +596,66 @@ function FlowEditorPanel({ onReload }: { onReload: () => void }) {
   const updateStatusValue = (key: string, value: string) => setStatusFields((current) => ({ ...current, [key]: value }));
   const updateArtifactValue = (key: string, value: string) => setArtifactFields((current) => ({ ...current, [key]: value }));
   const updateLifecycleValue = (key: string, value: string) => setLifecycleFields((current) => ({ ...current, [key]: value }));
+  const updateQuickValue = (key: string, value: string) => setQuickFields((current) => ({ ...current, [key]: value }));
+
+  function submitQuick() {
+    if (quickMode === 'status') {
+      submit('/api/flow-editor/update-status', {
+        fields: {
+          current_stage: quickFields.current_stage,
+          active_focus: quickFields.active_focus,
+          main_blocker: quickFields.main_blocker,
+          next_action: quickFields.next_action,
+          audit_tier: 'quick',
+        },
+      });
+      return;
+    }
+    if (quickMode === 'blocker') {
+      submit('/api/flow-editor/update-status', {
+        fields: {
+          current_stage: quickFields.current_stage,
+          active_focus: quickFields.active_focus,
+          main_blocker: quickFields.main_blocker,
+          next_action: quickFields.next_action,
+          audit_tier: 'quick',
+        },
+      });
+      return;
+    }
+    if (quickMode === 'claim') {
+      submit('/api/flow-editor/create-record', {
+        record_type: 'claim',
+        fields: {
+          claim_draft: quickFields.claim_draft,
+          status: 'candidate',
+          next_action: quickFields.next_action,
+        },
+      });
+      return;
+    }
+    if (quickMode === 'experiment') {
+      submit('/api/flow-editor/create-record', {
+        record_type: 'experiment',
+        fields: {
+          claim: quickFields.claim_draft,
+          output_path: quickFields.experiment_id ? `outputs/${quickFields.experiment_id}` : '',
+          status: 'planned',
+          notes: quickFields.next_action,
+        },
+      });
+      return;
+    }
+    submit('/api/flow-editor/create-record', {
+      record_type: 'citation',
+      fields: {
+        title: quickFields.citation_title,
+        support_status: 'candidate',
+        candidate_source: 'dashboard quick entry',
+        claim_id: quickFields.claim_draft,
+      },
+    });
+  }
 
   return (
     <section className="panel flow-editor">
@@ -586,8 +663,59 @@ function FlowEditorPanel({ onReload }: { onReload: () => void }) {
         <ListChecks size={18} />
         <h2>流程编辑器</h2>
       </div>
-      <p className="editor-note">用于快速登记标准记录。复杂内容仍建议打开 Markdown 源文件细修。</p>
-      <div className="editor-grid">
+      <p className="editor-note">默认只做轻量登记。复杂内容可以展开高级表单，或打开 Markdown 源文件细修。</p>
+      <div className="quick-editor-grid">
+        {[
+          ['status', '更新当前状态'],
+          ['claim', '新增论点'],
+          ['experiment', '新增实验'],
+          ['citation', '新增引用'],
+          ['blocker', '记录/解除阻塞'],
+        ].map(([mode, label]) => (
+          <button type="button" key={mode} className={quickMode === mode ? 'is-active' : ''} onClick={() => setQuickMode(mode as QuickMode)}>
+            {label}
+          </button>
+        ))}
+      </div>
+      <form
+        className="quick-editor-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitQuick();
+        }}
+      >
+        {(quickMode === 'status' || quickMode === 'blocker') ? (
+          <>
+            <Field label="当前阶段" value={quickFields.current_stage} onChange={(value) => updateQuickValue('current_stage', value)} placeholder="例如：6 实验运行与监控" />
+            <Field label="当前目标" value={quickFields.active_focus} onChange={(value) => updateQuickValue('active_focus', value)} placeholder="当前主要推进什么" />
+            <Field label="阻塞项" value={quickFields.main_blocker} onChange={(value) => updateQuickValue('main_blocker', value)} placeholder={quickMode === 'blocker' ? '写下阻塞项；若已解除可写“已解除：...”' : '没有就留空'} />
+            <Field label="下一步动作" value={quickFields.next_action} onChange={(value) => updateQuickValue('next_action', value)} multiline />
+          </>
+        ) : null}
+        {quickMode === 'claim' ? (
+          <>
+            <Field label="论点内容" value={quickFields.claim_draft} onChange={(value) => updateQuickValue('claim_draft', value)} multiline />
+            <Field label="下一步动作" value={quickFields.next_action} onChange={(value) => updateQuickValue('next_action', value)} placeholder="需要补哪个实验/引用/图表" />
+          </>
+        ) : null}
+        {quickMode === 'experiment' ? (
+          <>
+            <Field label="关联论点" value={quickFields.claim_draft} onChange={(value) => updateQuickValue('claim_draft', value)} placeholder="CLM-001 或简要说明" />
+            <Field label="实验 ID 提示" value={quickFields.experiment_id} onChange={(value) => updateQuickValue('experiment_id', value)} placeholder="EXP-001，可留空自动生成" />
+            <Field label="下一步动作 / 备注" value={quickFields.next_action} onChange={(value) => updateQuickValue('next_action', value)} multiline />
+          </>
+        ) : null}
+        {quickMode === 'citation' ? (
+          <>
+            <Field label="论文题名" value={quickFields.citation_title} onChange={(value) => updateQuickValue('citation_title', value)} multiline />
+            <Field label="关联论点 / 章节" value={quickFields.claim_draft} onChange={(value) => updateQuickValue('claim_draft', value)} placeholder="CLM-001 / SEC-INTRO-001" />
+          </>
+        ) : null}
+        <button type="submit" disabled={busy}><Save size={16} /> 快速写入</button>
+      </form>
+      <details className="advanced-editor">
+        <summary>高级表单</summary>
+        <div className="editor-grid">
         <form
           className="editor-form"
           onSubmit={(event) => {
@@ -675,7 +803,8 @@ function FlowEditorPanel({ onReload }: { onReload: () => void }) {
           <Field label="备注" value={lifecycleFields.notes} onChange={(value) => updateLifecycleValue('notes', value)} multiline />
           <button type="submit" disabled={busy}><Save size={16} /> 更新生命周期</button>
         </form>
-      </div>
+        </div>
+      </details>
       <pre className="action-output">{busy ? '正在写入...' : message}</pre>
     </section>
   );
@@ -715,6 +844,23 @@ function StageRail({ data }: { data: DashboardData }) {
           </article>
         ))}
       </div>
+    </section>
+  );
+}
+
+function CompactStageNav({ data }: { data: DashboardData }) {
+  const activeStage = compact(data.activeStageWorkspace?.stage ?? data.currentStatus['Current stage'] ?? '', '');
+  return (
+    <section className="compact-stage-nav" aria-label="12 步阶段导航">
+      {data.stages.map((stage) => {
+        const active = activeStage.includes(stage.stage);
+        return (
+          <article className={`compact-stage-item ${statusClass(stage.status)} ${active ? 'is-current' : ''}`} key={stage.stage}>
+            <strong>{stage.stage}</strong>
+            <span>{displayStageName(stage.name)}</span>
+          </article>
+        );
+      })}
     </section>
   );
 }
@@ -947,9 +1093,14 @@ export function App() {
     overview: overviewPanel,
     today: (
       <>
-        <StageWorkspacePanel workspace={data.activeStageWorkspace} links={data.links} onReload={reloadData} />
-        <PluginGatePanel data={data} />
-        <ActionPanel onReload={reloadData} />
+        <CompactStageNav data={data} />
+        <section className="current-workbench-layout">
+          <StageWorkspacePanel workspace={data.activeStageWorkspace} links={data.links} onReload={reloadData} />
+          <aside className="current-workbench-side">
+            <PluginGatePanel data={data} />
+            <ActionPanel onReload={reloadData} />
+          </aside>
+        </section>
       </>
     ),
     citation: (
@@ -959,7 +1110,7 @@ export function App() {
       </section>
     ),
     experiments: experimentsPanel,
-    graph: <InteractiveEvidenceGraph nodes={data.graph.nodes} edges={data.graph.edges} issues={data.issues} />,
+    graph: <InteractiveEvidenceGraph nodes={data.graph.nodes} edges={data.graph.edges} issues={data.issues} focusedGraph={data.focusedEvidenceGraph} />,
     handoff: handoffPanel,
     editor: <FlowEditorPanel onReload={reloadData} />,
     health: <SystemHealthPanel data={data} />,
@@ -984,7 +1135,7 @@ export function App() {
         </div>
       </header>
 
-      <TodayWorkspace data={data} onReload={reloadData} />
+      <CurrentWorkspace data={data} onReload={reloadData} />
       <DashboardTabs activeTab={activeTab} onChange={setActiveTab} />
       <section className="tab-content">{tabContent[activeTab]}</section>
 

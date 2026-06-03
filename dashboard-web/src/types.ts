@@ -113,6 +113,26 @@ export interface DashboardData {
   };
   currentStatus: Record<string, string>;
   activeStageWorkspace?: StageWorkspace;
+  currentWorkspaceSummary?: {
+    stage: string;
+    focus: string;
+    blocker: string;
+    nextAction: string;
+    auditTier: string;
+    evidenceGapCount: number;
+    recentExperiment: string;
+  };
+  nextRecommendations?: string[];
+  citationCoverageSummary?: {
+    missingStrong: number;
+    candidate: number;
+    verified: number;
+    risk: number;
+  };
+  focusedEvidenceGraph?: {
+    nodes: EvidenceNode[];
+    edges: EvidenceEdge[];
+  };
   stages: WorkflowStage[];
   issues: {
     p0: string[];

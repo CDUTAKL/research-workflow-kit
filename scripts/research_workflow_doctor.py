@@ -21,73 +21,73 @@ STAGE_WORKSPACES = {
         "name": "Paper planning",
         "fileKeys": ["dashboard", "dailyWorkflowEntry"],
         "commands": ["python scripts/research_workflow_doctor.py --warn-only"],
-        "recommendedActions": ["Clarify current thesis topic, blocker, and next concrete action."],
+        "recommendedActions": ["明确当前论文题目、阻塞项和下一步具体动作。"],
     },
     "2": {
         "name": "Literature discovery and review",
         "fileKeys": ["sectionCitationMap", "deepResearchTasks", "citationProvenance", "zoteroScreeningLoop"],
         "commands": ["python scripts/suggest_section_citations.py --section-id SEC-INTRO-001"],
-        "recommendedActions": ["Check citation coverage and confirm which suggested papers should become formal citation evidence."],
+        "recommendedActions": ["检查章节引用覆盖，确认哪些候选论文可以升级为正式引用证据。"],
     },
     "3": {
         "name": "Experiment question definition",
         "fileKeys": ["claimMap", "dailyWorkflowEntry"],
         "commands": ["python scripts/research_workflow_doctor.py --warn-only"],
-        "recommendedActions": ["Map the next thesis claim to required experiment, data, citation, or figure evidence."],
+        "recommendedActions": ["把下一个核心论点连接到需要的实验、数据、引用或图表证据。"],
     },
     "4": {
         "name": "Experiment architecture planning",
         "fileKeys": ["experimentRegistry", "benchmarkReportSchema"],
         "commands": ["python scripts/check_experiment_contract.py --experiment-id EXP-001 --warn-only"],
-        "recommendedActions": ["Define config, split, metric, output path, and smoke-test contract before coding."],
+        "recommendedActions": ["编码前先确定 config、数据切分、指标、输出路径和 smoke test 契约。"],
     },
     "5": {
         "name": "Research code implementation",
         "fileKeys": ["experimentRegistry", "benchmarkReportSchema"],
         "commands": ["python scripts/check_experiment_contract.py --experiment-id EXP-001 --warn-only"],
-        "recommendedActions": ["Keep code config-driven and make the next experiment runnable as a smoke test."],
+        "recommendedActions": ["保持代码由配置驱动，并确保下一个实验可先做 smoke test。"],
     },
     "6": {
         "name": "Experiment run and monitoring",
         "fileKeys": ["experimentRegistry", "benchmarkReportSchema"],
         "commands": ["python scripts/write_environment_snapshot.py --out outputs/EXP-001/environment.txt --label remote_desktop_4060"],
-        "recommendedActions": ["Run local smoke first, then 4060 formal run with environment snapshot and output manifest."],
+        "recommendedActions": ["先做本地 smoke test，再跑 4060 正式实验，并记录环境快照和输出 manifest。"],
     },
     "7": {
         "name": "Experiment recording and result scan",
         "fileKeys": ["experimentRegistry", "dataAvailability"],
         "commands": ["python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000"],
-        "recommendedActions": ["Record outputs, metrics, baseline delta, and data trace before promoting evidence."],
+        "recommendedActions": ["升级证据前，记录输出、指标、baseline delta 和数据来源。"],
     },
     "8": {
         "name": "Results analysis and claim mapping",
         "fileKeys": ["claimMap", "dataAvailability", "benchmarkReportSchema"],
         "commands": ["python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000"],
-        "recommendedActions": ["Promote only conservative claims that match result, data, and citation evidence."],
+        "recommendedActions": ["只提升与结果、数据和引用证据一致的保守论点。"],
     },
     "9": {
         "name": "Figure and table production",
         "fileKeys": ["figurePlan", "diagramReplicaTasks"],
         "commands": ["python scripts/export_evidence_graph.py"],
-        "recommendedActions": ["Check source data and source-of-truth notes before final draw.io/Python/PPTX exports."],
+        "recommendedActions": ["正式导出 draw.io / Python / PPTX 图前，检查源数据和源记录。"],
     },
     "10": {
         "name": "Paper writing and polishing",
         "fileKeys": ["sectionCitationMap", "citationProvenance", "claimMap"],
         "commands": ["python scripts/audit_section_citations.py --warn-only"],
-        "recommendedActions": ["Write only from supported claims and verified section citation coverage."],
+        "recommendedActions": ["只基于已支持论点和已验证章节引用覆盖来写正文。"],
     },
     "11": {
         "name": "Laptop DOCX / PDF production",
         "fileKeys": ["finalArtifactManifest", "dailyWorkflowEntry"],
         "commands": ["python scripts/package_final_handoff.py"],
-        "recommendedActions": ["Package final artifacts from the manifest and move the zip to the laptop."],
+        "recommendedActions": ["从交付清单打包最终文件，并把 zip 移动到笔记本验证。"],
     },
     "12": {
         "name": "Final audit and defense",
         "fileKeys": ["finalAudit", "finalArtifactManifest"],
         "commands": ["python scripts/audit_final_artifacts.py --tier final --warn-only"],
-        "recommendedActions": ["Verify laptop artifacts, checksums, final audit tier, and defense slide evidence."],
+        "recommendedActions": ["验证笔记本交付物、checksum、终审等级和答辩幻灯片证据链。"],
     },
 }
 
@@ -534,6 +534,98 @@ def collect_handoff_package(root: Path) -> dict[str, str]:
     }
 
 
+def issue_recommendation(issue: str) -> str:
+    if "missing section citation coverage" in issue:
+        match = re.search(r"(SEC-[A-Za-z0-9.-]+)", issue)
+        section = match.group(1) if match else "对应章节"
+        return f"建议：打开引用推荐，确认 {section} 的 strong support 候选文献。"
+    if "missing checksum" in issue or "pending laptop handoff" in issue:
+        return "建议：打开最终交接，补齐交付物 checksum 并完成笔记本验证。"
+    if "missing plugin gate" in issue or "plugin gate" in issue:
+        return "建议：打开插件建议，按当前阶段补一条 plugin-review-log.md 记录。"
+    if "no experiment" in issue or "no structured evidence" in issue:
+        return "建议：打开论点证据表，为该论点连接 EXP/DATA/CIT/FIG 证据。"
+    if "formal 4060 run" in issue:
+        return "建议：为 4060 正式实验补环境快照和输出 manifest。"
+    if issue.startswith("missing console file:"):
+        return f"建议：初始化或补齐 {issue.split(':', 1)[-1].strip()}。"
+    return f"建议：处理 {issue}"
+
+
+def build_next_recommendations(workspace: dict[str, object], p0: list[str], p1: list[str], plugin_recommendations: object) -> list[str]:
+    recommendations: list[str] = []
+    for action in workspace.get("recommendedActions", []):
+        if isinstance(action, str) and action not in recommendations:
+            recommendations.append(action)
+    for issue in (p0 + p1)[:4]:
+        item = issue_recommendation(issue)
+        if item not in recommendations:
+            recommendations.append(item)
+    if isinstance(plugin_recommendations, list):
+        for item in plugin_recommendations[:2]:
+            if isinstance(item, dict):
+                action = item.get("action")
+                if isinstance(action, str) and action not in recommendations:
+                    recommendations.append(action)
+    return recommendations[:6]
+
+
+def citation_summary(rows: list[dict[str, str]]) -> dict[str, int]:
+    def value(row: dict[str, str], key: str) -> str:
+        return row.get(key, "").strip().lower()
+
+    return {
+        "missingStrong": sum(1 for row in rows if value(row, "strong") not in {"verified", "candidate"}),
+        "candidate": sum(1 for row in rows if any(str(cell).strip().lower() == "candidate" for cell in row.values())),
+        "verified": sum(1 for row in rows if value(row, "status") == "verified" or value(row, "strong") == "verified"),
+        "risk": sum(1 for row in rows if value(row, "status") == "risk" or value(row, "contradictory") == "risk"),
+    }
+
+
+def focused_graph(graph: dict[str, object], stage_no: str) -> dict[str, object]:
+    nodes = graph.get("nodes", [])
+    edges = graph.get("edges", [])
+    if not isinstance(nodes, list) or not isinstance(edges, list):
+        return {"nodes": [], "edges": []}
+    preferred = {
+        "2": {"SEC", "CIT", "CLM"},
+        "3": {"CLM", "SEC"},
+        "6": {"EXP", "DATA", "CLM"},
+        "7": {"EXP", "DATA", "CLM"},
+        "8": {"CLM", "EXP", "DATA", "CIT", "FIG"},
+        "9": {"FIG", "DATA", "CLM"},
+        "10": {"SEC", "CLM", "CIT"},
+    }.get(stage_no, {"SEC", "CLM"})
+    seed_ids = {
+        str(node.get("id"))
+        for node in nodes
+        if isinstance(node, dict) and str(node.get("kind")) in preferred
+    }
+    if not seed_ids and nodes:
+        first = nodes[0]
+        if isinstance(first, dict):
+            seed_ids.add(str(first.get("id")))
+    expanded = set(seed_ids)
+    for edge in edges:
+        if not isinstance(edge, dict):
+            continue
+        source = str(edge.get("source"))
+        target = str(edge.get("target"))
+        if source in seed_ids or target in seed_ids:
+            expanded.add(source)
+            expanded.add(target)
+    focused_nodes = [node for node in nodes if isinstance(node, dict) and str(node.get("id")) in expanded][:18]
+    focused_ids = {str(node.get("id")) for node in focused_nodes if isinstance(node, dict)}
+    focused_edges = [
+        edge
+        for edge in edges
+        if isinstance(edge, dict)
+        and str(edge.get("source")) in focused_ids
+        and str(edge.get("target")) in focused_ids
+    ][:24]
+    return {"nodes": focused_nodes, "edges": focused_edges}
+
+
 def active_stage_number(current_status: dict[str, str]) -> str:
     raw = current_status.get("Current stage", "")
     match = re.search(r"\b(1[0-2]|[1-9])\b", raw)
@@ -550,7 +642,7 @@ def build_stage_workspace(thesis_dir: Path, p0: list[str], p1: list[str]) -> dic
             "name": "Select a stage",
             "fileKeys": ["dashboard", "dailyWorkflowEntry"],
             "commands": ["python scripts/research_workflow_doctor.py --warn-only"],
-            "recommendedActions": ["Set the current stage in the Dashboard flow editor or daily workflow entry."],
+            "recommendedActions": ["在 Dashboard 流程编辑器或当前工作区记录里设置当前阶段。"],
             "issues": {"p0": p0[:3], "p1": p1[:5]},
         }
     file_keys = list(base["fileKeys"])  # type: ignore[index]
@@ -601,6 +693,15 @@ def dashboard_data(
     plugin_recommendations = plugin_gate.get("recommendations", []) if isinstance(plugin_gate, dict) else []
     plugin_gate_health = plugin_gate.get("health", {}) if isinstance(plugin_gate, dict) else {}
     active_workspace = build_stage_workspace(thesis_dir, p0, p1)
+    current_status = parse_current_status(thesis_dir)
+    stage_no = active_stage_number(current_status)
+    next_recommendations = build_next_recommendations(active_workspace, p0, p1, plugin_recommendations)
+    citation_coverage_summary = citation_summary(section_citation_coverage)
+    focused_evidence_graph = focused_graph(graph, stage_no)
+    recent_experiment_label = ""
+    if experiments:
+        latest = experiments[-1]
+        recent_experiment_label = f"{latest.get('id', 'TBD')} · {latest.get('status', 'TBD')}"
     final_artifact_records = [
         {
             "id": item.get("artifact_key", "TBD"),
@@ -633,6 +734,18 @@ def dashboard_data(
             "pluginRecommendations": len(plugin_recommendations) if isinstance(plugin_recommendations, list) else 0,
         },
         "currentStatus": parse_current_status(thesis_dir),
+        "currentWorkspaceSummary": {
+            "stage": current_status.get("Current stage", ""),
+            "focus": current_status.get("Active focus", ""),
+            "blocker": current_status.get("Main blocker", ""),
+            "nextAction": current_status.get("Next concrete action", ""),
+            "auditTier": current_status.get("Current audit tier", ""),
+            "evidenceGapCount": len(p0) + len(p1),
+            "recentExperiment": recent_experiment_label,
+        },
+        "nextRecommendations": next_recommendations,
+        "citationCoverageSummary": citation_coverage_summary,
+        "focusedEvidenceGraph": focused_evidence_graph,
         "activeStageWorkspace": active_workspace,
         "stages": parse_stage_snapshot(thesis_dir),
         "issues": {"p0": p0, "p1": p1},

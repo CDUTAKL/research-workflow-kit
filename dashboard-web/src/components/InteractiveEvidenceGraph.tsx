@@ -1,5 +1,5 @@
 import { ExternalLink, GitBranch, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { postAction } from '../api/client';
 import type { DashboardData, EvidenceEdge, EvidenceNode } from '../types';
 
@@ -35,15 +35,20 @@ export function InteractiveEvidenceGraph({
   nodes,
   edges,
   issues,
+  focusedGraph,
 }: {
   nodes: EvidenceNode[];
   edges: EvidenceEdge[];
   issues: DashboardData['issues'];
+  focusedGraph?: DashboardData['focusedEvidenceGraph'];
 }) {
   const [selectedId, setSelectedId] = useState(nodes[0]?.id ?? '');
   const [query, setQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
   const [enabledKinds, setEnabledKinds] = useState<Record<string, boolean>>(() => Object.fromEntries(kindOrder.map((kind) => [kind, true])));
-  const selected = nodes.find((node) => node.id === selectedId) ?? nodes[0];
+  const seedNodes = focusedGraph?.nodes?.length && !showAll ? focusedGraph.nodes : nodes;
+  const seedEdges = focusedGraph?.edges?.length && !showAll ? focusedGraph.edges : edges;
+  const selected = nodes.find((node) => node.id === selectedId) ?? seedNodes[0] ?? nodes[0];
   const connectedIds = useMemo(() => {
     const ids = new Set<string>();
     edges.forEach((edge) => {
@@ -55,16 +60,38 @@ export function InteractiveEvidenceGraph({
     return ids;
   }, [edges, selected?.id]);
 
+  const localGraph = useMemo(() => {
+    if (showAll || focusedGraph?.nodes?.length) {
+      return { nodes: seedNodes, edges: seedEdges };
+    }
+    if (!selected) return { nodes: seedNodes, edges: seedEdges };
+    const ids = new Set<string>([selected.id]);
+    edges.forEach((edge) => {
+      if (edge.source === selected.id || edge.target === selected.id) {
+        ids.add(edge.source);
+        ids.add(edge.target);
+      }
+    });
+    return {
+      nodes: nodes.filter((node) => ids.has(node.id)),
+      edges: edges.filter((edge) => ids.has(edge.source) && ids.has(edge.target)),
+    };
+  }, [edges, focusedGraph?.nodes?.length, nodes, seedEdges, seedNodes, selected, showAll]);
+
+  useEffect(() => {
+    if (!selectedId && seedNodes[0]) setSelectedId(seedNodes[0].id);
+  }, [seedNodes, selectedId]);
+
   const visibleNodes = useMemo(() => {
     const cleanQuery = query.trim().toLowerCase();
-    return nodes.filter((node) => {
+    return localGraph.nodes.filter((node) => {
       if (!enabledKinds[node.kind]) return false;
       if (!cleanQuery) return true;
       return `${node.id} ${node.label} ${node.kind}`.toLowerCase().includes(cleanQuery);
     });
-  }, [enabledKinds, nodes, query]);
+  }, [enabledKinds, localGraph.nodes, query]);
   const visibleIds = new Set(visibleNodes.map((node) => node.id));
-  const visibleEdges = edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
+  const visibleEdges = localGraph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
   const layout = useMemo(() => {
     const positions = new Map<string, { x: number; y: number }>();
     const columns = [
@@ -84,7 +111,8 @@ export function InteractiveEvidenceGraph({
     <section className="panel interactive-graph-panel">
       <div className="panel-title-row">
         <GitBranch size={18} />
-        <h2>证据图谱</h2>
+        <h2>局部证据链</h2>
+        <span className="status-pill is-neutral">{showAll ? '全项目视图' : '当前局部视图'}</span>
       </div>
       <div className="graph-toolbar">
         <label>
@@ -104,7 +132,11 @@ export function InteractiveEvidenceGraph({
             </button>
           ))}
         </div>
+        <button className="subtle-toggle inline-toggle" type="button" onClick={() => setShowAll((value) => !value)}>
+          {showAll ? '显示局部证据链' : '显示全项目图谱'}
+        </button>
       </div>
+      <p className="panel-note">默认只显示当前阶段或当前节点附近的证据链，避免全项目关系过载；需要全局检查时再展开全项目图谱。</p>
       <div className="interactive-graph-layout">
         <div className="graph-canvas-wrap">
           <svg viewBox="0 0 720 520" role="img" aria-label="可交互证据图谱">
@@ -169,6 +201,8 @@ export function InteractiveEvidenceGraph({
             <dd>{selected ? nodeStatus(selected, edges, issues) : 'TBD'}</dd>
             <dt>连接数</dt>
             <dd>{selected ? edges.filter((edge) => edge.source === selected.id || edge.target === selected.id).length : 0}</dd>
+            <dt>下一步</dt>
+            <dd>{selected && nodeStatus(selected, edges, issues) !== 'ok' ? '补齐该节点的证据链接或状态说明' : '保持当前证据链，可进入下一步审查'}</dd>
           </dl>
           <button type="button" onClick={() => selected && postAction('/api/open-path', { key: openKeyForKind(selected.kind) })}>
             <ExternalLink size={15} /> 打开相关源文件

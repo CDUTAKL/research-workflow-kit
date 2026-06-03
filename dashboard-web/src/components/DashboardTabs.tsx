@@ -12,7 +12,7 @@ export type DashboardTab =
 
 const tabs: Array<{ id: DashboardTab; label: string; icon: JSX.Element }> = [
   { id: 'overview', label: '总览', icon: <Activity size={16} /> },
-  { id: 'today', label: '今日工作区', icon: <ListChecks size={16} /> },
+  { id: 'today', label: '当前工作区', icon: <ListChecks size={16} /> },
   { id: 'citation', label: '文献引用', icon: <BookOpen size={16} /> },
   { id: 'experiments', label: '实验闭环', icon: <Database size={16} /> },
   { id: 'graph', label: '证据图谱', icon: <GitBranch size={16} /> },
