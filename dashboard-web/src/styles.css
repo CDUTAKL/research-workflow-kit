@@ -26,6 +26,13 @@
   box-sizing: border-box;
 }
 
+section,
+article,
+aside,
+div {
+  min-width: 0;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -570,7 +577,7 @@ h2 {
 
 .today-workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 200px;
+  grid-template-columns: minmax(360px, 1fr) minmax(260px, 320px);
   gap: 16px;
   margin-top: 0;
 }
@@ -719,6 +726,22 @@ h2 {
   cursor: pointer;
   font-size: 0.82rem;
   font-weight: 800;
+  overflow: hidden;
+}
+
+.quick-link-list button span,
+.quick-link-list button {
+  min-width: 0;
+}
+
+.quick-link-list button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-link-list button svg {
+  flex: 0 0 auto;
 }
 
 .quick-link-list button:hover {
@@ -1074,7 +1097,7 @@ h2 {
 
 .workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  grid-template-columns: minmax(280px, 0.8fr) minmax(360px, 1.2fr);
   gap: 14px;
 }
 
@@ -1108,6 +1131,11 @@ h2 {
   margin-top: 12px;
 }
 
+.workspace-files {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
 .workspace-files button,
 .workspace-command-row button,
 .inline-form button,
@@ -1129,6 +1157,15 @@ h2 {
   background: #fff;
   cursor: pointer;
   font-weight: 800;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.workspace-files button {
+  justify-content: flex-start;
+  text-align: left;
+  white-space: normal;
 }
 
 .primary-button {
@@ -2038,6 +2075,39 @@ code {
   border-radius: 6px;
   background: #e4e7ec;
   color: #344054;
+}
+
+@media (max-width: 1440px) {
+  .home-cockpit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .today-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 0.95fr);
+  }
+}
+
+@media (max-width: 1280px) {
+  .today-workspace,
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .today-primary {
+    min-height: 0;
+  }
+
+  .quick-link-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 1100px) {

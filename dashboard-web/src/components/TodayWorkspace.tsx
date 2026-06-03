@@ -75,16 +75,16 @@ export function CurrentWorkspace({ data, onReload }: { data: DashboardData; onRe
         <h3>快速入口</h3>
         <div className="quick-link-list">
           <button type="button" onClick={() => postAction('/api/open-path', { key: 'sectionCitationMap' })}>
-            <BookOpen size={15} /> 打开章节引用 <ChevronRight size={15} />
+            <BookOpen size={15} /> <span>打开章节引用</span> <ChevronRight size={15} />
           </button>
           <button type="button" onClick={() => postAction('/api/open-path', { key: 'claimMap' })}>
-            <GitBranch size={15} /> 进入证据链 <ChevronRight size={15} />
+            <GitBranch size={15} /> <span>进入证据链</span> <ChevronRight size={15} />
           </button>
           <button type="button" onClick={() => postAction('/api/open-path', { key: 'experimentReports' })}>
-            <Activity size={15} /> 实验报告 <ChevronRight size={15} />
+            <Activity size={15} /> <span>实验报告</span> <ChevronRight size={15} />
           </button>
           <button type="button" onClick={() => postAction('/api/open-path', { key: 'weeklyReview' })}>
-            <Download size={15} /> 导出阶段报告 <ChevronRight size={15} />
+            <Download size={15} /> <span>导出阶段报告</span> <ChevronRight size={15} />
           </button>
         </div>
         <div className="today-status-row">
