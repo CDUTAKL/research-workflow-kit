@@ -1,4 +1,4 @@
-import { Activity, AlertTriangle, BookOpen, CheckCircle2, ExternalLink, GitBranch, RefreshCw } from 'lucide-react';
+import { Activity, AlertTriangle, BookOpen, CheckCircle2, ChevronRight, Download, ExternalLink, FileText, GitBranch, RefreshCw } from 'lucide-react';
 import { postAction } from '../api/client';
 import type { DashboardData, Health } from '../types';
 
@@ -29,6 +29,10 @@ export function CurrentWorkspace({ data, onReload }: { data: DashboardData; onRe
   const recentExperiment = data.recentExperiments[0];
   const evidenceGapCount = summary?.evidenceGapCount ?? p0Count + p1Count;
   const topRecommendation = data.nextRecommendations?.[0] ?? nextAction;
+  const stageActions = data.activeStageWorkspace?.recommendedActions?.length
+    ? data.activeStageWorkspace.recommendedActions
+    : [topRecommendation, '补齐当前阶段关键文件记录', '运行快速健康检查'];
+  const actionStatus = ['已完成', '进行中', '待开始', '待开始', '待开始'];
 
   async function run(endpoint: string, payload: object = {}) {
     await postAction(endpoint, payload);
@@ -38,9 +42,23 @@ export function CurrentWorkspace({ data, onReload }: { data: DashboardData; onRe
   return (
     <section className="today-workspace">
       <div className="today-primary">
-        <p className="eyebrow">当前科研工作区</p>
-        <h2>{currentStage}</h2>
-        <p>{topRecommendation}</p>
+        <div className="panel-title-row">
+          <FileText size={20} />
+          <h2>当前科研工作区</h2>
+          <span className="orchestrator-chip">research-workflow-orchestrator · 12 阶段编排</span>
+        </div>
+        <p className="workspace-label">阶段目标</p>
+        <p className="workspace-objective">{topRecommendation}</p>
+        <p className="workspace-label">本阶段任务</p>
+        <div className="task-checklist">
+          {stageActions.slice(0, 5).map((action, index) => (
+            <article className={index === 1 ? 'is-current' : ''} key={`${action}-${index}`}>
+              <span className="task-dot">{index < 2 ? <CheckCircle2 size={15} /> : ''}</span>
+              <strong>{clean(action)}</strong>
+              <em>{actionStatus[index] ?? '待开始'}</em>
+            </article>
+          ))}
+        </div>
         <div className="today-actions">
           <button type="button" onClick={() => run('/api/refresh-dashboard')}>
             <RefreshCw size={16} /> 刷新检查
@@ -54,6 +72,21 @@ export function CurrentWorkspace({ data, onReload }: { data: DashboardData; onRe
         </div>
       </div>
       <div className="today-side">
+        <h3>快速入口</h3>
+        <div className="quick-link-list">
+          <button type="button" onClick={() => postAction('/api/open-path', { key: 'sectionCitationMap' })}>
+            <BookOpen size={15} /> 打开章节引用 <ChevronRight size={15} />
+          </button>
+          <button type="button" onClick={() => postAction('/api/open-path', { key: 'claimMap' })}>
+            <GitBranch size={15} /> 进入证据链 <ChevronRight size={15} />
+          </button>
+          <button type="button" onClick={() => postAction('/api/open-path', { key: 'experimentReports' })}>
+            <Activity size={15} /> 实验报告 <ChevronRight size={15} />
+          </button>
+          <button type="button" onClick={() => postAction('/api/open-path', { key: 'weeklyReview' })}>
+            <Download size={15} /> 导出阶段报告 <ChevronRight size={15} />
+          </button>
+        </div>
         <div className="today-status-row">
           <span className={`health-badge ${data.health}`}>
             {data.health === 'ok' ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}
@@ -67,14 +100,6 @@ export function CurrentWorkspace({ data, onReload }: { data: DashboardData; onRe
           <article><span>阻塞项</span><strong>{blocker}</strong></article>
           <article><span>待补证据</span><strong>{evidenceGapCount} 项，其中 {p0Count} 个 P0 / {p1Count} 个 P1</strong></article>
           <article><span>最近实验</span><strong>{summary?.recentExperiment || (recentExperiment ? `${recentExperiment.id} · ${clean(recentExperiment.status, '待处理')}` : '暂无实验记录')}</strong></article>
-        </div>
-        <div className="today-links">
-          <button type="button" onClick={() => postAction('/api/open-path', { key: 'sectionCitationMap' })}>
-            <BookOpen size={15} /> 章节引用
-          </button>
-          <button type="button" onClick={() => postAction('/api/open-path', { key: 'claimMap' })}>
-            <GitBranch size={15} /> 论点证据
-          </button>
         </div>
       </div>
     </section>

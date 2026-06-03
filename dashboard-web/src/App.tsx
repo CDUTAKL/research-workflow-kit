@@ -4,19 +4,24 @@ import {
   AlertTriangle,
   ArrowRight,
   BarChart3,
+  Bell,
   BookOpen,
   CheckCircle2,
+  ChevronRight,
   CircleAlert,
   Database,
   ExternalLink,
   FileText,
   FlaskConical,
+  Folder,
   GitBranch,
   Layers3,
   ListChecks,
   RefreshCw,
   Save,
+  Search,
   Terminal,
+  User,
 } from 'lucide-react';
 import { postAction } from './api/client';
 import { DashboardTabs, type DashboardTab } from './components/DashboardTabs';
@@ -176,6 +181,86 @@ function MetricCard({
         <div className="metric-value">{value}</div>
         <div className="metric-label">{label}</div>
       </div>
+    </section>
+  );
+}
+
+function CockpitTopBar({ loadedFromFile }: { loadedFromFile: boolean }) {
+  return (
+    <header className="cockpit-topbar">
+      <div className="traffic-dots" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <strong>医学研究工作流 · 本地研究驾驶舱</strong>
+      <label className="top-search">
+        <Search size={15} />
+        <input value="" readOnly placeholder="搜索（⌘F）" aria-label="搜索" />
+      </label>
+      <button type="button" className="icon-button" aria-label="通知">
+        <Bell size={17} />
+      </button>
+      <div className="avatar-chip" aria-label="当前用户">
+        <User size={16} />
+      </div>
+      <span className={`data-source ${loadedFromFile ? 'is-ok' : 'is-warning'}`}>
+        {loadedFromFile ? '实时数据' : '示例数据'}
+      </span>
+    </header>
+  );
+}
+
+function KpiStrip({ data }: { data: DashboardData }) {
+  const citationSummary = data.citationCoverageSummary;
+  const totalCitationSections = (citationSummary?.missingStrong ?? 0) + (citationSummary?.candidate ?? 0) + (citationSummary?.verified ?? 0) + (citationSummary?.risk ?? 0);
+  const citationRate = totalCitationSections > 0 ? `${Math.round(((citationSummary?.verified ?? 0) / totalCitationSections) * 100)}%` : '待填写';
+  const items = [
+    { label: '论点总数', value: data.counts.claims, sub: 'CLM 记录', icon: <FileText size={26} />, accent: '#2563eb' },
+    { label: '实验记录', value: data.counts.experiments, sub: 'EXP 运行', icon: <FlaskConical size={26} />, accent: '#0ea5e9' },
+    { label: '数据条目', value: data.counts.datasets, sub: 'DATA 可追踪', icon: <Database size={26} />, accent: '#14b8a6' },
+    { label: '图表产物', value: data.counts.figures, sub: 'FIG / PPTX / SVG', icon: <BarChart3 size={26} />, accent: '#7c3aed' },
+    { label: '引用覆盖率', value: citationRate, sub: `${data.citationCoverageSummary?.verified ?? 0} 个已验证`, icon: <BookOpen size={26} />, accent: '#06b6d4' },
+    { label: '待补证据', value: data.issues.p0.length + data.issues.p1.length, sub: `${data.issues.p0.length} P0 / ${data.issues.p1.length} P1`, icon: <AlertTriangle size={26} />, accent: '#f59e0b' },
+  ];
+
+  return (
+    <section className="kpi-strip" aria-label="科研项目指标总览">
+      {items.map((item) => (
+        <article className="kpi-item" style={{ '--accent': item.accent } as React.CSSProperties} key={item.label}>
+          <div className="kpi-icon">{item.icon}</div>
+          <div>
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
+            <p>{item.sub}</p>
+          </div>
+        </article>
+      ))}
+    </section>
+  );
+}
+
+function ProjectHero({ data, loadedFromFile, onReload }: { data: DashboardData; loadedFromFile: boolean; onReload: () => void }) {
+  const focus = displayText(data.currentWorkspaceSummary?.focus ?? data.currentStatus['Active focus'], '请先填写当前研究项目');
+  return (
+    <section className="project-hero">
+      <div>
+        <h1>上午好，AI小A</h1>
+        <p>当前研究项目：{focus}</p>
+      </div>
+      <div className="hero-actions">
+        <button type="button" className="hero-primary" onClick={() => postAction('/api/open-path', { key: 'dashboard' })}>
+          新建项目 <ArrowRight size={15} />
+        </button>
+        <button type="button" onClick={() => postAction('/api/open-path', { key: 'sectionCitationMap' })}>
+          导入文献
+        </button>
+        <span>最后更新：{loadedFromFile ? displayText(data.generatedAt) : '示例数据'}</span>
+        <button type="button" className="icon-button" onClick={onReload} aria-label="刷新数据">
+          <RefreshCw size={17} />
+        </button>
+      </div>
+      <KpiStrip data={data} />
     </section>
   );
 }
@@ -1007,23 +1092,34 @@ function AppSidebar({
 }) {
   const currentStage = compact(data.activeStageWorkspace?.stage ?? '', 'TBD');
   const navItems: Array<{ id: DashboardTab; label: string; icon: JSX.Element }> = [
-    { id: 'today', label: '当前工作区', icon: <ListChecks size={16} /> },
-    { id: 'citation', label: '文献引用', icon: <BookOpen size={16} /> },
-    { id: 'experiments', label: '实验闭环', icon: <FlaskConical size={16} /> },
-    { id: 'graph', label: '证据图谱', icon: <GitBranch size={16} /> },
-    { id: 'handoff', label: '最终交接', icon: <Save size={16} /> },
-    { id: 'overview', label: '总览', icon: <Activity size={16} /> },
-    { id: 'editor', label: '记录编辑', icon: <FileText size={16} /> },
-    { id: 'health', label: '系统健康', icon: <CheckCircle2 size={16} /> },
+    { id: 'today', label: '工作台', icon: <ListChecks size={17} /> },
+    { id: 'citation', label: '文献库', icon: <BookOpen size={17} /> },
+    { id: 'graph', label: '证据链', icon: <GitBranch size={17} /> },
+    { id: 'experiments', label: '实验闭环', icon: <FlaskConical size={17} /> },
+    { id: 'editor', label: '写作与笔记', icon: <FileText size={17} /> },
+    { id: 'handoff', label: '周报与交接', icon: <Save size={17} /> },
+    { id: 'overview', label: '总览', icon: <Activity size={17} /> },
+    { id: 'health', label: '配置中心', icon: <CheckCircle2 size={17} /> },
   ];
+  const stagePreview = data.stages.slice(0, 4);
   return (
     <aside className="app-sidebar">
-      <div className="sidebar-brand">
-        <div className="brand-mark">RW</div>
-        <div>
-          <strong>Research Kit</strong>
-          <span>科研总控台</span>
-        </div>
+      <div className="stage-rail-title">阶段流程 <span>Stage Rail</span></div>
+      <div className="stage-rail-list">
+        {stagePreview.map((stage, index) => {
+          const isCurrent = currentStage.includes(stage.stage);
+          const isDone = ['done', 'reviewed', 'final', 'completed'].includes(stage.status.toLowerCase()) || index === 0 && !isCurrent;
+          return (
+            <button type="button" className={`stage-rail-row ${isCurrent ? 'is-current' : ''} ${isDone ? 'is-done' : ''}`} key={stage.stage}>
+              <span className="stage-rail-dot">{isDone ? <CheckCircle2 size={17} /> : stage.stage}</span>
+              <span>
+                <strong>Stage {stage.stage}</strong>
+                <em>{displayStageName(stage.name)}</em>
+                <small>{isCurrent ? '进行中' : isDone ? '已完成' : '待开始'}</small>
+              </span>
+            </button>
+          );
+        })}
       </div>
       <nav className="sidebar-nav" aria-label="Dashboard navigation">
         {navItems.map((item) => (
@@ -1033,15 +1129,13 @@ function AppSidebar({
           </button>
         ))}
       </nav>
-      <div className="sidebar-stage-card">
-        <span>当前阶段</span>
-        <strong>{currentStage}</strong>
-        <p>{displayStageName(data.activeStageWorkspace?.name ?? data.currentStatus['Current stage'] ?? '选择阶段')}</p>
-      </div>
-      <div className="sidebar-mini-stages">
-        {data.stages.slice(0, 12).map((stage) => (
-          <span className={currentStage.includes(stage.stage) ? 'is-current' : ''} key={stage.stage}>{stage.stage}</span>
-        ))}
+      <div className="storage-card">
+        <div>
+          <span>本地存储</span>
+          <strong>{Math.min(100, Math.max(8, data.counts.graphNodes + data.counts.graphEdges))}%</strong>
+        </div>
+        <div className="storage-track"><span style={{ width: `${Math.min(100, Math.max(8, data.counts.graphNodes + data.counts.graphEdges))}%` }} /></div>
+        <p><span className="sync-dot" /> 数据已同步 <small>刚刚</small></p>
       </div>
     </aside>
   );
@@ -1278,17 +1372,15 @@ export function App() {
     overview: overviewPanel,
     today: (
       <>
-        <CompactStageNav data={data} />
-        <section className="current-workbench-layout">
-          <StageWorkspacePanel workspace={data.activeStageWorkspace} links={data.links} onReload={reloadData} />
-          <aside className="current-workbench-side">
-            <PluginGatePanel data={data} />
-            <ActionPanel onReload={reloadData} />
-          </aside>
-        </section>
-        <section className="content-grid">
+        <section className="home-cockpit-grid">
+          <CurrentWorkspace data={data} onReload={reloadData} />
           <ConsoleFileLayerPanel data={data} />
           <WeeklyReviewPanel data={data} onReload={reloadData} />
+          <PluginGatePanel data={data} />
+        </section>
+        <section className="content-grid">
+          <ActionPanel onReload={reloadData} />
+          <StageWorkspacePanel workspace={data.activeStageWorkspace} links={data.links} onReload={reloadData} />
         </section>
       </>
     ),
@@ -1309,24 +1401,8 @@ export function App() {
     <main className="app-frame">
       <AppSidebar data={data} activeTab={activeTab} onTabChange={setActiveTab} />
       <section className="app-shell">
-        <header className="topbar">
-          <div>
-            <p className="eyebrow">Research Workflow Kit</p>
-            <h1>科研工作流总控台</h1>
-          </div>
-          <div className="top-actions">
-            <span className={`health-badge ${data.health}`}>
-              {data.health === 'ok' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
-              {healthLabels[data.health]}
-            </span>
-            <span className="data-source">
-              <RefreshCw size={15} />
-              {loadedFromFile ? '实时数据' : '示例数据'}
-            </span>
-          </div>
-        </header>
-
-        <CurrentWorkspace data={data} onReload={reloadData} />
+        <CockpitTopBar loadedFromFile={loadedFromFile} />
+        <ProjectHero data={data} loadedFromFile={loadedFromFile} onReload={reloadData} />
         <DashboardTabs activeTab={activeTab} onChange={setActiveTab} />
         <section className="tab-content">{tabContent[activeTab]}</section>
 
