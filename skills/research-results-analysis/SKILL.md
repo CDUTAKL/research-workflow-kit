@@ -21,6 +21,7 @@ Use this skill to transform raw experiment artifacts into trustworthy summaries 
 - For baseline comparisons, create or update `docs/thesis/experiment-reports/EXP-*.md` with `scripts/new_experiment_report.py` before promoting a result.
 - For formal benchmark comparisons, update `docs/thesis/benchmark-report-schema.md` with baseline/new values, metric definition, guard checklist, material passport link, and promotion decision.
 - For data-backed claims, route dataset traceability gaps to `$research-data-availability`.
+- When results may become thesis claim evidence, use Data Analytics-style checks and update `docs/thesis/data-quality-report.md` and `docs/thesis/metric-diagnostics.md` for data quality, metric definitions, baseline deltas, anomaly risks, uncertainty, and failed-run handling.
 - Use Build Web Data Visualization as a design and QA guide when turning metrics into charts, dashboard views, baseline-delta visuals, uncertainty displays, or evidence-graph summaries.
 - Visual polish must not hide weak baselines, missing variance, incompatible splits, or unsupported claims.
 
@@ -31,8 +32,8 @@ Read `references/workflow.md` for result tables, claim classification, and audit
 1. Inventory result files, run configs, metrics, figures, and logs.
 2. When a directory of mixed results is provided, optionally run the skill-local `scripts/scan_results.py` to create `docs/thesis/result-scan-summary.md` and `docs/thesis/result-scan-table.csv`.
 3. When a thesis console exists, optionally run the skill-local `scripts/result_scan_to_registry.py` to add candidate `EXP-AUTO-*` rows to `docs/thesis/experiment-registry.md`.
-4. Check data quality, split integrity, sample/label distributions, missing values, and anomaly risks.
-5. Normalize metric names, datasets/splits, seeds, baselines, and model variants.
+4. Check data quality, split integrity, sample/label distributions, missing values, anomaly risks, and leakage risks; record formal checks in `data-quality-report.md` when the result supports a claim.
+5. Normalize metric names, datasets/splits, seeds, baselines, and model variants; record formal metric definitions and deltas in `metric-diagnostics.md`.
 6. Choose the right statistical summary or test before using words such as significant, robust, or consistent.
 7. Audit ground-truth provenance, metric computation, result file existence, scope, and dead-code risks.
 8. For advisor-facing or dashboard-facing result visuals, apply Build Web Data Visualization checks: truthful chart choice, readable labels, uncertainty or sample-size visibility when relevant, accessible contrast, and mobile/desktop layout sanity.
@@ -51,7 +52,9 @@ Always include:
 - comparison conclusions
 - ablation conclusions
 - exploratory data quality notes
+- data quality report status when results become evidence
 - statistical analysis decision
+- metric diagnostics status for baseline or formal comparisons
 - experiment integrity risks
 - anomalies and risks
 - figure/table handoff

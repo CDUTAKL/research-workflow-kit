@@ -31,6 +31,7 @@ UPDATE_DAILY_WORKFLOW = REPO_ROOT / "scripts" / "update_daily_workflow.py"
 SUGGEST_SECTION_CITATIONS = REPO_ROOT / "scripts" / "suggest_section_citations.py"
 PACKAGE_FINAL_HANDOFF = REPO_ROOT / "scripts" / "package_final_handoff.py"
 VERIFY_FINAL_HANDOFF = REPO_ROOT / "scripts" / "verify_final_handoff.py"
+PLUGIN_GATE_ADVISOR = REPO_ROOT / "scripts" / "plugin_gate_advisor.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -543,6 +544,12 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "final-artifact-manifest.md",
                 "final-audit.md",
                 "workflow-edit-log.md",
+                "plugin-gate-policy.md",
+                "plugin-review-log.md",
+                "dashboard-ux-qa.md",
+                "data-quality-report.md",
+                "metric-diagnostics.md",
+                "visual-design-review.md",
             ):
                 (thesis / name).write_text("# placeholder\n", encoding="utf-8")
             source = project / "outputs" / "final.pdf"
@@ -617,6 +624,8 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertEqual("ok", dashboard_json["health"])
             self.assertEqual(1, dashboard_json["counts"]["claims"])
             self.assertIn("skillHealth", dashboard_json)
+            self.assertIn("pluginRecommendations", dashboard_json)
+            self.assertIn("pluginGateHealth", dashboard_json)
             segment_coverage = {
                 item["segmentId"]: item
                 for item in dashboard_json["sectionCitationCoverage"]
@@ -625,6 +634,82 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertEqual("verified", segment_coverage["SEG-001"]["status"])
             self.assertEqual("verified", segment_coverage["SEG-001"]["strong"])
             self.assertNotIn("old", dashboard)
+
+    def test_plugin_gate_advisor_recommends_stage_gates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "workflow-dashboard.md").write_text(
+                "# Workflow Dashboard\n\n| Field | Value |\n|---|---|\n| Current stage | 5 Research code implementation |\n",
+                encoding="utf-8",
+            )
+            (thesis / "plugin-gate-policy.md").write_text("# policy\n", encoding="utf-8")
+            (thesis / "plugin-review-log.md").write_text(
+                "| Review ID | Date | Stage | Plugin | Trigger | Required | Result | Record Path | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(PLUGIN_GATE_ADVISOR),
+                    "--stage",
+                    "5",
+                    "--change-type",
+                    "dashboard",
+                    "--json",
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            payload = json.loads(result.stdout)
+            by_plugin = {item["plugin"]: item for item in payload["recommendations"]}
+            self.assertEqual("pending_required", by_plugin["Codex Security"]["status"])
+            self.assertEqual("pending_required", by_plugin["Build Web Apps"]["status"])
+            self.assertEqual(2, payload["health"]["pendingRequiredGates"])
+
+            stage7 = subprocess.run(
+                [sys.executable, str(PLUGIN_GATE_ADVISOR), "--stage", "7", "--json"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            stage7_payload = json.loads(stage7.stdout)
+            self.assertIn("Data Analytics", {item["plugin"] for item in stage7_payload["recommendations"]})
+
+            stage9 = subprocess.run(
+                [sys.executable, str(PLUGIN_GATE_ADVISOR), "--stage", "9", "--json"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            stage9_payload = json.loads(stage9.stdout)
+            self.assertIn("Product Design", {item["plugin"] for item in stage9_payload["recommendations"]})
+
+    def test_doctor_reports_missing_plugin_gate_templates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "workflow-dashboard.md").write_text(
+                "# Workflow Dashboard\n\n| Field | Value |\n|---|---|\n| Current stage | 5 Research code implementation |\n| Active focus | dashboard api |\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(RESEARCH_WORKFLOW_DOCTOR), "--warn-only"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertIn("missing plugin gate policy", result.stdout)
+            self.assertIn("missing plugin review log", result.stdout)
 
     def test_edit_workflow_record_creates_standard_records_and_log(self):
         with tempfile.TemporaryDirectory() as tmp:

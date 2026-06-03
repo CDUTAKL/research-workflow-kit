@@ -21,6 +21,7 @@ import {
 import { postAction } from './api/client';
 import { DashboardTabs, type DashboardTab } from './components/DashboardTabs';
 import { InteractiveEvidenceGraph } from './components/InteractiveEvidenceGraph';
+import { PluginGatePanel } from './components/PluginGatePanel';
 import { SectionCitationHeatmap } from './components/SectionCitationHeatmap';
 import { SystemHealthPanel } from './components/SystemHealthPanel';
 import { TodayWorkspace } from './components/TodayWorkspace';
@@ -947,6 +948,7 @@ export function App() {
     today: (
       <>
         <StageWorkspacePanel workspace={data.activeStageWorkspace} links={data.links} onReload={reloadData} />
+        <PluginGatePanel data={data} />
         <ActionPanel onReload={reloadData} />
       </>
     ),

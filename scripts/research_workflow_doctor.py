@@ -11,6 +11,7 @@ from audit_final_artifacts import audit as audit_final_artifacts
 from audit_id_lifecycle import audit as audit_id_lifecycle
 from audit_skills import audit_repo, render_report
 from export_evidence_graph import build_graph
+from plugin_gate_advisor import recommend_plugins
 
 THESIS_DIR = Path("docs/thesis")
 ID_RE = re.compile(r"\b(?:SEC|SEG|CLM|EXP|DATA|FIG|MAT|CIT|BMK|ZCOL|DRT|ZREV)-(?:AUTO-)?[A-Za-z0-9.-]+\b")
@@ -203,6 +204,12 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
         "final-artifact-manifest.md",
         "final-audit.md",
         "workflow-edit-log.md",
+        "plugin-gate-policy.md",
+        "plugin-review-log.md",
+        "dashboard-ux-qa.md",
+        "data-quality-report.md",
+        "metric-diagnostics.md",
+        "visual-design-review.md",
     ]
     for name in required_files:
         if not (thesis_dir / name).exists():
@@ -246,10 +253,21 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
     p0.extend(id_p0)
     p1.extend(final_p1)
     p1.extend(id_p1)
+    plugin_gate = recommend_plugins(thesis_dir, issues=p0 + p1)
+    plugin_health = plugin_gate.get("health", {})
+    if isinstance(plugin_health, dict):
+        if plugin_health.get("missingPolicy"):
+            p1.append("missing plugin gate policy")
+        if plugin_health.get("missingReviewLog"):
+            p1.append("missing plugin review log")
+    for item in plugin_gate.get("recommendations", []):
+        if isinstance(item, dict) and item.get("status") == "pending_required":
+            p1.append(f"plugin gate pending: {item.get('plugin')} for stage {item.get('stage')} -> {item.get('record')}")
 
     info.append(f"claims={len(claims)} experiments={len(experiments)} datasets={len(datasets)} figures={len(figures)} sections={len(sections)}")
     data["final_artifacts"] = final_artifacts
     data["id_lifecycle"] = id_details
+    data["plugin_gate"] = plugin_gate
     info.extend(final_info)
     info.extend(id_info)
     return p0, p1, info, data
@@ -579,6 +597,9 @@ def dashboard_data(
     handoff_package = collect_handoff_package(thesis_dir.resolve().parents[1] if thesis_dir.name == "thesis" and thesis_dir.parent.name == "docs" else Path("."))
     final_artifacts = data.get("final_artifacts", [])
     id_lifecycle = data.get("id_lifecycle", {})
+    plugin_gate = data.get("plugin_gate", {})
+    plugin_recommendations = plugin_gate.get("recommendations", []) if isinstance(plugin_gate, dict) else []
+    plugin_gate_health = plugin_gate.get("health", {}) if isinstance(plugin_gate, dict) else {}
     active_workspace = build_stage_workspace(thesis_dir, p0, p1)
     final_artifact_records = [
         {
@@ -609,6 +630,7 @@ def dashboard_data(
                 + int(skill_health["outdatedAssumptions"])
             ),
             "citationSuggestions": len(citation_suggestions),
+            "pluginRecommendations": len(plugin_recommendations) if isinstance(plugin_recommendations, list) else 0,
         },
         "currentStatus": parse_current_status(thesis_dir),
         "activeStageWorkspace": active_workspace,
@@ -619,6 +641,8 @@ def dashboard_data(
         "experimentReports": experiment_reports[-5:],
         "citationSuggestions": citation_suggestions,
         "sectionCitationCoverage": section_citation_coverage,
+        "pluginRecommendations": plugin_recommendations if isinstance(plugin_recommendations, list) else [],
+        "pluginGateHealth": plugin_gate_health if isinstance(plugin_gate_health, dict) else {},
         "finalArtifacts": final_artifact_records[-5:],
         "handoffPackage": handoff_package,
         "skillHealth": skill_health,
@@ -644,6 +668,12 @@ def dashboard_data(
             "zoteroCollectionCoverage": "docs/thesis/zotero-collection-coverage.md",
             "finalAudit": "docs/thesis/final-audit.md",
             "evidenceGraph": "docs/thesis/evidence-graph.json",
+            "pluginGatePolicy": "docs/thesis/plugin-gate-policy.md",
+            "pluginReviewLog": "docs/thesis/plugin-review-log.md",
+            "dashboardUxQa": "docs/thesis/dashboard-ux-qa.md",
+            "dataQualityReport": "docs/thesis/data-quality-report.md",
+            "metricDiagnostics": "docs/thesis/metric-diagnostics.md",
+            "visualDesignReview": "docs/thesis/visual-design-review.md",
         },
     }
 

@@ -17,6 +17,7 @@ Use this skill to plan and produce figures and tables that support paper claims.
 - Treat Image Gen outputs as visual references only. Check their content accuracy, then redraw formal structured diagrams from source-of-truth records in draw.io by default. Export SVG/PDF/PNG from draw.io; use Presentations/PPTX for defense-slide packaging.
 - Use Python or the Nature-style renderer for data-backed plots. Use Figma or BioRender only as optional polish/refinement tools when draw.io/Python output needs a stronger visual finish.
 - Use Build Web Data Visualization rules for chart choice, dashboard charts, evidence graphs, interaction design, accessible contrast, label readability, responsive layout, and visual regression/QA planning.
+- Use Product Design for advisor-facing readability, information hierarchy, and visual comprehension review; record the decision in `docs/thesis/visual-design-review.md` when a figure, Dashboard view, or defense slide will be shown to humans for feedback.
 - Do not insert Image Gen outputs directly into a thesis or manuscript as final figures unless the user explicitly accepts AI-generated bitmap provenance. Formal figures should be redrawn, source-traceable, and free of generated-image metadata when possible.
 - Keep visual style consistent across figures.
 - Use accessible contrast, readable labels, and publication-ready export formats.
@@ -32,18 +33,19 @@ Read `references/workflow.md` for figure planning, plotting conventions, Nature-
 4. Specify caption claims, labels, units, scales, uncertainty display, accessibility constraints, and export formats.
 5. For publication-level or "Nature-style" figures, establish the figure contract before plotting: core conclusion, evidence chain, panel hierarchy, backend, dimensions, editable text, source-data traceability, and export formats.
 6. For final or advisor-facing figures, run the figure audit standard before presenting them as ready.
-7. For schematic figures, run the visual-reference route before formal drawing:
+7. For advisor-facing visuals, record a Product Design readability review separately from scientific figure QA; Product Design checks whether people can understand the artifact, while Build Web Data Visualization checks whether data encodings are truthful.
+8. For schematic figures, run the visual-reference route before formal drawing:
    - generate/select a visual reference, preferably with Image Gen Skill when the target is a polished model/method diagram;
    - audit the reference for architecture/content mistakes;
    - preserve the style decisions that work;
    - redraw the final structured diagram from source-of-truth records in draw.io by default;
    - export SVG/PDF/PNG and, when needed, place the exported asset into PPTX slides.
    - when working on Windows with Microsoft Visio, optionally use the Visio JSON-plan route and record `.vsdx` plus exports.
-8. For common result figures, prefer the local Nature-style template renderer in `skills/research-paper-figures/scripts/nature_plot_templates.py` or the installed equivalent under `~/.codex/skills/research-paper-figures/scripts/`: write or inspect a figure spec JSON, render SVG/PDF/PNG, and review the QA report.
-9. For network architecture diagrams, prefer editable vector/PPT-style shapes, feature-map stacks, module grouping, and clean hierarchy over generic rectangular flowcharts.
-10. For network architecture diagrams, record the source of truth (`model.py`, paper, `.network.json`, or manual architecture spec), then redraw formally in draw.io by default. Use SVG/PDF/PNG exports for the thesis and PPTX packaging for defense. Figma/BioRender remain optional polish tools; legacy renderers may remain structure helpers.
-11. When asked to generate plots, inspect available data and use project-standard Python tooling if present unless the user explicitly requests R.
-12. For web dashboard or interactive evidence visuals, keep the source record in `docs/thesis/`, use the local dashboard only as a rendering/action layer, and verify that the chart remains legible on desktop and mobile.
+9. For common result figures, prefer the local Nature-style template renderer in `skills/research-paper-figures/scripts/nature_plot_templates.py` or the installed equivalent under `~/.codex/skills/research-paper-figures/scripts/`: write or inspect a figure spec JSON, render SVG/PDF/PNG, and review the QA report.
+10. For network architecture diagrams, prefer editable vector/PPT-style shapes, feature-map stacks, module grouping, and clean hierarchy over generic rectangular flowcharts.
+11. For network architecture diagrams, record the source of truth (`model.py`, paper, `.network.json`, or manual architecture spec), then redraw formally in draw.io by default. Use SVG/PDF/PNG exports for the thesis and PPTX packaging for defense. Figma/BioRender remain optional polish tools; legacy renderers may remain structure helpers.
+12. When asked to generate plots, inspect available data and use project-standard Python tooling if present unless the user explicitly requests R.
+13. For web dashboard or interactive evidence visuals, keep the source record in `docs/thesis/`, use the local dashboard only as a rendering/action layer, and verify that the chart remains legible on desktop and mobile.
 
 ## Output Contract
 
@@ -56,6 +58,7 @@ Always include:
 - data availability or section citation source when the figure supports a data-backed or literature-backed claim
 - recommended visual type
 - Build Web Data Visualization QA notes for chart/dashboard/evidence graph work
+- Product Design readability review status for advisor-facing visuals
 - caption draft
 - plotting/style rules
 - publication-grade figure contract when relevant

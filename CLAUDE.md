@@ -19,6 +19,7 @@ Minimal verification before reporting a workflow change as ready:
 .venv/bin/python -m coverage report --fail-under=60
 .venv/bin/python scripts/audit_skills.py
 .venv/bin/python scripts/research_workflow_doctor.py --warn-only
+.venv/bin/python scripts/plugin_gate_advisor.py --audit-only
 ```
 
 For dashboard changes:

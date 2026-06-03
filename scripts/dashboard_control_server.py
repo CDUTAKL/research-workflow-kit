@@ -38,6 +38,12 @@ ALLOWED_OPEN_PATHS = {
     "zoteroScreeningLoop": ROOT / "docs" / "thesis" / "zotero-screening-loop.md",
     "zoteroCollectionCoverage": ROOT / "docs" / "thesis" / "zotero-collection-coverage.md",
     "experimentReports": ROOT / "docs" / "thesis" / "experiment-reports",
+    "pluginGatePolicy": ROOT / "docs" / "thesis" / "plugin-gate-policy.md",
+    "pluginReviewLog": ROOT / "docs" / "thesis" / "plugin-review-log.md",
+    "dashboardUxQa": ROOT / "docs" / "thesis" / "dashboard-ux-qa.md",
+    "dataQualityReport": ROOT / "docs" / "thesis" / "data-quality-report.md",
+    "metricDiagnostics": ROOT / "docs" / "thesis" / "metric-diagnostics.md",
+    "visualDesignReview": ROOT / "docs" / "thesis" / "visual-design-review.md",
 }
 
 

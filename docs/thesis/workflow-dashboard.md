@@ -18,6 +18,8 @@ It starts a local-only control service on `127.0.0.1:8765` so the page can refre
 
 The web dashboard is organized as a daily workspace instead of a long report page. The first screen answers: current stage, today's focus, blocker, next action, P0/P1 evidence gaps, audit tier, latest experiment, and the three most common actions. Lower-frequency views live in tabs: overview, today, literature/citation, experiment loop, evidence graph, final handoff, record editor, and system health.
 
+The Dashboard also shows plugin gate recommendations from `scripts/plugin_gate_advisor.py`. These recommendations route Codex Security, Build Web Apps, Data Analytics, Product Design, and CodeRabbit checks to the right stage. They are quality gates and review notes; confirmed evidence still lives in Markdown/TSV/JSON source records.
+
 The evidence graph is rendered inside the page from `dashboard-data.json` and remains exportable as JSON/Mermaid for draw.io or static review. The section citation heatmap summarizes `SEC-*` / `SEG-*` coverage across strong, partial, background, contradictory, Zotero, and Reader/Scite dimensions. It is a triage view only; confirmed citations still need `section-citation-map.md` and `citation-provenance.md` updates.
 
 Use Build Web Data Visualization principles when the dashboard becomes advisor-facing: keep charts simple, show uncertainty or missingness when relevant, make labels readable on desktop/mobile, and do not let visual polish hide unsupported claims.
@@ -149,6 +151,8 @@ Manual launchers remain available:
 | 打包最终交接 | Dashboard `最终交接` or `python scripts/package_final_handoff.py --update-manifest-checksums` | `handoff-packages/final-handoff-*/` zip, manifest, checksum, summary |
 | 校验最终交接 | Dashboard `校验最新包` or `python scripts/verify_final_handoff.py --latest --write-report docs/thesis/final-handoff-verify-report.md` | `final-handoff-verify-report.md` |
 | 审计 ID 生命周期 | `python scripts/audit_id_lifecycle.py --warn-only` | orphan, unknown, deprecated, or weakly linked ID warnings |
+| 查看插件门禁建议 | Dashboard `插件建议` or `python scripts/plugin_gate_advisor.py` | recommended / required plugin checks |
+| 审计插件门禁配置 | `python scripts/plugin_gate_advisor.py --audit-only` | policy/log presence and current recommendations |
 
 ## Quick Navigation
 

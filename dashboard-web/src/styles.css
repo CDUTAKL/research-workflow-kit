@@ -203,6 +203,68 @@ h2 {
   margin-top: 16px;
 }
 
+.plugin-gate-panel {
+  margin-top: 16px;
+}
+
+.plugin-health-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.plugin-health-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  color: #475467;
+  background: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.plugin-list {
+  display: grid;
+  gap: 10px;
+}
+
+.plugin-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 12px;
+  padding: 12px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.plugin-row strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.plugin-row span,
+.plugin-row p {
+  color: #667085;
+  line-height: 1.45;
+}
+
+.plugin-row p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.plugin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .health-badge,
 .data-source,
 .status-pill,
@@ -1097,6 +1159,7 @@ code {
   .status-band,
   .today-workspace,
   .workspace-grid,
+  .plugin-row,
   .interactive-graph-layout,
   .heatmap-layout,
   .citation-grid,
@@ -1111,6 +1174,10 @@ code {
 
   .editor-grid {
     grid-template-columns: 1fr;
+  }
+
+  .plugin-actions {
+    justify-content: flex-start;
   }
 }
 

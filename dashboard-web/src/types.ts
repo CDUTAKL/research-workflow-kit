@@ -76,6 +76,24 @@ export interface SectionCitationCoverage {
   nextAction?: string;
 }
 
+export interface PluginRecommendation {
+  plugin: string;
+  stage: string;
+  reason: string;
+  action: string;
+  record: string;
+  required: boolean;
+  level: string;
+  status: string;
+}
+
+export interface PluginGateHealth {
+  missingPolicy?: boolean;
+  missingReviewLog?: boolean;
+  pendingRequiredGates?: number;
+  optionalSuggestions?: number;
+}
+
 export interface DashboardData {
   generatedAt: string;
   health: Health;
@@ -91,6 +109,7 @@ export interface DashboardData {
     idLifecycleRecords?: number;
     skillIssues?: number;
     citationSuggestions?: number;
+    pluginRecommendations?: number;
   };
   currentStatus: Record<string, string>;
   activeStageWorkspace?: StageWorkspace;
@@ -104,6 +123,8 @@ export interface DashboardData {
   experimentReports?: WorkflowRecord[];
   citationSuggestions?: CitationSuggestion[];
   sectionCitationCoverage?: SectionCitationCoverage[];
+  pluginRecommendations?: PluginRecommendation[];
+  pluginGateHealth?: PluginGateHealth;
   finalArtifacts?: WorkflowRecord[];
   handoffPackage?: {
     exists: string;

@@ -138,6 +138,7 @@ The workflow includes optional enhancement layers:
 - `$research-literature-review` supports section-level citation matching through `section-citation-map.md`, Zotero screening loops through `zotero-screening-loop.md`, citation provenance through `citation-provenance.md`, Zotero collection coverage through `zotero-collection-coverage.md`, and source-grounded readers.
 - `$research-paper-figures` supports dual-platform diagram replication: Mac draw.io MCP by default and Windows Visio when editable `.vsdx` output is useful.
 - Build Web Data Visualization is used as a design and QA guide for chart choice, statistical visual communication, dashboard views, evidence graphs, accessibility, and visual testing.
+- `plugin-gate-policy.md` and `plugin-review-log.md` route Codex Security, Build Web Apps, Data Analytics, Product Design, and CodeRabbit as lightweight quality gates. They recommend checks by stage without turning plugins into evidence sources.
 - `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
 - `docs/thesis/material-passport.md` identifies evidence-critical materials, while `benchmark-report-schema.md` standardizes baseline/new experiment comparisons before claim promotion.
 - `docs/thesis/workflow-dashboard.md` plus `daily-workflow-entry.md` are the daily project homepage for current stage, blockers, recommended actions, recent experiments, missing evidence, and audit tier.
@@ -160,6 +161,7 @@ Before merging workflow changes, run:
 .venv/bin/python -m coverage report --fail-under=60
 .venv/bin/python scripts/audit_skills.py
 .venv/bin/python scripts/research_workflow_doctor.py --warn-only
+.venv/bin/python scripts/plugin_gate_advisor.py --audit-only
 ```
 
 Install development-only tools with:
@@ -342,6 +344,10 @@ Use `docs/thesis/zotero-screening-loop.md` to record this loop. Zotero and sprea
 - BioRender: optional scientific schematic polish after source records and figure provenance exist.
 - Vercel: future optional route for a read-only dashboard preview only. Do not expose the local write API or private research evidence.
 - CodeRabbit: optional local or PR pre-merge code review. Do not require it for CI.
+- Codex Security: use for security-sensitive Dashboard/API/file-writing/remote-script/CI changes; record outcomes in `plugin-review-log.md`.
+- Build Web Apps: use for Dashboard frontend QA and React/Vite interaction or responsive-layout checks; record outcomes in `dashboard-ux-qa.md`.
+- Data Analytics: use for result data-quality, metric diagnostics, baseline-delta, and anomaly checks; record outcomes in `data-quality-report.md` and `metric-diagnostics.md`.
+- Product Design: use for advisor-facing Dashboard, figure, and defense-slide UX/visual review; record outcomes in `visual-design-review.md`.
 - Supabase database migration, Overleaf sync, reviewer-response workflow, and arXiv auto-submit are intentionally not included.
 
 ## Sensitive Information Policy

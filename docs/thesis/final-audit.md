@@ -10,6 +10,7 @@
 - Apply `id-lifecycle-policy.md` before final writing so deprecated or superseded IDs do not leak into the thesis.
 - Use `final-artifact-manifest.md` as the stage 11-12 Mac-to-laptop handoff contract.
 - Run `scripts/research_workflow_doctor.py --write-dashboard` before advisor or final audit when the project console exists.
+- Check `plugin-gate-policy.md` and `plugin-review-log.md` when Codex Security, Build Web Apps, Data Analytics, Product Design, or CodeRabbit gates were recommended.
 - If the Dashboard, evidence graph, or result charts will be shown to an advisor, apply Build Web Data Visualization checks for truthful chart choice, readable labels, accessible contrast, uncertainty/missingness visibility, and desktop/mobile legibility.
 
 ## Priority Legend
@@ -87,6 +88,7 @@
 | New evidence-critical materials have `material-passport.md` entries | pending |  |
 | Dashboard flow-editor writes are reviewed in `workflow-edit-log.md` | pending |  |
 | Dashboard/evidence graph visual issues do not hide P0/P1 blockers | pending |  |
+| Required plugin gates are recorded or explicitly not applicable | pending |  |
 
 ## Advisor Audit Checklist
 
@@ -103,6 +105,7 @@
 | Formal baseline comparisons are recorded in `benchmark-report-schema.md` | pending |  |
 | Data restrictions and availability language are advisor-reviewable | pending |  |
 | Advisor-facing charts and evidence graph are readable and do not hide uncertainty | pending |  |
+| Data Analytics / Product Design review notes exist when formal results or visuals are advisor-facing | pending |  |
 | DOCX/PDF/PPTX handoff rows in `final-artifact-manifest.md` are copied or verified | pending |  |
 | Important IDs have valid lifecycle status in `id-lifecycle-policy.md` | pending |  |
 
@@ -120,6 +123,7 @@
 | Material passport and benchmark report schema agree with promoted claims | pending |  |
 | `workflow-dashboard.md` and evidence graph are refreshed | pending |  |
 | Dashboard and evidence graph pass visual readability and accessibility checks | pending |  |
+| `plugin_gate_advisor.py --audit-only` passes and required plugin gates are closed | pending |  |
 | Defense slides only use promoted evidence | pending |  |
 | All final artifacts are verified on the laptop with checksums | pending |  |
 | Deprecated or superseded IDs are absent from final prose, figures, and slides | pending |  |

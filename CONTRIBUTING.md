@@ -41,6 +41,7 @@ Before opening or merging a PR, run:
 .venv/bin/python -m coverage report --fail-under=60
 .venv/bin/python scripts/audit_skills.py
 .venv/bin/python scripts/research_workflow_doctor.py --warn-only
+.venv/bin/python scripts/plugin_gate_advisor.py --audit-only
 ```
 
 For dashboard changes:
@@ -85,6 +86,8 @@ Plugin integrations must describe:
 - primary source record;
 - safety boundary;
 - whether the plugin is default or optional.
+
+When a change touches Dashboard/API/file-writing scripts, remote 4060 scripts, formal result analysis, advisor-facing visuals, or major CI/frontend work, check `docs/thesis/plugin-gate-policy.md` and record required outcomes in `docs/thesis/plugin-review-log.md` or the specific QA file named by `scripts/plugin_gate_advisor.py`.
 
 Current explicit non-goals are Supabase database migration, Overleaf synchronization, reviewer-response workflow, and arXiv auto-submit.
 

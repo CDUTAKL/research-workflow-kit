@@ -91,6 +91,10 @@ python scripts/research_workflow_doctor.py --warn-only
 ## Plugin Routing
 
 - Build Web Data Visualization: use for chart choice, statistical visual design, dashboard/evidence-graph interaction design, accessibility checks, and visual QA. It improves visual communication and testing rules; it is not a source of scientific evidence.
+- Codex Security: use as a local/PR security gate when changes touch Dashboard APIs, local file writing, remote 4060 scripts, CI, or other security-sensitive code. Record outcomes in `docs/thesis/plugin-review-log.md`; do not store secrets or private scan details.
+- Build Web Apps: use for Dashboard frontend implementation and QA, especially React/Vite components, interaction bugs, responsive layout, and Browser/Safari checks. Record outcomes in `docs/thesis/dashboard-ux-qa.md`.
+- Data Analytics: use for result data-quality review, metric diagnostics, baseline deltas, uncertainty, and anomaly checks in stages 7-8. Record outcomes in `docs/thesis/data-quality-report.md` and `docs/thesis/metric-diagnostics.md`.
+- Product Design: use for advisor-facing Dashboard, figure, and defense-slide visual/UX review. Record outcomes in `docs/thesis/visual-design-review.md`; it is a readability check, not scientific evidence.
 - CodeRabbit: optional pre-merge AI code review for important script, dashboard, CI, or skill changes. Use `coderabbit review --agent -c AGENTS.md` when authenticated. Do not put CodeRabbit in default CI because it depends on external account state.
 - Vercel: optional future route for a read-only dashboard preview. Do not expose the local dashboard write API, private research files, secrets, or unpublished thesis evidence through Vercel.
 - Scite: use in stages 2, 8, 10, and 12 for support/contrast/mention checks on citation-backed claims.
@@ -116,3 +120,4 @@ When a change touches skills, update installed skills only after repository test
 - Keep scripts offline by default unless their purpose is explicitly a search or API integration.
 - Use version-traceable branches and commits for formal workflow changes.
 - If a new plugin is added, document its stage, role, primary record, and non-replacement rule in `docs/thesis/tool-integration-map.md`.
+- For plugin-related changes, run `python scripts/plugin_gate_advisor.py --audit-only` and check the Dashboard plugin suggestions before merging.

@@ -19,6 +19,7 @@ Use this skill as the last quality gate before submission or defense. It checks 
 - Choose the audit tier explicitly: `quick`, `advisor`, or `final`.
 - Use `workflow-dashboard.md`, `research_workflow_doctor.py`, and `evidence-graph.mmd` as navigation aids when the project console is large.
 - When the dashboard or evidence graph is shown to an advisor, audit it with Build Web Data Visualization principles: simple truthful visual encodings, readable labels, accessible contrast, and no hidden uncertainty.
+- Check `plugin-gate-policy.md` and `plugin-review-log.md` when plugin gates were triggered. Missing review logs are normally P1 issues; treat them as blockers only when the unresolved gate affects local file writing, remote scripts, secrets, or final advisor-facing artifacts.
 - Separate scientific issues from formatting issues.
 - Prioritize fixes by submission risk.
 - Do not silently rewrite claims to be stronger than the evidence.
@@ -37,8 +38,9 @@ Read `references/workflow.md` for audit tables and checklists. Read `references/
 8. Check section citation coverage for citation-heavy manuscript sections.
 9. Check figures, tables, equations, numbering, captions, cross-references, rendering, and publication-grade figure readiness. For final figures, require the Nature-derived figure audit standard or explicit revision items.
 10. Check dashboard/evidence-graph views when they are used for advisor review, defense preparation, or project handoff.
-11. For defense or paper-to-PPT work, check slide claims, selected figures, speaker notes, and paper-to-slide traceability.
-12. Route each issue to the right revision skill and return a prioritized fix list.
+11. Check plugin gate records for Codex Security, Build Web Apps, Data Analytics, Product Design, or CodeRabbit when they were recommended or required by `plugin_gate_advisor.py`.
+12. For defense or paper-to-PPT work, check slide claims, selected figures, speaker notes, and paper-to-slide traceability.
+13. Route each issue to the right revision skill and return a prioritized fix list.
 
 ## Output Contract
 
@@ -61,6 +63,7 @@ Always include:
 - section citation map issues
 - workflow dashboard and evidence graph issues
 - dashboard/evidence graph visual readability issues
+- plugin gate policy/log issues and unresolved required gate status
 - code contract and autoresearch verify/guard issues
 - tool-layer issues: Notion sync, git traceability, spreadsheet staleness, defense slide gaps
 - audit-to-revision routing

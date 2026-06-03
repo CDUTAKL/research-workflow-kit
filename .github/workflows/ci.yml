@@ -54,6 +54,9 @@ jobs:
       - name: Run repository workflow doctor
         run: python scripts/research_workflow_doctor.py --warn-only
 
+      - name: Audit plugin gate policy
+        run: python scripts/plugin_gate_advisor.py --audit-only
+
       - name: Initialize smoke project
         run: python init_research_workflow.py --project /tmp/rwk-ci-smoke
 

@@ -17,6 +17,7 @@ Use this skill before expensive experiments or when research code needs to becom
 - Remote templates must not store passwords, tokens, or private-key contents.
 - When editing or installing workflow skills, run `scripts/audit_skills.py --warn-only --write-report` before merging to keep references, scripts, and tool assumptions consistent.
 - For important workflow, script, dashboard, or CI changes, CodeRabbit review is optional when authenticated: `coderabbit review --agent -c AGENTS.md`. Do not make it a required local dependency or CI step.
+- For Dashboard APIs, local file-writing scripts, remote 4060 sync/run/fetch scripts, CI, open-path whitelists, or other security-sensitive changes, use `scripts/plugin_gate_advisor.py` to determine whether a Codex Security diff scan or focused security review should be recorded in `docs/thesis/plugin-review-log.md`.
 - GitHub Actions CI should stay lightweight: Python compile/tests, skill audit, workflow doctor, initialization smoke, and dashboard build. Do not add account-dependent checks by default.
 
 ## Workflow
@@ -33,6 +34,7 @@ Read `references/code-quality.md` for the checks and template layout. Read `refe
 8. Route valid experiments back to `$research-experiment-engineering`.
 9. Run skill self-checks after workflow-skill changes when this kit itself is being maintained.
 10. For kit infrastructure changes, update `AGENTS.md`, `CONTRIBUTING.md`, PR templates, or CI only when the verification commands and safety boundaries remain clear.
+11. For plugin-gated changes, update `plugin-review-log.md` or explain why the gate is not applicable.
 
 ## Output Contract
 
@@ -48,3 +50,4 @@ Always include:
 - risks such as leakage, config drift, missing metrics, or hard-coded paths
 - skill audit status when maintaining this workflow kit
 - CI and optional CodeRabbit review status when maintaining this workflow kit
+- plugin gate status, especially Codex Security status for security-sensitive code paths

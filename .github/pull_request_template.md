@@ -43,3 +43,13 @@ Notes:
 
 - [ ] Ran `coderabbit review --agent -c AGENTS.md`
 - [ ] Not applicable, reason:
+
+## Plugin Gates
+
+- [ ] Checked `docs/thesis/plugin-gate-policy.md`
+- [ ] Recorded required plugin checks in `docs/thesis/plugin-review-log.md`
+- [ ] Codex Security diff scan needed and completed
+- [ ] Codex Security not applicable, reason:
+- [ ] Build Web Apps / Dashboard UX QA needed and recorded
+- [ ] Data Analytics quality or metric diagnostics needed and recorded
+- [ ] Product Design visual review needed and recorded

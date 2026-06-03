@@ -15,6 +15,7 @@ export const demoFallbackData: DashboardData = {
     graphEdges: 4,
     skillIssues: 0,
     citationSuggestions: 0,
+    pluginRecommendations: 1,
   },
   currentStatus: {
     'Current stage': '1-12/待填写',
@@ -53,6 +54,24 @@ export const demoFallbackData: DashboardData = {
   recentExperiments: [{ id: 'EXP-001', status: 'planned', output: 'outputs/EXP-001' }],
   experimentReports: [],
   citationSuggestions: [],
+  pluginRecommendations: [
+    {
+      plugin: 'Build Web Apps',
+      stage: 'TBD',
+      reason: '示例数据：Dashboard 前端改动需要构建和浏览器检查。',
+      action: '运行 pnpm run build，并用浏览器检查首屏、按钮和移动端。',
+      record: 'docs/thesis/dashboard-ux-qa.md',
+      required: false,
+      level: 'recommended',
+      status: 'recommended',
+    },
+  ],
+  pluginGateHealth: {
+    missingPolicy: false,
+    missingReviewLog: false,
+    pendingRequiredGates: 0,
+    optionalSuggestions: 1,
+  },
   handoffPackage: {
     exists: 'false',
     latestZip: '',
@@ -89,5 +108,9 @@ export const demoFallbackData: DashboardData = {
       { source: 'FIG-001', target: 'CLM-001', relation: 'visualizes' },
     ],
   },
-  links: {},
+  links: {
+    pluginGatePolicy: 'docs/thesis/plugin-gate-policy.md',
+    pluginReviewLog: 'docs/thesis/plugin-review-log.md',
+    dashboardUxQa: 'docs/thesis/dashboard-ux-qa.md',
+  },
 };
