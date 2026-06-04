@@ -59,6 +59,14 @@ const statusLabels: Record<string, string> = {
   planned: '计划中',
 };
 
+const dashboardTabs: DashboardTab[] = ['today', 'citation', 'experiments', 'graph', 'handoff', 'overview', 'editor', 'health'];
+
+function tabFromHash() {
+  if (typeof window === 'undefined') return 'today';
+  const hash = window.location.hash.replace('#', '');
+  return dashboardTabs.includes(hash as DashboardTab) ? hash as DashboardTab : 'today';
+}
+
 const stageNameLabels: Record<string, string> = {
   'Paper planning': '论文规划',
   'Literature discovery and review': '文献发现与综述',
@@ -242,22 +250,22 @@ function KpiStrip({ data }: { data: DashboardData }) {
 
 function ProjectHero({ data, loadedFromFile, onReload }: { data: DashboardData; loadedFromFile: boolean; onReload: () => void }) {
   const focus = displayText(data.currentWorkspaceSummary?.focus ?? data.currentStatus['Active focus'], '请先填写当前研究项目');
+  const stage = compact(data.activeStageWorkspace?.stage ?? data.currentStatus['Current stage'], 'TBD');
+  const stageName = displayStageName(data.activeStageWorkspace?.name ?? data.currentStatus['Stage name'] ?? '当前阶段');
   return (
     <section className="project-hero">
       <div>
-        <h1>上午好，AI小A</h1>
-        <p>当前研究项目：{focus}</p>
+        <h1>科研项目状态</h1>
+        <p>{focus}</p>
+        <div className="hero-status-row">
+          <span>当前阶段：{stage}. {stageName}</span>
+          <span>{loadedFromFile ? '实时数据' : '示例数据'}</span>
+        </div>
       </div>
       <div className="hero-actions">
-        <button type="button" className="hero-primary" onClick={() => postAction('/api/open-path', { key: 'dashboard' })}>
-          新建项目 <ArrowRight size={15} />
-        </button>
-        <button type="button" onClick={() => postAction('/api/open-path', { key: 'sectionCitationMap' })}>
-          导入文献
-        </button>
         <span>最后更新：{loadedFromFile ? displayText(data.generatedAt) : '示例数据'}</span>
-        <button type="button" className="icon-button" onClick={onReload} aria-label="刷新数据">
-          <RefreshCw size={17} />
+        <button type="button" className="hero-primary" onClick={onReload} aria-label="刷新数据">
+          <RefreshCw size={17} /> 刷新数据
         </button>
       </div>
       <KpiStrip data={data} />
@@ -1238,7 +1246,7 @@ function EvidenceGraph({ nodes, edges }: { nodes: EvidenceNode[]; edges: Evidenc
 export function App() {
   const [data, setData] = useState<DashboardData>(demoFallbackData);
   const [loadedFromFile, setLoadedFromFile] = useState(false);
-  const [activeTab, setActiveTab] = useState<DashboardTab>('today');
+  const [activeTab, setActiveTab] = useState<DashboardTab>(() => tabFromHash());
 
   function reloadData() {
     fetch('/data/dashboard-data.json', { cache: 'no-store' })
@@ -1259,6 +1267,21 @@ export function App() {
   useEffect(() => {
     reloadData();
   }, []);
+
+  useEffect(() => {
+    function syncTabFromHash() {
+      setActiveTab(tabFromHash());
+    }
+    window.addEventListener('hashchange', syncTabFromHash);
+    return () => window.removeEventListener('hashchange', syncTabFromHash);
+  }, []);
+
+  function changeTab(tab: DashboardTab) {
+    setActiveTab(tab);
+    if (window.location.hash !== `#${tab}`) {
+      window.history.replaceState(null, '', `#${tab}`);
+    }
+  }
 
   const overviewPanel = (
     <>
@@ -1399,11 +1422,11 @@ export function App() {
 
   return (
     <main className="app-frame">
-      <AppSidebar data={data} activeTab={activeTab} onTabChange={setActiveTab} />
+      <AppSidebar data={data} activeTab={activeTab} onTabChange={changeTab} />
       <section className="app-shell">
         <CockpitTopBar loadedFromFile={loadedFromFile} />
         <ProjectHero data={data} loadedFromFile={loadedFromFile} onReload={reloadData} />
-        <DashboardTabs activeTab={activeTab} onChange={setActiveTab} />
+        <DashboardTabs activeTab={activeTab} onChange={changeTab} />
         <section className="tab-content">{tabContent[activeTab]}</section>
 
         <footer>

@@ -438,9 +438,9 @@ select {
 .project-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 18px 22px;
+  gap: 14px 22px;
   margin-top: 0;
-  padding: 30px 28px 22px;
+  padding: 22px 28px 18px;
   border: 1px solid #dbe5f2;
   border-top: 0;
   border-radius: 0 0 8px 8px;
@@ -450,7 +450,7 @@ select {
 .project-hero h1 {
   margin: 0;
   color: #101828;
-  font-size: 1.65rem;
+  font-size: 1.5rem;
   line-height: 1.18;
 }
 
@@ -458,6 +458,23 @@ select {
   margin: 8px 0 0;
   color: #344054;
   font-weight: 700;
+}
+
+.hero-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.hero-status-row span {
+  padding: 5px 9px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  color: #475467;
+  background: #f8fafc;
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .hero-actions {
@@ -497,7 +514,7 @@ select {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  min-height: 108px;
+  min-height: 92px;
   border: 1px solid #dbe5f2;
   border-radius: 8px;
   background: #fff;
@@ -509,7 +526,7 @@ select {
   gap: 12px;
   align-items: center;
   min-width: 0;
-  padding: 18px;
+  padding: 14px;
   border-right: 1px solid #e5edf6;
 }
 
@@ -520,8 +537,8 @@ select {
 .kpi-icon {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   color: var(--accent);
 }
 
@@ -536,7 +553,7 @@ select {
   display: block;
   margin-top: 3px;
   color: #101828;
-  font-size: 1.55rem;
+  font-size: 1.35rem;
   line-height: 1.1;
 }
 
@@ -1959,6 +1976,337 @@ h2 {
   line-height: 1.45;
 }
 
+.evidence-chain-inspector {
+  overflow: hidden;
+}
+
+.evidence-toolbar {
+  align-items: center;
+}
+
+.evidence-inspector-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.evidence-canvas-wrap {
+  min-width: 0;
+  overflow: auto;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at top left, rgb(37 99 235 / 0.06), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.evidence-canvas-wrap svg {
+  display: block;
+  width: 1040px;
+  max-width: none;
+  min-height: 610px;
+}
+
+.evidence-lane rect {
+  fill: #f8fbff;
+  stroke: #dbe7f5;
+  stroke-width: 1.2;
+}
+
+.evidence-lane.is-claim rect {
+  fill: #f3fffb;
+  stroke: #caeee7;
+}
+
+.evidence-lane.is-evidence rect {
+  fill: #fffaf5;
+  stroke: #f4dec2;
+}
+
+.evidence-lane-title {
+  fill: #1d2939;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.evidence-lane-subtitle {
+  fill: #667085;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.evidence-flow-edge {
+  color: #6694e8;
+  opacity: 0.72;
+  transition: opacity 140ms ease;
+}
+
+.evidence-flow-edge path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.evidence-flow-edge polygon {
+  fill: currentColor;
+}
+
+.evidence-flow-edge.is-highlighted {
+  color: #2563eb;
+  opacity: 1;
+}
+
+.evidence-flow-edge.is-highlighted path {
+  stroke-width: 2.8;
+}
+
+.evidence-flow-edge.is-muted {
+  opacity: 0.18;
+}
+
+.evidence-node-card {
+  cursor: pointer;
+  opacity: 0.9;
+  outline: none;
+  transition: opacity 140ms ease;
+}
+
+.evidence-node-card.is-selected,
+.evidence-node-card.is-related {
+  opacity: 1;
+}
+
+.evidence-node-card.is-muted {
+  opacity: 0.36;
+}
+
+.evidence-node-card:focus-visible .evidence-node-shell {
+  stroke-width: 3.2;
+}
+
+.evidence-node-shell {
+  fill: #fff;
+  stroke: var(--node-color);
+  stroke-width: 2;
+  filter: url(#evidence-card-shadow);
+}
+
+.evidence-node-card.is-selected .evidence-node-shell {
+  stroke-width: 3.2;
+}
+
+.evidence-node-shell.is-warning {
+  fill: #fffbeb;
+  stroke: #d97706;
+}
+
+.evidence-node-shell.is-blocked {
+  fill: #fff1f2;
+  stroke: #dc2626;
+}
+
+.evidence-node-dot {
+  fill: #22c55e;
+}
+
+.evidence-node-dot.is-warning {
+  fill: #f59e0b;
+}
+
+.evidence-node-dot.is-blocked {
+  fill: #ef4444;
+}
+
+.evidence-node-kind {
+  fill: var(--node-color);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.evidence-node-id {
+  fill: #1d2939;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.evidence-node-caption {
+  fill: #667085;
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.evidence-detail-panel {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.evidence-detail-panel h3 {
+  margin: 4px 0 12px;
+  overflow-wrap: anywhere;
+  color: #101828;
+  font-size: 1.45rem;
+}
+
+.evidence-status-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 8px 10px;
+  border: 1px solid #dbe7f5;
+  border-radius: 8px;
+  color: #1d2939;
+  background: #f8fbff;
+  font-weight: 800;
+}
+
+.evidence-status-card.is-ok {
+  border-color: #bbf7d0;
+  color: #166534;
+  background: #f0fdf4;
+}
+
+.evidence-status-card.is-warning {
+  border-color: #fde68a;
+  color: #92400e;
+  background: #fffbeb;
+}
+
+.evidence-status-card.is-blocked {
+  border-color: #fecdd3;
+  color: #991b1b;
+  background: #fff1f2;
+}
+
+.detail-section {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.detail-section span,
+.detail-next span {
+  color: #667085;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.detail-section strong {
+  overflow-wrap: anywhere;
+  color: #1d2939;
+  line-height: 1.45;
+}
+
+.detail-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.detail-chip-row b,
+.detail-chip-row em {
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: #f2f4f7;
+  color: #475467;
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.detail-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.detail-evidence-grid article {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.detail-evidence-grid article.is-filled {
+  border-color: #c7eedb;
+  background: #f6fef9;
+}
+
+.detail-evidence-grid article.is-missing {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.detail-evidence-grid span,
+.detail-evidence-grid small,
+.detail-list dt {
+  display: block;
+  color: #667085;
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.detail-evidence-grid strong {
+  display: block;
+  margin: 2px 0;
+  color: #101828;
+  font-size: 1.15rem;
+}
+
+.detail-evidence-grid small {
+  overflow-wrap: anywhere;
+}
+
+.detail-next {
+  display: grid;
+  gap: 4px;
+  margin: 12px 0 14px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.detail-next.is-ok {
+  border: 1px solid #c7eedb;
+  background: #f6fef9;
+}
+
+.detail-next.is-warning {
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+}
+
+.detail-next strong {
+  color: #1d2939;
+  line-height: 1.45;
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 8px 10px;
+  margin: 0 0 14px;
+}
+
+.detail-list dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #1d2939;
+  font-weight: 750;
+}
+
+.evidence-detail-panel > button {
+  width: 100%;
+  justify-content: center;
+}
+
 .citation-heatmap-panel {
   min-width: 0;
 }
@@ -2153,11 +2501,13 @@ code {
     grid-template-columns: minmax(0, 1fr) minmax(380px, 0.95fr);
   }
 
-  .interactive-graph-layout {
+  .interactive-graph-layout,
+  .evidence-inspector-layout {
     grid-template-columns: 1fr;
   }
 
-  .graph-detail {
+  .graph-detail,
+  .evidence-detail-panel {
     max-width: none;
   }
 }
@@ -2251,6 +2601,7 @@ code {
   .plugin-row,
   .comparison-row,
   .interactive-graph-layout,
+  .evidence-inspector-layout,
   .heatmap-layout,
   .citation-grid,
   .wide-left,
@@ -2340,6 +2691,7 @@ code {
   .topbar,
   .today-workspace,
   .interactive-graph-layout,
+  .evidence-inspector-layout,
   .heatmap-layout,
   .content-grid {
     grid-template-columns: 1fr;
@@ -2386,6 +2738,11 @@ code {
 
   .graph-canvas-wrap svg {
     min-width: 640px;
+  }
+
+  .evidence-canvas-wrap svg {
+    width: 920px;
+    min-height: 560px;
   }
 
   .dashboard-tabs {

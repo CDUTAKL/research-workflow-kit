@@ -22,7 +22,7 @@ The web dashboard is organized as a current research workspace instead of a long
 
 The Dashboard also shows plugin gate recommendations from `scripts/plugin_gate_advisor.py`. These recommendations route Codex Security, Build Web Apps, Data Analytics, Product Design, and CodeRabbit checks to the right stage. They are quality gates and review notes; confirmed evidence still lives in Markdown/TSV/JSON source records.
 
-The evidence graph is rendered inside the page from `dashboard-data.json`. It defaults to a focused evidence chain for the current stage or selected node, with an optional full-project view. It remains exportable as JSON/Mermaid for draw.io or static review. The section citation view is gap-first: missing strong support, Zotero checks, Reader/Scite checks, and risk rows appear before low-risk rows. It is a triage view only; confirmed citations still need `section-citation-map.md` and `citation-provenance.md` updates.
+The evidence graph is rendered inside the page from `dashboard-data.json` as an **evidence chain inspector**, not as a full relationship map by default. The default reading path is `SEC/SEG -> CLM -> EXP/DATA/FIG/CIT`: it answers whether each thesis claim has a paper location and traceable supporting evidence. Duplicate relations are collapsed, reverse relations such as `FIG -> CLM` are displayed as `CLM -> FIG`, and evidence-internal links such as `EXP -> DATA` stay hidden in the default view to reduce visual noise. The full-project graph remains available as an advanced view and can still be exported as JSON/Mermaid for draw.io or static review. The section citation view is gap-first: missing strong support, Zotero checks, Reader/Scite checks, and risk rows appear before low-risk rows. It is a triage view only; confirmed citations still need `section-citation-map.md` and `citation-provenance.md` updates.
 
 The Dashboard also includes three convergence aids:
 
@@ -143,7 +143,8 @@ Manual launchers remain available:
 | 查看文件分层 | Dashboard `文件分层` or `console-file-index.md` | lower-noise source-file map |
 | 更新每周复盘 | Dashboard `每周复盘` or `python scripts/update_weekly_review.py --focus "..." --next-actions "..."` | `weekly-review.md`, `workflow-edit-log.md` |
 | 刷新控制台数据 | `刷新控制台` or `python scripts/research_workflow_doctor.py --write-dashboard --write-data` | `workflow-dashboard.md`, `dashboard-data.json` |
-| 导出证据图谱 | `导出证据图谱` or `python scripts/export_evidence_graph.py` | `evidence-graph.json`, `evidence-graph.mmd` |
+| 检查证据链 | Dashboard `证据图谱` / `#graph` | default `SEC/SEG -> CLM -> EXP/DATA/FIG/CIT` evidence chain inspector |
+| 导出完整证据图谱 | `导出证据图谱` or `python scripts/export_evidence_graph.py` | `evidence-graph.json`, `evidence-graph.mmd` |
 | 快速健康检查 | `快速健康检查` or `python scripts/research_workflow_doctor.py --warn-only` | P0/P1 console report |
 | 创建深研任务 | `python scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "..."` | `deep-research-tasks.md`, section packet |
 | 生成本地引用推荐 | Dashboard `引用推荐` or `python scripts/suggest_section_citations.py --section-id SEC-INTRO-001` | `section-citation-suggestions.md`, optional dashboard JSON |

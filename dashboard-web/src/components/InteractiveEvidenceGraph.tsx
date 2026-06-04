@@ -1,11 +1,15 @@
-import { ExternalLink, GitBranch, Search } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ExternalLink, GitBranch, Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { postAction } from '../api/client';
 import type { DashboardData, EvidenceEdge, EvidenceNode } from '../types';
 
 const kindOrder = ['SEC', 'CLM', 'EXP', 'DATA', 'FIG', 'CIT'];
+const evidenceKinds = ['EXP', 'DATA', 'FIG', 'CIT'];
+
 const kindColor: Record<string, string> = {
   SEC: '#2563eb',
+  SEG: '#2563eb',
   CLM: '#0f766e',
   EXP: '#7c3aed',
   DATA: '#b45309',
@@ -15,6 +19,7 @@ const kindColor: Record<string, string> = {
 
 const kindLabel: Record<string, string> = {
   SEC: '章节',
+  SEG: '段落',
   CLM: '论点',
   EXP: '实验',
   DATA: '数据',
@@ -23,26 +28,44 @@ const kindLabel: Record<string, string> = {
 };
 
 const laneLabels = [
-  { key: 'SEC', title: '论文位置', subtitle: 'SEC / SEG' },
-  { key: 'CLM', title: '核心论点', subtitle: 'CLM' },
-  { key: 'EVIDENCE', title: '支撑证据', subtitle: 'EXP / DATA / FIG / CIT' },
+  { key: 'position', title: '论文位置', subtitle: 'SEC / SEG', className: 'is-position' },
+  { key: 'claim', title: '核心论点', subtitle: 'CLM', className: 'is-claim' },
+  { key: 'evidence', title: '支撑证据', subtitle: 'EXP / DATA / FIG / CIT', className: 'is-evidence' },
 ];
 
-const nodeWidth = 156;
-const nodeHeight = 62;
-const nodeRadius = 12;
+const nodeWidth = 172;
+const nodeHeight = 72;
+const canvasWidth = 1040;
+const canvasHeight = 610;
+const laneWidth = 286;
+const laneTop = 34;
+const laneHeight = 538;
+const laneX = [36, 364, 692];
+const anchorX = [laneX[0] + laneWidth / 2, laneX[1] + laneWidth / 2, laneX[2] + laneWidth / 2];
 
-function nodeStatus(node: EvidenceNode, edges: EvidenceEdge[], issues: DashboardData['issues']) {
-  const issueText = [...issues.p0, ...issues.p1].join('\n');
-  if (issues.p0.some((issue) => issue.includes(node.id))) return 'blocked';
-  if (issues.p1.some((issue) => issue.includes(node.id))) return 'warning';
+type GraphStatus = 'ok' | 'warning' | 'blocked';
+type NormalizedEdge = EvidenceEdge & {
+  originalRelations: string[];
+  inferred?: boolean;
+};
+
+function rankForKind(kind = '') {
+  if (kind === 'SEC' || kind === 'SEG') return 0;
+  if (kind === 'CLM') return 1;
+  return 2;
+}
+
+function nodeStatus(node: EvidenceNode, edges: EvidenceEdge[], issues: DashboardData['issues']): GraphStatus {
+  const p0Hit = issues.p0.some((issue) => issue.includes(node.id));
+  const p1Hit = issues.p1.some((issue) => issue.includes(node.id));
+  if (p0Hit) return 'blocked';
+  if (p1Hit) return 'warning';
   if (!edges.some((edge) => edge.source === node.id || edge.target === node.id)) return 'warning';
-  if (issueText.includes(node.id)) return 'warning';
   return 'ok';
 }
 
 function openKeyForKind(kind: string) {
-  if (kind === 'SEC' || kind === 'CIT') return 'sectionCitationMap';
+  if (kind === 'SEC' || kind === 'SEG' || kind === 'CIT') return 'sectionCitationMap';
   if (kind === 'CLM') return 'claimMap';
   if (kind === 'EXP') return 'experimentRegistry';
   if (kind === 'DATA') return 'dataAvailability';
@@ -50,10 +73,188 @@ function openKeyForKind(kind: string) {
   return 'dashboard';
 }
 
-function laneRank(kind = '') {
-  if (kind === 'SEC') return 0;
-  if (kind === 'CLM') return 1;
-  return 2;
+function cleanLabel(value = '', fallback = '待填写') {
+  const text = value.trim();
+  if (!text || text.toLowerCase() === 'tbd') return fallback;
+  return text;
+}
+
+function clampText(value = '', max = 28) {
+  const text = cleanLabel(value, '证据链已连接');
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+function semanticKey(source: string, target: string) {
+  return `${source}__${target}`;
+}
+
+function normalizeEdges(rawEdges: EvidenceEdge[], nodeById: Map<string, EvidenceNode>, showAll: boolean) {
+  const grouped = new Map<string, NormalizedEdge>();
+
+  rawEdges.forEach((edge) => {
+    const sourceNode = nodeById.get(edge.source);
+    const targetNode = nodeById.get(edge.target);
+    if (!sourceNode || !targetNode) return;
+
+    const sourceRank = rankForKind(sourceNode.kind);
+    const targetRank = rankForKind(targetNode.kind);
+
+    if (!showAll) {
+      if (sourceRank === 2 && targetRank === 2) return;
+      if (sourceRank === 0 && targetRank === 2) return;
+      if (sourceRank === targetRank) return;
+    }
+
+    let source = edge.source;
+    let target = edge.target;
+    if (sourceRank > targetRank) {
+      source = edge.target;
+      target = edge.source;
+    }
+
+    const key = semanticKey(source, target);
+    const current = grouped.get(key);
+    if (current) {
+      const relations = new Set([...current.originalRelations, edge.relation]);
+      grouped.set(key, {
+        ...current,
+        relation: current.relation || edge.relation,
+        originalRelations: Array.from(relations),
+      });
+      return;
+    }
+
+    grouped.set(key, {
+      source,
+      target,
+      relation: edge.relation,
+      originalRelations: [edge.relation],
+    });
+  });
+
+  if (!showAll) {
+    const positionNodes = Array.from(nodeById.values()).filter((node) => rankForKind(node.kind) === 0);
+    const claimNodes = Array.from(nodeById.values()).filter((node) => node.kind === 'CLM');
+    claimNodes.forEach((claim) => {
+      const hasPositionLink = Array.from(grouped.values()).some((edge) => edge.target === claim.id && rankForKind(nodeById.get(edge.source)?.kind) === 0);
+      if (!hasPositionLink && positionNodes[0]) {
+        grouped.set(semanticKey(positionNodes[0].id, claim.id), {
+          source: positionNodes[0].id,
+          target: claim.id,
+          relation: 'section_supports_claim',
+          originalRelations: ['inferred_section_supports_claim'],
+          inferred: true,
+        });
+      }
+    });
+  }
+
+  return Array.from(grouped.values());
+}
+
+function makePath(source: { x: number; y: number }, target: { x: number; y: number }, edgeIndex: number) {
+  const startX = source.x + nodeWidth / 2;
+  const endX = target.x - nodeWidth / 2 - 10;
+  const startY = source.y - 12 + edgeIndex * 10;
+  const endY = target.y;
+  const controlA = startX + Math.max(72, (endX - startX) * 0.42);
+  const controlB = endX - Math.max(72, (endX - startX) * 0.26);
+  return {
+    d: `M ${startX} ${startY} C ${controlA} ${startY}, ${controlB} ${endY}, ${endX} ${endY}`,
+    arrow: `${endX},${endY} ${endX - 9},${endY - 5} ${endX - 9},${endY + 5}`,
+  };
+}
+
+function summarizeRelated(selected: EvidenceNode | undefined, nodes: EvidenceNode[], edges: NormalizedEdge[], kind: string) {
+  if (!selected) return [];
+  return edges
+    .filter((edge) => edge.source === selected.id || edge.target === selected.id)
+    .map((edge) => (edge.source === selected.id ? edge.target : edge.source))
+    .map((id) => nodes.find((node) => node.id === id))
+    .filter((node): node is EvidenceNode => Boolean(node && node.kind === kind));
+}
+
+function EvidenceNodeDetail({
+  selected,
+  nodes,
+  edges,
+  issues,
+}: {
+  selected?: EvidenceNode;
+  nodes: EvidenceNode[];
+  edges: NormalizedEdge[];
+  issues: DashboardData['issues'];
+}) {
+  const status = selected ? nodeStatus(selected, edges, issues) : 'warning';
+  const linkedClaims = summarizeRelated(selected, nodes, edges, 'CLM');
+  const linkedSections = summarizeRelated(selected, nodes, edges, 'SEC');
+  const support = evidenceKinds.map((kind) => ({
+    kind,
+    items: summarizeRelated(selected, nodes, edges, kind),
+  }));
+  const hasAnyEvidence = support.some((group) => group.items.length);
+
+  return (
+    <aside className="evidence-detail-panel">
+      <p className="eyebrow">证据检查面板</p>
+      <h3>{selected?.id ?? '未选择节点'}</h3>
+      <div className={`evidence-status-card is-${status}`}>
+        {status === 'ok' ? <CheckCircle2 size={17} /> : <AlertTriangle size={17} />}
+        <span>{status === 'ok' ? '当前主证据链已连接' : '该节点仍有待补记录'}</span>
+      </div>
+
+      {selected?.kind === 'CLM' ? (
+        <>
+          <div className="detail-section">
+            <span>论点内容</span>
+            <strong>{cleanLabel(selected.label, '尚未填写论点正文')}</strong>
+          </div>
+          <div className="detail-section">
+            <span>所属章节</span>
+            <div className="detail-chip-row">
+              {linkedSections.length ? linkedSections.map((node) => <b key={node.id}>{node.id}</b>) : <em>暂无章节链接</em>}
+            </div>
+          </div>
+          <div className="detail-evidence-grid">
+            {support.map((group) => (
+              <article key={group.kind} className={group.items.length ? 'is-filled' : 'is-missing'}>
+                <span>{kindLabel[group.kind]}</span>
+                <strong>{group.items.length}</strong>
+                <small>{group.items.map((node) => node.id).join(', ') || '待补'}</small>
+              </article>
+            ))}
+          </div>
+          <div className={hasAnyEvidence ? 'detail-next is-ok' : 'detail-next is-warning'}>
+            <span>下一步</span>
+            <strong>{hasAnyEvidence ? '检查证据质量后，可进入写作或终审。' : '先补实验、数据、图表或引用，再提升为正文论点。'}</strong>
+          </div>
+        </>
+      ) : (
+        <>
+          <dl className="detail-list">
+            <dt>类型</dt>
+            <dd>{selected ? kindLabel[selected.kind] ?? selected.kind : '暂无'}</dd>
+            <dt>说明</dt>
+            <dd>{selected ? cleanLabel(selected.label) : '暂无'}</dd>
+            <dt>关联论点</dt>
+            <dd>{linkedClaims.map((node) => node.id).join(', ') || '暂无'}</dd>
+            <dt>来源记录</dt>
+            <dd>{selected ? openKeyForKind(selected.kind) : 'dashboard'}</dd>
+            <dt>证据状态</dt>
+            <dd>{status === 'ok' ? '可作为候选论文证据' : '需要补来源、状态或链接'}</dd>
+          </dl>
+          <div className={status === 'ok' ? 'detail-next is-ok' : 'detail-next is-warning'}>
+            <span>下一步</span>
+            <strong>{status === 'ok' ? '回到论点表检查是否可提升为正式证据。' : '打开源文件补齐可追踪记录。'}</strong>
+          </div>
+        </>
+      )}
+
+      <button type="button" onClick={() => selected && postAction('/api/open-path', { key: openKeyForKind(selected.kind) })}>
+        <ExternalLink size={15} /> 打开相关源文件
+      </button>
+    </aside>
+  );
 }
 
 export function InteractiveEvidenceGraph({
@@ -67,109 +268,85 @@ export function InteractiveEvidenceGraph({
   issues: DashboardData['issues'];
   focusedGraph?: DashboardData['focusedEvidenceGraph'];
 }) {
-  const [selectedId, setSelectedId] = useState(nodes[0]?.id ?? '');
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [enabledKinds, setEnabledKinds] = useState<Record<string, boolean>>(() => Object.fromEntries(kindOrder.map((kind) => [kind, true])));
-  const seedNodes = focusedGraph?.nodes?.length && !showAll ? focusedGraph.nodes : nodes;
-  const seedEdges = focusedGraph?.edges?.length && !showAll ? focusedGraph.edges : edges;
-  const selected = nodes.find((node) => node.id === selectedId) ?? seedNodes[0] ?? nodes[0];
+  const [selectedId, setSelectedId] = useState(nodes.find((node) => node.kind === 'CLM')?.id ?? nodes[0]?.id ?? '');
+
+  const seedNodes = !showAll && focusedGraph?.nodes?.length ? focusedGraph.nodes : nodes;
+  const seedEdges = !showAll && focusedGraph?.edges?.length ? focusedGraph.edges : edges;
+
+  const filteredNodes = useMemo(() => {
+    const cleanQuery = query.trim().toLowerCase();
+    return seedNodes.filter((node) => {
+      if (!enabledKinds[node.kind]) return false;
+      if (!cleanQuery) return true;
+      return `${node.id} ${node.label} ${node.kind}`.toLowerCase().includes(cleanQuery);
+    });
+  }, [enabledKinds, query, seedNodes]);
+
+  const nodeById = useMemo(() => new Map(filteredNodes.map((node) => [node.id, node])), [filteredNodes]);
+  const semanticEdges = useMemo(() => normalizeEdges(seedEdges, nodeById, showAll), [nodeById, seedEdges, showAll]);
+
+  const selected = useMemo(() => {
+    return filteredNodes.find((node) => node.id === selectedId) ?? filteredNodes.find((node) => node.kind === 'CLM') ?? filteredNodes[0];
+  }, [filteredNodes, selectedId]);
+
+  useEffect(() => {
+    if (selected && selected.id !== selectedId) setSelectedId(selected.id);
+  }, [selected, selectedId]);
+
   const connectedIds = useMemo(() => {
     const ids = new Set<string>();
-    edges.forEach((edge) => {
+    semanticEdges.forEach((edge) => {
       if (edge.source === selected?.id || edge.target === selected?.id) {
         ids.add(edge.source);
         ids.add(edge.target);
       }
     });
     return ids;
-  }, [edges, selected?.id]);
+  }, [selected?.id, semanticEdges]);
 
-  const localGraph = useMemo(() => {
-    if (showAll || focusedGraph?.nodes?.length) {
-      return { nodes: seedNodes, edges: seedEdges };
-    }
-    if (!selected) return { nodes: seedNodes, edges: seedEdges };
-    const ids = new Set<string>([selected.id]);
-    edges.forEach((edge) => {
-      if (edge.source === selected.id || edge.target === selected.id) {
-        ids.add(edge.source);
-        ids.add(edge.target);
-      }
-    });
-    return {
-      nodes: nodes.filter((node) => ids.has(node.id)),
-      edges: edges.filter((edge) => ids.has(edge.source) && ids.has(edge.target)),
-    };
-  }, [edges, focusedGraph?.nodes?.length, nodes, seedEdges, seedNodes, selected, showAll]);
-
-  useEffect(() => {
-    if (!selectedId && seedNodes[0]) setSelectedId(seedNodes[0].id);
-  }, [seedNodes, selectedId]);
-
-  const visibleNodes = useMemo(() => {
-    const cleanQuery = query.trim().toLowerCase();
-    return localGraph.nodes.filter((node) => {
-      if (!enabledKinds[node.kind]) return false;
-      if (!cleanQuery) return true;
-      return `${node.id} ${node.label} ${node.kind}`.toLowerCase().includes(cleanQuery);
-    });
-  }, [enabledKinds, localGraph.nodes, query]);
-  const visibleIds = new Set(visibleNodes.map((node) => node.id));
-  const visibleNodeById = useMemo(() => new Map(visibleNodes.map((node) => [node.id, node])), [visibleNodes]);
-  const visibleEdges = useMemo(() => {
-    const grouped = new Map<string, EvidenceEdge & { count: number }>();
-    localGraph.edges
-      .filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target))
-      .forEach((edge) => {
-        const sourceNode = visibleNodeById.get(edge.source);
-        const targetNode = visibleNodeById.get(edge.target);
-        if (!sourceNode || !targetNode) return;
-
-        const sourceRank = laneRank(sourceNode.kind);
-        const targetRank = laneRank(targetNode.kind);
-        if (!showAll && sourceRank === 2 && targetRank === 2) return;
-
-        let source = edge.source;
-        let target = edge.target;
-        if (sourceRank > targetRank) {
-          source = edge.target;
-          target = edge.source;
-        }
-
-        const key = `${source}→${target}`;
-        const current = grouped.get(key);
-        if (current) {
-          grouped.set(key, { ...current, count: current.count + 1 });
-        } else {
-          grouped.set(key, { ...edge, source, target, count: 1 });
-        }
-      });
-    return Array.from(grouped.values());
-  }, [localGraph.edges, showAll, visibleIds, visibleNodeById]);
   const layout = useMemo(() => {
-    const positions = new Map<string, { x: number; y: number }>();
+    const positions = new Map<string, { x: number; y: number; edgeIndex: number }>();
     const columns = [
-      visibleNodes.filter((node) => node.kind === 'SEC'),
-      visibleNodes.filter((node) => node.kind === 'CLM'),
-      visibleNodes.filter((node) => !['SEC', 'CLM'].includes(node.kind)),
+      filteredNodes.filter((node) => rankForKind(node.kind) === 0),
+      filteredNodes.filter((node) => node.kind === 'CLM'),
+      filteredNodes.filter((node) => evidenceKinds.includes(node.kind)),
     ];
-    columns.forEach((group, columnIndex) => {
-      const x = 148 + columnIndex * 330;
-      const gap = Math.max(96, 392 / Math.max(group.length, 1));
-      group.forEach((node, rowIndex) => positions.set(node.id, { x, y: 132 + rowIndex * gap }));
+    columns.forEach((column, columnIndex) => {
+      const startY = column.length <= 1 ? 294 : 156;
+      const gap = column.length <= 1 ? 0 : Math.min(118, 332 / Math.max(column.length - 1, 1));
+      column.forEach((node, rowIndex) => {
+        positions.set(node.id, {
+          x: anchorX[columnIndex],
+          y: startY + rowIndex * gap,
+          edgeIndex: rowIndex,
+        });
+      });
     });
     return positions;
-  }, [visibleNodes]);
+  }, [filteredNodes]);
+
+  const edgeIndexBySource = useMemo(() => {
+    const counters = new Map<string, number>();
+    const indexes = new Map<string, number>();
+    semanticEdges.forEach((edge) => {
+      const index = counters.get(edge.source) ?? 0;
+      counters.set(edge.source, index + 1);
+      indexes.set(semanticKey(edge.source, edge.target), index);
+    });
+    return indexes;
+  }, [semanticEdges]);
 
   return (
-    <section className="panel interactive-graph-panel">
+    <section className="panel interactive-graph-panel evidence-chain-inspector">
       <div className="panel-title-row">
         <GitBranch size={18} />
-        <h2>局部证据链</h2>
-        <span className="status-pill is-neutral">{showAll ? '全项目视图' : '当前局部视图'}</span>
+        <h2>证据链检查器</h2>
+        <span className="status-pill is-neutral">{showAll ? '高级全项目视图' : '主证据链视图'}</span>
       </div>
-      <div className="graph-toolbar">
+      <div className="graph-toolbar evidence-toolbar">
         <label>
           <Search size={15} />
           <input value={query} placeholder="搜索 ID / 标签" onChange={(event) => setQuery(event.target.value)} />
@@ -181,67 +358,63 @@ export function InteractiveEvidenceGraph({
               key={kind}
               className={enabledKinds[kind] ? 'is-active' : ''}
               onClick={() => setEnabledKinds((current) => ({ ...current, [kind]: !current[kind] }))}
-              style={{ '--kind-color': kindColor[kind] } as React.CSSProperties}
+              style={{ '--kind-color': kindColor[kind] } as CSSProperties}
             >
               {kind}
             </button>
           ))}
         </div>
         <button className="subtle-toggle inline-toggle" type="button" onClick={() => setShowAll((value) => !value)}>
-          {showAll ? '显示局部证据链' : '显示全项目图谱'}
+          {showAll ? '回到主证据链' : '高级全项目图谱'}
         </button>
       </div>
-      <p className="panel-note">默认只显示当前阶段或当前节点附近的证据链，避免全项目关系过载；需要全局检查时再展开全项目图谱。</p>
-      <div className="interactive-graph-layout">
-        <div className="graph-canvas-wrap">
-          <svg viewBox="0 0 920 560" role="img" aria-label="可交互证据图谱">
+      <p className="panel-note">默认只检查“论点由什么证据支撑”：SEC/SEG 到 CLM，再到 EXP、DATA、FIG、CIT。重复关系、反向关系和证据内部关系会被收敛，避免线条误导。</p>
+
+      <div className="evidence-inspector-layout">
+        <div className="evidence-canvas-wrap">
+          <svg viewBox={`0 0 ${canvasWidth} ${canvasHeight}`} role="img" aria-label="可交互证据链检查器">
             <defs>
-              <marker id="graph-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.8" markerHeight="5.8" orient="auto">
-                <path d="M 0 1.4 L 9 5 L 0 8.6 z" className="graph-arrow-head" />
-              </marker>
-              <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
-                <feDropShadow dx="0" dy="5" stdDeviation="5" floodColor="#1d2939" floodOpacity="0.11" />
+              <filter id="evidence-card-shadow" x="-18%" y="-18%" width="136%" height="150%">
+                <feDropShadow dx="0" dy="8" stdDeviation="8" floodColor="#101828" floodOpacity="0.10" />
               </filter>
             </defs>
+
             {laneLabels.map((lane, index) => (
-              <g className="graph-lane" key={lane.key} transform={`translate(${36 + index * 302} 24)`}>
-                <rect width="260" height="500" rx="14" />
-                <text className="graph-lane-title" x="18" y="30">{lane.title}</text>
-                <text className="graph-lane-subtitle" x="18" y="51">{lane.subtitle}</text>
+              <g className={`evidence-lane ${lane.className}`} key={lane.key} transform={`translate(${laneX[index]} ${laneTop})`}>
+                <rect width={laneWidth} height={laneHeight} rx="18" />
+                <text className="evidence-lane-title" x="20" y="34">{lane.title}</text>
+                <text className="evidence-lane-subtitle" x="20" y="56">{lane.subtitle}</text>
               </g>
             ))}
-            {visibleEdges.map((edge) => {
+
+            {semanticEdges.map((edge) => {
               const source = layout.get(edge.source);
               const target = layout.get(edge.target);
-              if (!source || !target) return null;
+              if (!source || !target || target.x <= source.x) return null;
+              const edgeOffset = edgeIndexBySource.get(semanticKey(edge.source, edge.target)) ?? 0;
+              const { d, arrow } = makePath(source, target, edgeOffset);
               const highlighted = connectedIds.has(edge.source) && connectedIds.has(edge.target);
-              const midX = (source.x + target.x) / 2;
-              const direction = target.x >= source.x ? 1 : -1;
-              const startX = source.x + direction * (nodeWidth / 2 + 8);
-              const endX = target.x - direction * (nodeWidth / 2 + 18);
-              const startY = source.y;
-              const endY = target.y;
+              const dimmed = selected && !highlighted;
               return (
-                <g key={`${edge.source}-${edge.target}`}>
-                  <path
-                    className={`graph-edge ${highlighted ? 'is-highlighted' : ''}`}
-                    markerEnd="url(#graph-arrow)"
-                    d={`M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`}
-                  />
+                <g key={semanticKey(edge.source, edge.target)} className={`evidence-flow-edge ${highlighted ? 'is-highlighted' : ''} ${dimmed ? 'is-muted' : ''}`}>
+                  <path d={d} />
+                  <polygon points={arrow} />
                 </g>
               );
             })}
-            {visibleNodes.map((node) => {
+
+            {filteredNodes.map((node) => {
               const point = layout.get(node.id);
               if (!point) return null;
               const selectedNode = selected?.id === node.id;
               const related = connectedIds.has(node.id);
-              const status = nodeStatus(node, edges, issues);
+              const dimmed = selected && !selectedNode && !related;
+              const status = nodeStatus(node, semanticEdges, issues);
               return (
                 <g
                   key={node.id}
                   transform={`translate(${point.x - nodeWidth / 2} ${point.y - nodeHeight / 2})`}
-                  className={`graph-node-group ${selectedNode ? 'is-selected' : ''} ${related ? 'is-related' : ''}`}
+                  className={`evidence-node-card ${selectedNode ? 'is-selected' : ''} ${related ? 'is-related' : ''} ${dimmed ? 'is-muted' : ''}`}
                   onClick={() => setSelectedId(node.id)}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
@@ -253,40 +426,22 @@ export function InteractiveEvidenceGraph({
                   tabIndex={0}
                 >
                   <rect
-                    className={`graph-node graph-status-${status}`}
                     width={nodeWidth}
                     height={nodeHeight}
-                    rx={nodeRadius}
-                    style={{ '--node-color': kindColor[node.kind] ?? '#475569' } as React.CSSProperties}
+                    rx="13"
+                    style={{ '--node-color': kindColor[node.kind] ?? '#475569' } as CSSProperties}
+                    className={`evidence-node-shell is-${status}`}
                   />
-                  <circle className={`node-status-dot node-status-${status}`} cx="135" cy="18" r="5" />
-                  <text className="node-kind" x="14" y="20">{kindLabel[node.kind] ?? node.kind}</text>
-                  <text className="node-id" x="14" y="39">{node.id}</text>
-                  <text className="node-hint" x="14" y="53">{node.label && node.label !== 'TBD' ? node.label : status === 'ok' ? '证据链已连接' : '需要补充证据'}</text>
+                  <circle className={`evidence-node-dot is-${status}`} cx={nodeWidth - 20} cy="20" r="5.5" />
+                  <text className="evidence-node-kind" x="16" y="22">{kindLabel[node.kind] ?? node.kind}</text>
+                  <text className="evidence-node-id" x="16" y="43">{node.id}</text>
+                  <text className="evidence-node-caption" x="16" y="60">{clampText(node.label, 22)}</text>
                 </g>
               );
             })}
           </svg>
         </div>
-        <aside className="graph-detail">
-          <p className="eyebrow">节点详情</p>
-          <h3>{selected?.id ?? '未选择'}</h3>
-          <dl>
-            <dt>类型</dt>
-            <dd>{selected?.kind ?? 'TBD'}</dd>
-            <dt>标签</dt>
-            <dd>{selected?.label ?? 'TBD'}</dd>
-            <dt>状态</dt>
-            <dd>{selected ? nodeStatus(selected, edges, issues) : 'TBD'}</dd>
-            <dt>连接数</dt>
-            <dd>{selected ? edges.filter((edge) => edge.source === selected.id || edge.target === selected.id).length : 0}</dd>
-            <dt>下一步</dt>
-            <dd>{selected && nodeStatus(selected, edges, issues) !== 'ok' ? '补齐该节点的证据链接或状态说明' : '保持当前证据链，可进入下一步审查'}</dd>
-          </dl>
-          <button type="button" onClick={() => selected && postAction('/api/open-path', { key: openKeyForKind(selected.kind) })}>
-            <ExternalLink size={15} /> 打开相关源文件
-          </button>
-        </aside>
+        <EvidenceNodeDetail selected={selected} nodes={filteredNodes} edges={semanticEdges} issues={issues} />
       </div>
     </section>
   );

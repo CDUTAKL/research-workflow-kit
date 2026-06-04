@@ -144,7 +144,7 @@ The workflow includes optional enhancement layers:
 - `docs/thesis/workflow-dashboard.md` plus the legacy-compatible `daily-workflow-entry.md` are the current research workspace records for current stage, blockers, recommended actions, recent experiments, missing evidence, and audit tier.
 - `docs/thesis/console-file-index.md` keeps console files layered into current workspace, evidence core, stage workspace, final handoff, and audit/maintenance so daily work stays focused.
 - `docs/thesis/weekly-review.md` keeps a short weekly review: what became stronger/weaker, current best experiment, next 1-3 actions, and files to ignore next week.
-- The local React/Vite Dashboard opens with a Chinese current research workspace, tabbed workflow views, a default local evidence chain, gap-first section citation coverage, baseline experiment comparison, file-layer guidance, and weekly review. It is a view/editor over `docs/thesis/`, not a replacement source of truth.
+- The local React/Vite Dashboard opens with a Chinese current research workspace, tabbed workflow views, an evidence chain inspector, gap-first section citation coverage, baseline experiment comparison, file-layer guidance, and weekly review. The evidence chain inspector defaults to `SEC/SEG -> CLM -> EXP/DATA/FIG/CIT`, collapses duplicate/reverse relations, and keeps the full-project graph as an advanced view. It is a view/editor over `docs/thesis/`, not a replacement source of truth.
 - `scripts/suggest_section_citations.py` gives offline citation suggestions from existing local records, helping each `SEC-*` section move from “missing coverage” to manually confirmed citations.
 - `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for Mac-to-laptop stages 11-12.
 
@@ -287,6 +287,9 @@ writes are limited to known Markdown source files, create backups under
 `tmp/dashboard-edits/backups/`, and append `docs/thesis/workflow-edit-log.md`.
 The service does not expose remote access, does not store credentials, and does
 not execute arbitrary commands.
+
+You can open a specific tab directly with a URL hash, for example
+`http://127.0.0.1:5173/#graph` for the evidence chain inspector.
 
 For this Mac, prefer the Homebrew Node toolchain when running dashboard commands:
 
