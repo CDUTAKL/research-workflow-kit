@@ -28,6 +28,10 @@ const laneLabels = [
   { key: 'EVIDENCE', title: '支撑证据', subtitle: 'EXP / DATA / FIG / CIT' },
 ];
 
+const nodeWidth = 156;
+const nodeHeight = 62;
+const nodeRadius = 12;
+
 function nodeStatus(node: EvidenceNode, edges: EvidenceEdge[], issues: DashboardData['issues']) {
   const issueText = [...issues.p0, ...issues.p1].join('\n');
   if (issues.p0.some((issue) => issue.includes(node.id))) return 'blocked';
@@ -115,9 +119,9 @@ export function InteractiveEvidenceGraph({
       visibleNodes.filter((node) => !['SEC', 'CLM'].includes(node.kind)),
     ];
     columns.forEach((group, columnIndex) => {
-      const x = 128 + columnIndex * 285;
-      const gap = Math.max(84, 390 / Math.max(group.length, 1));
-      group.forEach((node, rowIndex) => positions.set(node.id, { x, y: 124 + rowIndex * gap }));
+      const x = 148 + columnIndex * 330;
+      const gap = Math.max(96, 392 / Math.max(group.length, 1));
+      group.forEach((node, rowIndex) => positions.set(node.id, { x, y: 132 + rowIndex * gap }));
     });
     return positions;
   }, [visibleNodes]);
@@ -154,37 +158,40 @@ export function InteractiveEvidenceGraph({
       <p className="panel-note">默认只显示当前阶段或当前节点附近的证据链，避免全项目关系过载；需要全局检查时再展开全项目图谱。</p>
       <div className="interactive-graph-layout">
         <div className="graph-canvas-wrap">
-          <svg viewBox="0 0 780 540" role="img" aria-label="可交互证据图谱">
+          <svg viewBox="0 0 920 560" role="img" aria-label="可交互证据图谱">
             <defs>
-              <marker id="graph-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="strokeWidth">
-                <path d="M 0 0 L 10 5 L 0 10 z" className="graph-arrow-head" />
+              <marker id="graph-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.8" markerHeight="5.8" orient="auto">
+                <path d="M 0 1.4 L 9 5 L 0 8.6 z" className="graph-arrow-head" />
               </marker>
               <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
-                <feDropShadow dx="0" dy="6" stdDeviation="7" floodColor="#1d2939" floodOpacity="0.10" />
+                <feDropShadow dx="0" dy="5" stdDeviation="5" floodColor="#1d2939" floodOpacity="0.11" />
               </filter>
             </defs>
             {laneLabels.map((lane, index) => (
-              <g className="graph-lane" key={lane.key} transform={`translate(${28 + index * 255} 22)`}>
-                <rect width="230" height="486" rx="14" />
+              <g className="graph-lane" key={lane.key} transform={`translate(${36 + index * 302} 24)`}>
+                <rect width="260" height="500" rx="14" />
                 <text className="graph-lane-title" x="18" y="30">{lane.title}</text>
                 <text className="graph-lane-subtitle" x="18" y="51">{lane.subtitle}</text>
               </g>
             ))}
-            {visibleEdges.map((edge) => {
+            {visibleEdges.map((edge, edgeIndex) => {
               const source = layout.get(edge.source);
               const target = layout.get(edge.target);
               if (!source || !target) return null;
               const highlighted = connectedIds.has(edge.source) && connectedIds.has(edge.target);
               const midX = (source.x + target.x) / 2;
               const direction = target.x >= source.x ? 1 : -1;
-              const startX = source.x + direction * 90;
-              const endX = target.x - direction * 104;
+              const startX = source.x + direction * (nodeWidth / 2 + 8);
+              const endX = target.x - direction * (nodeWidth / 2 + 18);
+              const offset = ((edgeIndex % 5) - 2) * 6;
+              const startY = source.y + offset;
+              const endY = target.y + offset;
               return (
                 <path
                   key={`${edge.source}-${edge.target}-${edge.relation}`}
                   className={`graph-edge ${highlighted ? 'is-highlighted' : ''}`}
                   markerEnd="url(#graph-arrow)"
-                  d={`M ${startX} ${source.y} C ${midX} ${source.y}, ${midX} ${target.y}, ${endX} ${target.y}`}
+                  d={`M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`}
                 />
               );
             })}
@@ -197,7 +204,7 @@ export function InteractiveEvidenceGraph({
               return (
                 <g
                   key={node.id}
-                  transform={`translate(${point.x - 78} ${point.y - 31})`}
+                  transform={`translate(${point.x - nodeWidth / 2} ${point.y - nodeHeight / 2})`}
                   className={`graph-node-group ${selectedNode ? 'is-selected' : ''} ${related ? 'is-related' : ''}`}
                   onClick={() => setSelectedId(node.id)}
                   onKeyDown={(event) => {
@@ -211,9 +218,9 @@ export function InteractiveEvidenceGraph({
                 >
                   <rect
                     className={`graph-node graph-status-${status}`}
-                    width="156"
-                    height="62"
-                    rx="12"
+                    width={nodeWidth}
+                    height={nodeHeight}
+                    rx={nodeRadius}
                     style={{ '--node-color': kindColor[node.kind] ?? '#475569' } as React.CSSProperties}
                   />
                   <circle className={`node-status-dot node-status-${status}`} cx="135" cy="18" r="5" />

@@ -1787,12 +1787,13 @@ h2 {
 .interactive-graph-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
-  gap: 14px;
+  gap: 16px;
+  align-items: stretch;
 }
 
 .graph-canvas-wrap {
   min-width: 0;
-  overflow-x: auto;
+  overflow: auto;
   border: 1px solid #e4e7ec;
   border-radius: 8px;
   background:
@@ -1800,9 +1801,10 @@ h2 {
 }
 
 .graph-canvas-wrap svg {
-  width: 100%;
-  min-width: 760px;
-  min-height: 500px;
+  display: block;
+  width: 920px;
+  max-width: none;
+  min-height: 560px;
 }
 
 .graph-lane rect {
@@ -1831,19 +1833,20 @@ h2 {
 }
 
 .graph-arrow-head {
-  fill: #2563eb;
+  fill: currentColor;
 }
 
 .graph-edge {
   fill: none;
-  stroke: #8fb3ff;
-  stroke-width: 2;
-  opacity: 0.78;
+  color: #5b8def;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  opacity: 0.72;
 }
 
 .graph-edge.is-highlighted {
-  stroke: #2563eb;
-  stroke-width: 3.4;
+  color: #2563eb;
+  stroke-width: 2.8;
   opacity: 1;
 }
 
@@ -2148,6 +2151,14 @@ code {
 
   .workspace-grid {
     grid-template-columns: minmax(0, 1fr) minmax(380px, 0.95fr);
+  }
+
+  .interactive-graph-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .graph-detail {
+    max-width: none;
   }
 }
 
