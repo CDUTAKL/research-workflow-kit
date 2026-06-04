@@ -110,7 +110,21 @@ export function InteractiveEvidenceGraph({
     });
   }, [enabledKinds, localGraph.nodes, query]);
   const visibleIds = new Set(visibleNodes.map((node) => node.id));
-  const visibleEdges = localGraph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
+  const visibleEdges = useMemo(() => {
+    const grouped = new Map<string, EvidenceEdge & { count: number }>();
+    localGraph.edges
+      .filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target))
+      .forEach((edge) => {
+        const key = `${edge.source}→${edge.target}`;
+        const current = grouped.get(key);
+        if (current) {
+          grouped.set(key, { ...current, count: current.count + 1 });
+        } else {
+          grouped.set(key, { ...edge, count: 1 });
+        }
+      });
+    return Array.from(grouped.values());
+  }, [localGraph.edges, visibleIds]);
   const layout = useMemo(() => {
     const positions = new Map<string, { x: number; y: number }>();
     const columns = [
@@ -174,7 +188,7 @@ export function InteractiveEvidenceGraph({
                 <text className="graph-lane-subtitle" x="18" y="51">{lane.subtitle}</text>
               </g>
             ))}
-            {visibleEdges.map((edge, edgeIndex) => {
+            {visibleEdges.map((edge) => {
               const source = layout.get(edge.source);
               const target = layout.get(edge.target);
               if (!source || !target) return null;
@@ -183,16 +197,22 @@ export function InteractiveEvidenceGraph({
               const direction = target.x >= source.x ? 1 : -1;
               const startX = source.x + direction * (nodeWidth / 2 + 8);
               const endX = target.x - direction * (nodeWidth / 2 + 18);
-              const offset = ((edgeIndex % 5) - 2) * 6;
-              const startY = source.y + offset;
-              const endY = target.y + offset;
+              const startY = source.y;
+              const endY = target.y;
               return (
-                <path
-                  key={`${edge.source}-${edge.target}-${edge.relation}`}
-                  className={`graph-edge ${highlighted ? 'is-highlighted' : ''}`}
-                  markerEnd="url(#graph-arrow)"
-                  d={`M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`}
-                />
+                <g key={`${edge.source}-${edge.target}`}>
+                  <path
+                    className={`graph-edge ${highlighted ? 'is-highlighted' : ''}`}
+                    markerEnd="url(#graph-arrow)"
+                    d={`M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`}
+                  />
+                  {edge.count > 1 ? (
+                    <g className="graph-edge-count" transform={`translate(${midX - 10} ${(startY + endY) / 2 - 13})`}>
+                      <rect width="20" height="18" rx="9" />
+                      <text x="10" y="13">{edge.count}</text>
+                    </g>
+                  ) : null}
+                </g>
               );
             })}
             {visibleNodes.map((node) => {

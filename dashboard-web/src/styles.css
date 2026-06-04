@@ -1850,6 +1850,19 @@ h2 {
   opacity: 1;
 }
 
+.graph-edge-count rect {
+  fill: #ffffff;
+  stroke: #bfd2f7;
+  stroke-width: 1.2;
+}
+
+.graph-edge-count text {
+  fill: #2563eb;
+  font-size: 10px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
 .edge-label {
   fill: #667085;
   font-size: 10px;
