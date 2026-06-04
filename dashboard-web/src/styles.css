@@ -1795,25 +1795,55 @@ h2 {
   overflow-x: auto;
   border: 1px solid #e4e7ec;
   border-radius: 8px;
-  background: #f8fafc;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
 }
 
 .graph-canvas-wrap svg {
   width: 100%;
-  min-width: 680px;
-  min-height: 440px;
+  min-width: 760px;
+  min-height: 500px;
+}
+
+.graph-lane rect {
+  fill: #f8fbff;
+  stroke: #e2eaf5;
+}
+
+.graph-lane:nth-of-type(2) rect {
+  fill: #f5fffc;
+}
+
+.graph-lane:nth-of-type(3) rect {
+  fill: #fffaf5;
+}
+
+.graph-lane-title {
+  fill: #1d2939;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.graph-lane-subtitle {
+  fill: #667085;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.graph-arrow-head {
+  fill: #2563eb;
 }
 
 .graph-edge {
   fill: none;
-  stroke: #98a2b3;
-  stroke-width: 1.6;
-  opacity: 0.66;
+  stroke: #8fb3ff;
+  stroke-width: 2;
+  opacity: 0.78;
 }
 
 .graph-edge.is-highlighted {
   stroke: #2563eb;
-  stroke-width: 3;
+  stroke-width: 3.4;
   opacity: 1;
 }
 
@@ -1827,11 +1857,13 @@ h2 {
   fill: #fff;
   stroke: var(--node-color);
   stroke-width: 2;
+  filter: url(#node-shadow);
 }
 
 .graph-node-group {
   cursor: pointer;
-  opacity: 0.72;
+  opacity: 0.82;
+  transition: opacity 120ms ease;
 }
 
 .graph-node-group.is-selected,
@@ -1840,11 +1872,12 @@ h2 {
 }
 
 .graph-node-group.is-selected .graph-node {
-  stroke-width: 3;
+  stroke-width: 3.2;
 }
 
 .graph-status-warning {
   stroke: #d97706;
+  fill: #fffbeb;
 }
 
 .graph-status-blocked {
@@ -1852,31 +1885,51 @@ h2 {
   fill: #fee2e2;
 }
 
+.node-status-dot {
+  fill: #22c55e;
+}
+
+.node-status-warning {
+  fill: #f59e0b;
+}
+
+.node-status-blocked {
+  fill: #ef4444;
+}
+
 .node-kind {
-  fill: #667085;
-  font-size: 9px;
-  font-weight: 800;
+  fill: var(--node-color);
+  font-size: 10px;
+  font-weight: 900;
 }
 
 .node-id {
   fill: #1d2939;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.node-hint {
+  fill: #667085;
+  font-size: 10px;
+  font-weight: 700;
 }
 
 .graph-detail,
 .heatmap-detail {
   min-width: 0;
-  padding: 14px;
+  padding: 16px;
   border: 1px solid #e4e7ec;
   border-radius: 8px;
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
 
 .graph-detail h3,
 .heatmap-detail h3 {
-  margin: 4px 0 12px;
+  margin: 4px 0 14px;
   overflow-wrap: anywhere;
+  color: #101828;
+  font-size: 1.35rem;
 }
 
 .graph-detail dl,
@@ -1898,6 +1951,9 @@ h2 {
   min-width: 0;
   margin: 0;
   overflow-wrap: anywhere;
+  color: #1d2939;
+  font-weight: 750;
+  line-height: 1.45;
 }
 
 .citation-heatmap-panel {

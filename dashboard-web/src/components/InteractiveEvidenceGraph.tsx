@@ -13,6 +13,21 @@ const kindColor: Record<string, string> = {
   CIT: '#475569',
 };
 
+const kindLabel: Record<string, string> = {
+  SEC: '章节',
+  CLM: '论点',
+  EXP: '实验',
+  DATA: '数据',
+  FIG: '图表',
+  CIT: '引用',
+};
+
+const laneLabels = [
+  { key: 'SEC', title: '论文位置', subtitle: 'SEC / SEG' },
+  { key: 'CLM', title: '核心论点', subtitle: 'CLM' },
+  { key: 'EVIDENCE', title: '支撑证据', subtitle: 'EXP / DATA / FIG / CIT' },
+];
+
 function nodeStatus(node: EvidenceNode, edges: EvidenceEdge[], issues: DashboardData['issues']) {
   const issueText = [...issues.p0, ...issues.p1].join('\n');
   if (issues.p0.some((issue) => issue.includes(node.id))) return 'blocked';
@@ -100,9 +115,9 @@ export function InteractiveEvidenceGraph({
       visibleNodes.filter((node) => !['SEC', 'CLM'].includes(node.kind)),
     ];
     columns.forEach((group, columnIndex) => {
-      const x = 110 + columnIndex * 265;
-      const gap = Math.max(76, 430 / Math.max(group.length, 1));
-      group.forEach((node, rowIndex) => positions.set(node.id, { x, y: 76 + rowIndex * gap }));
+      const x = 128 + columnIndex * 285;
+      const gap = Math.max(84, 390 / Math.max(group.length, 1));
+      group.forEach((node, rowIndex) => positions.set(node.id, { x, y: 124 + rowIndex * gap }));
     });
     return positions;
   }, [visibleNodes]);
@@ -139,7 +154,22 @@ export function InteractiveEvidenceGraph({
       <p className="panel-note">默认只显示当前阶段或当前节点附近的证据链，避免全项目关系过载；需要全局检查时再展开全项目图谱。</p>
       <div className="interactive-graph-layout">
         <div className="graph-canvas-wrap">
-          <svg viewBox="0 0 720 520" role="img" aria-label="可交互证据图谱">
+          <svg viewBox="0 0 780 540" role="img" aria-label="可交互证据图谱">
+            <defs>
+              <marker id="graph-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" className="graph-arrow-head" />
+              </marker>
+              <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
+                <feDropShadow dx="0" dy="6" stdDeviation="7" floodColor="#1d2939" floodOpacity="0.10" />
+              </filter>
+            </defs>
+            {laneLabels.map((lane, index) => (
+              <g className="graph-lane" key={lane.key} transform={`translate(${28 + index * 255} 22)`}>
+                <rect width="230" height="486" rx="14" />
+                <text className="graph-lane-title" x="18" y="30">{lane.title}</text>
+                <text className="graph-lane-subtitle" x="18" y="51">{lane.subtitle}</text>
+              </g>
+            ))}
             {visibleEdges.map((edge) => {
               const source = layout.get(edge.source);
               const target = layout.get(edge.target);
@@ -150,7 +180,8 @@ export function InteractiveEvidenceGraph({
                 <path
                   key={`${edge.source}-${edge.target}-${edge.relation}`}
                   className={`graph-edge ${highlighted ? 'is-highlighted' : ''}`}
-                  d={`M ${source.x + 64} ${source.y} C ${midX} ${source.y}, ${midX} ${target.y}, ${target.x - 64} ${target.y}`}
+                  markerEnd="url(#graph-arrow)"
+                  d={`M ${source.x + 78} ${source.y} C ${midX} ${source.y}, ${midX} ${target.y}, ${target.x - 82} ${target.y}`}
                 />
               );
             })}
@@ -163,7 +194,7 @@ export function InteractiveEvidenceGraph({
               return (
                 <g
                   key={node.id}
-                  transform={`translate(${point.x - 64} ${point.y - 24})`}
+                  transform={`translate(${point.x - 78} ${point.y - 31})`}
                   className={`graph-node-group ${selectedNode ? 'is-selected' : ''} ${related ? 'is-related' : ''}`}
                   onClick={() => setSelectedId(node.id)}
                   onKeyDown={(event) => {
@@ -177,13 +208,15 @@ export function InteractiveEvidenceGraph({
                 >
                   <rect
                     className={`graph-node graph-status-${status}`}
-                    width="128"
-                    height="48"
-                    rx="8"
+                    width="156"
+                    height="62"
+                    rx="12"
                     style={{ '--node-color': kindColor[node.kind] ?? '#475569' } as React.CSSProperties}
                   />
-                  <text className="node-kind" x="12" y="18">{node.kind}</text>
-                  <text className="node-id" x="12" y="35">{node.id}</text>
+                  <circle className={`node-status-dot node-status-${status}`} cx="135" cy="18" r="5" />
+                  <text className="node-kind" x="14" y="20">{kindLabel[node.kind] ?? node.kind}</text>
+                  <text className="node-id" x="14" y="39">{node.id}</text>
+                  <text className="node-hint" x="14" y="53">{node.label && node.label !== 'TBD' ? node.label : status === 'ok' ? '证据链已连接' : '需要补充证据'}</text>
                 </g>
               );
             })}
