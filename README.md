@@ -125,8 +125,8 @@ The workflow has 12 stages:
 8. Results analysis and claim mapping
 9. Figure, table, and model diagram production
 10. Paper writing and polishing
-11. Laptop-based DOCX / optional Word / optional LaTeX / PDF production
-12. Laptop-based final audit and defense preparation
+11. Mac draft production and final handoff preparation
+12. Laptop finalization and defense preparation
 
 `docs/thesis/` is the project evidence source of truth. Notion or other task tools should be used for progress tracking only, not as the primary evidence archive.
 
@@ -135,6 +135,7 @@ The workflow includes optional enhancement layers:
 - `research-code-quality` checks config-driven code, experiment contracts, smoke configs, output manifests, and 4060 handoff templates before expensive runs.
 - `research-autoresearch-loop` records human-supervised experiment iterations in `autoresearch-results.tsv` and `autoresearch-state.json` with verify/guard gates.
 - `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
+- `experiment-architecture.md` is the global experiment blueprint: claim-to-experiment map, data flow, code modules, config/output contract, 4060 formal run path, and remote/cloud artifact storage policy.
 - `$research-literature-review` supports section-level citation matching through `section-citation-map.md`, Zotero screening loops through `zotero-screening-loop.md`, citation provenance through `citation-provenance.md`, Zotero collection coverage through `zotero-collection-coverage.md`, and source-grounded readers.
 - `$research-paper-figures` supports dual-platform diagram replication: Mac draw.io MCP by default and Windows Visio when editable `.vsdx` output is useful.
 - Build Web Data Visualization is used as a design and QA guide for chart choice, statistical visual communication, dashboard views, evidence graphs, accessibility, and visual testing.
@@ -147,6 +148,7 @@ The workflow includes optional enhancement layers:
 - The local React/Vite Dashboard opens with a Chinese current research workspace, tabbed workflow views, an evidence chain inspector, gap-first section citation coverage, baseline experiment comparison, file-layer guidance, and weekly review. The evidence chain inspector defaults to `SEC/SEG -> CLM -> EXP/DATA/FIG/CIT`, collapses duplicate/reverse relations, and keeps the full-project graph as an advanced view. It is a view/editor over `docs/thesis/`, not a replacement source of truth.
 - `scripts/suggest_section_citations.py` gives offline citation suggestions from existing local records, helping each `SEC-*` section move from “missing coverage” to manually confirmed citations.
 - `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for Mac-to-laptop stages 11-12.
+- Experiment outputs use a local-index plus remote-artifact model: keep thesis-readable registry/report records locally, fetch lightweight `outputs/EXP-*` indexes to the Mac, and keep full logs/checkpoints/predictions on `remote_desktop_4060`, NAS, cloud drive, or object storage with URI/hash recorded in `experiment-registry.md`.
 
 ## Engineering Quality Gates
 
@@ -207,11 +209,13 @@ Run it only when CodeRabbit is installed and authenticated. It is not part of de
 
 - `local_mac` is the research console and orchestration machine for stages 1-10: planning, literature, code editing, remote run control, result analysis, figure planning, and writing drafts. It may run CPU-only smoke tests, but GPU work is not assumed.
 - `remote_desktop_4060` is the primary GPU experiment target for training, evaluation, tuning, reproducibility runs, and artifact generation.
-- Formal `remote_desktop_4060` runs should write `outputs/EXP-*/environment.txt` with `scripts/write_environment_snapshot.py`; the CUDA and PyTorch versions may be fixed on the desktop, but the snapshot is still required evidence.
+- Formal `remote_desktop_4060` runs should write `outputs/EXP-*/environment.txt` or `environment_snapshot.json` with `scripts/write_environment_snapshot.py`; the CUDA and PyTorch versions may be fixed on the desktop, but the snapshot is still required evidence.
+- Full formal-run artifacts can remain on the 4060 desktop or a cloud/archive backend. Record `Storage Backend`, `Remote Artifact URI`, `Remote Status`, and `Artifact Hash / Manifest` in `docs/thesis/experiment-registry.md`.
 - `cloud_autodl` is an optional stronger fallback when the desktop 4060 is unavailable or insufficient.
 - Remote training uses macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync`; MobaXterm is a Windows-only convenience and is not assumed.
-- Stages 11-12 are intended to move to the user's laptop for final DOCX/optional Word/optional LaTeX/PDF production, final audit, and defense material finishing.
-- Before stages 11-12 move to the laptop, register DOCX/PDF/PPTX/figure/table deliverables in `docs/thesis/final-artifact-manifest.md`.
+- Stage 11 happens on the Mac first: finish the DOCX/PDF/PPTX draft, check evidence and citations, register final artifacts, and build the handoff package.
+- Stage 12 happens on the laptop: open and verify the handoff package, complete final document layout/export, finalize the defense deck, and run final audit.
+- Before moving to the laptop, register DOCX/PDF/PPTX/figure/table deliverables in `docs/thesis/final-artifact-manifest.md`.
 - DOCX work uses the Documents plugin and local `.docx` files. Pages can open or review documents locally; Microsoft Word is optional when installed.
 - LaTeX is optional. Run the LaTeX doctor first, then compile only when a TeX runtime is available.
 - Diagram polish uses draw.io / draw.io MCP as the default formal redraw route for model architecture, method workflow, system architecture, and process diagrams. Presentations handles PPTX; Figma and BioRender are optional visual refinement tools when available. Canva is not assumed on this Mac.

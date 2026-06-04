@@ -220,17 +220,22 @@ def create_claim(root: Path, fields: dict[str, Any]) -> dict[str, Any]:
 def create_experiment(root: Path, fields: dict[str, Any]) -> dict[str, Any]:
     target = root / RECORD_TARGETS["experiment"]
     record_id = cell(fields.get("experiment_id"), next_experiment_id(root))
+    output_path = cell(fields.get("output_path"), f"outputs/{record_id}")
     row = [
         record_id,
         fields.get("claim"),
         fields.get("method_config"),
         fields.get("dataset_split"),
         fields.get("command"),
-        fields.get("output_path"),
+        output_path,
         fields.get("key_metrics"),
         fields.get("status", "planned"),
         fields.get("date", today()),
         fields.get("notes"),
+        fields.get("storage_backend", "local_mac"),
+        fields.get("remote_artifact_uri"),
+        fields.get("remote_status", "not_applicable"),
+        fields.get("artifact_hash", f"{output_path}/manifest.json"),
     ]
     append_row_to_table(root, target, "Experiment ID", row)
     log_edit(root, "create experiment", target, record_id, cell(fields.get("claim"), "new experiment"))

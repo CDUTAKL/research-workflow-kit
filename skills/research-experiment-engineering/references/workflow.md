@@ -143,7 +143,7 @@ Remote GPU formal training must record:
 
 - SSH alias or host label, not the password or private-key contents.
 - GPU model and remote environment when available.
-- CUDA/PyTorch can be fixed on the desktop, but every formal run still needs `outputs/EXP-*/environment.txt`.
+- CUDA/PyTorch can be fixed on the desktop, but every formal run still needs an environment snapshot and remote artifact URI/hash/status when full outputs live off-Mac.
 - remote project path and remote data path.
 - conda/env activation command.
 - exact train/evaluate command.
@@ -178,8 +178,8 @@ $research-experiment-engineering
   -> local_mac smoke test
   -> remote_desktop_4060 formal GPU training when needed
   -> cloud_autodl fallback only when the desktop 4060 is unavailable or insufficient
-  -> result download/recovery
-  -> run outputs and registry updates
+  -> lightweight index fetch plus remote/cloud artifact archive when needed
+  -> run outputs, remote URI/hash/status, and registry updates
   -> research-autoresearch-loop verify/guard record when iterative
   -> $research-results-analysis
   -> $research-paper-figures
@@ -195,7 +195,7 @@ $research-experiment-engineering
 - Data split and metric definitions are visible.
 - Local CPU-only smoke test passes before remote GPU training.
 - Experiment contract check passes or has explicit documented warnings.
-- Remote desktop 4060 runs have remote paths, result recovery, GPU environment recorded, and `outputs/EXP-*/environment.txt` saved.
+- Remote desktop 4060 runs have remote paths, lightweight result recovery, GPU environment recorded, environment snapshot saved, and remote artifact URI/hash/status recorded when full outputs remain remote.
 - Iterative improvements have verify/guard status in `autoresearch-results.tsv`.
 - AutoDL fallback runs have remote paths, result recovery, and shutdown policy recorded.
 - Reproducibility risks are explicit.

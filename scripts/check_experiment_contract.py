@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 REQUIRED_OUTPUTS = ("manifest.json", "config_resolved.json", "metrics.json", "logs")
-ENVIRONMENT_SNAPSHOT = "environment.txt"
+ENVIRONMENT_SNAPSHOTS = ("environment.txt", "environment_snapshot.json")
 
 
 def read_text(path: Path) -> str:
@@ -81,6 +81,8 @@ def main() -> None:
     parser.add_argument("--output", help="Output directory. Defaults to outputs/<EXP>.")
     parser.add_argument("--require-outputs", action="store_true", help="Require manifest/config/metrics/logs to exist.")
     parser.add_argument("--require-env-snapshot", action="store_true", help="Require outputs/<EXP>/environment.txt for formal GPU runs.")
+    parser.add_argument("--require-remote-artifact", action="store_true", help="Require a remote/cloud artifact URI and artifact hash/manifest in the registry row.")
+    parser.add_argument("--remote-artifact-uri", help="Expected remote/cloud artifact URI. If omitted, the registry row is checked.")
     parser.add_argument("--warn-only", action="store_true", help="Exit 0 even when blocking issues are found.")
     args = parser.parse_args()
 
@@ -124,15 +126,26 @@ def main() -> None:
             missing_outputs = check_outputs(output_dir)
             if missing_outputs:
                 errors.append(f"output directory missing: {', '.join(missing_outputs)}")
-            if args.require_env_snapshot and not (output_dir / ENVIRONMENT_SNAPSHOT).exists():
-                errors.append(f"output directory missing: {ENVIRONMENT_SNAPSHOT}")
+            if args.require_env_snapshot and not any((output_dir / name).exists() for name in ENVIRONMENT_SNAPSHOTS):
+                errors.append(f"output directory missing environment snapshot: {' or '.join(ENVIRONMENT_SNAPSHOTS)}")
     elif args.require_env_snapshot:
         if not output_dir.exists():
             errors.append(f"output directory not found: {output_dir}")
-        elif not (output_dir / ENVIRONMENT_SNAPSHOT).exists():
-            errors.append(f"output directory missing: {ENVIRONMENT_SNAPSHOT}")
+        elif not any((output_dir / name).exists() for name in ENVIRONMENT_SNAPSHOTS):
+            errors.append(f"output directory missing environment snapshot: {' or '.join(ENVIRONMENT_SNAPSHOTS)}")
     elif registry_row and str(output_dir) not in registry_row and "TBD" not in registry_row:
         warnings.append(f"registry row does not mention expected output path `{output_dir}`")
+
+    if args.require_remote_artifact:
+        remote_uri = args.remote_artifact_uri or ""
+        if not remote_uri and registry_row:
+            match = re.search(r"\b(?:ssh|s3|oss|cos|icloud|onedrive|nas|https?)://[^\s|]+", registry_row)
+            if match:
+                remote_uri = match.group(0)
+        if not remote_uri or remote_uri.upper() == "TBD":
+            errors.append("remote artifact URI is required for this experiment")
+        if registry_row and not re.search(r"(manifest\.json|sha256|[a-fA-F0-9]{16,})", registry_row):
+            warnings.append("registry row does not mention artifact hash or manifest")
 
     print(f"Experiment: {exp_id}")
     print(f"Errors: {len(errors)}  |  Warnings: {len(warnings)}")
@@ -140,6 +153,8 @@ def main() -> None:
         print(f"Config: {config}")
     print(f"Registry: {registry}")
     print(f"Output: {output_dir}")
+    if args.remote_artifact_uri:
+        print(f"Remote Artifact URI: {args.remote_artifact_uri}")
     if errors:
         print("BLOCKING ERRORS:")
         for item in errors:

@@ -4,7 +4,21 @@ set -euo pipefail
 SSH_ALIAS="${SSH_ALIAS:-desktop-4060}"
 REMOTE_OUTPUT="${REMOTE_OUTPUT:-~/research-project/outputs/EXP-001/}"
 LOCAL_OUTPUT="${LOCAL_OUTPUT:-outputs/EXP-001/}"
+FETCH_MODE="${FETCH_MODE:-index}" # index: lightweight files only; full: full output folder
 
 mkdir -p "${LOCAL_OUTPUT}"
-rsync -av "${SSH_ALIAS}:${REMOTE_OUTPUT}" "${LOCAL_OUTPUT}"
 
+if [[ "${FETCH_MODE}" == "full" ]]; then
+  rsync -av "${SSH_ALIAS}:${REMOTE_OUTPUT}" "${LOCAL_OUTPUT}"
+else
+  rsync -av \
+    --include "manifest.json" \
+    --include "config_resolved.json" \
+    --include "metrics.json" \
+    --include "environment.txt" \
+    --include "environment_snapshot.json" \
+    --include "figures/***" \
+    --include "tables/***" \
+    --exclude "*" \
+    "${SSH_ALIAS}:${REMOTE_OUTPUT}" "${LOCAL_OUTPUT}"
+fi

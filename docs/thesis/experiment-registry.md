@@ -5,6 +5,8 @@
 - Register every experiment before using its result in writing.
 - Keep one stable experiment ID per run or comparable run group.
 - Link result files, logs, notebooks, configs, and generated figures.
+- Use this registry as a local thesis evidence index. Large logs, checkpoints, predictions, and full run folders may live on `remote_desktop_4060`, NAS, iCloud/OneDrive, or object storage.
+- Record the cloud/remote location, hash/manifest, and remote status whenever artifacts are not fully stored on the Mac.
 - Link architecture and runbook records for experiments that require code implementation.
 - Mark results as `invalid` if leakage, split mismatch, metric mismatch, or missing artifacts are found.
 - Use `EXP-*` for stable reviewed experiment records and `EXP-AUTO-*` for result-scan candidates.
@@ -25,11 +27,20 @@
 | `ready_to_run` | Architecture, config, and run command are defined |
 | `completed_unreviewed` | Outputs exist but have not been analyzed |
 
+## Storage Model
+
+| Layer | Location | Purpose | Notes |
+|---|---|---|---|
+| Local evidence index | `docs/thesis/experiment-registry.md`, `experiment-reports/`, `autoresearch-results.tsv` | thesis-readable experiment evidence | committed and reviewed |
+| Local lightweight output | `outputs/EXP-*/manifest.json`, `metrics.json`, `environment.txt`, selected figures/tables | small machine-readable index | may be ignored by git if project-specific |
+| Remote run folder | `ssh://desktop-4060/.../research-runs/EXP-*` or equivalent | full logs, checkpoints, predictions, large artifacts | primary storage for formal 4060 runs |
+| Archive / cloud | NAS, iCloud/OneDrive, OSS/COS/S3, or institutional storage | long-term preservation | record URI and hash before final audit |
+
 ## Experiment Table
 
-| Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes |
-|---|---|---|---|---|---|---|---|---|---|
-| EXP-001 | TBD | TBD | TBD | TBD | TBD | TBD | planned | TBD |  |
+| Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes | Storage Backend | Remote Artifact URI | Remote Status | Artifact Hash / Manifest |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| EXP-001 | TBD | TBD | TBD | TBD | outputs/EXP-001 | TBD | planned | TBD |  | local_mac/remote_desktop_4060/cloud_autodl/archive/TBD | ssh://desktop-4060/research-runs/EXP-001/TBD | pending | outputs/EXP-001/manifest.json/TBD |
 
 ## Promotion Rules
 
@@ -41,6 +52,7 @@
 - For iterative method changes, record verify/guard outcomes in `autoresearch-results.tsv` before promoting the result to a thesis claim.
 - For data-backed claims, ensure `data-availability.md` maps the output artifact to source data.
 - For formal baseline comparisons, update `benchmark-report-schema.md` and register evidence-critical outputs in `material-passport.md`.
+- For formal 4060 or cloud results, do not mark a run `reviewed` unless `Storage Backend`, `Remote Artifact URI`, `Remote Status`, and `Artifact Hash / Manifest` are explicit.
 
 ## Engineering Links
 
@@ -55,6 +67,7 @@
 | `material-passport.md` | identity card for evidence-critical outputs and final artifacts |
 | `data-availability.md` | dataset provenance and claim-to-data traceability |
 | `outputs/EXP-*/environment.txt` | required environment snapshot for formal 4060 or cloud GPU evidence |
+| `ssh://desktop-4060/.../research-runs/EXP-*` | preferred full-artifact storage for formal 4060 runs |
 
 ## Result Scan Imports
 

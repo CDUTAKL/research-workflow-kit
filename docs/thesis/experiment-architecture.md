@@ -1,73 +1,129 @@
 # Experiment Architecture
 
+## Purpose
+
+This file is the global experiment blueprint for the thesis project. Use it before writing experiment code, opening a new `EXP-*`, or running expensive GPU work.
+
+The goal is to keep the experiment system coherent across Mac orchestration, `remote_desktop_4060` formal runs, optional cloud fallback, local result indexing, and final thesis evidence promotion.
+
 ## Update Rules
 
-- Use this file before writing or refactoring experiment code.
-- Keep the architecture project-specific but claim-aware: each experiment should support, weaken, or reject a thesis claim.
-- Update this file when data, model, training, evaluation, config, or output conventions change.
-- When a new advisor topic is received, import the initial experiment needs from `topic-intake.md`.
+- Update this file when the research question, data flow, model/algorithm boundary, metric definition, baseline, output convention, or remote storage plan changes.
+- Every serious experiment should connect to at least one `CLM-*`, one config, one output location, and one evidence-review path.
+- Local Mac records are the thesis evidence index; complete experiment folders may live on `remote_desktop_4060`, NAS, cloud drive, or object storage.
+- Formal `remote_desktop_4060` or cloud results require an environment snapshot and a remote artifact URI/hash before they can be marked `reviewed`.
+- Do not store passwords, private keys, tokens, or private dataset contents in this file.
 
-## Research Question And Experiment Objective
+## Architecture Summary
 
-| Item | Content | Status |
-|---|---|---|
-| Research question | TBD | draft |
-| Experiment objective | TBD | draft |
-| Target claim ID | CLM-001/TBD | draft |
-| Experiment family | baseline/proposed/ablation/robustness/error-analysis/TBD | draft |
-
-## Data Pipeline
-
-| Component | Decision | Target Files / Modules | Risks |
+| Area | Decision | Status | Notes |
 |---|---|---|---|
-| Raw input format | TBD | TBD | TBD |
-| Split rule | TBD | TBD | leakage/scope/TBD |
-| Preprocessing | TBD | TBD | TBD |
-| Feature extraction | TBD | TBD | TBD |
-| Data audit | `notebooks/thesis/01_data_audit.ipynb` | TBD | TBD |
+| Primary research question | TBD | draft | Link to `thesis-brief.md` |
+| Target claim family | CLM-001/TBD | draft | Link to `claim-evidence-map.md` |
+| Main experiment family | baseline/proposed/ablation/robustness/error-analysis/TBD | draft |  |
+| Primary execution target | `remote_desktop_4060` for formal GPU runs | planned | Mac remains control console |
+| Local smoke target | `local_mac` CPU-only or small sample | planned | No local GPU assumption |
+| Cloud fallback | `cloud_autodl` / other / not needed | pending | Only when 4060 is unavailable or insufficient |
+| Long-term artifact storage | 4060 run folder / NAS / cloud drive / object storage / TBD | pending | Record URI in `experiment-registry.md` |
 
-## Model / Algorithm Modules
+## Claim-To-Experiment Map
 
-| Module | Role | Target Files / Modules | Config Keys | Notes |
-|---|---|---|---|---|
-| Baseline | comparison | TBD | TBD |  |
-| Proposed method | main method | TBD | TBD |  |
-| Ablation switch | remove/test component | TBD | TBD |  |
-| Metric code | shared evaluation | TBD | TBD |  |
+| Claim ID | Experiment Family | Required Evidence | Baseline Needed | Main Metric | Status | Notes |
+|---|---|---|---|---|---|---|
+| CLM-001 | EXP-001/TBD | DATA-001, EXP-001, FIG-001/TBD | yes/no/TBD | TBD | draft |  |
 
-## Entrypoints
+## End-To-End Data Flow
 
-| Entrypoint | Purpose | Expected Command | Expected Outputs | Status |
-|---|---|---|---|---|
-| Train | fit model | TBD | config, logs, checkpoint, train/val metrics | planned |
-| Evaluate | final metrics | TBD | metrics.json/csv, predictions if applicable | planned |
-| Predict | prediction export | TBD | predictions.csv/json | planned |
+| Stage | Input | Process | Output | Source Record | Risk |
+|---|---|---|---|---|---|
+| Raw data | TBD | acquisition / filtering / import | raw dataset path | `data-availability.md` | access, privacy, missing metadata |
+| Preprocessing | raw data | cleaning, split, feature prep | processed data / split manifest | `data-availability.md` | leakage, duplicate samples |
+| Training / inference | config + processed data | baseline/proposed method | logs, checkpoints, predictions | `experiment-runbook.md` | unstable run, wrong config |
+| Evaluation | predictions + labels | metric computation | `metrics.json`, tables | `metric-diagnostics.md` | metric mismatch |
+| Analysis | metrics + logs | baseline delta, error analysis | `experiment-reports/EXP-*.md` | `benchmark-report-schema.md` | overclaiming |
+| Figure / writing | reviewed evidence | plot or table | FIG-* / manuscript claim | `figure-plan.md`, `claim-evidence-map.md` | unsupported claim |
 
-## Config And Output Structure
+## Code Architecture Contract
 
-| Area | Convention | Example / Path |
+| Layer | Responsibility | Preferred Path | Required Interface / Output |
+|---|---|---|---|
+| Data loading | read raw/processed data and fixed splits | `src/data/` | deterministic split, data version, hash |
+| Model / algorithm | baseline and proposed method | `src/models/` or project equivalent | config-driven construction |
+| Training | fit model or run method | `src/training/` | logs, checkpoint, resolved config |
+| Evaluation | compute final metrics | `src/evaluation/` | `metrics.json`, predictions if needed |
+| Metrics | shared metric definitions | `src/metrics/` | named metric, denominator, direction |
+| Utilities | seed, logging, paths | `src/utils/` | reproducible seed and artifact paths |
+| Figures | data-backed plots | `scripts/figures/` | SVG/PDF/PNG or table export |
+| Tests | smoke and contract tests | `tests/` | config, output, metric sanity |
+
+## Config Contract
+
+| Item | Required? | Example | Notes |
+|---|---|---|---|
+| Stable experiment ID | yes | `EXP-001` | Must match registry |
+| Formal config | yes | `configs/experiment/EXP-001.yaml` | Full run |
+| Smoke config | yes before formal run | `configs/smoke/EXP-001-smoke.yaml` | Small sample / CPU-friendly |
+| Seed | yes | `seed: 42` | Record global/numpy/torch when applicable |
+| Split | yes | `split: test` | Must be fixed before comparison |
+| Primary metric | yes | `metric: accuracy` | Include direction and denominator in metric diagnostics |
+| Output path | yes | `outputs/EXP-001` | Local lightweight index |
+| Remote artifact URI | formal remote/cloud | `ssh://desktop-4060/research-runs/EXP-001/` | Full run folder if not stored on Mac |
+
+## Output Contract
+
+Each evidence-bearing `outputs/EXP-*` folder should contain a lightweight local index:
+
+| Artifact | Required | Purpose |
 |---|---|---|
-| Config location | TBD | `configs/experiment/EXP-001.yaml` |
-| Output location | stable experiment ID | `outputs/EXP-001/` |
-| Metrics | machine-readable | `metrics.json` |
-| Logs | human-readable | `logs/` |
-| Checkpoints | reusable for evaluation | `checkpoints/` |
-| Predictions | error analysis and figures | `predictions.csv` |
+| `manifest.json` | yes after run | artifact inventory, hashes, remote URI |
+| `config_resolved.json` | yes after run | exact runtime config |
+| `metrics.json` | yes after run | machine-readable metrics |
+| `environment.txt` or `environment_snapshot.json` | formal remote/cloud | CUDA/PyTorch/Python/GPU/git state |
+| `logs/` | yes after run | training/evaluation trace |
+| `figures/` or `tables/` | when produced | candidate thesis visuals |
+| `predictions.csv/json` | when needed | error analysis and figure source |
+| `checkpoints/` | optional / remote preferred | large files can stay on 4060/cloud |
 
-## Implementation Tasks
+## Remote Storage Contract
 
-| Task | Target Files | Owner | Status | Notes |
-|---|---|---|---|---|
-| Define data loader | TBD | TBD | planned |  |
-| Define baseline | TBD | TBD | planned |  |
-| Define proposed method | TBD | TBD | planned |  |
-| Define train/evaluate entrypoints | TBD | TBD | planned |  |
-| Define output manifest | TBD | TBD | planned |  |
+| Field | Preferred Value | Required When | Source Record |
+|---|---|---|---|
+| Storage Backend | `local_mac`, `remote_desktop_4060`, `cloud_autodl`, `nas`, `icloud`, `onedrive`, `oss/cos/s3` | every experiment | `experiment-registry.md` |
+| Remote Artifact URI | `ssh://desktop-4060/research-runs/EXP-001/` | full artifacts not stored on Mac | `experiment-registry.md` |
+| Remote Status | `pending`, `synced`, `verified`, `archived`, `blocked` | remote/cloud runs | `experiment-registry.md` |
+| Artifact Hash / Manifest | `outputs/EXP-001/manifest.json` or checksum | reviewed evidence | `experiment-registry.md`, `material-passport.md` |
+| Local Summary | `experiment-reports/EXP-001.md` | all reviewed results | `experiment-reports/` |
+
+## 4060 Formal Run Path
+
+| Step | Action | Output |
+|---|---|---|
+| 1 | Mac prepares config, smoke config, and registry row | `configs/experiment/EXP-*.yaml`, `experiment-registry.md` |
+| 2 | Mac runs local smoke / contract check | pass/fail notes |
+| 3 | Mac syncs code/config to `remote_desktop_4060` | remote project folder |
+| 4 | 4060 writes environment snapshot | `outputs/EXP-*/environment.txt` |
+| 5 | 4060 runs formal experiment | full remote run folder |
+| 6 | Mac fetches lightweight index | `manifest.json`, `metrics.json`, selected figures/tables |
+| 7 | Full artifacts remain remote or are archived | `Remote Artifact URI`, hash/manifest |
+| 8 | Results become report and claim evidence only after review | `experiment-reports/EXP-*.md`, `claim-evidence-map.md` |
+
+## Baseline And Metric Policy
+
+| Policy | Requirement | Notes |
+|---|---|---|
+| Baseline comparability | same data split and metric definition | otherwise mark comparison invalid or caveated |
+| Metric direction | higher/lower is better must be explicit | record in `metric-diagnostics.md` |
+| Failed runs | keep visible when they affect interpretation | use `autoresearch-results.tsv` |
+| Multiple seeds | required when claim depends on stability | otherwise write caveat |
+| Result promotion | verify gate + guard gate required | use `evidence-promotion-policy.md` |
 
 ## Risks And Blockers
 
 | Risk | Impact | Detection | Mitigation | Status |
 |---|---|---|---|---|
-| Missing baseline | weak comparison | experiment plan review | implement baseline | open |
-| Split leakage | invalid result | data audit | fixed split and duplicate checks | open |
-| No machine-readable metrics | cannot scan/analyze results | output check | save metrics JSON/CSV | open |
+| Missing baseline | weak comparison | experiment plan review | implement or justify baseline | open |
+| Split leakage | invalid result | data audit / duplicate checks | fixed split and leakage tests | open |
+| No machine-readable metrics | cannot scan/analyze results | contract check | save `metrics.json` | open |
+| Full artifacts only on Mac | storage bloat and handoff risk | output audit | move large files to 4060/cloud and record URI | open |
+| Remote artifacts unverified | evidence chain breaks | doctor / final audit | write manifest/hash and verify remote status | open |
+| Environment snapshot missing | formal GPU evidence weak | contract check | write snapshot before or during formal run | open |

@@ -32,12 +32,14 @@ REGISTRY_TEMPLATE = """# Experiment Registry
 - Register every experiment before using its result in writing.
 - Keep one stable experiment ID per run or comparable run group.
 - Link result files, logs, notebooks, configs, and generated figures.
+- Use this registry as a local thesis evidence index. Large run folders may
+  live on `remote_desktop_4060`, NAS, cloud drive, or object storage.
 - `experiment-log.md` is a legacy compatibility file; this registry is the primary evidence record.
 
 ## Experiment Table
 
-| Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes |
-|---|---|---|---|---|---|---|---|---|---|
+| Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes | Storage Backend | Remote Artifact URI | Remote Status | Artifact Hash / Manifest |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 """
 
 
@@ -85,6 +87,11 @@ def get_defaults() -> dict:
         "checkpoint_path": "",
         "log_path": "",
         "tensorboard_path": "",
+        "output_path": "",
+        "storage_backend": "local_mac",
+        "remote_artifact_uri": "",
+        "remote_status": "not_applicable",
+        "artifact_hash": "",
     }
     if CONFIG_PATH.exists():
         try:
@@ -139,13 +146,14 @@ def registry_row(cfg: dict) -> str:
     command = f"`{cfg.get('script', 'TBD')}`"
     output_parts = [
         part for part in (
+            cfg.get("output_path"),
             cfg.get("checkpoint_path"),
             cfg.get("log_path"),
             cfg.get("tensorboard_path"),
         )
         if part
     ]
-    output_path = "; ".join(output_parts) if output_parts else "TBD"
+    output_path = "; ".join(output_parts) if output_parts else f"outputs/{experiment_id}"
     metrics = "; ".join(
         part for part in (
             cfg.get("primary_metric"),
@@ -169,6 +177,10 @@ def registry_row(cfg: dict) -> str:
         cfg.get("status", "planned"),
         cfg.get("env_date"),
         notes,
+        cfg.get("storage_backend", "local_mac"),
+        cfg.get("remote_artifact_uri") or "TBD",
+        cfg.get("remote_status") or "not_applicable",
+        cfg.get("artifact_hash") or f"{output_path}/manifest.json",
     ]
     return "| " + " | ".join(markdown_cell(str(cell)) for cell in cells) + " |"
 

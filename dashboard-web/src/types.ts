@@ -32,6 +32,10 @@ export interface WorkflowRecord {
   experiments?: string;
   figures?: string;
   literature?: string;
+  storageBackend?: string;
+  remoteArtifactUri?: string;
+  remoteStatus?: string;
+  artifactHash?: string;
 }
 
 export interface StageWorkspace {
@@ -111,6 +115,10 @@ export interface ExperimentComparison {
   verifyStatus: string;
   guardStatus: string;
   environmentSnapshot: string;
+  storageBackend?: string;
+  remoteArtifactUri?: string;
+  remoteStatus?: string;
+  artifactHash?: string;
   status: string;
   nextAction: string;
   path: string;

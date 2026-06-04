@@ -37,27 +37,27 @@ STAGE_WORKSPACES = {
     },
     "4": {
         "name": "Experiment architecture planning",
-        "fileKeys": ["experimentRegistry", "benchmarkReportSchema"],
+        "fileKeys": ["experimentArchitecture", "experimentRegistry", "benchmarkReportSchema"],
         "commands": ["python scripts/check_experiment_contract.py --experiment-id EXP-001 --warn-only"],
-        "recommendedActions": ["编码前先确定 config、数据切分、指标、输出路径和 smoke test 契约。"],
+        "recommendedActions": ["编码前先确定全局实验架构、数据流、baseline、指标、输出结构和 smoke test 契约。"],
     },
     "5": {
         "name": "Research code implementation",
-        "fileKeys": ["experimentRegistry", "benchmarkReportSchema"],
+        "fileKeys": ["experimentArchitecture", "experimentRegistry", "benchmarkReportSchema"],
         "commands": ["python scripts/check_experiment_contract.py --experiment-id EXP-001 --warn-only"],
         "recommendedActions": ["保持代码由配置驱动，并确保下一个实验可先做 smoke test。"],
     },
     "6": {
         "name": "Experiment run and monitoring",
-        "fileKeys": ["experimentRegistry", "benchmarkReportSchema"],
+        "fileKeys": ["experimentArchitecture", "experimentRegistry", "benchmarkReportSchema"],
         "commands": ["python scripts/write_environment_snapshot.py --out outputs/EXP-001/environment.txt --label remote_desktop_4060"],
-        "recommendedActions": ["先做本地 smoke test，再跑 4060 正式实验，并记录环境快照和输出 manifest。"],
+        "recommendedActions": ["先做本地 smoke test，再跑 4060 正式实验；完整产物可留在远程，但要记录 URI、hash 和环境快照。"],
     },
     "7": {
         "name": "Experiment recording and result scan",
         "fileKeys": ["experimentRegistry", "dataAvailability"],
         "commands": ["python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000"],
-        "recommendedActions": ["升级证据前，记录输出、指标、baseline delta 和数据来源。"],
+        "recommendedActions": ["升级证据前，记录本地索引、远程产物 URI、指标、baseline delta、hash 和数据来源。"],
     },
     "8": {
         "name": "Results analysis and claim mapping",
@@ -78,16 +78,16 @@ STAGE_WORKSPACES = {
         "recommendedActions": ["只基于已支持论点和已验证章节引用覆盖来写正文。"],
     },
     "11": {
-        "name": "Laptop DOCX / PDF production",
+        "name": "Mac draft production and handoff preparation",
         "fileKeys": ["finalArtifactManifest", "dailyWorkflowEntry"],
         "commands": ["python scripts/package_final_handoff.py"],
-        "recommendedActions": ["从交付清单打包最终文件，并把 zip 移动到笔记本验证。"],
+        "recommendedActions": ["先在 Mac 完成 DOCX/PDF/PPTX 初稿与交接清单，再打包给笔记本最终定版。"],
     },
     "12": {
-        "name": "Final audit and defense",
+        "name": "Laptop finalization and defense preparation",
         "fileKeys": ["finalAudit", "finalArtifactManifest"],
         "commands": ["python scripts/audit_final_artifacts.py --tier final --warn-only"],
-        "recommendedActions": ["验证笔记本交付物、checksum、终审等级和答辩幻灯片证据链。"],
+        "recommendedActions": ["在笔记本完成最终排版、导出、checksum 验证、终审等级和答辩幻灯片证据链。"],
     },
 }
 
@@ -140,6 +140,10 @@ def collect(thesis_dir: Path) -> dict[str, object]:
                 "claim": cells[1] if len(cells) > 1 else "",
                 "output": cells[5] if len(cells) > 5 else "",
                 "status": cells[7] if len(cells) > 7 else "",
+                "storageBackend": cells[10] if len(cells) > 10 else "",
+                "remoteArtifactUri": cells[11] if len(cells) > 11 else "",
+                "remoteStatus": cells[12] if len(cells) > 12 else "",
+                "artifactHash": cells[13] if len(cells) > 13 else "",
                 "row": " | ".join(cells),
             }
 
@@ -190,6 +194,7 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
         "console-file-index.md",
         "daily-workflow-entry.md",
         "weekly-review.md",
+        "experiment-architecture.md",
         "evidence-promotion-policy.md",
         "id-lifecycle-policy.md",
         "material-passport.md",
@@ -229,10 +234,17 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
         status = exp["status"].lower()
         if status in {"done", "reviewed"} and missing(output):
             p1.append(f"{exp_id} is {status} but has no output path")
-        if status in {"done", "reviewed"} and "remote_desktop_4060" in exp["row"]:
-            snapshot = Path(output) / "environment.txt" if output else Path()
-            if output and not snapshot.exists():
-                p1.append(f"{exp_id} is a formal 4060 run but missing {snapshot}")
+        formal_remote = any(marker in exp["row"] for marker in ("remote_desktop_4060", "cloud_autodl", "ssh://", "s3://", "oss://", "cos://", "nas://"))
+        if status in {"done", "reviewed", "completed_unreviewed"} and formal_remote:
+            output_dir = Path(output.split(";")[0].strip()) if output else Path()
+            if output and not any((output_dir / name).exists() for name in ("environment.txt", "environment_snapshot.json")):
+                p1.append(f"{exp_id} is a formal remote/GPU run but missing environment snapshot under {output_dir}")
+            if missing(exp.get("remoteArtifactUri", "")):
+                p1.append(f"{exp_id} is a formal remote/GPU run but missing Remote Artifact URI")
+            if missing(exp.get("artifactHash", "")):
+                p1.append(f"{exp_id} is a formal remote/GPU run but missing Artifact Hash / Manifest")
+            if exp.get("remoteStatus", "").lower() in {"", "tbd", "pending", "missing"} and status == "reviewed":
+                p1.append(f"{exp_id} is reviewed but remote artifact status is not verified")
 
     for data_id, dataset in datasets.items():
         if dataset["status"].lower() in {"reviewed", "availability_ready", "restricted_ready"}:
@@ -393,6 +405,10 @@ def collect_experiment_comparisons(thesis_dir: Path, records: dict[str, list[dic
                     "verifyStatus": verify_status,
                     "guardStatus": guard_status,
                     "environmentSnapshot": env_status,
+                    "storageBackend": registry_records.get(exp_id, {}).get("storageBackend", "TBD"),
+                    "remoteArtifactUri": registry_records.get(exp_id, {}).get("remoteArtifactUri", "TBD"),
+                    "remoteStatus": registry_records.get(exp_id, {}).get("remoteStatus", "TBD"),
+                    "artifactHash": registry_records.get(exp_id, {}).get("artifactHash", "TBD"),
                     "status": registry_records.get(exp_id, {}).get("status", "TBD"),
                     "nextAction": "review verify/guard gates before promoting to CLM evidence",
                     "path": path.as_posix(),
@@ -411,6 +427,10 @@ def collect_experiment_comparisons(thesis_dir: Path, records: dict[str, list[dic
             "verifyStatus": "pending",
             "guardStatus": "pending",
             "environmentSnapshot": "missing" if "remote_desktop_4060" in item.get("row", "") else "TBD",
+            "storageBackend": item.get("storageBackend", "TBD"),
+            "remoteArtifactUri": item.get("remoteArtifactUri", "TBD"),
+            "remoteStatus": item.get("remoteStatus", "TBD"),
+            "artifactHash": item.get("artifactHash", "TBD"),
             "status": item.get("status", "TBD"),
             "nextAction": "generate experiment report for baseline comparison",
             "path": "docs/thesis/experiment-reports/",
@@ -907,6 +927,7 @@ def dashboard_data(
             "dailyWorkflowEntry": "docs/thesis/daily-workflow-entry.md",
             "weeklyReview": "docs/thesis/weekly-review.md",
             "claimMap": "docs/thesis/claim-evidence-map.md",
+            "experimentArchitecture": "docs/thesis/experiment-architecture.md",
             "experimentRegistry": "docs/thesis/experiment-registry.md",
             "benchmarkReportSchema": "docs/thesis/benchmark-report-schema.md",
             "dataAvailability": "docs/thesis/data-availability.md",

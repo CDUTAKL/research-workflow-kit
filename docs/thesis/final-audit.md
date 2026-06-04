@@ -5,10 +5,11 @@
 - Use this file before submission, defense, export, or major supervisor review.
 - Record issues by priority and close them only after checking the manuscript or source file.
 - Link each serious issue to the affected claim, section, figure, table, citation, or experiment.
-- Stages 11-12 are intended to be finished on the user's laptop; record the laptop artifact path or version when final production moves off the Mac research console.
+- Stage 11 starts on the Mac: complete draft DOCX/PDF/PPTX artifacts, check evidence/citations, and prepare the handoff manifest/package.
+- Stage 12 finishes on the user's laptop: verify the handoff package, finalize document layout/export, finish defense materials, and record the laptop artifact path/version.
 - Apply `evidence-promotion-policy.md` before promoting any `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` item to final evidence.
 - Apply `id-lifecycle-policy.md` before final writing so deprecated or superseded IDs do not leak into the thesis.
-- Use `final-artifact-manifest.md` as the stage 11-12 Mac-to-laptop handoff contract.
+- Use `final-artifact-manifest.md` as the Mac-to-laptop handoff contract.
 - Run `scripts/research_workflow_doctor.py --write-dashboard` before advisor or final audit when the project console exists.
 - Check `plugin-gate-policy.md` and `plugin-review-log.md` when Codex Security, Build Web Apps, Data Analytics, Product Design, or CodeRabbit gates were recommended.
 - If the Dashboard, evidence graph, or result charts will be shown to an advisor, apply Build Web Data Visualization checks for truthful chart choice, readable labels, accessible contrast, uncertainty/missingness visibility, and desktop/mobile legibility.
@@ -97,7 +98,7 @@
 | Each important `SEC-*` has section citation coverage | pending |  |
 | Main `CLM-*` items are supported or deliberately weakened | pending |  |
 | Reviewed `EXP-*` runs pass contract checks | pending |  |
-| `remote_desktop_4060` formal runs include `outputs/EXP-*/environment.txt` | pending |  |
+| `remote_desktop_4060` formal runs include environment snapshot and remote artifact URI/hash/status | pending |  |
 | Figures/tables use `FIG-*` IDs and have safe captions | pending |  |
 | `diagram-replica-tasks.md` records draw.io / Visio outputs for structured diagrams | pending |  |
 | A/B/C/D literature screening labels have section handoff or exclusion reasons | pending |  |
@@ -139,7 +140,7 @@
 | Data availability statement and dataset restrictions are recorded | pending |  |
 | Autoresearch iterations have verify/guard decisions | pending |  |
 | Experiment code contracts pass for cited runs | pending |  |
-| Remote 4060 formal runs have environment snapshots | pending |  |
+| Remote 4060 formal runs have environment snapshots plus verified remote artifact URI/hash/status | pending |  |
 | Figure and table numbering is consistent | pending |  |
 | Network architecture figures have draw.io or Visio redraw record, spec, vector output, and QA report | pending |  |
 | Appendix and acknowledgements are complete | pending |  |

@@ -13,7 +13,7 @@ Use this skill before expensive experiments or when research code needs to becom
 - Use config-driven experiments; avoid hard-coded paths, seeds, metrics, and output folders.
 - Every formal run should have a contract: config, seed, split, metric, output path, registry row, and smoke config.
 - Machine-readable outputs should include manifest, resolved config, metrics, logs, and predictions when applicable.
-- Formal `remote_desktop_4060` or cloud GPU evidence should include `outputs/EXP-*/environment.txt`.
+- Formal `remote_desktop_4060` or cloud GPU evidence should include `outputs/EXP-*/environment.txt` or `environment_snapshot.json`, plus remote artifact URI/hash/status when full outputs live off-Mac.
 - Remote templates must not store passwords, tokens, or private-key contents.
 - When editing or installing workflow skills, run `scripts/audit_skills.py --warn-only --write-report` before merging to keep references, scripts, and tool assumptions consistent.
 - For important workflow, script, dashboard, or CI changes, CodeRabbit review is optional when authenticated: `coderabbit review --agent -c AGENTS.md`. Do not make it a required local dependency or CI step.
@@ -30,7 +30,7 @@ Read `references/code-quality.md` for the checks and template layout. Read `refe
 4. Run or recommend `scripts/check_experiment_contract.py`.
 5. Prepare `local_mac` smoke config before `remote_desktop_4060` formal runs.
 6. Write or require an environment snapshot for formal remote runs.
-7. Use the 4060 sync/run/fetch templates only after the user fills SSH alias and remote paths.
+7. Use the 4060 sync/run/fetch/archive templates only after the user fills SSH alias and remote paths.
 8. Route valid experiments back to `$research-experiment-engineering`.
 9. Run skill self-checks after workflow-skill changes when this kit itself is being maintained.
 10. For kit infrastructure changes, update `AGENTS.md`, `CONTRIBUTING.md`, PR templates, or CI only when the verification commands and safety boundaries remain clear.
@@ -46,6 +46,7 @@ Always include:
 - output artifact contract
 - experiment contract check command
 - remote 4060 handoff notes when relevant
+- remote artifact storage notes when full outputs live on 4060/cloud/archive storage
 - environment snapshot requirement when the run is formal GPU evidence
 - risks such as leakage, config drift, missing metrics, or hard-coded paths
 - skill audit status when maintaining this workflow kit

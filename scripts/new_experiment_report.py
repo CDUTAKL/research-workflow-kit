@@ -40,6 +40,10 @@ def registry() -> dict[str, dict[str, str]]:
                 "metrics": cells[6] if len(cells) > 6 else "",
                 "status": cells[7] if len(cells) > 7 else "",
                 "notes": cells[9] if len(cells) > 9 else "",
+                "storage_backend": cells[10] if len(cells) > 10 else "",
+                "remote_artifact_uri": cells[11] if len(cells) > 11 else "",
+                "remote_status": cells[12] if len(cells) > 12 else "",
+                "artifact_hash": cells[13] if len(cells) > 13 else "",
             }
     return records
 
@@ -47,7 +51,8 @@ def registry() -> dict[str, dict[str, str]]:
 def load_metrics(exp_id: str, output: str) -> dict[str, float | str]:
     candidates = []
     if output and "TBD" not in output:
-        candidates.append(Path(output.strip("` ")) / "metrics.json")
+        first_output = output.split(";")[0].strip("` ")
+        candidates.append(Path(first_output) / "metrics.json")
     candidates.append(Path("outputs") / exp_id / "metrics.json")
     for path in candidates:
         if path.exists():
@@ -86,7 +91,8 @@ def write_report(exp_id: str, baseline_id: str | None) -> Path:
     delta = "TBD"
     if exp_primary and base_primary and exp_primary[0] == base_primary[0]:
         delta = f"{exp_primary[1] - base_primary[1]:.6g}"
-    env_snapshot = Path(exp.get("output", "").strip("` ")) / "environment.txt" if exp.get("output") else Path("outputs") / exp_id / "environment.txt"
+    output_dir = exp.get("output", "").split(";")[0].strip("` ")
+    env_snapshot = Path(output_dir) / "environment.txt" if output_dir else Path("outputs") / exp_id / "environment.txt"
     REPORTS.mkdir(parents=True, exist_ok=True)
     report = REPORTS / f"{exp_id}.md"
     report.write_text(
@@ -101,6 +107,10 @@ def write_report(exp_id: str, baseline_id: str | None) -> Path:
 | Dataset / Split | {exp.get('dataset', 'TBD')} |
 | Command | {exp.get('command', 'TBD')} |
 | Output | {exp.get('output', 'TBD')} |
+| Storage Backend | {exp.get('storage_backend') or 'TBD'} |
+| Remote Artifact URI | {exp.get('remote_artifact_uri') or 'TBD'} |
+| Remote Status | {exp.get('remote_status') or 'TBD'} |
+| Artifact Hash / Manifest | {exp.get('artifact_hash') or 'TBD'} |
 | Registry Status | {exp.get('status', 'TBD')} |
 | Environment Snapshot | {'present' if env_snapshot.exists() else 'missing'} |
 
@@ -116,6 +126,7 @@ def write_report(exp_id: str, baseline_id: str | None) -> Path:
 |---|---|---|
 | verify | {autoresearch_row(exp_id)} | pending |
 | guard | config, split, leakage, stability, environment snapshot | pending |
+| storage | local index plus remote artifact URI/hash when full outputs live off-Mac | {'pending' if not exp.get('remote_artifact_uri') and 'remote_desktop_4060' in (exp.get('storage_backend', '') + exp.get('notes', '')) else 'recorded_or_not_applicable'} |
 
 ## Claim Promotion Decision
 

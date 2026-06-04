@@ -2,7 +2,7 @@
 
 ## Tool Routing
 
-- Treat document production as stage 11. In this device workflow, final DOCX/optional Word/optional LaTeX/PDF production is intended to move to the user's laptop, while the Mac can still draft, inspect, and prepare files.
+- Treat document production as a two-device handoff. Stage 11 happens on the Mac: draft DOCX/PDF/PPTX artifacts, inspect evidence/citations, and prepare the handoff package. Stage 12 happens on the user's laptop: verify the package, finalize layout/export, and finish defense materials.
 - Use the Documents plugin (`documents:documents` in Codex plugin contexts) for `.docx` reading, editing, formatting, and thesis templates.
 - Use `$pdf` for PDF reading, visual rendering checks, extraction, and final PDF review.
 - Use LaTeX only after running the LaTeX doctor; compile only when the doctor finds a usable TeX runtime.
@@ -38,7 +38,7 @@ For LaTeX manuscripts:
 
 ## Final Production Checklist
 
-- Final artifact path or version on the user's laptop is recorded in `docs/thesis/final-audit.md`.
+- Mac draft artifact path and laptop final artifact path/version are recorded in `docs/thesis/final-artifact-manifest.md` and `docs/thesis/final-audit.md`.
 - Abstract and keywords satisfy template requirements.
 - Figures and tables are numbered and cited in text.
 - Equations are numbered only when referenced, and variables are defined.

@@ -46,9 +46,9 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                     """\
                     # Experiment Registry
 
-                    | Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes |
-                    |---|---|---|---|---|---|---|---|---|---|
-                    | EXP-001 | Existing claim | baseline | dataset_v1 | `python baseline.py` | `outputs/EXP-001` | accuracy=0.8 | done | 2026-01-01 | existing |
+                    | Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes | Storage Backend | Remote Artifact URI | Remote Status | Artifact Hash / Manifest |
+                    |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+                    | EXP-001 | Existing claim | baseline | dataset_v1 | `python baseline.py` | `outputs/EXP-001` | accuracy=0.8 | done | 2026-01-01 | existing | local_mac | TBD | not_applicable | outputs/EXP-001/manifest.json |
                     """
                 ),
                 encoding="utf-8",
@@ -68,6 +68,14 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                     "done",
                     "--checkpoint-path",
                     "outputs/latest",
+                    "--storage-backend",
+                    "remote_desktop_4060",
+                    "--remote-artifact-uri",
+                    "ssh://desktop-4060/research-runs/EXP-001/",
+                    "--remote-status",
+                    "synced",
+                    "--artifact-hash",
+                    "outputs/latest/manifest.json",
                 ],
                 cwd=project,
                 text=True,
@@ -81,6 +89,9 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("experiments/run.py", registry_text)
             self.assertIn("accuracy=0.91", registry_text)
             self.assertIn("outputs/latest", registry_text)
+            self.assertIn("remote_desktop_4060", registry_text)
+            self.assertIn("ssh://desktop-4060/research-runs/EXP-001/", registry_text)
+            self.assertIn("outputs/latest/manifest.json", registry_text)
             self.assertIn("appended to docs/thesis/experiment-registry.md", result.stdout)
             self.assertFalse((project / "docs" / "thesis" / "experiment-log.md").exists())
 
@@ -146,9 +157,9 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             (thesis / "experiment-registry.md").write_text(
                 textwrap.dedent(
                     """\
-                    | Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes |
-                    |---|---|---|---|---|---|---|---|---|---|
-                    | EXP-001 | CLM-001 | configs/experiment/EXP-001.yaml | test | train | outputs/EXP-001 | accuracy | planned | TBD |  |
+                    | Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes | Storage Backend | Remote Artifact URI | Remote Status | Artifact Hash / Manifest |
+                    |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+                    | EXP-001 | CLM-001 | configs/experiment/EXP-001.yaml | test | train | outputs/EXP-001 | accuracy | planned | TBD | remote_desktop_4060 | remote_desktop_4060 | ssh://desktop-4060/research-runs/EXP-001/ | verified | outputs/EXP-001/manifest.json |
                     """
                 ),
                 encoding="utf-8",
@@ -168,6 +179,7 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                     "EXP-001",
                     "--require-outputs",
                     "--require-env-snapshot",
+                    "--require-remote-artifact",
                 ],
                 cwd=project,
                 text=True,
@@ -175,6 +187,48 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 check=True,
             )
             self.assertIn("Errors: 0", result.stdout)
+
+    def test_check_experiment_contract_detects_missing_remote_artifact(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (project / "configs" / "experiment").mkdir(parents=True)
+            (project / "configs" / "smoke").mkdir(parents=True)
+            (project / "configs" / "experiment" / "EXP-001.yaml").write_text(
+                "seed: 42\nsplit: test\nmetric: accuracy\noutput: outputs/EXP-001\n",
+                encoding="utf-8",
+            )
+            (project / "configs" / "smoke" / "EXP-001-smoke.yaml").write_text(
+                "seed: 42\nsplit: smoke\nmetric: accuracy\noutput: outputs/EXP-001-smoke\n",
+                encoding="utf-8",
+            )
+            (thesis / "experiment-registry.md").write_text(
+                textwrap.dedent(
+                    """\
+                    | Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes | Storage Backend | Remote Artifact URI | Remote Status | Artifact Hash / Manifest |
+                    |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+                    | EXP-001 | CLM-001 | configs/experiment/EXP-001.yaml | test | train | outputs/EXP-001 | accuracy | planned | TBD | remote_desktop_4060 | remote_desktop_4060 | TBD | pending | TBD |
+                    """
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(CHECK_CONTRACT),
+                    "--experiment-id",
+                    "EXP-001",
+                    "--require-remote-artifact",
+                    "--warn-only",
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertIn("remote artifact URI is required", result.stdout)
 
     def test_write_environment_snapshot_creates_snapshot_file(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -568,6 +622,10 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "| ID | Type | Status | Primary File | Related IDs | Replacement ID | Owner | Updated On | Notes |\n"
                 "|---|---|---|---|---|---|---|---|---|\n"
                 "| CLM-001 | claim | verified | claim-evidence-map.md | EXP-001; FIG-001; DATA-001 |  | user | 2026-01-01 | test |\n",
+                encoding="utf-8",
+            )
+            (thesis / "experiment-architecture.md").write_text(
+                "# Experiment Architecture\n\n| Area | Decision | Status | Notes |\n|---|---|---|---|\n| Primary execution target | local_mac | planned | test |\n",
                 encoding="utf-8",
             )
             (thesis / "claim-evidence-map.md").write_text(

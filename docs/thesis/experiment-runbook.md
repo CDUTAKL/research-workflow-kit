@@ -9,7 +9,7 @@
 - Run the experiment contract check before expensive remote GPU work.
 - Record human-supervised iteration decisions in `autoresearch-results.tsv` when the run changes a claim or method.
 - For `remote_desktop_4060` formal runs, save an environment snapshot even when CUDA and PyTorch versions are fixed on the desktop.
-- After the run, update actual outputs, status, and handoff target.
+- After the run, update actual outputs, local lightweight index, remote artifact URI, remote status, hash/manifest, and handoff target.
 
 ## Runbook Table
 
@@ -27,7 +27,7 @@ python scripts/check_experiment_contract.py \
   --registry docs/thesis/experiment-registry.md
 ```
 
-After a run, add `--require-outputs` to require `manifest.json`, `config_resolved.json`, `metrics.json`, and `logs/`. For formal `remote_desktop_4060` runs, also add `--require-env-snapshot`.
+After a run, add `--require-outputs` to require `manifest.json`, `config_resolved.json`, `metrics.json`, and `logs/`. For formal `remote_desktop_4060` or cloud runs, also add `--require-env-snapshot --require-remote-artifact`.
 
 ## Command Template
 
@@ -66,6 +66,9 @@ Record connection metadata here only after the user provides access. Do not stor
 | Python version | TBD | remote environment Python |
 | Driver version | TBD | from `nvidia-smi` |
 | Remote output path | TBD | experiment artifacts |
+| Remote artifact URI | `ssh://desktop-4060/research-runs/EXP-001/TBD` | full run folder or archive path |
+| Remote artifact status | pending/synced/verified/archived/blocked | update after fetch/archive |
+| Artifact hash / manifest | TBD | `checksums.sha256` or `manifest.json` |
 | Local download path | TBD | where recovered results are stored |
 | Shutdown policy | ask_user / stop_after_recovery / keep_running | choose before long runs |
 
@@ -81,8 +84,8 @@ Record connection metadata here only after the user provides access. Do not stor
 | 6 | Start formal training in a persistent session | pending | tmux/screen/nohup/platform default |
 | 7 | Monitor logs and GPU usage | pending |  |
 | 8 | Verify metrics/logs/checkpoints/predictions and environment snapshot | pending |  |
-| 9 | Download or sync required artifacts | pending |  |
-| 10 | Update registry, reproducibility checklist, data availability, and claim map | pending |  |
+| 9 | Fetch lightweight index to Mac and optionally archive full remote artifacts | pending | `FETCH_MODE=index scripts/remote_fetch_results.sh.template`; `remote_archive_experiment.sh.template` |
+| 10 | Update registry remote URI/hash/status, reproducibility checklist, data availability, and claim map | pending |  |
 | 11 | Stop/release instance if requested | pending | never assume without user instruction |
 
 ## Remote Desktop 4060 Environment Snapshot
@@ -101,8 +104,17 @@ Minimum follow-up check:
 python scripts/check_experiment_contract.py \
   --experiment-id EXP-001 \
   --require-outputs \
-  --require-env-snapshot
+  --require-env-snapshot \
+  --require-remote-artifact
 ```
+
+## Remote Artifact Storage
+
+| Storage Layer | Default | Contents | Registry Fields |
+|---|---|---|---|
+| Mac local index | `outputs/EXP-001/` | `manifest.json`, `config_resolved.json`, `metrics.json`, environment snapshot, selected figures/tables | Output Path, Artifact Hash / Manifest |
+| 4060 full run folder | `ssh://desktop-4060/research-runs/EXP-001/` | logs, checkpoints, predictions, full outputs | Storage Backend, Remote Artifact URI, Remote Status |
+| Archive fallback | NAS / cloud drive / object storage | long-term copy of reviewed formal runs | Remote Artifact URI, Artifact Hash / Manifest |
 
 ## Autoresearch Iteration Handoff
 

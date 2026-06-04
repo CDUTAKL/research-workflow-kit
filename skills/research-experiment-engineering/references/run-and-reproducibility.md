@@ -81,15 +81,18 @@ When using the desktop RTX 4060, record these fields in `experiment-runbook.md` 
 | GPU model | RTX 4060, with VRAM when known |
 | Fixed CUDA version | desktop CUDA version once confirmed |
 | Fixed PyTorch version | desktop PyTorch version once confirmed |
-| Environment snapshot | `outputs/EXP-*/environment.txt` |
+| Environment snapshot | `outputs/EXP-*/environment.txt` or `environment_snapshot.json` |
 | Remote project path | code directory on the desktop |
 | Remote data path | dataset directory on the desktop |
 | Remote env | conda/env activation command |
 | Remote command | train/evaluate command |
 | Remote log path | log file or directory |
 | Remote output path | metrics/checkpoints/predictions directory |
+| Remote artifact URI | full run folder or archive URI |
+| Remote artifact status | pending/synced/verified/archived/blocked |
+| Artifact hash / manifest | checksum file or `manifest.json` |
 | Download destination | local artifact path after training |
-| Recovery policy | whether to sync outputs back to the Mac and where |
+| Recovery policy | whether to fetch lightweight index only or sync full outputs back to the Mac |
 
 Use macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync` for remote desktop handoff. Do not assume MobaXterm on this Mac.
 
@@ -99,12 +102,12 @@ Remote GPU execution sequence:
 1. Confirm SSH access and GPU.
 2. Confirm project, data, and environment paths.
 3. Run or verify a small remote smoke test if the environment is new.
-4. Save `outputs/EXP-*/environment.txt` with `scripts/write_environment_snapshot.py`.
+4. Save `outputs/EXP-*/environment.txt` or `environment_snapshot.json` with `scripts/write_environment_snapshot.py`.
 5. Start formal training in tmux, screen, nohup, or the platform's preferred background method.
 6. Monitor logs and GPU usage.
 7. Verify metrics, logs, checkpoints, predictions, and environment snapshot exist.
-8. Download or sync required artifacts.
-9. Update thesis console records.
+8. Fetch lightweight result indexes to the Mac and keep full artifacts remote/cloud when appropriate.
+9. Update thesis console records with storage backend, remote artifact URI, remote status, and hash/manifest.
 10. Stop temporary jobs or free cloud instances if the fallback cloud target was used.
 ```
 

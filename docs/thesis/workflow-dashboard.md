@@ -57,8 +57,8 @@ Use Build Web Data Visualization principles when the dashboard becomes advisor-f
 | 8 | Results analysis and claim mapping | pending | `claim-evidence-map.md`, `data-availability.md` |  |
 | 9 | Figure and table production | pending | `figure-plan.md`, `diagram-replica-tasks.md` |  |
 | 10 | Paper writing and polishing | pending | `writing-outline.md` |  |
-| 11 | Laptop DOCX / optional LaTeX / PDF | pending | `final-artifact-manifest.md`, final document artifacts |  |
-| 12 | Laptop final audit and defense | pending | `final-audit.md`, `defense-prep.md`, `final-artifact-manifest.md` |  |
+| 11 | Mac draft production and final handoff preparation | pending | `final-artifact-manifest.md`, draft DOCX/PDF/PPTX artifacts | Mac produces the draft and handoff package |
+| 12 | Laptop finalization and defense preparation | pending | `final-audit.md`, `defense-prep.md`, `final-artifact-manifest.md` | Laptop verifies, finalizes, exports, and prepares defense |
 
 ## Health Summary
 
@@ -174,7 +174,8 @@ Manual launchers remain available:
 | What changed this week? | `weekly-review.md` |
 | What claims are safe? | `claim-evidence-map.md`, `evidence-promotion-policy.md`, `id-lifecycle-policy.md` |
 | What materials identify the evidence chain? | `material-passport.md`, `research-materials-index.md` |
-| What experiments support the thesis? | `experiment-registry.md`, `experiment-runbook.md` |
+| What experiments support the thesis? | `experiment-architecture.md`, `experiment-registry.md`, `experiment-runbook.md` |
+| Where are full experiment artifacts stored? | `experiment-registry.md` remote artifact fields, `outputs/EXP-*/manifest.json` |
 | What benchmark comparison is defensible? | `benchmark-report-schema.md`, `experiment-reports/` |
 | What data backs the results? | `data-availability.md` |
 | What citations support each section? | `section-citation-map.md`, `citation-provenance.md`, `literature-matrix.md` |
@@ -183,7 +184,7 @@ Manual launchers remain available:
 | What citation search task should run next? | `deep-research-tasks.md`, `section-research-packets/` |
 | What changed versus baseline? | `experiment-reports/` |
 | What figures are final? | `figure-plan.md`, `diagram-replica-tasks.md`, `network-architecture-figures.md` |
-| What must move to the laptop? | `final-artifact-manifest.md` |
+| What Mac draft artifacts must move to the laptop? | `final-artifact-manifest.md` |
 | What final handoff package was verified? | `final-handoff-verify-report.md`, `handoff-packages/` |
 | What did the dashboard edit? | `workflow-edit-log.md` |
 | Is this ready for advisor or final review? | `final-audit.md` |

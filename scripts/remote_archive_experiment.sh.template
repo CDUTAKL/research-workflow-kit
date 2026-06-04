@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SSH_ALIAS="${SSH_ALIAS:-desktop-4060}"
+EXP_ID="${EXP_ID:-EXP-001}"
+REMOTE_OUTPUT="${REMOTE_OUTPUT:-~/research-project/outputs/${EXP_ID}/}"
+REMOTE_ARCHIVE_ROOT="${REMOTE_ARCHIVE_ROOT:-~/research-runs}"
+REMOTE_ARCHIVE="${REMOTE_ARCHIVE:-${REMOTE_ARCHIVE_ROOT}/${EXP_ID}/}"
+
+ssh "${SSH_ALIAS}" "mkdir -p '${REMOTE_ARCHIVE_ROOT}' && rsync -av '${REMOTE_OUTPUT}' '${REMOTE_ARCHIVE}' && cd '${REMOTE_ARCHIVE}' && find . -type f -print0 | sort -z | xargs -0 shasum -a 256 > checksums.sha256"
+
+cat <<EOF
+Archived ${EXP_ID}
+Remote Artifact URI: ssh://${SSH_ALIAS}/${REMOTE_ARCHIVE}
+Remote checksum file: ssh://${SSH_ALIAS}/${REMOTE_ARCHIVE}/checksums.sha256
+
+Update docs/thesis/experiment-registry.md:
+- Storage Backend: remote_desktop_4060
+- Remote Artifact URI: ssh://${SSH_ALIAS}/${REMOTE_ARCHIVE}
+- Remote Status: archived or verified
+- Artifact Hash / Manifest: ${REMOTE_ARCHIVE}/checksums.sha256 or outputs/${EXP_ID}/manifest.json
+EOF

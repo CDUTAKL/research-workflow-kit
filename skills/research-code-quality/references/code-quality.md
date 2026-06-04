@@ -31,7 +31,7 @@ python scripts/check_experiment_contract.py \
   --registry docs/thesis/experiment-registry.md
 ```
 
-Add `--require-outputs` after a run to require `manifest.json`, `config_resolved.json`, `metrics.json`, and `logs/`. Add `--require-env-snapshot` for formal `remote_desktop_4060` or cloud GPU runs.
+Add `--require-outputs` after a run to require `manifest.json`, `config_resolved.json`, `metrics.json`, and `logs/`. Add `--require-env-snapshot --require-remote-artifact` for formal `remote_desktop_4060` or cloud GPU runs.
 
 ```bash
 python scripts/write_environment_snapshot.py \
@@ -47,9 +47,10 @@ Copy and customize:
 scripts/remote_sync_to_4060.sh.template
 scripts/remote_run_4060.sh.template
 scripts/remote_fetch_results.sh.template
+scripts/remote_archive_experiment.sh.template
 ```
 
-Only store SSH alias, paths, and commands. Never store passwords. The run template writes an environment snapshot before the formal command by default.
+Only store SSH alias, paths, and commands. Never store passwords. The run template writes an environment snapshot before the formal command by default. The fetch template defaults to a lightweight local index; the archive template records the remote run folder and checksum path that should be copied into `experiment-registry.md`.
 
 ## Review Checklist
 

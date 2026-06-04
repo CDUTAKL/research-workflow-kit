@@ -78,6 +78,8 @@ const stageNameLabels: Record<string, string> = {
   'Results analysis and claim mapping': '结果分析与论点映射',
   'Figure and table production': '图表与模型结构图制作',
   'Paper writing and polishing': '论文写作与润色',
+  'Mac draft production and handoff preparation': 'Mac 初稿生产与终稿交接准备',
+  'Laptop finalization and defense preparation': '笔记本终稿定版与答辩准备',
   'Laptop DOCX / optional LaTeX / PDF': '笔记本 DOCX / 可选 LaTeX / PDF',
   'Laptop DOCX / PDF production': '笔记本 DOCX / PDF 生产',
   'Laptop final audit and defense': '笔记本终审与答辩准备',
@@ -670,6 +672,12 @@ function ExperimentComparisonPanel({ comparisons }: { comparisons: ExperimentCom
               <span className={`status-pill ${statusClass(item.verifyStatus)}`}>verify {displayStatus(item.verifyStatus)}</span>
               <span className={`status-pill ${statusClass(item.guardStatus)}`}>guard {displayStatus(item.guardStatus)}</span>
               <span className={`status-pill ${item.environmentSnapshot === 'present' ? 'is-ok' : 'is-warning'}`}>env {displayText(item.environmentSnapshot)}</span>
+              <span className={`status-pill ${statusClass(item.remoteStatus ?? 'TBD')}`}>remote {displayStatus(item.remoteStatus ?? 'TBD')}</span>
+            </div>
+            <div className="comparison-storage">
+              <span>存储：{displayText(item.storageBackend ?? 'TBD')}</span>
+              <code>{displayText(item.remoteArtifactUri ?? 'Remote Artifact URI/TBD')}</code>
+              <span>Hash/Manifest：{displayText(item.artifactHash ?? 'TBD')}</span>
             </div>
             <p>{displayText(item.nextAction)}</p>
           </article>

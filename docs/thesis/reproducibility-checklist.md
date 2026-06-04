@@ -4,7 +4,7 @@
 
 - Complete this checklist for every experiment that may support a thesis claim.
 - A result should not move from `candidate` to `done` until required reproduction information is available.
-- A formal `remote_desktop_4060` result should not move to `reviewed` until `outputs/EXP-*/environment.txt` exists.
+- A formal `remote_desktop_4060` result should not move to `reviewed` until an environment snapshot exists and `experiment-registry.md` records storage backend, remote artifact URI, remote status, and hash/manifest.
 - Record exceptions explicitly instead of leaving fields blank.
 
 ## Checklist
@@ -74,7 +74,7 @@
 - `local_mac` is the main research console for stages 1-10 and may run CPU-only smoke tests for shapes, configs, and output files.
 - `remote_desktop_4060` is the primary formal experiment target for CUDA/GPU training, evaluation, tuning, and reproducibility artifacts.
 - `cloud_autodl` is a fallback for runs that exceed or cannot use the desktop 4060.
-- Stages 11-12 are intended for the user's laptop: final DOCX/optional Word/optional LaTeX/PDF production, final audit, and defense finishing.
+- Stage 11 prepares Mac draft artifacts and the handoff package; stage 12 uses the user's laptop for final document export, final audit, and defense finishing.
 - Use macOS Terminal, VS Code SSH, `ssh`, `scp`, or `rsync` for remote upload/run/download workflows. Do not assume MobaXterm on this Mac.
 
 ## Status Legend
