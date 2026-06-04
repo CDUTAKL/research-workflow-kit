@@ -156,7 +156,7 @@ export function InteractiveEvidenceGraph({
         <div className="graph-canvas-wrap">
           <svg viewBox="0 0 780 540" role="img" aria-label="可交互证据图谱">
             <defs>
-              <marker id="graph-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <marker id="graph-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="strokeWidth">
                 <path d="M 0 0 L 10 5 L 0 10 z" className="graph-arrow-head" />
               </marker>
               <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
@@ -176,12 +176,15 @@ export function InteractiveEvidenceGraph({
               if (!source || !target) return null;
               const highlighted = connectedIds.has(edge.source) && connectedIds.has(edge.target);
               const midX = (source.x + target.x) / 2;
+              const direction = target.x >= source.x ? 1 : -1;
+              const startX = source.x + direction * 90;
+              const endX = target.x - direction * 104;
               return (
                 <path
                   key={`${edge.source}-${edge.target}-${edge.relation}`}
                   className={`graph-edge ${highlighted ? 'is-highlighted' : ''}`}
                   markerEnd="url(#graph-arrow)"
-                  d={`M ${source.x + 78} ${source.y} C ${midX} ${source.y}, ${midX} ${target.y}, ${target.x - 82} ${target.y}`}
+                  d={`M ${startX} ${source.y} C ${midX} ${source.y}, ${midX} ${target.y}, ${endX} ${target.y}`}
                 />
               );
             })}
