@@ -50,6 +50,12 @@ function openKeyForKind(kind: string) {
   return 'dashboard';
 }
 
+function laneRank(kind = '') {
+  if (kind === 'SEC') return 0;
+  if (kind === 'CLM') return 1;
+  return 2;
+}
+
 export function InteractiveEvidenceGraph({
   nodes,
   edges,
@@ -110,21 +116,37 @@ export function InteractiveEvidenceGraph({
     });
   }, [enabledKinds, localGraph.nodes, query]);
   const visibleIds = new Set(visibleNodes.map((node) => node.id));
+  const visibleNodeById = useMemo(() => new Map(visibleNodes.map((node) => [node.id, node])), [visibleNodes]);
   const visibleEdges = useMemo(() => {
     const grouped = new Map<string, EvidenceEdge & { count: number }>();
     localGraph.edges
       .filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target))
       .forEach((edge) => {
-        const key = `${edge.source}→${edge.target}`;
+        const sourceNode = visibleNodeById.get(edge.source);
+        const targetNode = visibleNodeById.get(edge.target);
+        if (!sourceNode || !targetNode) return;
+
+        const sourceRank = laneRank(sourceNode.kind);
+        const targetRank = laneRank(targetNode.kind);
+        if (!showAll && sourceRank === 2 && targetRank === 2) return;
+
+        let source = edge.source;
+        let target = edge.target;
+        if (sourceRank > targetRank) {
+          source = edge.target;
+          target = edge.source;
+        }
+
+        const key = `${source}→${target}`;
         const current = grouped.get(key);
         if (current) {
           grouped.set(key, { ...current, count: current.count + 1 });
         } else {
-          grouped.set(key, { ...edge, count: 1 });
+          grouped.set(key, { ...edge, source, target, count: 1 });
         }
       });
     return Array.from(grouped.values());
-  }, [localGraph.edges, visibleIds]);
+  }, [localGraph.edges, showAll, visibleIds, visibleNodeById]);
   const layout = useMemo(() => {
     const positions = new Map<string, { x: number; y: number }>();
     const columns = [
@@ -206,12 +228,6 @@ export function InteractiveEvidenceGraph({
                     markerEnd="url(#graph-arrow)"
                     d={`M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`}
                   />
-                  {edge.count > 1 ? (
-                    <g className="graph-edge-count" transform={`translate(${midX - 10} ${(startY + endY) / 2 - 13})`}>
-                      <rect width="20" height="18" rx="9" />
-                      <text x="10" y="13">{edge.count}</text>
-                    </g>
-                  ) : null}
                 </g>
               );
             })}
