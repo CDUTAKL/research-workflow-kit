@@ -15,7 +15,7 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 
 - Planning and advisor topic intake: use `$research-paper-plan`.
 - Idea discovery and early research direction: use `$research-paper-plan` with `docs/thesis/idea-discovery.md` for paper pools, idea matrices, novelty risks, and shortlists.
-- Literature discovery, source-grounded paper reading, related work, section-level citation matching, deep research task packets, Zotero screening loops, and citation batches: use `$research-literature-review`; use `$semanticscholar-skill` for real Semantic Scholar searches when exact papers, citations, or BibTeX candidates matter; use `$pdf` when full-paper PDF reading, original/translation alignment, figure/table extraction, or source anchors matter.
+- Literature discovery, Zotero literature hub management, source-grounded paper reading, related work, section-level citation matching, deep research task packets, Zotero screening loops, and citation batches: use `$research-literature-review`; use `$semanticscholar-skill` for real Semantic Scholar searches when exact papers, citations, or BibTeX candidates matter; use `$pdf` when full-paper PDF reading, original/translation alignment, figure/table extraction, or source anchors matter.
 - Experiment architecture, code design, `local_mac` CPU-only smoke tests, `remote_desktop_4060` primary GPU runs, `cloud_autodl` fallback training, training/evaluation scripts, config/log/output conventions, reproducibility, and mapping code runs to thesis experiments: use `$research-experiment-engineering`; use `$research-code-quality` for skeletons, contract checks, smoke configs, output manifests, and 4060 handoff templates.
 - Human-supervised iterative experiment improvement: use `$research-autoresearch-loop` for `autoresearch-results.tsv`, `autoresearch-state.json`, verify gates, guard gates, baseline comparison reports, and recovery decisions.
 - Experiment recording and exploration: use `$jupyter-notebook`.
@@ -45,7 +45,7 @@ Always turn a broad research request into a staged workflow with artifacts, skil
 - Image Gen Skill is used in stage 9 as the mandatory visual-reference generator for model architecture, method overview, workflow, and schematic figures when visual quality matters. Its output is checked for content accuracy and then redrawn formally; it is not treated as final manuscript evidence.
 - draw.io / draw.io MCP is the default stage 9 formal redraw route for model architecture, method overview, workflow, evidence graph, and system diagrams. Export SVG/PDF/PNG for thesis use and package into PPTX for defense slides when needed.
 - Windows Visio is an optional direct-use route for figure replication: reference image -> JSON plan -> `.vsdx` -> EMF/PDF/PNG -> thesis/PPTX handoff. Record it in `diagram-replica-tasks.md`; do not let Visio become the source of truth.
-- Zotero screening loop is an optional stage 2 intake enhancer: candidate sources -> A/B/C/D labels -> Zotero queue -> spreadsheet feedback -> section citation handoff. Record it in `zotero-screening-loop.md`; do not cite unverified candidates.
+- Zotero literature hub is the stage 2-10 citation backbone: Zotero stores the local library, `zotero-literature-hub.md` stores the inventory/policy snapshot, `zotero-screening-loop.md` records intake decisions, `zotero-collection-coverage.md` checks collection coverage, and `citation-provenance.md` promotes formal `CIT-*` rows. Do not cite unverified candidates directly from Zotero.
 - Figma can be used in stage 9 or 12 for optional diagram refinement, reusable design components, and visual system work after the draw.io/source-of-truth record and visual reference are established.
 - Scite and Zotero are the default citation-verification helpers: Scite checks support/contrast/mention status, while Zotero manages local library records and citation exports. Neither replaces direct source-grounded reading for critical claims.
 - Supabase database migration, Overleaf synchronization, reviewer-response workflow, and arXiv auto-submit are out of scope for the current graduation-thesis workflow.
@@ -93,6 +93,7 @@ docs/thesis/
   weekly-review.md
   git-version-log.md
   literature-matrix.md
+  zotero-literature-hub.md
   zotero-screening-loop.md
   zotero-collection-coverage.md
   paper-readings/

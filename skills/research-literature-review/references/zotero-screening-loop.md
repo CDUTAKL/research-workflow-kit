@@ -63,6 +63,7 @@ A single feedback row is not enough to create a stable rule. Conflicting evidenc
 
 Zotero is a library and review convenience layer. It does not replace:
 
+- `zotero-literature-hub.md`
 - `literature-matrix.md`
 - `section-citation-map.md`
 - source-grounded readers
@@ -81,7 +82,9 @@ Suggested tags:
 
 Use:
 
+- `docs/thesis/zotero-literature-hub.md`
 - `docs/thesis/zotero-screening-loop.md`
+- `docs/thesis/zotero-collection-coverage.md`
 - `docs/thesis/literature-matrix.md`
 - `docs/thesis/deep-research-tasks.md`
 - `docs/thesis/section-research-packets/`

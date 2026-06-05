@@ -15,6 +15,7 @@ Use this skill to find, organize, and synthesize literature into a defensible re
 - For full-paper reading tasks, preserve source-grounded evidence with page/block anchors before using the paper for important claims.
 - For citation-heavy thesis text, map sections and segments in `docs/thesis/section-citation-map.md`.
 - When a section needs targeted citation improvement, create a deep research task with `scripts/new_deep_research_task.py --section-id SEC-... --topic "..."` and work inside `docs/thesis/section-research-packets/`.
+- Treat Zotero as the literature hub, not the final evidence record: use `docs/thesis/zotero-literature-hub.md` for inventory/policy, then promote papers through `section-citation-map.md` and `citation-provenance.md`.
 - When the project needs recurring literature intake, use the Zotero screening loop in `docs/thesis/zotero-screening-loop.md`: candidate pool -> A/B/C/D labels -> Zotero queue -> spreadsheet feedback -> section citation handoff.
 - Use `docs/thesis/citation-provenance.md` to distinguish metadata verification from claim-support verification, and `docs/thesis/zotero-collection-coverage.md` to check whether each section has enough Zotero-backed literature coverage.
 - Use `SEC-*` for thesis sections and `SEG-*` only for section-level citation units; connect literature support back to `CLM-*` through `claim-evidence-map.md`.
@@ -35,8 +36,9 @@ Read `references/workflow.md` for the literature matrix and related-work templat
 8. For recurring intake, maintain the A/B/C/D screening pool and Zotero writeback queue without treating unverified candidates as citations.
 9. Record core citations in `citation-provenance.md` with `verified_by`, `verified_on`, metadata status, support status, Zotero status, and export status.
 10. Map Zotero collections to `SEC-*`, `SEG-*`, and `CLM-*` in `zotero-collection-coverage.md`.
-11. Propose a related-work outline that groups literature by concept, not chronologically.
-12. Flag missing citations and unverifiable claims.
+11. Use `scripts/sync_zotero_inventory.py`, `scripts/audit_zotero_coverage.py`, and `scripts/export_zotero_bibliography.py` when a local Zotero library needs to be connected to the thesis console.
+12. Propose a related-work outline that groups literature by concept, not chronologically.
+13. Flag missing citations and unverifiable claims.
 
 ## Output Contract
 
@@ -56,6 +58,7 @@ Always include:
 - section citation map updates when matching papers to thesis chapters, sections, or paragraphs
 - deep research packet path when a section needs more precise literature search
 - screening label, Zotero queue status, and feedback-learning status when using the screening loop
+- Zotero literature hub snapshot path when local library inventory is reviewed
 - citation provenance updates for core papers
 - Zotero collection coverage gaps by section
 - missing literature

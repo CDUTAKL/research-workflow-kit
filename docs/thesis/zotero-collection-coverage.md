@@ -4,7 +4,7 @@
 
 Use this file to check whether Zotero collections actually cover the thesis sections, segments, and claim evidence they are supposed to support.
 
-This complements `zotero-screening-loop.md`: screening decides what to keep; coverage shows what each chapter can safely cite and where citation gaps remain.
+This complements `zotero-literature-hub.md` and `zotero-screening-loop.md`: the hub records library policy/inventory, screening decides what to keep, and coverage shows what each chapter can safely cite and where citation gaps remain.
 
 ## Update Rules
 

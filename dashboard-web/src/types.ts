@@ -154,6 +154,7 @@ export interface DashboardData {
     idLifecycleRecords?: number;
     skillIssues?: number;
     citationSuggestions?: number;
+    zoteroCoverageIssues?: number;
     pluginRecommendations?: number;
     experimentComparisons?: number;
   };
@@ -174,6 +175,12 @@ export interface DashboardData {
     candidate: number;
     verified: number;
     risk: number;
+  };
+  zoteroCoverageSummary?: {
+    sections: number;
+    missingZotero: number;
+    missingStrong: number;
+    missingCollection: number;
   };
   focusedEvidenceGraph?: {
     nodes: EvidenceNode[];

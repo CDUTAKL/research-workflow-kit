@@ -33,6 +33,9 @@ SUGGEST_SECTION_CITATIONS = REPO_ROOT / "scripts" / "suggest_section_citations.p
 PACKAGE_FINAL_HANDOFF = REPO_ROOT / "scripts" / "package_final_handoff.py"
 VERIFY_FINAL_HANDOFF = REPO_ROOT / "scripts" / "verify_final_handoff.py"
 PLUGIN_GATE_ADVISOR = REPO_ROOT / "scripts" / "plugin_gate_advisor.py"
+SYNC_ZOTERO_INVENTORY = REPO_ROOT / "scripts" / "sync_zotero_inventory.py"
+AUDIT_ZOTERO_COVERAGE = REPO_ROOT / "scripts" / "audit_zotero_coverage.py"
+EXPORT_ZOTERO_BIBLIOGRAPHY = REPO_ROOT / "scripts" / "export_zotero_bibliography.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -345,6 +348,99 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertEqual("SEC-INTRO-001", suggestions_json["sectionId"])
             self.assertGreaterEqual(suggestions_json["suggestions"][0]["score"], 10)
 
+    def test_sync_zotero_inventory_writes_hub_snapshot(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            payload = {
+                "items": [
+                    {
+                        "itemKey": "ABC123",
+                        "bibtexKey": "smith2026method",
+                        "title": "Important Method Paper",
+                        "year": "2026",
+                        "creators": ["Smith"],
+                        "doi": "10.0000/method",
+                        "collections": ["thesis/03_methods"],
+                    }
+                ]
+            }
+            source = project / "zotero.json"
+            source.write_text(json.dumps(payload), encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(SYNC_ZOTERO_INVENTORY), "--input-json", str(source)],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            hub = project / "docs" / "thesis" / "zotero-literature-hub.md"
+            hub_text = hub.read_text(encoding="utf-8")
+            self.assertIn("wrote Zotero inventory", result.stdout)
+            self.assertIn("Important Method Paper", hub_text)
+            self.assertIn("ABC123", hub_text)
+
+    def test_audit_zotero_coverage_reports_section_status(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "zotero-literature-hub.md").write_text("# hub\n", encoding="utf-8")
+            (thesis / "section-citation-map.md").write_text(
+                "| Section ID | Thesis Location | Section Purpose | Required Literature Role | Coverage Status | Notes |\n"
+                "|---|---|---|---|---|---|\n"
+                "| SEC-INTRO-001 | Ch1 | background | foundational | partial | ready |\n\n"
+                "| Segment ID | Section ID | Segment / Claim Draft | Candidate Reference | DOI / arXiv / S2 ID | Support Grade | Source Status | Zotero Status | Scite / Reader Status | Export Format | Next Action |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|\n"
+                "| SEG-001 | SEC-INTRO-001 | claim | Strong Paper | 10.0000/example | strong | metadata_verified | in_zotero | supports_claim | bibtex | cite |\n",
+                encoding="utf-8",
+            )
+            (thesis / "citation-provenance.md").write_text(
+                "| Citation ID | Section ID | Segment ID | Claim ID | Title | Identifier | Candidate Source | Metadata Status | Support Status | Zotero Status | Scite / Reader Evidence | Verified By | Verified On | Export Status | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n",
+                encoding="utf-8",
+            )
+            (thesis / "zotero-collection-coverage.md").write_text(
+                "| Section ID | Required Literature Roles | Zotero Collections | A-Core Papers | B-Section Papers | Verified Citation IDs | Gap | Status |\n"
+                "|---|---|---|---|---|---|---|---|\n"
+                "| SEC-INTRO-001 | foundational | ZCOL-001 | Strong Paper | TBD | CIT-001 | none | covered |\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(AUDIT_ZOTERO_COVERAGE), "--json"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            payload = json.loads(result.stdout)
+            self.assertEqual([], payload["p1"])
+            self.assertEqual(1, payload["details"]["sections"]["SEC-INTRO-001"]["strongVerified"])
+
+    def test_export_zotero_bibliography_writes_verified_stub(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "citation-provenance.md").write_text(
+                "| Citation ID | Section ID | Segment ID | Claim ID | Title | Identifier | Candidate Source | Metadata Status | Support Status | Zotero Status | Scite / Reader Evidence | Verified By | Verified On | Export Status | Notes |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n"
+                "| CIT-001 | SEC-INTRO-001 | SEG-001 | CLM-001 | Strong Paper | 10.0000/example | Zotero | metadata_verified | supports | in_zotero | reader | user | 2026-01-01 | bibtex | ready |\n"
+                "| CIT-002 | SEC-INTRO-001 | SEG-002 | CLM-001 | Weak Paper | 10.0000/weak | Zotero | candidate | unchecked | not_added | TBD | user | TBD | bibtex | not ready |\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(EXPORT_ZOTERO_BIBLIOGRAPHY), "--allow-stub", "--out", "references.bib"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            bib = (project / "references.bib").read_text(encoding="utf-8")
+            self.assertIn("wrote bibliography stub", result.stdout)
+            self.assertIn("@misc{CIT_001", bib)
+            self.assertIn("Strong Paper", bib)
+            self.assertNotIn("Weak Paper", bib)
+
     def test_data_availability_audit_detects_traceable_data(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)
@@ -594,7 +690,6 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "section-citation-map.md",
                 "citation-provenance.md",
                 "zotero-screening-loop.md",
-                "zotero-collection-coverage.md",
                 "benchmark-report-schema.md",
                 "figure-plan.md",
                 "diagram-replica-tasks.md",
@@ -659,6 +754,13 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "| Citation ID | Section ID | Segment ID | Claim ID | Title | Identifier | Candidate Source | Metadata Status | Support Status | Zotero Status | Scite / Reader Evidence | Verified By | Verified On | Export Status | Notes |\n"
                 "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n"
                 "| CIT-001 | SEC-INTRO-001 | SEG-001 | CLM-001 | Strong Paper | 10.0000/example | Zotero | metadata_verified | supports | in_zotero | reader | user | 2026-01-01 | bibtex | ready |\n",
+                encoding="utf-8",
+            )
+            (thesis / "zotero-literature-hub.md").write_text("# Zotero Literature Hub\n\nStrong Paper\n", encoding="utf-8")
+            (thesis / "zotero-collection-coverage.md").write_text(
+                "| Section ID | Required Literature Roles | Zotero Collections | A-Core Papers | B-Section Papers | Verified Citation IDs | Gap | Status |\n"
+                "|---|---|---|---|---|---|---|---|\n"
+                "| SEC-INTRO-001 | foundational | ZCOL-001 | Strong Paper | TBD | CIT-001 | none | covered |\n",
                 encoding="utf-8",
             )
 

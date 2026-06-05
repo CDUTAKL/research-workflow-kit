@@ -149,6 +149,9 @@ Manual launchers remain available:
 | 创建深研任务 | `python scripts/new_deep_research_task.py --section-id SEC-INTRO-001 --topic "..."` | `deep-research-tasks.md`, section packet |
 | 生成本地引用推荐 | Dashboard `引用推荐` or `python scripts/suggest_section_citations.py --section-id SEC-INTRO-001` | `section-citation-suggestions.md`, optional dashboard JSON |
 | 查看章节引用覆盖 | Dashboard `文献引用` tab | `section-citation-map.md`, `citation-provenance.md`, `section-citation-suggestions.md` |
+| 生成 Zotero inventory 快照 | Dashboard `Zotero 文献中枢` or `python scripts/sync_zotero_inventory.py` | `zotero-literature-hub.md` |
+| 审计 Zotero 覆盖 | Dashboard `Zotero 文献中枢` or `python scripts/audit_zotero_coverage.py --warn-only` | section-level Zotero coverage warning list |
+| 导出 BibTeX 草稿 | Dashboard `Zotero 文献中枢` or `python scripts/export_zotero_bibliography.py --allow-stub --out references.bib` | `references.bib` review stub or Zotero helper export |
 | 查看局部证据链 / 全项目图谱 | Dashboard `证据图谱` tab | `dashboard-data.json`, `evidence-graph.json`, `evidence-graph.mmd` |
 | 创建实验报告 | `python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000` | `experiment-reports/EXP-001.md` |
 | 检查材料护照 | `打开材料护照` | `material-passport.md` |
@@ -180,7 +183,7 @@ Manual launchers remain available:
 | What data backs the results? | `data-availability.md` |
 | What citations support each section? | `section-citation-map.md`, `citation-provenance.md`, `literature-matrix.md` |
 | What citation candidates can be confirmed locally? | `section-citation-suggestions.md` |
-| What literature candidates need screening? | `zotero-screening-loop.md`, `zotero-collection-coverage.md` |
+| What literature candidates need screening? | `zotero-literature-hub.md`, `zotero-screening-loop.md`, `zotero-collection-coverage.md` |
 | What citation search task should run next? | `deep-research-tasks.md`, `section-research-packets/` |
 | What changed versus baseline? | `experiment-reports/` |
 | What figures are final? | `figure-plan.md`, `diagram-replica-tasks.md`, `network-architecture-figures.md` |

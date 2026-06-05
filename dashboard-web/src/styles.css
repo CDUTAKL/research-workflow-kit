@@ -1240,6 +1240,41 @@ h2 {
   font-size: 0.82rem;
 }
 
+.zotero-hub-panel {
+  grid-column: 1 / -1;
+}
+
+.zotero-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.zotero-summary-grid div {
+  min-height: 72px;
+  padding: 12px;
+  border: 1px solid #dbe8f7;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.zotero-summary-grid strong,
+.zotero-summary-grid span {
+  display: block;
+}
+
+.zotero-summary-grid strong {
+  color: #101828;
+  font-size: 1.35rem;
+}
+
+.zotero-summary-grid span {
+  margin-top: 4px;
+  color: #667085;
+  font-size: 0.82rem;
+}
+
 .suggestion-meta {
   display: grid;
   justify-items: end;
@@ -2737,6 +2772,7 @@ code {
   .metric-grid,
   .today-brief-grid,
   .stage-grid,
+  .zotero-summary-grid,
   .action-grid,
   .secondary-action-grid,
   .skill-health,

@@ -136,7 +136,7 @@ The workflow includes optional enhancement layers:
 - `research-autoresearch-loop` records human-supervised experiment iterations in `autoresearch-results.tsv` and `autoresearch-state.json` with verify/guard gates.
 - `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
 - `experiment-architecture.md` is the global experiment blueprint: claim-to-experiment map, data flow, code modules, config/output contract, 4060 formal run path, and remote/cloud artifact storage policy.
-- `$research-literature-review` supports section-level citation matching through `section-citation-map.md`, Zotero screening loops through `zotero-screening-loop.md`, citation provenance through `citation-provenance.md`, Zotero collection coverage through `zotero-collection-coverage.md`, and source-grounded readers.
+- `$research-literature-review` treats Zotero as the literature hub: `zotero-literature-hub.md` stores the local inventory/policy snapshot, `zotero-screening-loop.md` records intake decisions, `zotero-collection-coverage.md` checks collection/tag coverage, `section-citation-map.md` maps papers to `SEC-*` / `SEG-*`, and `citation-provenance.md` promotes verified `CIT-*` evidence.
 - `$research-paper-figures` supports dual-platform diagram replication: Mac draw.io MCP by default and Windows Visio when editable `.vsdx` output is useful.
 - Build Web Data Visualization is used as a design and QA guide for chart choice, statistical visual communication, dashboard views, evidence graphs, accessibility, and visual testing.
 - `plugin-gate-policy.md` and `plugin-review-log.md` route Codex Security, Build Web Apps, Data Analytics, Product Design, and CodeRabbit as lightweight quality gates. They recommend checks by stage without turning plugins into evidence sources.
@@ -147,6 +147,7 @@ The workflow includes optional enhancement layers:
 - `docs/thesis/weekly-review.md` keeps a short weekly review: what became stronger/weaker, current best experiment, next 1-3 actions, and files to ignore next week.
 - The local React/Vite Dashboard opens with a Chinese current research workspace, tabbed workflow views, an evidence chain inspector, gap-first section citation coverage, baseline experiment comparison, file-layer guidance, and weekly review. The evidence chain inspector defaults to `SEC/SEG -> CLM -> EXP/DATA/FIG/CIT`, collapses duplicate/reverse relations, and keeps the full-project graph as an advanced view. It is a view/editor over `docs/thesis/`, not a replacement source of truth.
 - `scripts/suggest_section_citations.py` gives offline citation suggestions from existing local records, helping each `SEC-*` section move from “missing coverage” to manually confirmed citations.
+- Zotero scripts keep the library connected to the thesis console without making Zotero the evidence source of truth: `sync_zotero_inventory.py` snapshots local library inventory, `audit_zotero_coverage.py` checks section-level Zotero coverage, and `export_zotero_bibliography.py` exports or stages `references.bib` from verified citation rows.
 - `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for Mac-to-laptop stages 11-12.
 - Experiment outputs use a local-index plus remote-artifact model: keep thesis-readable registry/report records locally, fetch lightweight `outputs/EXP-*` indexes to the Mac, and keep full logs/checkpoints/predictions on `remote_desktop_4060`, NAS, cloud drive, or object storage with URI/hash recorded in `experiment-registry.md`.
 
@@ -345,12 +346,20 @@ For recurring literature intake:
 6. Convert feedback into cautious screening preferences, not automatic citation decisions.
 7. Hand strong candidates to `section-citation-map.md` and `deep-research-tasks.md`.
 
-Use `docs/thesis/zotero-screening-loop.md` to record this loop. Zotero and spreadsheets are convenience layers; `docs/thesis/` remains the evidence source of truth.
+Use `docs/thesis/zotero-literature-hub.md` for the Zotero operating policy and inventory snapshot, `docs/thesis/zotero-screening-loop.md` to record intake decisions, and `docs/thesis/zotero-collection-coverage.md` to check whether each section has enough Zotero-backed literature. Zotero and spreadsheets are convenience layers; `docs/thesis/` remains the evidence source of truth.
+
+Useful local commands:
+
+```bash
+python scripts/sync_zotero_inventory.py
+python scripts/audit_zotero_coverage.py --warn-only
+python scripts/export_zotero_bibliography.py --allow-stub --out references.bib
+```
 
 ## Plugin Integration Boundaries
 
 - Scite: use for citation support/contrast/mention checks in literature review, claim mapping, writing, and final audit.
-- Zotero: use for local library management, metadata export, citation provenance, and section citation coverage.
+- Zotero: use for local library management, metadata export, citation provenance, section citation coverage, and BibTeX export. A Zotero item is not final evidence until it is mapped into `section-citation-map.md` or `citation-provenance.md`.
 - BioRender: optional scientific schematic polish after source records and figure provenance exist.
 - Vercel: future optional route for a read-only dashboard preview only. Do not expose the local write API or private research evidence.
 - CodeRabbit: optional local or PR pre-merge code review. Do not require it for CI.

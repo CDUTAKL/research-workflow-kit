@@ -15,6 +15,7 @@ export const demoFallbackData: DashboardData = {
     graphEdges: 4,
     skillIssues: 0,
     citationSuggestions: 0,
+    zoteroCoverageIssues: 3,
     pluginRecommendations: 1,
     experimentComparisons: 1,
   },
@@ -111,6 +112,12 @@ export const demoFallbackData: DashboardData = {
     candidate: 1,
     verified: 0,
     risk: 0,
+  },
+  zoteroCoverageSummary: {
+    sections: 1,
+    missingZotero: 1,
+    missingStrong: 1,
+    missingCollection: 1,
   },
   consoleFileLayers: [
     {

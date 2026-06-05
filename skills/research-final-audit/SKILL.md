@@ -15,7 +15,7 @@ Use this skill as the last quality gate before submission or defense. It checks 
 - Treat missing data availability for core data-backed claims as a blocker.
 - Apply `evidence-promotion-policy.md` before promoting `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` records to final evidence.
 - Apply `id-lifecycle-policy.md` before final writing so deprecated or superseded IDs do not leak into thesis text, figures, slides, or final artifact records.
-- Check `final-artifact-manifest.md`, `material-passport.md`, `benchmark-report-schema.md`, `citation-provenance.md`, and `zotero-collection-coverage.md` when the project uses those records.
+- Check `final-artifact-manifest.md`, `material-passport.md`, `benchmark-report-schema.md`, `citation-provenance.md`, `zotero-literature-hub.md`, and `zotero-collection-coverage.md` when the project uses those records.
 - For formal GPU/cloud results, check both the local output index and remote artifact fields in `experiment-registry.md`: storage backend, remote URI, remote status, and hash/manifest.
 - Choose the audit tier explicitly: `quick`, `advisor`, or `final`.
 - Use `workflow-dashboard.md`, `research_workflow_doctor.py`, and `evidence-graph.mmd` as navigation aids when the project console is large.
@@ -32,7 +32,7 @@ Read `references/workflow.md` for audit tables and checklists. Read `references/
 1. Identify the target artifact: manuscript, thesis, references, figures, LaTeX/PDF, Word document, or slides.
 2. Extract quantitative claims, comparisons, scope wording, figure/table captions, and citation-backed statements.
 3. Audit claims against raw result files, cited evidence, configs, and rendered figures/tables.
-4. Audit citations for existence, metadata accuracy, claim support, provenance, Zotero coverage, and export trace.
+4. Audit citations for existence, metadata accuracy, claim support, provenance, Zotero hub/collection coverage, and export trace.
 5. Audit reproducibility and benchmark records, including run commands, configs, seeds, splits, code version, metric files, output directories, local output indexes, 4060/cloud environment snapshots, remote artifact URI/hash/status records, code contract checks, benchmark report schema, material passports, ID lifecycle records, final artifact handoff records, and autoresearch verify/guard records when the thesis console exists.
 6. Audit tool-layer records when available: task board sync, git version log, spreadsheet exports, and defense prep.
 7. Audit data availability records, including dataset provenance, access restrictions, hash/manifest, data dictionary, and claim-to-data traceability.
@@ -54,7 +54,7 @@ Always include:
 - figure/table/equation checks
 - figure-audit status for final figures and network architecture diagrams
 - source-grounded reading status for important citations when Scite is insufficient
-- citation provenance and Zotero collection coverage issues
+- citation provenance, Zotero literature hub, bibliography export, and Zotero collection coverage issues
 - ID lifecycle issues
 - final artifact manifest and Mac-to-laptop handoff issues
 - reproducibility checklist issues

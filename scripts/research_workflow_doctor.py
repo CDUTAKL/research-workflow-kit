@@ -10,6 +10,7 @@ from pathlib import Path
 from audit_final_artifacts import audit as audit_final_artifacts
 from audit_id_lifecycle import audit as audit_id_lifecycle
 from audit_skills import audit_repo, render_report
+from audit_zotero_coverage import audit as audit_zotero_coverage
 from export_evidence_graph import build_graph
 from plugin_gate_advisor import recommend_plugins
 
@@ -24,10 +25,13 @@ STAGE_WORKSPACES = {
         "recommendedActions": ["明确当前论文题目、阻塞项和下一步具体动作。"],
     },
     "2": {
-        "name": "Literature discovery and review",
-        "fileKeys": ["sectionCitationMap", "deepResearchTasks", "citationProvenance", "zoteroScreeningLoop"],
-        "commands": ["python scripts/suggest_section_citations.py --section-id SEC-INTRO-001"],
-        "recommendedActions": ["检查章节引用覆盖，确认哪些候选论文可以升级为正式引用证据。"],
+        "name": "Literature discovery, Zotero intake, and review",
+        "fileKeys": ["zoteroLiteratureHub", "zoteroScreeningLoop", "zoteroCollectionCoverage", "sectionCitationMap", "citationProvenance"],
+        "commands": [
+            "python scripts/suggest_section_citations.py --section-id SEC-INTRO-001",
+            "python scripts/audit_zotero_coverage.py --warn-only",
+        ],
+        "recommendedActions": ["先把候选论文纳入 Zotero 并打 collection/tag，再检查章节引用覆盖，确认哪些候选论文可以升级为正式引用证据。"],
     },
     "3": {
         "name": "Experiment question definition",
@@ -73,9 +77,12 @@ STAGE_WORKSPACES = {
     },
     "10": {
         "name": "Paper writing and polishing",
-        "fileKeys": ["sectionCitationMap", "citationProvenance", "claimMap"],
-        "commands": ["python scripts/audit_section_citations.py --warn-only"],
-        "recommendedActions": ["只基于已支持论点和已验证章节引用覆盖来写正文。"],
+        "fileKeys": ["sectionCitationMap", "citationProvenance", "zoteroLiteratureHub", "claimMap"],
+        "commands": [
+            "python scripts/audit_section_citations.py --warn-only",
+            "python scripts/export_zotero_bibliography.py --allow-stub --out references.bib",
+        ],
+        "recommendedActions": ["只基于已支持论点、已验证章节引用覆盖和 Zotero-backed 引用来写正文。"],
     },
     "11": {
         "name": "Mac draft production and handoff preparation",
@@ -206,6 +213,7 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
         "citation-provenance.md",
         "zotero-screening-loop.md",
         "zotero-collection-coverage.md",
+        "zotero-literature-hub.md",
         "figure-plan.md",
         "diagram-replica-tasks.md",
         "final-artifact-manifest.md",
@@ -277,11 +285,15 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
     for item in plugin_gate.get("recommendations", []):
         if isinstance(item, dict) and item.get("status") == "pending_required":
             p1.append(f"plugin gate pending: {item.get('plugin')} for stage {item.get('stage')} -> {item.get('record')}")
+    zotero_p0, zotero_p1, zotero_details = audit_zotero_coverage(thesis_dir)
+    p0.extend(zotero_p0)
+    p1.extend(zotero_p1)
 
     info.append(f"claims={len(claims)} experiments={len(experiments)} datasets={len(datasets)} figures={len(figures)} sections={len(sections)}")
     data["final_artifacts"] = final_artifacts
     data["id_lifecycle"] = id_details
     data["plugin_gate"] = plugin_gate
+    data["zotero_coverage"] = zotero_details
     info.extend(final_info)
     info.extend(id_info)
     return p0, p1, info, data
@@ -450,7 +462,7 @@ def console_file_layers() -> list[dict[str, str]]:
         {
             "layer": "证据核心",
             "when": "升级论点、实验、引用或图表前",
-            "files": "claim-evidence-map.md; experiment-registry.md; section-citation-map.md; citation-provenance.md; data-availability.md; figure-plan.md",
+            "files": "claim-evidence-map.md; experiment-registry.md; section-citation-map.md; citation-provenance.md; zotero-literature-hub.md; data-availability.md; figure-plan.md",
             "rule": "正式证据源记录，只改必要项。",
         },
         {
@@ -693,6 +705,10 @@ def issue_recommendation(issue: str) -> str:
         match = re.search(r"(SEC-[A-Za-z0-9.-]+)", issue)
         section = match.group(1) if match else "对应章节"
         return f"建议：打开引用推荐，确认 {section} 的 strong support 候选文献。"
+    if "Zotero-backed citation" in issue or "Zotero collection coverage" in issue or "Zotero literature hub" in issue:
+        match = re.search(r"(SEC-[A-Za-z0-9.-]+)", issue)
+        section = match.group(1) if match else "对应章节"
+        return f"建议：打开 Zotero 文献中枢和覆盖表，给 {section} 补 collection/tag、Zotero item key 和 CIT-* 记录。"
     if "missing checksum" in issue or "pending laptop handoff" in issue:
         return "建议：打开最终交接，补齐交付物 checksum 并完成笔记本验证。"
     if "missing plugin gate" in issue or "plugin gate" in issue:
@@ -733,6 +749,32 @@ def citation_summary(rows: list[dict[str, str]]) -> dict[str, int]:
         "candidate": sum(1 for row in rows if any(str(cell).strip().lower() == "candidate" for cell in row.values())),
         "verified": sum(1 for row in rows if value(row, "status") == "verified" or value(row, "strong") == "verified"),
         "risk": sum(1 for row in rows if value(row, "status") == "risk" or value(row, "contradictory") == "risk"),
+    }
+
+
+def zotero_summary(details: object) -> dict[str, int]:
+    if not isinstance(details, dict):
+        return {"sections": 0, "missingZotero": 0, "missingStrong": 0, "missingCollection": 0}
+    sections = details.get("sections", {})
+    if not isinstance(sections, dict):
+        return {"sections": 0, "missingZotero": 0, "missingStrong": 0, "missingCollection": 0}
+    missing_zotero = 0
+    missing_strong = 0
+    missing_collection = 0
+    for item in sections.values():
+        if not isinstance(item, dict):
+            continue
+        if int(item.get("zoteroVerified", 0)) == 0:
+            missing_zotero += 1
+        if int(item.get("strongVerified", 0)) == 0:
+            missing_strong += 1
+        if missing(str(item.get("collectionCoverage", ""))):
+            missing_collection += 1
+    return {
+        "sections": len(sections),
+        "missingZotero": missing_zotero,
+        "missingStrong": missing_strong,
+        "missingCollection": missing_collection,
     }
 
 
@@ -846,6 +888,7 @@ def dashboard_data(
     final_artifacts = data.get("final_artifacts", [])
     id_lifecycle = data.get("id_lifecycle", {})
     plugin_gate = data.get("plugin_gate", {})
+    zotero_coverage = data.get("zotero_coverage", {})
     plugin_recommendations = plugin_gate.get("recommendations", []) if isinstance(plugin_gate, dict) else []
     plugin_gate_health = plugin_gate.get("health", {}) if isinstance(plugin_gate, dict) else {}
     active_workspace = build_stage_workspace(thesis_dir, p0, p1)
@@ -853,6 +896,7 @@ def dashboard_data(
     stage_no = active_stage_number(current_status)
     next_recommendations = build_next_recommendations(active_workspace, p0, p1, plugin_recommendations)
     citation_coverage_summary = citation_summary(section_citation_coverage)
+    zotero_coverage_summary = zotero_summary(zotero_coverage)
     focused_evidence_graph = focused_graph(graph, stage_no)
     recent_experiment_label = ""
     if experiments:
@@ -887,6 +931,11 @@ def dashboard_data(
                 + int(skill_health["outdatedAssumptions"])
             ),
             "citationSuggestions": len(citation_suggestions),
+            "zoteroCoverageIssues": (
+                int(zotero_coverage_summary["missingZotero"])
+                + int(zotero_coverage_summary["missingStrong"])
+                + int(zotero_coverage_summary["missingCollection"])
+            ),
             "pluginRecommendations": len(plugin_recommendations) if isinstance(plugin_recommendations, list) else 0,
             "experimentComparisons": len(experiment_comparisons),
         },
@@ -902,6 +951,7 @@ def dashboard_data(
         },
         "nextRecommendations": next_recommendations,
         "citationCoverageSummary": citation_coverage_summary,
+        "zoteroCoverageSummary": zotero_coverage_summary,
         "focusedEvidenceGraph": focused_evidence_graph,
         "activeStageWorkspace": active_workspace,
         "stages": parse_stage_snapshot(thesis_dir),
@@ -942,6 +992,7 @@ def dashboard_data(
             "diagramReplicaTasks": "docs/thesis/diagram-replica-tasks.md",
             "zoteroScreeningLoop": "docs/thesis/zotero-screening-loop.md",
             "zoteroCollectionCoverage": "docs/thesis/zotero-collection-coverage.md",
+            "zoteroLiteratureHub": "docs/thesis/zotero-literature-hub.md",
             "finalAudit": "docs/thesis/final-audit.md",
             "evidenceGraph": "docs/thesis/evidence-graph.json",
             "pluginGatePolicy": "docs/thesis/plugin-gate-policy.md",

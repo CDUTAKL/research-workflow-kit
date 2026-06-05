@@ -3,12 +3,12 @@
 ## Update Rules
 
 - Add papers here as candidates first, then promote them only after metadata and relevance are checked.
-- Use Semantic Scholar for discovery, Zotero for the local library and final BibTeX, and Scite for support/contrast checks on specific claims.
+- Use Semantic Scholar for discovery, Zotero for the local library and final BibTeX, `zotero-literature-hub.md` for local inventory/policy, and Scite for support/contrast checks on specific claims.
 - Do not cite papers marked `do_not_cite_yet` in the manuscript.
 - When a new advisor topic is received, start from `topic-intake.md` search directions before broadening the literature search.
 - For full-paper reading, store source-grounded artifacts under `docs/thesis/paper-readings/<paper-slug>/` and record reader/source-map paths here.
 - For long citation-seeking text, use `section-citation-map.md` plus batch rows so candidate references remain traceable to claim segments.
-- For recurring literature intake, use `zotero-screening-loop.md` for A/B/C/D labels, Zotero writeback queue, spreadsheet feedback, and section handoff.
+- For recurring literature intake, use `zotero-literature-hub.md` for inventory/policy, `zotero-screening-loop.md` for A/B/C/D labels, Zotero writeback queue, spreadsheet feedback, and section handoff.
 - For core citations, update `citation-provenance.md` with metadata/support verification and `zotero-collection-coverage.md` with section-level Zotero coverage.
 
 ## Search Scope

@@ -40,6 +40,7 @@ ALLOWED_OPEN_PATHS = {
     "diagramReplicaTasks": ROOT / "docs" / "thesis" / "diagram-replica-tasks.md",
     "zoteroScreeningLoop": ROOT / "docs" / "thesis" / "zotero-screening-loop.md",
     "zoteroCollectionCoverage": ROOT / "docs" / "thesis" / "zotero-collection-coverage.md",
+    "zoteroLiteratureHub": ROOT / "docs" / "thesis" / "zotero-literature-hub.md",
     "experimentReports": ROOT / "docs" / "thesis" / "experiment-reports",
     "pluginGatePolicy": ROOT / "docs" / "thesis" / "plugin-gate-policy.md",
     "pluginReviewLog": ROOT / "docs" / "thesis" / "plugin-review-log.md",
@@ -165,6 +166,21 @@ class DashboardHandler(BaseHTTPRequestHandler):
             if section_id:
                 command.extend(["--section-id", section_id])
             code, output = run_command(command)
+            json_response(self, 200 if code == 0 else 500, {"ok": code == 0, "output": output})
+            return
+
+        if path == "/api/audit-zotero-coverage":
+            code, output = run_command(["python3", "scripts/audit_zotero_coverage.py", "--warn-only"])
+            json_response(self, 200 if code == 0 else 500, {"ok": code == 0, "output": output})
+            return
+
+        if path == "/api/sync-zotero-inventory":
+            code, output = run_command(["python3", "scripts/sync_zotero_inventory.py"])
+            json_response(self, 200 if code == 0 else 500, {"ok": code == 0, "output": output})
+            return
+
+        if path == "/api/export-zotero-bibliography":
+            code, output = run_command(["python3", "scripts/export_zotero_bibliography.py", "--allow-stub", "--out", "references.bib"])
             json_response(self, 200 if code == 0 else 500, {"ok": code == 0, "output": output})
             return
 

@@ -325,6 +325,9 @@ function ActionPanel({ onReload }: { onReload: () => void }) {
         <button onClick={() => run('zotero', () => postAction('/api/open-path', { key: 'zoteroScreeningLoop' }))} disabled={Boolean(busy)}>
           <BookOpen size={16} /> 打开 Zotero 筛选
         </button>
+        <button onClick={() => run('zotero-hub', () => postAction('/api/open-path', { key: 'zoteroLiteratureHub' }))} disabled={Boolean(busy)}>
+          <BookOpen size={16} /> 打开 Zotero 中枢
+        </button>
         <button onClick={() => run('coverage', () => postAction('/api/open-path', { key: 'zoteroCollectionCoverage' }))} disabled={Boolean(busy)}>
           <BookOpen size={16} /> 打开文献覆盖
         </button>
@@ -497,6 +500,67 @@ function CitationSuggestionPanel({ suggestions, onReload }: { suggestions: Citat
           </article>
         )) : <div className="empty-state">暂无推荐，请先生成或补充本地文献记录</div>}
       </div>
+    </section>
+  );
+}
+
+function ZoteroHubPanel({ data, onReload }: { data: DashboardData; onReload: () => void }) {
+  const [message, setMessage] = useState('Zotero 负责文献本体，docs/thesis 负责章节、论点和引用证据映射。');
+  const [busy, setBusy] = useState<string | null>(null);
+  const summary = data.zoteroCoverageSummary ?? {
+    sections: 0,
+    missingZotero: 0,
+    missingStrong: 0,
+    missingCollection: 0,
+  };
+
+  async function run(label: string, endpoint: string, reload = false) {
+    setBusy(label);
+    try {
+      const result = await postAction(endpoint);
+      setMessage(result.output ?? '已完成');
+      if (reload) onReload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <section className="panel zotero-hub-panel">
+      <div className="panel-title-row">
+        <BookOpen size={18} />
+        <h2>Zotero 文献中枢</h2>
+      </div>
+      <p className="panel-note">把 Zotero 的 collection、tag、item key 和 BibTeX 导出连接到章节引用覆盖与 CIT-* 正式引用证据。</p>
+      <div className="zotero-summary-grid">
+        <div><strong>{summary.sections}</strong><span>覆盖章节</span></div>
+        <div><strong>{summary.missingZotero}</strong><span>缺 Zotero 引用</span></div>
+        <div><strong>{summary.missingStrong}</strong><span>缺强支持</span></div>
+        <div><strong>{summary.missingCollection}</strong><span>缺 Collection 覆盖</span></div>
+      </div>
+      <div className="action-grid secondary-action-grid">
+        <button onClick={() => postAction('/api/open-path', { key: 'zoteroLiteratureHub' }).catch((error) => setMessage(error instanceof Error ? error.message : String(error)))} disabled={Boolean(busy)}>
+          <ExternalLink size={16} /> 打开文献中枢
+        </button>
+        <button onClick={() => postAction('/api/open-path', { key: 'zoteroScreeningLoop' }).catch((error) => setMessage(error instanceof Error ? error.message : String(error)))} disabled={Boolean(busy)}>
+          <ExternalLink size={16} /> 打开筛选循环
+        </button>
+        <button onClick={() => postAction('/api/open-path', { key: 'zoteroCollectionCoverage' }).catch((error) => setMessage(error instanceof Error ? error.message : String(error)))} disabled={Boolean(busy)}>
+          <ExternalLink size={16} /> 打开覆盖表
+        </button>
+        <button onClick={() => run('audit', '/api/audit-zotero-coverage', true)} disabled={Boolean(busy)}>
+          <Activity size={16} /> 审计覆盖
+        </button>
+        <button onClick={() => run('sync', '/api/sync-zotero-inventory', true)} disabled={Boolean(busy)}>
+          <RefreshCw size={16} /> 生成 inventory 快照
+        </button>
+        <button onClick={() => run('bib', '/api/export-zotero-bibliography')} disabled={Boolean(busy)}>
+          <FileText size={16} /> 导出 BibTeX 草稿
+        </button>
+      </div>
+      <pre className="action-output compact-output">{busy ? `正在执行 ${busy}...` : message}</pre>
     </section>
   );
 }
@@ -1419,6 +1483,7 @@ export function App() {
       <section className="content-grid citation-grid">
         <SectionCitationHeatmap coverage={data.sectionCitationCoverage ?? []} onReload={reloadData} />
         <CitationSuggestionPanel suggestions={data.citationSuggestions ?? []} onReload={reloadData} />
+        <ZoteroHubPanel data={data} onReload={reloadData} />
       </section>
     ),
     experiments: experimentsPanel,
