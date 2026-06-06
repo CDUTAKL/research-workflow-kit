@@ -2,6 +2,7 @@ import { CheckCircle2 } from 'lucide-react';
 import type { DashboardData } from '../types';
 
 export function SystemHealthPanel({ data }: { data: DashboardData }) {
+  const natureGates = data.natureQualityGates ?? [];
   return (
     <section className="panel system-health-panel">
       <div className="panel-title-row">
@@ -16,6 +17,22 @@ export function SystemHealthPanel({ data }: { data: DashboardData }) {
         <div><strong>{data.skillHealth?.missingScripts ?? 0}</strong><span>缺失脚本</span></div>
         <div><strong>{data.skillHealth?.outdatedAssumptions ?? 0}</strong><span>旧工具假设</span></div>
       </div>
+      {natureGates.length > 0 && (
+        <>
+          <div className="panel-title-row compact-title">
+            <CheckCircle2 size={16} />
+            <h3>论文质量增强层</h3>
+          </div>
+          <div className="skill-health">
+            {natureGates.map((gate) => (
+              <div key={gate.key}>
+                <strong>{gate.status === 'ready' ? '已就绪' : gate.status === 'missing' ? '缺失' : '待完善'}</strong>
+                <span>{gate.label}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
       <p className="panel-note">系统健康来自本地 skill audit 和 workflow doctor。它只检查结构一致性，不替代论文终审。</p>
     </section>
   );

@@ -17,9 +17,9 @@
 
 ## Segment Citation Table
 
-| Segment ID | Section ID | Segment / Claim Draft | Candidate Reference | DOI / arXiv / S2 ID | Support Grade | Source Status | Zotero Status | Scite / Reader Status | Export Format | Next Action |
-|---|---|---|---|---|---|---|---|---|---|---|
-| SEG-001 | SEC-INTRO-001 | TBD | TBD | TBD | strong/partial/background/limiting/contradictory/metadata_only/TBD | candidate | not_added | not_checked | bibtex/ris/enw/zotero-rdf/TBD | verify_metadata |
+| Segment ID | Section ID | Segment / Claim Draft | Candidate Reference | DOI / PMID / arXiv / S2 ID | Support Grade | Source Status | Zotero Status | Scite / Reader Status | Export Format | Next Action | Search Source | Keywords / MeSH | Zotero Collection |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| SEG-001 | SEC-INTRO-001 | TBD | TBD | DOI/PMID/arXiv/S2/TBD | strong/partial/background/limiting/contradictory/metadata_only/TBD | candidate | not_added | not_checked | bibtex/ris/enw/zotero-rdf/TBD | verify_metadata | Semantic Scholar / PubMed / CrossRef / arXiv / Web / TBD | TBD | ZCOL-001/TBD |
 
 ## Reader Evidence Queue
 

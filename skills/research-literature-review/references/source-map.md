@@ -12,6 +12,8 @@ This skill is a lightweight Codex-native synthesis for literature search and rev
   - Used as inspiration for preprint discovery workflows.
 - `external-skill-candidates/nature-skills/skills/nature-citation`
   - MIT licensed. Used as inspiration for section/segment citation batching, support grades, DOI/arXiv/S2 dedupe, and BibTeX/RIS/ENW/Zotero RDF export discipline.
+- `external-skill-candidates/nature-skills/skills/nature-academic-search`
+  - MIT licensed. Used as inspiration for multi-source search routing across Semantic Scholar, PubMed, CrossRef, arXiv, publisher pages, DOI/PMID/arXiv verification, and query provenance in `academic-search-policy.md`.
 - `external-skill-candidates/nature-skills/skills/nature-reader`
   - MIT licensed. Used as inspiration for source-grounded `paper.md`, `source_map.json`, figure/table notes, and direct-reading evidence.
 - `external-skill-candidates/research-innovation-explorer`

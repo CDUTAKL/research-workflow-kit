@@ -26,6 +26,7 @@
 
 ## Style Rules
 
+- For advisor-facing or final thesis figures, record the check in `docs/thesis/figure-style-qa.md`.
 - Use the same font family and sizing across related figures.
 - Use labels with units.
 - Prefer direct labels or clear legends.

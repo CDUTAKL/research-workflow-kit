@@ -15,7 +15,7 @@ This skill is a lightweight Codex-native synthesis for research figures and visu
 - `external-skill-candidates/k-dense-scientific-agent-skills/scientific-skills/matplotlib`
   - Used as inspiration for Python plotting conventions.
 - `external-skill-candidates/nature-skills/skills/nature-figure`
-  - MIT licensed. Used as inspiration for claim-first figure contracts, chart atlas categories, common plotting patterns, multi-panel hierarchy, editable SVG/PDF export, source-data traceability, and publication-grade QA. Local files rewrite these ideas into `nature-figure-controlled-port.md`, `nature-figure-template-roadmap.md`, `figure-audit-standard.md`, and `skills/research-paper-figures/scripts/nature_plot_templates.py` for macOS/Codex + `docs/thesis/`.
+  - MIT licensed. Used as inspiration for claim-first figure contracts, chart atlas categories, common plotting patterns, multi-panel hierarchy, editable SVG/PDF export, source-data traceability, and publication-grade QA. Local files rewrite these ideas into `nature-figure-controlled-port.md`, `nature-figure-template-roadmap.md`, `figure-audit-standard.md`, `figure-style-qa.md`, and `skills/research-paper-figures/scripts/nature_plot_templates.py` for macOS/Codex + `docs/thesis/`.
 - `external-skill-candidates/DeepLearningDrawingTemplate`
   - Apache-2.0 licensed repository. The local clone contains README previews and commercial links, not editable PPT source files. Used only as style inspiration for PPT-like neural-network architecture visual grammar: feature-map stacks, module grouping, residual paths, and editable vector emphasis. No screenshot pixels, watermarked images, or paid template assets are copied.
 - `external-skill-candidates/codex-visio-replica-workflow`

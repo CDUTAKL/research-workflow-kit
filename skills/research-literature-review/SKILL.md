@@ -10,6 +10,7 @@ Use this skill to find, organize, and synthesize literature into a defensible re
 ## Core Rules
 
 - Prefer primary sources for methods, datasets, metrics, and claims.
+- Use `docs/thesis/academic-search-policy.md` to route multi-source search: Semantic Scholar for discovery, PubMed for biomedical queries, CrossRef/publisher pages for DOI metadata, arXiv for preprints, Zotero for library state, and Scite/reader evidence for support checks.
 - Separate classic/foundational work, recent work, method competitors, datasets/benchmarks, and surveys.
 - Track what each paper supports in the user's manuscript.
 - For full-paper reading tasks, preserve source-grounded evidence with page/block anchors before using the paper for important claims.
@@ -20,14 +21,14 @@ Use this skill to find, organize, and synthesize literature into a defensible re
 - Use `docs/thesis/citation-provenance.md` to distinguish metadata verification from claim-support verification, and `docs/thesis/zotero-collection-coverage.md` to check whether each section has enough Zotero-backed literature coverage.
 - Use `SEC-*` for thesis sections and `SEG-*` only for section-level citation units; connect literature support back to `CLM-*` through `claim-evidence-map.md`.
 - Never fabricate references, DOI values, author lists, venues, or BibTeX entries.
-- Use web search, Scite, Zotero, Semantic Scholar, arXiv, or publisher pages when current or precise source metadata matters.
+- Use web search, Scite, Zotero, Semantic Scholar, PubMed, CrossRef, arXiv, or publisher pages when current or precise source metadata matters.
 
 ## Workflow
 
 Read `references/workflow.md` for the literature matrix and related-work templates. Read `references/zotero-screening-loop.md` when adapting Zotero screening, feedback learning, A/B/C/D candidate labels, collection coverage, or citation provenance. Read `references/source-map.md` for provenance and license notes.
 
 1. Clarify the research topic, domain terms, target date range, and paper type.
-2. Build search queries with synonyms, method names, datasets, metrics, and application terms.
+2. Build search queries with synonyms, method names, datasets, metrics, application terms, and MeSH terms when the domain is biomedical.
 3. Collect candidate papers and classify them by role.
 4. Build a literature matrix with relationship-to-paper and citation-use columns.
 5. For papers requiring direct reading, create or request a source-grounded reader artifact under `docs/thesis/paper-readings/<paper-slug>/`.
@@ -46,11 +47,12 @@ Always include:
 
 - search keywords
 - search scope
+- search source routing and query provenance when `academic-search-policy.md` is used
 - core literature table
 - related-work groups
 - representative papers per group
 - where each paper can be cited
-- `source_status` for each core paper: `candidate`, `metadata_verified`, `in_zotero`, or `claim_support_checked`
+- `source_status` for each core paper: `candidate`, `metadata_verified`, `source_read_verified`, `scite_checked`, `in_zotero`, or `claim_support_checked`
 - `next_action` for each citation candidate: `verify_metadata`, `add_to_zotero`, `check_with_scite`, `cite_in_related_work`, or `do_not_cite_yet`
 - Zotero status and Scite/support status for important citation candidates
 - reading status, reader path, source-map path, and key source blocks when a paper has been directly read

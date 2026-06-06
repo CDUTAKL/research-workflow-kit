@@ -146,6 +146,9 @@ Use this when `docs/thesis/` contains tool integration records.
 | `spreadsheet-exports.md` | spreadsheets are reviewed and not stale against source files | manuscript table uses stale values | Spreadsheets or `$research-results-analysis` |
 | `defense-prep.md` | slide claims trace to audited claims and figures | defense overclaims or lacks backup evidence | Presentations or `$research-paper-figures` |
 | Nature-derived figure/polish/PPT records | high-standard figure, prose, or slide checks were applied only after evidence was stable | style hides unsupported science | `$research-paper-figures`, `$research-paper-writing`, Presentations |
+| `academic-search-policy.md` | multi-source search routing and metadata verification are recorded for core citations | papers found by search are cited before metadata/support checks | `$research-literature-review`, Zotero, Scite |
+| `figure-style-qa.md` | advisor/final figures have source trace, panel hierarchy, uncertainty, caption safety, and export checks | attractive figures hide weak or untraceable evidence | `$research-paper-figures` |
+| `nature-style-writing-checklist.md` | final prose has gap logic, claim-evidence alignment, hedging, and limitation checks | polish strengthens unsupported claims | `$research-paper-writing`, `$research-final-audit` |
 | `data-availability.md` | data-backed claims have dataset provenance, access status, hash/manifest, and data dictionary | final thesis cannot defend where data came from | `$research-data-availability` |
 | `section-citation-map.md` | citation-heavy sections have verified candidate citations and support grades | related work or background has weak/unsupported citations | `$research-literature-review`, `$semanticscholar-skill`, Zotero, Scite |
 | `workflow-dashboard.md` | current stage, blockers, missing evidence, and audit tier are visible | project state is hard to understand or stale | `$research-workflow-orchestrator` |
@@ -183,6 +186,7 @@ Use these checks when a paper, thesis section, figure package, or PPT deck has b
 | Final artifact manifest | `final-artifact-manifest.md`, artifact key, source IDs, Mac source path, Windows review path, checksum, transfer status, Windows compatibility verification | `$research-final-audit` |
 | ID lifecycle | `id-lifecycle-policy.md`, lifecycle status, replacement ID for superseded records, no deprecated final references | `$research-workflow-orchestrator`, `$research-final-audit` |
 | Manuscript prose | section job, hourglass flow, hedging, sentence clarity, citation placement, overclaim risk | `$research-paper-writing` |
+| Advisor thesis precheck | novelty boundary, evidence strength, figure clarity, method reproducibility, citation support | `$research-final-audit`, `$research-paper-writing` |
 | PPTX deck | one argument spine, selected figures as evidence, Chinese slide titles as claims, speaker notes, backup evidence paths | Presentations and `$research-final-audit` |
 
 Do not treat polished figures or slides as evidence sources. They must trace back to raw results, literature, and `docs/thesis/`.

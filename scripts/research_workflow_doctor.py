@@ -26,7 +26,7 @@ STAGE_WORKSPACES = {
     },
     "2": {
         "name": "Literature discovery, Zotero intake, and review",
-        "fileKeys": ["zoteroLiteratureHub", "zoteroScreeningLoop", "zoteroCollectionCoverage", "sectionCitationMap", "citationProvenance"],
+        "fileKeys": ["academicSearchPolicy", "zoteroLiteratureHub", "zoteroScreeningLoop", "zoteroCollectionCoverage", "sectionCitationMap", "citationProvenance"],
         "commands": [
             "python scripts/suggest_section_citations.py --section-id SEC-INTRO-001",
             "python scripts/audit_zotero_coverage.py --warn-only",
@@ -71,13 +71,13 @@ STAGE_WORKSPACES = {
     },
     "9": {
         "name": "Figure and table production",
-        "fileKeys": ["figurePlan", "diagramReplicaTasks"],
+        "fileKeys": ["figurePlan", "figureStyleQa", "diagramReplicaTasks"],
         "commands": ["python scripts/export_evidence_graph.py"],
         "recommendedActions": ["正式导出 draw.io / Python / PPTX 图前，检查源数据和源记录。"],
     },
     "10": {
         "name": "Paper writing and polishing",
-        "fileKeys": ["sectionCitationMap", "citationProvenance", "zoteroLiteratureHub", "claimMap"],
+        "fileKeys": ["natureStyleWritingChecklist", "sectionCitationMap", "citationProvenance", "zoteroLiteratureHub", "claimMap"],
         "commands": [
             "python scripts/audit_section_citations.py --warn-only",
             "python scripts/export_zotero_bibliography.py --allow-stub --out references.bib",
@@ -214,7 +214,10 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
         "zotero-screening-loop.md",
         "zotero-collection-coverage.md",
         "zotero-literature-hub.md",
+        "academic-search-policy.md",
         "figure-plan.md",
+        "figure-style-qa.md",
+        "nature-style-writing-checklist.md",
         "diagram-replica-tasks.md",
         "final-artifact-manifest.md",
         "final-audit.md",
@@ -268,6 +271,16 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
     for section_id, section in sections.items():
         if section["coverage"].lower() in {"missing", "pending", "tbd", ""}:
             p1.append(f"{section_id} has missing section citation coverage")
+
+    quality_files = {
+        "academic-search-policy.md": "multi-source academic search policy",
+        "figure-style-qa.md": "figure style QA checklist",
+        "nature-style-writing-checklist.md": "Nature-style writing checklist",
+    }
+    for filename, label in quality_files.items():
+        text = read_text(thesis_dir / filename)
+        if text and re.search(r"\|\s*(pending|missing|TBD)\s*\|", text, re.IGNORECASE):
+            p1.append(f"{label} still has pending checklist items")
 
     final_p0, final_p1, final_info, final_artifacts = audit_final_artifacts(thesis_dir, tier="quick")
     id_p0, id_p1, id_info, id_details = audit_id_lifecycle(thesis_dir)
@@ -538,6 +551,25 @@ def collect_citation_suggestions(thesis_dir: Path) -> list[dict[str, str]]:
                 }
             )
     return suggestions[:10]
+
+
+def collect_nature_quality_gates(thesis_dir: Path) -> list[dict[str, str]]:
+    gates = [
+        ("academicSearchPolicy", "多源学术检索", thesis_dir / "academic-search-policy.md", "stage 2"),
+        ("figureStyleQa", "图表风格 QA", thesis_dir / "figure-style-qa.md", "stage 9"),
+        ("natureStyleWritingChecklist", "Nature-style 写作检查", thesis_dir / "nature-style-writing-checklist.md", "stage 10-12"),
+    ]
+    result: list[dict[str, str]] = []
+    for key, label, path, stage in gates:
+        text = read_text(path)
+        if not text:
+            status = "missing"
+        elif re.search(r"\|\s*(pending|missing|TBD)\s*\|", text, re.IGNORECASE):
+            status = "pending"
+        else:
+            status = "ready"
+        result.append({"key": key, "label": label, "stage": stage, "status": status, "path": path.as_posix()})
+    return result
 
 
 def truthy_status(value: str, positive: set[str]) -> str:
@@ -882,6 +914,7 @@ def dashboard_data(
     experiment_reports = collect_experiment_reports(thesis_dir)
     experiment_comparisons = collect_experiment_comparisons(thesis_dir, records)
     citation_suggestions = collect_citation_suggestions(thesis_dir)
+    nature_quality_gates = collect_nature_quality_gates(thesis_dir)
     section_citation_coverage = collect_section_citation_coverage(thesis_dir)
     weekly_review = collect_weekly_review(thesis_dir)
     handoff_package = collect_handoff_package(thesis_dir.resolve().parents[1] if thesis_dir.name == "thesis" and thesis_dir.parent.name == "docs" else Path("."))
@@ -931,6 +964,7 @@ def dashboard_data(
                 + int(skill_health["outdatedAssumptions"])
             ),
             "citationSuggestions": len(citation_suggestions),
+            "natureQualityPending": sum(1 for item in nature_quality_gates if item.get("status") != "ready"),
             "zoteroCoverageIssues": (
                 int(zotero_coverage_summary["missingZotero"])
                 + int(zotero_coverage_summary["missingStrong"])
@@ -961,6 +995,7 @@ def dashboard_data(
         "experimentReports": experiment_reports[-5:],
         "experimentComparisons": experiment_comparisons,
         "citationSuggestions": citation_suggestions,
+        "natureQualityGates": nature_quality_gates,
         "sectionCitationCoverage": section_citation_coverage,
         "consoleFileLayers": console_file_layers(),
         "weeklyReview": weekly_review,
@@ -993,7 +1028,10 @@ def dashboard_data(
             "zoteroScreeningLoop": "docs/thesis/zotero-screening-loop.md",
             "zoteroCollectionCoverage": "docs/thesis/zotero-collection-coverage.md",
             "zoteroLiteratureHub": "docs/thesis/zotero-literature-hub.md",
+            "academicSearchPolicy": "docs/thesis/academic-search-policy.md",
             "finalAudit": "docs/thesis/final-audit.md",
+            "figureStyleQa": "docs/thesis/figure-style-qa.md",
+            "natureStyleWritingChecklist": "docs/thesis/nature-style-writing-checklist.md",
             "evidenceGraph": "docs/thesis/evidence-graph.json",
             "pluginGatePolicy": "docs/thesis/plugin-gate-policy.md",
             "pluginReviewLog": "docs/thesis/plugin-review-log.md",

@@ -1,11 +1,12 @@
 """Suggest local citation candidates for a SEC-* section without network access.
 
 Scoring is intentionally deterministic and conservative. It rewards evidence
-that makes a citation easier to verify locally: stable identifiers, Zotero
-presence, reader/Scite checks, strong support labels, and direct SEC/SEG links.
-It penalizes candidates already excluded, metadata-only candidates without a
-reader check, and blocked/invalid metadata. The result is a triage order for
-manual confirmation, not an automatic citation decision.
+that makes a citation easier to verify locally: stable identifiers, DOI/PMID/
+arXiv/S2 IDs, Zotero collection coverage, reader/Scite checks, source-read
+verification, strong support labels, keyword/MeSH matches, and direct SEC/SEG
+links. It penalizes candidates already excluded, metadata-only candidates
+without a reader check, and blocked/invalid metadata. The result is a triage
+order for manual confirmation, not an automatic citation decision.
 """
 from __future__ import annotations
 
@@ -17,15 +18,20 @@ from typing import Any
 
 THESIS_DIR = Path("docs/thesis")
 SUGGESTIONS = THESIS_DIR / "section-citation-suggestions.md"
-IDENTIFIER_RE = re.compile(r"(10\.\d{4,9}/\S+|arXiv:\S+|S2:\S+|PMID:\S+|PubMed:\S+)", re.IGNORECASE)
+IDENTIFIER_RE = re.compile(r"(doi:\s*)?10\.\d{4,9}/\S+|arxiv:\S+|s2:\S+|pmid:\S+|pubmed:\S+", re.IGNORECASE)
 SCORE_LEDGER = {
     "identifier": 2,
+    "doi_or_pmid": 2,
+    "arxiv_or_s2": 1,
     "zotero": 2,
+    "zotero_collection": 2,
     "reader_or_scite": 2,
+    "source_read_verified": 2,
     "strong_support": 3,
     "partial_or_background_support": 1,
     "section_match": 3,
     "segment_link": 1,
+    "keyword_or_mesh": 1,
     "excluded": -5,
     "metadata_only_without_reader": -2,
     "blocked_or_invalid": -4,
@@ -100,6 +106,9 @@ def collect_candidates(thesis_dir: Path, section_id: str) -> list[dict[str, Any]
                     "zotero_status": cells[7],
                     "reader_status": cells[8],
                     "notes": cells[10] if len(cells) > 10 else "",
+                    "search_source": cells[11] if len(cells) > 11 else "",
+                    "keywords": cells[12] if len(cells) > 12 else "",
+                    "zotero_collection": cells[13] if len(cells) > 13 else "",
                 },
             )
 
@@ -120,6 +129,9 @@ def collect_candidates(thesis_dir: Path, section_id: str) -> list[dict[str, Any]
                     "zotero_status": cells[9],
                     "reader_status": cells[10],
                     "notes": cells[14] if len(cells) > 14 else "",
+                    "search_source": cells[15] if len(cells) > 15 else cells[6],
+                    "verification_level": cells[16] if len(cells) > 16 else "",
+                    "zotero_collection": cells[17] if len(cells) > 17 else "",
                 },
             )
 
@@ -235,18 +247,36 @@ def score_candidate(item: dict[str, Any], section_id: str) -> tuple[int, list[st
     metadata = norm(item.get("metadata_status")).lower()
     zotero = norm(item.get("zotero_status")).lower()
     reader = norm(item.get("reader_status")).lower()
+    search_source = norm(item.get("search_source")).lower()
+    verification_level = norm(item.get("verification_level")).lower()
+    keywords = norm(item.get("keywords")).lower()
+    zotero_collection = norm(item.get("zotero_collection")).lower()
     section = norm(item.get("section_id"))
     segment = norm(item.get("segment_id"))
 
     if usable(identifier) and (IDENTIFIER_RE.search(identifier) or identifier.lower() not in {"doi/arxiv/s2/pmid/tbd"}):
         score += SCORE_LEDGER["identifier"]
         reasons.append("identifier")
+    if re.search(r"(doi:\s*)?10\.\d{4,9}/|pmid:|pubmed:", identifier, re.IGNORECASE):
+        score += SCORE_LEDGER["doi_or_pmid"]
+        reasons.append("doi/pmid")
+    if re.search(r"arxiv:|s2:", identifier, re.IGNORECASE):
+        score += SCORE_LEDGER["arxiv_or_s2"]
+        reasons.append("arxiv/s2")
     if "in_zotero" in zotero:
         score += SCORE_LEDGER["zotero"]
         reasons.append("zotero")
+    if "zcol-" in zotero_collection or "collection" in zotero_collection:
+        score += SCORE_LEDGER["zotero_collection"]
+        reasons.append("zotero-collection")
     if any(term in reader for term in ("support", "reader", "source", "checked", "directly_read")) or "claim_support_checked" in metadata:
         score += SCORE_LEDGER["reader_or_scite"]
         reasons.append("reader/scite")
+    if any(term in verification_level for term in ("source_read_verified", "supports_claim", "scite_checked", "zotero_exported")) or any(
+        term in metadata for term in ("source_read_verified", "scite_checked")
+    ):
+        score += SCORE_LEDGER["source_read_verified"]
+        reasons.append("verified-level")
     if "strong" in support or "supports" in support or "a-core" in support.lower():
         score += SCORE_LEDGER["strong_support"]
         reasons.append("strong")
@@ -259,6 +289,12 @@ def score_candidate(item: dict[str, Any], section_id: str) -> tuple[int, list[st
     if usable(segment) and segment != "TBD":
         score += SCORE_LEDGER["segment_link"]
         reasons.append("segment")
+    if usable(keywords) and keywords != "tbd":
+        score += SCORE_LEDGER["keyword_or_mesh"]
+        reasons.append("keyword/mesh")
+    if any(source in search_source for source in ("pubmed", "crossref", "arxiv", "publisher")) and usable(identifier):
+        score += SCORE_LEDGER["keyword_or_mesh"]
+        reasons.append("source-route")
     if "d-exclude" in support.lower():
         score += SCORE_LEDGER["excluded"]
         reasons.append("excluded")

@@ -17,6 +17,7 @@ Use this skill to plan and produce figures and tables that support paper claims.
 - Treat Image Gen outputs as visual references only. Check their content accuracy, then redraw formal structured diagrams from source-of-truth records in draw.io by default. Export SVG/PDF/PNG from draw.io; use Presentations/PPTX for defense-slide packaging.
 - Use Python or the Nature-style renderer for data-backed plots. Use Figma or BioRender only as optional polish/refinement tools when draw.io/Python output needs a stronger visual finish.
 - Use Build Web Data Visualization rules for chart choice, dashboard charts, evidence graphs, interaction design, accessible contrast, label readability, responsive layout, and visual regression/QA planning.
+- Use `docs/thesis/figure-style-qa.md` before advisor-facing or final thesis figures are marked ready.
 - Use Product Design for advisor-facing readability, information hierarchy, and visual comprehension review; record the decision in `docs/thesis/visual-design-review.md` when a figure, Dashboard view, or defense slide will be shown to humans for feedback.
 - Do not insert Image Gen outputs directly into a thesis or manuscript as final figures unless the user explicitly accepts AI-generated bitmap provenance. Formal figures should be redrawn, source-traceable, and free of generated-image metadata when possible.
 - Keep visual style consistent across figures.
@@ -32,7 +33,7 @@ Read `references/workflow.md` for figure planning, plotting conventions, Nature-
 3. Choose chart or diagram types based on the evidence.
 4. Specify caption claims, labels, units, scales, uncertainty display, accessibility constraints, and export formats.
 5. For publication-level or "Nature-style" figures, establish the figure contract before plotting: core conclusion, evidence chain, panel hierarchy, backend, dimensions, editable text, source-data traceability, and export formats.
-6. For final or advisor-facing figures, run the figure audit standard before presenting them as ready.
+6. For final or advisor-facing figures, run `figure-style-qa.md` and the figure audit standard before presenting them as ready.
 7. For advisor-facing visuals, record a Product Design readability review separately from scientific figure QA; Product Design checks whether people can understand the artifact, while Build Web Data Visualization checks whether data encodings are truthful.
 8. For schematic figures, run the visual-reference route before formal drawing:
    - generate/select a visual reference, preferably with Image Gen Skill when the target is a polished model/method diagram;
@@ -64,6 +65,7 @@ Always include:
 - publication-grade figure contract when relevant
 - visual reference path, content-accuracy check, and style-to-redraw notes when a schematic/model/method figure is involved
 - Nature-style figure audit findings when reviewing final figures
+- figure-style QA status for advisor-facing or final visuals
 - Nature-style figure spec, template type, generated files, and QA report when a common result figure is produced
 - network-architecture visual grammar when relevant
 - formal redraw tool, draw.io source/export paths, source-of-truth record, generated files, metadata/C2PA check, and QA report when a network architecture figure is produced

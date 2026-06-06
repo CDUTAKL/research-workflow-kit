@@ -115,6 +115,8 @@ def audit(thesis_dir: Path) -> tuple[list[str], list[str], dict[str, object]]:
             p1.append(f"{section_id} has no strong Zotero-backed citation")
         if weak(str(item["collectionCoverage"])):
             p1.append(f"{section_id} has missing Zotero collection coverage")
+        if int(item["strongVerified"]) == 0 and int(item["candidates"]) > 0:
+            p1.append(f"{section_id} has citation candidates but no verified strong Zotero-backed support")
 
     return p0, p1, {"sections": sections, "sectionCount": len(sections)}
 

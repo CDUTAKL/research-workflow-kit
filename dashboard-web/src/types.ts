@@ -98,6 +98,14 @@ export interface PluginGateHealth {
   optionalSuggestions?: number;
 }
 
+export interface NatureQualityGate {
+  key: string;
+  label: string;
+  stage: string;
+  status: string;
+  path: string;
+}
+
 export interface ConsoleFileLayer {
   layer: string;
   when: string;
@@ -196,6 +204,7 @@ export interface DashboardData {
   experimentReports?: WorkflowRecord[];
   experimentComparisons?: ExperimentComparison[];
   citationSuggestions?: CitationSuggestion[];
+  natureQualityGates?: NatureQualityGate[];
   sectionCitationCoverage?: SectionCitationCoverage[];
   consoleFileLayers?: ConsoleFileLayer[];
   weeklyReview?: WeeklyReview;

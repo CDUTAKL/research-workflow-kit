@@ -15,9 +15,9 @@ This complements `section-citation-map.md` and `zotero-screening-loop.md`. It fo
 
 ## Citation Verification Registry
 
-| Citation ID | Section ID | Segment ID | Claim ID | Title | Identifier | Candidate Source | Metadata Status | Support Status | Zotero Status | Scite / Reader Evidence | Verified By | Verified On | Export Status | Notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| CIT-001 | SEC-INTRO-001 | SEG-001 | CLM-001/TBD | TBD | DOI/arXiv/S2/PMID/TBD | Semantic Scholar / Zotero / Scite / Web / paper-search / PubMed / TBD | candidate / metadata_verified / invalid / TBD | unchecked / supports / partial / background / contradicts / TBD | not_added / in_zotero / duplicate / blocked | Scite / reader path / source map / TBD | Codex/user/Zotero/Scite/TBD | YYYY-MM-DD/TBD | bibtex/ris/enw/zotero-rdf/final/TBD |  |
+| Citation ID | Section ID | Segment ID | Claim ID | Title | Identifier | Candidate Source | Metadata Status | Support Status | Zotero Status | Scite / Reader Evidence | Verified By | Verified On | Export Status | Notes | Search Source | Verification Level | Zotero Collection |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| CIT-001 | SEC-INTRO-001 | SEG-001 | CLM-001/TBD | TBD | DOI/PMID/arXiv/S2/TBD | Semantic Scholar / Zotero / Scite / Web / PubMed / CrossRef / arXiv / publisher / TBD | candidate / metadata_verified / source_read_verified / scite_checked / invalid / TBD | unchecked / supports / partial / background / contradicts / TBD | not_added / in_zotero / duplicate / blocked | Scite / reader path / source map / TBD | Codex/user/Zotero/Scite/TBD | YYYY-MM-DD/TBD | bibtex/ris/enw/zotero-rdf/final/TBD |  | Semantic Scholar / PubMed / CrossRef / arXiv / Web / TBD | metadata_verified / source_read_verified / scite_checked / zotero_exported / supports_claim / TBD | ZCOL-001/TBD |
 
 ## Bibliography Export Trace
 

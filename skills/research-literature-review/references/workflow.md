@@ -2,6 +2,8 @@
 
 ## Search Strategy
 
+Use `docs/thesis/academic-search-policy.md` to choose the right source route before broad searching or metadata verification.
+
 Create queries in layers:
 
 1. Problem terms.
@@ -43,6 +45,8 @@ Source status:
 
 - `candidate`: discovered but not yet verified.
 - `metadata_verified`: title, authors, year, venue, DOI/arXiv/URL checked.
+- `source_read_verified`: source-map-backed reading confirms relevance.
+- `scite_checked`: support/contrast/mention status has been checked.
 - `in_zotero`: added to the local Zotero library and ready for BibTeX/export workflow.
 - `claim_support_checked`: checked against a concrete manuscript claim through Scite or direct reading.
 
@@ -102,7 +106,7 @@ When exact metadata matters:
 - Use `$semanticscholar-skill` for real Semantic Scholar discovery, citation graph, author lookup, similar papers, and candidate BibTeX/JSON.
 - Use Zotero for local library organization, PDF attachment management, final BibTeX export, and citation insertion once Zotero Desktop is available.
 - Use Scite for whether a paper supports, contrasts, or only mentions a concrete claim.
-- Use DOI, publisher, arXiv, or PubMed pages for final title, author, year, venue, and DOI checks.
+- Use PubMed for biomedical PMID/MeSH-driven searches, CrossRef or DOI pages for metadata, arXiv for preprints, and publisher pages for final title, author, year, venue, and DOI checks.
 
 ## Literature Matrix To Zotero / Scite Workflow
 

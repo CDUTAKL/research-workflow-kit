@@ -137,6 +137,7 @@ The workflow includes optional enhancement layers:
 - `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
 - `experiment-architecture.md` is the global experiment blueprint: claim-to-experiment map, data flow, code modules, config/output contract, 4060 formal run path, and remote/cloud artifact storage policy.
 - `$research-literature-review` treats Zotero as the literature hub: `zotero-literature-hub.md` stores the local inventory/policy snapshot, `zotero-screening-loop.md` records intake decisions, `zotero-collection-coverage.md` checks collection/tag coverage, `section-citation-map.md` maps papers to `SEC-*` / `SEG-*`, and `citation-provenance.md` promotes verified `CIT-*` evidence.
+- `academic-search-policy.md` adapts `nature-academic-search` style routing: Semantic Scholar for discovery, PubMed/CrossRef/arXiv/publisher pages for targeted metadata checks, Zotero for local library management, and Scite/reader evidence for support checks.
 - `$research-paper-figures` supports dual-platform diagram replication: Mac draw.io MCP by default and Windows Visio when editable `.vsdx` output is useful.
 - Build Web Data Visualization is used as a design and QA guide for chart choice, statistical visual communication, dashboard views, evidence graphs, accessibility, and visual testing.
 - `plugin-gate-policy.md` and `plugin-review-log.md` route Codex Security, Build Web Apps, Data Analytics, Product Design, and CodeRabbit as lightweight quality gates. They recommend checks by stage without turning plugins into evidence sources.
@@ -146,6 +147,7 @@ The workflow includes optional enhancement layers:
 - `docs/thesis/console-file-index.md` keeps console files layered into current workspace, evidence core, stage workspace, final artifact review, and audit/maintenance so daily work stays focused.
 - `docs/thesis/weekly-review.md` keeps a short weekly review: what became stronger/weaker, current best experiment, next 1-3 actions, and files to ignore next week.
 - The local React/Vite Dashboard opens with a Chinese current research workspace, tabbed workflow views, an evidence chain inspector, gap-first section citation coverage, baseline experiment comparison, file-layer guidance, and weekly review. The evidence chain inspector defaults to `SEC/SEG -> CLM -> EXP/DATA/FIG/CIT`, collapses duplicate/reverse relations, and keeps the full-project graph as an advanced view. It is a view/editor over `docs/thesis/`, not a replacement source of truth.
+- Nature-derived quality gates are integrated as local checklists, not external runtime dependencies: `academic-search-policy.md`, `figure-style-qa.md`, and `nature-style-writing-checklist.md` improve literature search, figure QA, and advisor/final writing review while keeping the 12-step workflow unchanged.
 - `scripts/suggest_section_citations.py` gives offline citation suggestions from existing local records, helping each `SEC-*` section move from “missing coverage” to manually confirmed citations.
 - Zotero scripts keep the library connected to the thesis console without making Zotero the evidence source of truth: `sync_zotero_inventory.py` snapshots local library inventory, `audit_zotero_coverage.py` checks section-level Zotero coverage, and `export_zotero_bibliography.py` exports or stages `references.bib` from verified citation rows.
 - `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for the stage 11 Mac production -> stage 12 Windows compatibility-review path.
@@ -370,7 +372,7 @@ python scripts/export_zotero_bibliography.py --allow-stub --out references.bib
 - Build Web Apps: use for Dashboard frontend QA and React/Vite interaction or responsive-layout checks; record outcomes in `dashboard-ux-qa.md`.
 - Data Analytics: use for result data-quality, metric diagnostics, baseline-delta, and anomaly checks; record outcomes in `data-quality-report.md` and `metric-diagnostics.md`.
 - Product Design: use for advisor-facing Dashboard, figure, and defense-slide UX/visual review; record outcomes in `visual-design-review.md`.
-- Supabase database migration, Overleaf sync, reviewer-response workflow, and arXiv auto-submit are intentionally not included.
+- Supabase database migration, Overleaf sync, `nature-response` / reviewer-response workflow, and arXiv auto-submit are intentionally not included.
 
 ## Sensitive Information Policy
 

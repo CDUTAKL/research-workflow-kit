@@ -12,6 +12,7 @@ Use `evidence-promotion-policy.md` for final visual IDs. Manuscript-facing figur
 - For complex charts, evidence graphs, Dashboard visuals, or advisor-facing visual reports, apply Build Web Data Visualization rules: simplest truthful chart, visible uncertainty or missingness when relevant, readable labels, accessible contrast, and responsive sanity checks.
 - Use `network-architecture-figures.md` for model structure diagrams; do not manage them as generic result plots.
 - Run the Nature-derived `figure-audit-standard.md` before marking final thesis, advisor-facing, or publication-ready figures as ready.
+- Run `figure-style-qa.md` before advisor-facing or final figures are shown, exported, or inserted into DOCX/PDF/PPTX.
 - Use `skills/research-paper-figures/scripts/nature_plot_templates.py` for common result figures when no project-specific plotting script already exists.
 
 ## Visual Reference To Formal Redraw Register

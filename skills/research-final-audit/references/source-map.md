@@ -18,6 +18,10 @@ This skill is a lightweight Codex-native synthesis for final paper and thesis ch
   - MIT licensed. Used as inspiration for final publication-grade figure QA.
 - `external-skill-candidates/nature-skills/skills/nature-polishing`
   - MIT licensed. Used as inspiration for final prose-polish audit and overclaim checks.
+- `external-skill-candidates/nature-skills/skills/nature-writing`
+  - MIT licensed. Used as inspiration for advisor-tier thesis writing checks.
+- `external-skill-candidates/nature-skills/skills/nature-reviewer`
+  - Not present in the local referenced snapshot; when available upstream, use only as reviewer-style inspiration for advisor/final audit, not as a submission workflow.
 - `external-skill-candidates/nature-skills/skills/nature-paper2ppt`
   - MIT licensed. Used as inspiration for paper-to-PPT evidence routing and Chinese academic presentation QA.
 - `external-skill-candidates/nature-skills/skills/nature-data`

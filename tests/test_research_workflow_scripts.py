@@ -36,6 +36,7 @@ PLUGIN_GATE_ADVISOR = REPO_ROOT / "scripts" / "plugin_gate_advisor.py"
 SYNC_ZOTERO_INVENTORY = REPO_ROOT / "scripts" / "sync_zotero_inventory.py"
 AUDIT_ZOTERO_COVERAGE = REPO_ROOT / "scripts" / "audit_zotero_coverage.py"
 EXPORT_ZOTERO_BIBLIOGRAPHY = REPO_ROOT / "scripts" / "export_zotero_bibliography.py"
+INIT_RESEARCH_WORKFLOW = REPO_ROOT / "init_research_workflow.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -321,9 +322,9 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "| Section ID | Thesis Location | Section Purpose | Required Literature Role | Coverage Status | Notes |\n"
                 "|---|---|---|---|---|---|\n"
                 "| SEC-INTRO-001 | Ch1 | background | foundational | missing |  |\n\n"
-                "| Segment ID | Section ID | Segment / Claim Draft | Candidate Reference | DOI / arXiv / S2 ID | Support Grade | Source Status | Zotero Status | Scite / Reader Status | Export Format | Next Action |\n"
-                "|---|---|---|---|---|---|---|---|---|---|---|\n"
-                "| SEG-001 | SEC-INTRO-001 | claim | Strong Paper | 10.0000/example | strong | metadata_verified | in_zotero | supports_claim | bibtex | cite |\n",
+                "| Segment ID | Section ID | Segment / Claim Draft | Candidate Reference | DOI / PMID / arXiv / S2 ID | Support Grade | Source Status | Zotero Status | Scite / Reader Status | Export Format | Next Action | Search Source | Keywords / MeSH | Zotero Collection |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n"
+                "| SEG-001 | SEC-INTRO-001 | claim | Strong Paper | PMID:123456 | strong | source_read_verified | in_zotero | supports_claim | bibtex | cite | PubMed | MeSH: diagnosis | ZCOL-001 |\n",
                 encoding="utf-8",
             )
             json_out = project / "dashboard-web" / "public" / "data" / "citation-suggestions.json"
@@ -345,8 +346,27 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             suggestions_json = json.loads(json_out.read_text(encoding="utf-8"))
             self.assertIn("suggestions: 1", result.stdout)
             self.assertIn("Strong Paper", suggestions_md)
+            self.assertIn("doi/pmid", suggestions_md)
+            self.assertIn("zotero-collection", suggestions_md)
             self.assertEqual("SEC-INTRO-001", suggestions_json["sectionId"])
-            self.assertGreaterEqual(suggestions_json["suggestions"][0]["score"], 10)
+            self.assertGreaterEqual(suggestions_json["suggestions"][0]["score"], 16)
+
+    def test_init_research_workflow_includes_nature_quality_templates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp) / "project"
+            subprocess.run(
+                [sys.executable, str(INIT_RESEARCH_WORKFLOW), "--project", str(project)],
+                cwd=REPO_ROOT,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            for name in (
+                "academic-search-policy.md",
+                "figure-style-qa.md",
+                "nature-style-writing-checklist.md",
+            ):
+                self.assertTrue((project / "docs" / "thesis" / name).exists(), name)
 
     def test_sync_zotero_inventory_writes_hub_snapshot(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -690,8 +710,11 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "section-citation-map.md",
                 "citation-provenance.md",
                 "zotero-screening-loop.md",
+                "academic-search-policy.md",
                 "benchmark-report-schema.md",
                 "figure-plan.md",
+                "figure-style-qa.md",
+                "nature-style-writing-checklist.md",
                 "diagram-replica-tasks.md",
                 "final-artifact-manifest.md",
                 "final-audit.md",
@@ -704,6 +727,24 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "visual-design-review.md",
             ):
                 (thesis / name).write_text("# placeholder\n", encoding="utf-8")
+            (thesis / "academic-search-policy.md").write_text(
+                "# Academic Search Policy\n\n| Search ID | Section ID | Segment ID | Query | Source | Keywords / MeSH | Filters | Candidate Count | Useful Count | Next Action |\n"
+                "|---|---|---|---|---|---|---|---:|---:|---|\n"
+                "| SEARCH-001 | SEC-INTRO-001 | SEG-001 | accuracy method | Semantic Scholar | accuracy | year | 10 | 2 | complete |\n",
+                encoding="utf-8",
+            )
+            (thesis / "figure-style-qa.md").write_text(
+                "# Figure Style QA\n\n| Figure ID | Figure Role | Source Data / Script | Export Formats | Panel Hierarchy | Uncertainty / n | Caption Safety | Accessibility | Source Trace | QA Status | Required Fix |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|\n"
+                "| FIG-001 | support | DATA-001 | SVG/PDF | ready | visible | safe | pass | traceable | ready | none |\n",
+                encoding="utf-8",
+            )
+            (thesis / "nature-style-writing-checklist.md").write_text(
+                "# Nature-Style Writing Checklist\n\n| Section ID | Section | Gap / Reader Question | Evidence Source | Citation Coverage | Overclaim Risk | Writing Status | Required Fix |\n"
+                "|---|---|---|---|---|---|---|---|\n"
+                "| SEC-INTRO-001 | Introduction | clear gap | CLM-001; CIT-001 | covered | low | ready | none |\n",
+                encoding="utf-8",
+            )
             source = project / "outputs" / "final.pdf"
             source.parent.mkdir(parents=True)
             source.write_text("pdf placeholder", encoding="utf-8")
@@ -784,8 +825,10 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertIn("Workflow Health", result.stdout)
             self.assertIn("wrote dashboard data", result.stdout)
             self.assertIn("claims=1 experiments=1 datasets=1", dashboard)
-            self.assertEqual("ok", dashboard_json["health"])
+            self.assertIn(dashboard_json["health"], {"ok", "warning"})
+            self.assertEqual([], dashboard_json["issues"]["p0"])
             self.assertEqual(1, dashboard_json["counts"]["claims"])
+            self.assertIn("natureQualityGates", dashboard_json)
             self.assertIn("skillHealth", dashboard_json)
             self.assertIn("pluginRecommendations", dashboard_json)
             self.assertIn("pluginGateHealth", dashboard_json)

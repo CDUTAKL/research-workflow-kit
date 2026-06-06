@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 VALID_SUPPORT = {"strong", "partial", "background", "limiting", "contradictory", "metadata_only"}
-FINAL_STATUSES = {"metadata_verified", "in_zotero", "claim_support_checked"}
+FINAL_STATUSES = {"metadata_verified", "source_read_verified", "scite_checked", "in_zotero", "claim_support_checked"}
 MISSING_COVERAGE = {"", "missing", "pending", "tbd"}
 
 
@@ -91,6 +91,8 @@ def main() -> None:
             warnings.append(f"{seg['segment']} strong support is not metadata/source verified")
         if seg["support"] == "strong" and "not_checked" in seg["reader_status"]:
             warnings.append(f"{seg['segment']} strong support lacks Scite or reader check")
+        if seg["support"] == "strong" and "source_read_verified" not in seg["source_status"] and "supports" not in seg["reader_status"]:
+            warnings.append(f"{seg['segment']} strong support lacks source-read verification")
 
     print(f"Sections: {len(sections)}  |  Segments: {len(segments)}")
     print(f"Errors: {len(errors)}  |  Warnings: {len(warnings)}")

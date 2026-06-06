@@ -17,6 +17,7 @@ Use this skill to produce clear, evidence-backed academic prose. It supports Chi
 - Mark missing citations or evidence explicitly.
 - Check `evidence-promotion-policy.md` before moving `CLM-*` content into final prose; section IDs should use `SEC-*`.
 - Before final polish, check section citation coverage and data-backed claim traceability when thesis console files exist.
+- Before advisor-facing or final polish, use `docs/thesis/nature-style-writing-checklist.md` to check Introduction gap, related-work grouping, method reproducibility, results discipline, discussion boundaries, and overclaim risk.
 
 ## Workflow
 
@@ -26,7 +27,7 @@ Read `references/workflow.md` for section templates, paragraph patterns, Nature-
 2. Determine the section's job in the paper.
 3. Draft or rewrite with a clear claim-evidence structure.
 4. Check each paragraph for topic sentence, evidence, transition, and overclaiming.
-5. For citation-heavy sections, consult `section-citation-map.md`; for data-backed claims, consult `data-availability.md`.
+5. For citation-heavy sections, consult `section-citation-map.md`; for data-backed claims, consult `data-availability.md`; for final/advisor text, consult `nature-style-writing-checklist.md`.
 6. For final polish, apply section-aware academic style checks: paper type, section job, reader question, tense, hedging, sentence length, citation integrity, and overclaim risk.
 7. Return text plus unresolved evidence/citation gaps.
 
@@ -39,6 +40,7 @@ For drafting, include:
 - missing citations or evidence
 - optional shorter/stronger alternatives when useful
 - final-polish notes when Nature-derived style checks are applied
+- unresolved items from `nature-style-writing-checklist.md` when relevant
 
 For thesis-wide writing, prefer this order unless the user provides a template:
 

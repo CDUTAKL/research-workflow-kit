@@ -1675,6 +1675,16 @@ h2 {
   margin-bottom: 14px;
 }
 
+.panel-title-row.compact-title {
+  margin-top: 18px;
+  margin-bottom: 10px;
+}
+
+.panel-title-row.compact-title h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
 .panel-title-row svg {
   color: #2563eb;
 }

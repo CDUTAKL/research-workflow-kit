@@ -14,6 +14,8 @@ This skill is a lightweight Codex-native synthesis for academic writing.
   - Used as inspiration for claim-first, reader-first academic prose.
 - `external-skill-candidates/nature-skills/skills/nature-polishing`
   - MIT licensed. Used as inspiration for section-aware polishing, hourglass logic, hedging calibration, citation integrity, and overclaim checks.
+- `external-skill-candidates/nature-skills/skills/nature-writing`
+  - MIT licensed. Used as inspiration for Introduction gap logic, related-work grouping, methods reproducibility, results discipline, and discussion boundary checks in `nature-style-writing-checklist.md`.
 
 ## Excluded or Reference-Only Sources
 

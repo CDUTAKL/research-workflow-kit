@@ -162,6 +162,29 @@ export const demoFallbackData: DashboardData = {
     pendingRequiredGates: 0,
     optionalSuggestions: 1,
   },
+  natureQualityGates: [
+    {
+      key: 'academicSearchPolicy',
+      label: '多源学术检索',
+      stage: 'stage 2',
+      status: 'pending',
+      path: 'docs/thesis/academic-search-policy.md',
+    },
+    {
+      key: 'figureStyleQa',
+      label: '图表风格 QA',
+      stage: 'stage 9',
+      status: 'pending',
+      path: 'docs/thesis/figure-style-qa.md',
+    },
+    {
+      key: 'natureStyleWritingChecklist',
+      label: 'Nature-style 写作检查',
+      stage: 'stage 10-12',
+      status: 'pending',
+      path: 'docs/thesis/nature-style-writing-checklist.md',
+    },
+  ],
   handoffPackage: {
     exists: 'false',
     latestZip: '',

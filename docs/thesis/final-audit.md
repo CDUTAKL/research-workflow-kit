@@ -13,6 +13,7 @@
 - Run `scripts/research_workflow_doctor.py --write-dashboard` before advisor or final audit when the project console exists.
 - Check `plugin-gate-policy.md` and `plugin-review-log.md` when Codex Security, Build Web Apps, Data Analytics, Product Design, or CodeRabbit gates were recommended.
 - If the Dashboard, evidence graph, or result charts will be shown to an advisor, apply Build Web Data Visualization checks for truthful chart choice, readable labels, accessible contrast, uncertainty/missingness visibility, and desktop/mobile legibility.
+- For advisor-tier checks, apply the Nature-style thesis precheck in `nature-style-writing-checklist.md`: novelty, evidence strength, overclaim risk, figure clarity, method reproducibility, and citation support.
 
 ## Priority Legend
 
@@ -109,6 +110,7 @@
 | Formal baseline comparisons are recorded in `benchmark-report-schema.md` | pending |  |
 | Data restrictions and availability language are advisor-reviewable | pending |  |
 | Advisor-facing charts and evidence graph are readable and do not hide uncertainty | pending |  |
+| Nature-style advisor precheck covers novelty, evidence strength, overclaim risk, figure clarity, method reproducibility, and citation support | pending | `nature-style-writing-checklist.md` |
 | Data Analytics / Product Design review notes exist when formal results or visuals are advisor-facing | pending |  |
 | Mac-produced DOCX/PDF/PPTX rows in `final-artifact-manifest.md` exist and are ready for Windows compatibility review | pending |  |
 | Important IDs have valid lifecycle status in `id-lifecycle-policy.md` | pending |  |
