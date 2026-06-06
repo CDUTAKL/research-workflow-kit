@@ -9,6 +9,7 @@
 - Run the experiment contract check before expensive remote GPU work.
 - Record human-supervised iteration decisions in `autoresearch-results.tsv` when the run changes a claim or method.
 - For `remote_desktop_4060` formal runs, save an environment snapshot even when CUDA and PyTorch versions are fixed on the desktop.
+- For AutoDL fallback runs, create/start the instance manually in the AutoDL web console, then use the auto-shutdown template so logs, exit code, environment snapshot, run summary, checksums, and archive path are saved before the instance shuts down.
 - After the run, update actual outputs, local lightweight index, remote artifact URI, remote status, hash/manifest, and handoff target.
 
 ## Runbook Table
@@ -44,7 +45,7 @@ Adapt these commands to the project. Do not invent entrypoints when reviewing an
 |---|---|---|---|
 | `local_mac` | research console and light smoke test | stages 1-10 planning/literature/code control/result analysis/figure planning/writing drafts; CPU-only shape and output-format checks | assuming local GPU availability or final formal metrics |
 | `remote_desktop_4060` | primary GPU experiment target | training, evaluation, tuning, ablations, multi-seed runs, reproducibility artifacts | storing secrets in console files or replacing result review |
-| `cloud_autodl` | optional stronger fallback | full data or larger GPU runs when 4060 is insufficient/unavailable | default first choice when desktop 4060 can run the experiment |
+| `cloud_autodl` | optional stronger fallback with auto-save and auto-shutdown | full data or larger GPU runs when 4060 is insufficient/unavailable | default first choice when desktop 4060 can run the experiment, or any route that stores credentials in repo files |
 | `cloud_other` | fallback cloud | RunPod, Colab, Kaggle, school server | unspecified credentials or unrecorded environments |
 
 ## Remote Desktop 4060 Connection Record
@@ -126,15 +127,30 @@ python scripts/check_experiment_contract.py \
 
 Use this section only when `remote_desktop_4060` is unavailable or insufficient.
 
+AutoDL instance creation is manual: create/start the instance in the AutoDL web console, confirm the SSH connection, and keep passwords outside the repository. After that, use the templates below so the remote job saves evidence and shuts itself down:
+
+```bash
+SSH_ALIAS=autodl-gpu EXP_ID=EXP-001 bash scripts/remote_sync_to_autodl.sh.template
+SSH_ALIAS=autodl-gpu EXP_ID=EXP-001 RUN_MODE=detached AUTO_SHUTDOWN=1 bash scripts/remote_run_autodl_autoshutdown.sh.template
+# After AutoDL shuts down, restart the instance only when you need to fetch the lightweight evidence:
+SSH_ALIAS=autodl-gpu EXP_ID=EXP-001 bash scripts/remote_fetch_autodl_results.sh.template
+```
+
 | Field | Value | Notes |
 |---|---|---|
 | AutoDL instance / GPU | TBD | instance ID or GPU model |
+| SSH alias / host label | `autodl-gpu/TBD` | no password here |
 | Remote project path | TBD | code path |
 | Remote data path | TBD | dataset path |
 | Remote environment | TBD | conda/env activation command |
+| Run command | TBD | exact training/evaluation command |
 | Remote output path | TBD | experiment artifacts |
+| Remote archive path | TBD | full run folder saved before shutdown |
+| Exit code | TBD | `exit_code.txt` |
+| AutoDL run summary | TBD | `autodl_run_summary.json` |
+| Remote checksums | TBD | `checksums.sha256` |
 | Local download path | TBD | where recovered results are stored |
-| Shutdown/release status | TBD | only after user instruction |
+| Shutdown/release status | auto_shutdown/pending/verified/blocked | default `AUTO_SHUTDOWN=1`; verify through AutoDL console after completion |
 
 ## Monitoring Checklist
 
@@ -147,6 +163,8 @@ Use this section only when `remote_desktop_4060` is unavailable or insufficient.
 | Checkpoint saved when expected | yes | TBD | pending |
 | Metrics JSON/CSV exists | yes | TBD | pending |
 | Environment snapshot exists for formal 4060 runs | yes | TBD | pending |
+| AutoDL run summary and exit code exist for fallback runs | yes when `cloud_autodl` | TBD | pending |
+| AutoDL instance shut down after fallback run | yes when `AUTO_SHUTDOWN=1` | TBD | pending |
 | Evaluation uses intended split | yes | TBD | pending |
 | Result artifacts recovered locally | yes for cloud runs | TBD | pending |
 

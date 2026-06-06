@@ -5,13 +5,13 @@
 - Register every experiment before using its result in writing.
 - Keep one stable experiment ID per run or comparable run group.
 - Link result files, logs, notebooks, configs, and generated figures.
-- Use this registry as a local thesis evidence index. Large logs, checkpoints, predictions, and full run folders may live on `remote_desktop_4060`, NAS, iCloud/OneDrive, or object storage.
+- Use this registry as a local thesis evidence index. Large logs, checkpoints, predictions, and full run folders may live on `remote_desktop_4060`, AutoDL fallback storage, NAS, iCloud/OneDrive, or object storage.
 - Record the cloud/remote location, hash/manifest, and remote status whenever artifacts are not fully stored on the Mac.
 - Link architecture and runbook records for experiments that require code implementation.
 - Mark results as `invalid` if leakage, split mismatch, metric mismatch, or missing artifacts are found.
 - Use `EXP-*` for stable reviewed experiment records and `EXP-AUTO-*` for result-scan candidates.
 - `experiment-log.md` is a legacy compatibility file; this registry is the primary experiment evidence source.
-- Promote experiments according to `evidence-promotion-policy.md`; formal `remote_desktop_4060` evidence requires an environment snapshot.
+- Promote experiments according to `evidence-promotion-policy.md`; formal `remote_desktop_4060` evidence requires an environment snapshot, and AutoDL fallback evidence requires exit code, run summary, checksums, remote archive URI, and shutdown status.
 
 ## Status Legend
 
@@ -34,6 +34,7 @@
 | Local evidence index | `docs/thesis/experiment-registry.md`, `experiment-reports/`, `autoresearch-results.tsv` | thesis-readable experiment evidence | committed and reviewed |
 | Local lightweight output | `outputs/EXP-*/manifest.json`, `metrics.json`, `environment.txt`, selected figures/tables | small machine-readable index | may be ignored by git if project-specific |
 | Remote run folder | `ssh://desktop-4060/.../research-runs/EXP-*` or equivalent | full logs, checkpoints, predictions, large artifacts | primary storage for formal 4060 runs |
+| AutoDL fallback archive | `ssh://autodl-gpu/root/research-runs/EXP-*` or equivalent | full logs, checkpoints, predictions, checksums after fallback run | generated before AutoDL auto-shutdown |
 | Archive / cloud | NAS, iCloud/OneDrive, OSS/COS/S3, or institutional storage | long-term preservation | record URI and hash before final audit |
 
 ## Experiment Table
@@ -53,6 +54,7 @@
 - For data-backed claims, ensure `data-availability.md` maps the output artifact to source data.
 - For formal baseline comparisons, update `benchmark-report-schema.md` and register evidence-critical outputs in `material-passport.md`.
 - For formal 4060 or cloud results, do not mark a run `reviewed` unless `Storage Backend`, `Remote Artifact URI`, `Remote Status`, and `Artifact Hash / Manifest` are explicit.
+- For AutoDL fallback results, also confirm `exit_code.txt`, `autodl_run_summary.json`, `checksums.sha256`, environment snapshot, and shutdown status before using metrics as thesis evidence.
 
 ## Engineering Links
 
@@ -68,6 +70,7 @@
 | `data-availability.md` | dataset provenance and claim-to-data traceability |
 | `outputs/EXP-*/environment.txt` | required environment snapshot for formal 4060 or cloud GPU evidence |
 | `ssh://desktop-4060/.../research-runs/EXP-*` | preferred full-artifact storage for formal 4060 runs |
+| `ssh://autodl-gpu/.../research-runs/EXP-*` | fallback AutoDL archive after auto-save and auto-shutdown run |
 
 ## Result Scan Imports
 

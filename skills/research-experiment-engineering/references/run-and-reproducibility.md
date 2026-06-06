@@ -38,6 +38,7 @@ Default policy:
 - Run `local_mac` CPU-only smoke tests before any long-running remote GPU training.
 - Use `remote_desktop_4060` as the default formal GPU target after the command, config, outputs, and data paths are known.
 - Use `cloud_autodl` for formal runs only when the desktop 4060 is unavailable, insufficient, or explicitly bypassed.
+- For `cloud_autodl`, the user creates/starts the instance manually. The workflow connects after SSH is available, saves evidence, archives outputs, and runs `/usr/bin/shutdown` by default.
 - Keep secrets out of repository files.
 
 ## Output Directory Checklist
@@ -114,6 +115,15 @@ Remote GPU execution sequence:
 ## AutoDL Fallback Run Record
 
 When `cloud_autodl` is used instead of `remote_desktop_4060`, record the same remote fields plus the AutoDL instance/image, billed resource, and shutdown/release policy. Treat AutoDL as a fallback target, not the default path.
+
+AutoDL-specific policy:
+
+- The user creates and starts the AutoDL instance manually in the AutoDL web console.
+- The kit connects through SSH alias or terminal password prompt; do not store passwords, tokens, account data, or private-key contents in repo files.
+- Use `scripts/remote_sync_to_autodl.sh.template` to sync code/config after the instance is reachable.
+- Use `scripts/remote_run_autodl_autoshutdown.sh.template` with `AUTO_SHUTDOWN=1` by default. The remote job should write `train.log`, `exit_code.txt`, `autodl_run_summary.json`, an environment snapshot, an archive folder, and `checksums.sha256`, then call `/usr/bin/shutdown`.
+- Use `scripts/remote_fetch_autodl_results.sh.template` only after restarting the instance when lightweight evidence needs to be recovered locally.
+- Do not mark AutoDL results `reviewed` until the run summary, exit code, checksum file, remote archive URI, local lightweight index, and shutdown status are recorded.
 
 ## Paper Mapping
 

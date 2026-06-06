@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# AutoDL fallback sync template.
+# Fill SSH_ALIAS after you create an AutoDL instance in the web console.
+# Do not write AutoDL passwords, tokens, or private keys into this file.
+
+SSH_ALIAS="${SSH_ALIAS:-autodl-gpu}"
+LOCAL_PROJECT="${LOCAL_PROJECT:-.}"
+REMOTE_PROJECT="${REMOTE_PROJECT:-/root/research-project}"
+
+rsync -av \
+  --exclude ".git/" \
+  --exclude ".venv/" \
+  --exclude "__pycache__/" \
+  --exclude "dashboard-web/node_modules/" \
+  --exclude "dashboard-web/dist/" \
+  --exclude "handoff-packages/" \
+  --exclude "outputs/" \
+  "${LOCAL_PROJECT}/" "${SSH_ALIAS}:${REMOTE_PROJECT}/"
+
+cat <<EOF
+Synced project to AutoDL:
+  ${SSH_ALIAS}:${REMOTE_PROJECT}
+
+Next:
+  SSH_ALIAS=${SSH_ALIAS} REMOTE_PROJECT=${REMOTE_PROJECT} EXP_ID=EXP-001 \\
+    bash scripts/remote_run_autodl_autoshutdown.sh.template
+EOF

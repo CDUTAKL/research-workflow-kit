@@ -52,6 +52,18 @@ scripts/remote_archive_experiment.sh.template
 
 Only store SSH alias, paths, and commands. Never store passwords. The run template writes an environment snapshot before the formal command by default. The fetch template defaults to a lightweight local index; the archive template records the remote run folder and checksum path that should be copied into `experiment-registry.md`.
 
+## AutoDL Fallback Templates
+
+Use only when the desktop 4060 is unavailable or insufficient. The user creates/starts the AutoDL instance manually, then the workflow connects by SSH alias and runs:
+
+```text
+scripts/remote_sync_to_autodl.sh.template
+scripts/remote_run_autodl_autoshutdown.sh.template
+scripts/remote_fetch_autodl_results.sh.template
+```
+
+The run template defaults to `AUTO_SHUTDOWN=1` and should write `train.log`, `exit_code.txt`, `autodl_run_summary.json`, `environment.txt`, `checksums.sha256`, and a remote archive path before calling `/usr/bin/shutdown`. Do not store AutoDL passwords or account details in project files.
+
 ## Review Checklist
 
 | Risk | Check |

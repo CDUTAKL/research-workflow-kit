@@ -31,10 +31,10 @@ Execution target policy:
 |---|---|
 | `local_mac` | Mac research console, CPU-only smoke test, small sample, output-format check |
 | `remote_desktop_4060` | primary formal GPU target on the user's RTX 4060 desktop |
-| `cloud_autodl` | stronger fallback GPU target when the desktop 4060 is unavailable or insufficient |
+| `cloud_autodl` | stronger fallback GPU target when the desktop 4060 is unavailable or insufficient; user-created instance with auto-save and auto-shutdown run template |
 | `cloud_other` | RunPod, Colab, Kaggle, school server, or another remote target |
 
-For remote targets, record only SSH alias/host label, remote paths, environment, GPU, result recovery path, and shutdown/release policy when relevant. Do not record passwords, token values, or private-key contents.
+For remote targets, record only SSH alias/host label, remote paths, environment, GPU, result recovery path, and shutdown/release policy when relevant. For AutoDL, also record `exit_code.txt`, `autodl_run_summary.json`, checksums, remote archive URI, and shutdown status. Do not record passwords, token values, AutoDL account data, or private-key contents.
 
 ## Experiment Registry
 
@@ -65,7 +65,7 @@ After experiment code is planned and runs are recorded:
 3. Run `$research-code-quality` or `scripts/check_experiment_contract.py` before remote GPU training.
 4. Run `local_mac` CPU-only smoke tests before long-running remote GPU training.
 5. Use `remote_desktop_4060` as the primary formal GPU target only after command, config, data path, output path, and recovery plan are known.
-6. Use `cloud_autodl` only as a fallback when the desktop 4060 is unavailable or insufficient.
+6. Use `cloud_autodl` only as a fallback when the desktop 4060 is unavailable or insufficient; prefer the AutoDL auto-save/auto-shutdown templates so completed training does not continue billing.
 7. Use `$research-autoresearch-loop` when the run is part of a method-improvement iteration.
 8. Use `$jupyter-notebook` for reproducible exploratory checks when needed.
 9. Use `$research-results-analysis` to normalize metrics and identify supported claims.

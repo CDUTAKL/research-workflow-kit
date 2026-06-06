@@ -11,7 +11,7 @@ The goal is to keep the experiment system coherent across Mac orchestration, `re
 - Update this file when the research question, data flow, model/algorithm boundary, metric definition, baseline, output convention, or remote storage plan changes.
 - Every serious experiment should connect to at least one `CLM-*`, one config, one output location, and one evidence-review path.
 - Local Mac records are the thesis evidence index; complete experiment folders may live on `remote_desktop_4060`, NAS, cloud drive, or object storage.
-- Formal `remote_desktop_4060` or cloud results require an environment snapshot and a remote artifact URI/hash before they can be marked `reviewed`.
+- Formal `remote_desktop_4060` or cloud results require an environment snapshot and a remote artifact URI/hash before they can be marked `reviewed`. AutoDL fallback runs also require an exit code, run summary, checksum file, and recorded shutdown status.
 - Do not store passwords, private keys, tokens, or private dataset contents in this file.
 
 ## Architecture Summary
@@ -23,7 +23,7 @@ The goal is to keep the experiment system coherent across Mac orchestration, `re
 | Main experiment family | baseline/proposed/ablation/robustness/error-analysis/TBD | draft |  |
 | Primary execution target | `remote_desktop_4060` for formal GPU runs | planned | Mac remains control console |
 | Local smoke target | `local_mac` CPU-only or small sample | planned | No local GPU assumption |
-| Cloud fallback | `cloud_autodl` / other / not needed | pending | Only when 4060 is unavailable or insufficient |
+| Cloud fallback | `cloud_autodl` / other / not needed | pending | Only when 4060 is unavailable or insufficient; AutoDL fallback should auto-save evidence and auto-shutdown after completion |
 | Long-term artifact storage | 4060 run folder / NAS / cloud drive / object storage / TBD | pending | Record URI in `experiment-registry.md` |
 
 ## Claim-To-Experiment Map
@@ -93,6 +93,22 @@ Each evidence-bearing `outputs/EXP-*` folder should contain a lightweight local 
 | Remote Status | `pending`, `synced`, `verified`, `archived`, `blocked` | remote/cloud runs | `experiment-registry.md` |
 | Artifact Hash / Manifest | `outputs/EXP-001/manifest.json` or checksum | reviewed evidence | `experiment-registry.md`, `material-passport.md` |
 | Local Summary | `experiment-reports/EXP-001.md` | all reviewed results | `experiment-reports/` |
+
+## AutoDL Fallback Path
+
+Use AutoDL only when the desktop 4060 is unavailable, insufficient, or explicitly bypassed. The user creates and starts the AutoDL instance manually; the workflow then uses SSH/rsync templates to sync code, run the experiment, save evidence, archive outputs, and shut down the instance.
+
+| Step | Action | Output |
+|---|---|---|
+| 1 | User creates/starts AutoDL instance and confirms SSH access | SSH alias such as `autodl-gpu` |
+| 2 | Mac syncs code/config to AutoDL | remote project folder |
+| 3 | AutoDL writes environment snapshot with `--label cloud_autodl` | `outputs/EXP-*/environment.txt` |
+| 4 | AutoDL runs the formal command and writes logs | `train.log`, checkpoints, metrics |
+| 5 | AutoDL writes `exit_code.txt` and `autodl_run_summary.json` | machine-readable run outcome |
+| 6 | AutoDL archives output and writes `checksums.sha256` | remote archive path |
+| 7 | AutoDL runs `/usr/bin/shutdown` when `AUTO_SHUTDOWN=1` | billing-safe shutdown |
+| 8 | Mac fetches lightweight evidence after restart if needed | local `outputs/EXP-*` index |
+| 9 | Registry is updated with `cloud_autodl`, remote URI, status, and checksum path | reviewed evidence candidate |
 
 ## 4060 Formal Run Path
 

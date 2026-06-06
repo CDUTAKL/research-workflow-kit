@@ -24,7 +24,7 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 | Vercel | optional future read-only dashboard preview for advisor/demo review | future export notes in `docs/thesis/workflow-dashboard.md` |
 | `local_mac` | stages 1-11 research console, literature/writing/remote-run control, CPU-only smoke tests, DOCX/PDF/PPTX main production | `docs/thesis/experiment-runbook.md`, `docs/thesis/reproducibility-checklist.md`, `docs/thesis/final-artifact-manifest.md` |
 | `remote_desktop_4060` | primary RTX 4060 GPU target for training, evaluation, tuning, and reproducibility artifacts | `docs/thesis/experiment-runbook.md`, `docs/thesis/experiment-registry.md` |
-| `cloud_autodl` | fallback GPU target when the desktop 4060 is unavailable or insufficient | `docs/thesis/reproducibility-checklist.md` |
+| `cloud_autodl` | fallback GPU target when the desktop 4060 is unavailable or insufficient; user-created instance with run evidence saved before automatic shutdown | `docs/thesis/experiment-runbook.md`, `docs/thesis/reproducibility-checklist.md`, `docs/thesis/experiment-registry.md` |
 | Windows compatibility review | stage 12 Word/WPS/PowerPoint compatibility review, final submission checks, and defense playback testing | `docs/thesis/final-audit.md`, `docs/thesis/defense-prep.md`, `docs/thesis/final-artifact-manifest.md` |
 | Spreadsheets | reviewable literature/result/claim/audit tables | `docs/thesis/spreadsheet-exports.md` |
 | Zotero screening loop | recurring literature intake, A/B/C/D screening, Zotero writeback queue, spreadsheet feedback learning | `docs/thesis/zotero-screening-loop.md` |
@@ -46,7 +46,7 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 
 - Stage 1 planning: Notion can mirror tasks, but `thesis-brief.md` remains the local source of evidence; use `idea-discovery.md` for early paper-pool and idea-matrix work.
 - Stage 2 literature: use `section-citation-map.md` when matching papers to thesis chapters or paragraphs; use `zotero-screening-loop.md` when recurring paper intake and feedback learning are useful.
-- Stages 4-6 engineering: GitHub and Superpowers should be considered for major code changes, debugging, and formal experiment traceability. Use `local_mac` for CPU-only smoke tests, `remote_desktop_4060` for primary GPU runs, and `cloud_autodl` only as fallback.
+- Stages 4-6 engineering: GitHub and Superpowers should be considered for major code changes, debugging, and formal experiment traceability. Use `local_mac` for CPU-only smoke tests, `remote_desktop_4060` for primary GPU runs, and `cloud_autodl` only as fallback with logs, exit code, run summary, checksums, archive URI, and auto-shutdown status recorded.
 - Stages 4-6 code quality: use `$research-code-quality` before remote GPU runs; use Codex Security when Dashboard/API/file-writing/remote/CI changes are security-sensitive; use CodeRabbit as an optional pre-merge reviewer when authenticated, not as a default CI dependency.
 - Stages 5-8 iteration: use `$research-autoresearch-loop` for iteration logging and verify/guard decisions.
 - Stages 7-12 data availability: use `$research-data-availability` before finalizing data-backed claims.

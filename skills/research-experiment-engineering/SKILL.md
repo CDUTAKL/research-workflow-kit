@@ -15,12 +15,13 @@ Use this skill before result analysis when a research project needs experiment c
 - Require machine-readable outputs for important runs: config, metrics, predictions when applicable, logs, and artifacts.
 - Map every important run to an experiment ID in `docs/thesis/experiment-registry.md`.
 - Use `local_mac` for orchestration and CPU-only smoke tests on this Mac; use `remote_desktop_4060` as the primary formal GPU experiment target; use `cloud_autodl` or another cloud target only as a fallback when the desktop 4060 is unavailable or insufficient.
+- For `cloud_autodl`, assume the user creates and starts the instance manually; after SSH access is available, require auto-save evidence and automatic shutdown by default so the instance does not keep billing after training.
 - Treat the desktop CUDA/PyTorch profile as fixed when the user confirms it, but still save `outputs/EXP-*/environment.txt` for every formal 4060 evidence run.
 - Treat `docs/thesis/experiment-architecture.md` as the global experiment blueprint: claim map, data flow, module boundaries, config/output contract, baseline/metric policy, and remote storage plan.
 - Use the local-index plus remote-artifact model for formal runs: fetch lightweight `outputs/EXP-*` evidence to the Mac, keep full logs/checkpoints/predictions on `remote_desktop_4060` or another archive backend, and record URI/hash/status in `experiment-registry.md`.
 - Use `$research-code-quality` or `scripts/check_experiment_contract.py` before expensive remote GPU runs.
 - Use `$research-autoresearch-loop` when a run is part of iterative method improvement.
-- Never write SSH passwords, private-key contents, or long-lived credentials into project files.
+- Never write SSH passwords, AutoDL account data, private-key contents, or long-lived credentials into project files.
 - Hand completed outputs to `$research-results-analysis`; do not make final paper claims inside this skill.
 
 ## Workflow
@@ -58,6 +59,7 @@ Always include:
 - reproducibility checklist
 - autoresearch verify/guard handoff when the run is part of iteration
 - result recovery and shutdown/release policy for remote or cloud runs
+- AutoDL fallback evidence contract when used: logs, `exit_code.txt`, `autodl_run_summary.json`, environment snapshot, `checksums.sha256`, remote archive path, and shutdown status
 - thesis console files to update
 - risks, blockers, and next implementation tasks
 

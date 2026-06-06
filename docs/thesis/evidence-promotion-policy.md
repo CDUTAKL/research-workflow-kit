@@ -50,6 +50,7 @@ Legacy figure IDs such as `Fig-001`, `Table-001`, or `Arch-001` should be mapped
 | Claim gate | `CLM-*` has exact scope, evidence links, and caveat when needed | final writing, slides |
 | Experiment gate | `EXP-*` has config, seed/split/metric, registry row, outputs, and review status | result claim support |
 | Remote GPU gate | `remote_desktop_4060` formal run has an environment snapshot | promoting GPU result to reviewed |
+| AutoDL fallback gate | `cloud_autodl` run has `exit_code.txt`, `autodl_run_summary.json`, environment snapshot, remote archive URI, checksum file, and shutdown status | promoting AutoDL result to reviewed |
 | Data gate | `DATA-*` has source path, access condition, hash/manifest or reason missing, and generation command | data-backed claim support |
 | Figure gate | `FIG-*` has source data/script, caption-safe wording, export path, and audit status | final manuscript figure/table |
 | Citation gate | important citation has metadata and sentence-level support checked | related work and background claims |

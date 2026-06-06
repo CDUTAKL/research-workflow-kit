@@ -100,6 +100,7 @@
 | Main `CLM-*` items are supported or deliberately weakened | pending |  |
 | Reviewed `EXP-*` runs pass contract checks | pending |  |
 | `remote_desktop_4060` formal runs include environment snapshot and remote artifact URI/hash/status | pending |  |
+| `cloud_autodl` fallback runs include exit code, run summary, environment snapshot, checksums, remote archive URI, and shutdown status | pending |  |
 | Figures/tables use `FIG-*` IDs and have safe captions | pending |  |
 | `diagram-replica-tasks.md` records draw.io / Visio outputs for structured diagrams | pending |  |
 | A/B/C/D literature screening labels have section handoff or exclusion reasons | pending |  |

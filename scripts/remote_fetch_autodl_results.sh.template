@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Fetch lightweight evidence from an AutoDL fallback run.
+# If the AutoDL instance already shut down, restart it from the AutoDL console
+# before running this script.
+
+SSH_ALIAS="${SSH_ALIAS:-autodl-gpu}"
+EXP_ID="${EXP_ID:-EXP-001}"
+REMOTE_OUTPUT="${REMOTE_OUTPUT:-/root/research-project/outputs/${EXP_ID}/}"
+REMOTE_ARCHIVE="${REMOTE_ARCHIVE:-/root/research-runs/${EXP_ID}/}"
+LOCAL_OUTPUT="${LOCAL_OUTPUT:-outputs/${EXP_ID}/}"
+FETCH_FROM="${FETCH_FROM:-archive}" # archive or output
+
+mkdir -p "${LOCAL_OUTPUT}"
+
+if [[ "${FETCH_FROM}" == "archive" ]]; then
+  SOURCE="${REMOTE_ARCHIVE}"
+else
+  SOURCE="${REMOTE_OUTPUT}"
+fi
+
+rsync -av \
+  --include "manifest.json" \
+  --include "config_resolved.json" \
+  --include "metrics.json" \
+  --include "environment.txt" \
+  --include "environment_snapshot.json" \
+  --include "autodl_run_summary.json" \
+  --include "exit_code.txt" \
+  --include "train.log" \
+  --include "checksums.sha256" \
+  --include "figures/***" \
+  --include "tables/***" \
+  --exclude "*" \
+  "${SSH_ALIAS}:${SOURCE%/}/" "${LOCAL_OUTPUT}"
+
+cat <<EOF
+Fetched AutoDL lightweight evidence to:
+  ${LOCAL_OUTPUT}
+
+Check:
+  ${LOCAL_OUTPUT}/exit_code.txt
+  ${LOCAL_OUTPUT}/autodl_run_summary.json
+  ${LOCAL_OUTPUT}/checksums.sha256
+
+Then update docs/thesis/experiment-registry.md:
+  Storage Backend: cloud_autodl
+  Remote Artifact URI: ssh://${SSH_ALIAS}${REMOTE_ARCHIVE}
+  Remote Status: archived / verified
+  Artifact Hash / Manifest: ${REMOTE_ARCHIVE}/checksums.sha256
+EOF

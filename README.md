@@ -132,7 +132,7 @@ The workflow has 12 stages:
 
 The workflow includes optional enhancement layers:
 
-- `research-code-quality` checks config-driven code, experiment contracts, smoke configs, output manifests, and 4060 handoff templates before expensive runs.
+- `research-code-quality` checks config-driven code, experiment contracts, smoke configs, output manifests, 4060 handoff templates, and AutoDL fallback auto-save/auto-shutdown templates before expensive runs.
 - `research-autoresearch-loop` records human-supervised experiment iterations in `autoresearch-results.tsv` and `autoresearch-state.json` with verify/guard gates.
 - `research-data-availability` checks dataset provenance, access restrictions, hashes, and claim-to-data traceability before final audit.
 - `experiment-architecture.md` is the global experiment blueprint: claim-to-experiment map, data flow, code modules, config/output contract, 4060 formal run path, and remote/cloud artifact storage policy.
@@ -149,7 +149,7 @@ The workflow includes optional enhancement layers:
 - `scripts/suggest_section_citations.py` gives offline citation suggestions from existing local records, helping each `SEC-*` section move from “missing coverage” to manually confirmed citations.
 - Zotero scripts keep the library connected to the thesis console without making Zotero the evidence source of truth: `sync_zotero_inventory.py` snapshots local library inventory, `audit_zotero_coverage.py` checks section-level Zotero coverage, and `export_zotero_bibliography.py` exports or stages `references.bib` from verified citation rows.
 - `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for the stage 11 Mac production -> stage 12 Windows compatibility-review path.
-- Experiment outputs use a local-index plus remote-artifact model: keep thesis-readable registry/report records locally, fetch lightweight `outputs/EXP-*` indexes to the Mac, and keep full logs/checkpoints/predictions on `remote_desktop_4060`, NAS, cloud drive, or object storage with URI/hash recorded in `experiment-registry.md`.
+- Experiment outputs use a local-index plus remote-artifact model: keep thesis-readable registry/report records locally, fetch lightweight `outputs/EXP-*` indexes to the Mac, and keep full logs/checkpoints/predictions on `remote_desktop_4060`, AutoDL fallback storage, NAS, cloud drive, or object storage with URI/hash recorded in `experiment-registry.md`.
 
 ## Engineering Quality Gates
 
@@ -212,7 +212,8 @@ Run it only when CodeRabbit is installed and authenticated. It is not part of de
 - `remote_desktop_4060` is the primary GPU experiment target for training, evaluation, tuning, reproducibility runs, and artifact generation.
 - Formal `remote_desktop_4060` runs should write `outputs/EXP-*/environment.txt` or `environment_snapshot.json` with `scripts/write_environment_snapshot.py`; the CUDA and PyTorch versions may be fixed on the desktop, but the snapshot is still required evidence.
 - Full formal-run artifacts can remain on the 4060 desktop or a cloud/archive backend. Record `Storage Backend`, `Remote Artifact URI`, `Remote Status`, and `Artifact Hash / Manifest` in `docs/thesis/experiment-registry.md`.
-- `cloud_autodl` is an optional stronger fallback when the desktop 4060 is unavailable or insufficient.
+- `cloud_autodl` is an optional stronger fallback when the desktop 4060 is unavailable or insufficient. The user still creates and starts the AutoDL instance manually in the AutoDL web console; after SSH access is available, the kit uses templates that save logs, exit code, environment snapshot, run summary, manifest/checksums, archive outputs, and then run `/usr/bin/shutdown` by default so the instance does not keep billing unnecessarily.
+- AutoDL passwords, account data, tokens, and private-key contents must never be written into repo files. Use an SSH alias, terminal password prompt, or local SSH config outside the repository.
 - Remote training uses macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync`; MobaXterm is a Windows-only convenience and is not assumed.
 - Stage 11 happens on the Mac first: finish the DOCX/PDF/PPTX draft, check evidence and citations, register final artifacts, and build the handoff package.
 - Stage 11 happens on the Mac: use WPS-compatible DOCX, Documents, Pages when useful, PDF export, and Presentations to complete the main thesis document and defense deck candidates.
@@ -245,6 +246,7 @@ Run it only when CodeRabbit is installed and authenticated. It is not part of de
 - Skill consistency audits live in `scripts/audit_skills.py`.
 - React/Vite web dashboard lives in `dashboard-web/`.
 - 4060 remote handoff templates live in `scripts/remote_*_4060.sh.template`.
+- AutoDL fallback templates live in `scripts/remote_sync_to_autodl.sh.template`, `scripts/remote_run_autodl_autoshutdown.sh.template`, and `scripts/remote_fetch_autodl_results.sh.template`.
 - Result scanning lives in `skills/research-results-analysis/scripts/scan_results.py` and `skills/research-results-analysis/scripts/result_scan_to_registry.py`.
 - Figure rendering lives in `skills/research-paper-figures/scripts/nature_plot_templates.py` and `skills/research-paper-figures/scripts/render_network_architecture.py`.
 - Root `scripts/render_network_architecture.py` is a legacy placeholder; use the skill-local renderer for formal architecture figures.

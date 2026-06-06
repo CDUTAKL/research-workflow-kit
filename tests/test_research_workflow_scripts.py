@@ -1207,6 +1207,33 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 proc.kill()
                 proc.communicate(timeout=2)
 
+    def test_autodl_templates_preserve_autoshutdown_evidence_contract(self):
+        run_template = (REPO_ROOT / "scripts" / "remote_run_autodl_autoshutdown.sh.template").read_text(
+            encoding="utf-8"
+        )
+        sync_template = (REPO_ROOT / "scripts" / "remote_sync_to_autodl.sh.template").read_text(encoding="utf-8")
+        fetch_template = (REPO_ROOT / "scripts" / "remote_fetch_autodl_results.sh.template").read_text(
+            encoding="utf-8"
+        )
+
+        for required in (
+            "AUTO_SHUTDOWN",
+            "/usr/bin/shutdown",
+            "exit_code.txt",
+            "autodl_run_summary.json",
+            "checksums.sha256",
+            "cloud_autodl",
+            "mkdir -p '${REMOTE_OUTPUT}'",
+            "trap shutdown_if_requested EXIT",
+            "sha256sum",
+        ):
+            self.assertIn(required, run_template)
+
+        self.assertIn("autodl-gpu", sync_template)
+        self.assertIn("remote_run_autodl_autoshutdown.sh.template", sync_template)
+        self.assertIn("autodl-gpu", fetch_template)
+        self.assertIn("Storage Backend: cloud_autodl", fetch_template)
+
 
 if __name__ == "__main__":
     unittest.main()

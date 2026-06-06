@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# AutoDL fallback run template with automatic evidence saving and shutdown.
+#
+# Safety model:
+# - You create/start the AutoDL instance manually in the AutoDL web console.
+# - You provide SSH_ALIAS through ~/.ssh/config or environment variables.
+# - This script does not store passwords, tokens, or private keys.
+# - The remote job saves logs, exit code, environment snapshot, manifest/checksums,
+#   and then runs /usr/bin/shutdown when AUTO_SHUTDOWN=1.
+#
+# Modes:
+# - detached (default): submit remote nohup job and return immediately. The remote
+#   job shuts down the AutoDL instance after saving records. Fetch results after
+#   restarting the instance if needed.
+# - foreground: keep SSH session open, run job, optionally fetch local index, then
+#   shutdown. Use only when your Mac can stay connected for the whole run.
+
+SSH_ALIAS="${SSH_ALIAS:-autodl-gpu}"
+EXP_ID="${EXP_ID:-EXP-001}"
+REMOTE_PROJECT="${REMOTE_PROJECT:-/root/research-project}"
+REMOTE_ARCHIVE_ROOT="${REMOTE_ARCHIVE_ROOT:-/root/research-runs}"
+REMOTE_OUTPUT="${REMOTE_OUTPUT:-${REMOTE_PROJECT}/outputs/${EXP_ID}}"
+REMOTE_ARCHIVE="${REMOTE_ARCHIVE:-${REMOTE_ARCHIVE_ROOT}/${EXP_ID}}"
+ENV_ACTIVATE="${ENV_ACTIVATE:-source .venv/bin/activate}"
+RUN_COMMAND="${RUN_COMMAND:-python src/train.py --config configs/experiment/${EXP_ID}.yaml --out outputs/${EXP_ID}}"
+SNAPSHOT_COMMAND="${SNAPSHOT_COMMAND:-python scripts/write_environment_snapshot.py --out outputs/${EXP_ID}/environment.txt --label cloud_autodl}"
+AUTO_SHUTDOWN="${AUTO_SHUTDOWN:-1}"
+RUN_MODE="${RUN_MODE:-detached}" # detached or foreground
+FETCH_AFTER_FOREGROUND="${FETCH_AFTER_FOREGROUND:-1}"
+LOCAL_OUTPUT="${LOCAL_OUTPUT:-outputs/${EXP_ID}/}"
+
+REMOTE_SCRIPT="${REMOTE_PROJECT}/tmp/run_${EXP_ID}_autodl_autoshutdown.sh"
+
+read -r -d '' REMOTE_BODY <<'EOS' || true
+#!/usr/bin/env bash
+set -uo pipefail
+
+mkdir -p "${REMOTE_OUTPUT}" "${REMOTE_ARCHIVE}" "${REMOTE_PROJECT}/tmp"
+LOG_FILE="${REMOTE_OUTPUT}/train.log"
+EXIT_FILE="${REMOTE_OUTPUT}/exit_code.txt"
+START_FILE="${REMOTE_OUTPUT}/started_at.txt"
+END_FILE="${REMOTE_OUTPUT}/ended_at.txt"
+
+shutdown_if_requested() {
+  if [[ "${AUTO_SHUTDOWN}" == "1" ]]; then
+    echo "[autodl] shutting down with /usr/bin/shutdown" >> "${LOG_FILE}"
+    sync
+    /usr/bin/shutdown || true
+  fi
+}
+trap shutdown_if_requested EXIT
+
+date -Is > "${START_FILE}"
+cd "${REMOTE_PROJECT}" || exit 98
+
+{
+  echo "[autodl] exp_id=${EXP_ID}"
+  echo "[autodl] remote_project=${REMOTE_PROJECT}"
+  echo "[autodl] remote_output=${REMOTE_OUTPUT}"
+  echo "[autodl] remote_archive=${REMOTE_ARCHIVE}"
+  echo "[autodl] started=$(cat "${START_FILE}")"
+  echo "[autodl] auto_shutdown=${AUTO_SHUTDOWN}"
+} >> "${LOG_FILE}"
+
+set +e
+bash -lc "${ENV_ACTIVATE} && ${SNAPSHOT_COMMAND} && ${RUN_COMMAND}" >> "${LOG_FILE}" 2>&1
+RUN_EXIT=$?
+set -e
+
+date -Is > "${END_FILE}"
+echo "${RUN_EXIT}" > "${EXIT_FILE}"
+
+cat > "${REMOTE_OUTPUT}/autodl_run_summary.json" <<EOF
+{
+  "experiment_id": "${EXP_ID}",
+  "target": "cloud_autodl",
+  "remote_project": "${REMOTE_PROJECT}",
+  "remote_output": "${REMOTE_OUTPUT}",
+  "remote_archive": "${REMOTE_ARCHIVE}",
+  "run_command": "${RUN_COMMAND}",
+  "started_at": "$(cat "${START_FILE}")",
+  "ended_at": "$(cat "${END_FILE}")",
+  "exit_code": ${RUN_EXIT},
+  "auto_shutdown": "${AUTO_SHUTDOWN}"
+}
+EOF
+
+rsync -a "${REMOTE_OUTPUT}/" "${REMOTE_ARCHIVE}/" >> "${LOG_FILE}" 2>&1
+(
+  cd "${REMOTE_ARCHIVE}" &&
+  if command -v sha256sum >/dev/null 2>&1; then
+    find . -type f -print0 | sort -z | xargs -0 sha256sum > checksums.sha256
+  else
+    find . -type f -print0 | sort -z | xargs -0 shasum -a 256 > checksums.sha256
+  fi
+) >> "${LOG_FILE}" 2>&1
+
+cat >> "${LOG_FILE}" <<EOF
+[autodl] ended=$(cat "${END_FILE}")
+[autodl] exit_code=${RUN_EXIT}
+[autodl] archive=${REMOTE_ARCHIVE}
+[autodl] checksums=${REMOTE_ARCHIVE}/checksums.sha256
+EOF
+
+exit "${RUN_EXIT}"
+EOS
+
+REMOTE_ENV=$(cat <<EOF
+EXP_ID='${EXP_ID}'
+REMOTE_PROJECT='${REMOTE_PROJECT}'
+REMOTE_OUTPUT='${REMOTE_OUTPUT}'
+REMOTE_ARCHIVE='${REMOTE_ARCHIVE}'
+ENV_ACTIVATE='${ENV_ACTIVATE}'
+RUN_COMMAND='${RUN_COMMAND}'
+SNAPSHOT_COMMAND='${SNAPSHOT_COMMAND}'
+AUTO_SHUTDOWN='${AUTO_SHUTDOWN}'
+EOF
+)
+
+ssh "${SSH_ALIAS}" "mkdir -p '${REMOTE_PROJECT}/tmp'"
+printf "%s\n%s\n" "${REMOTE_ENV}" "${REMOTE_BODY}" | ssh "${SSH_ALIAS}" "cat > '${REMOTE_SCRIPT}' && chmod +x '${REMOTE_SCRIPT}'"
+
+if [[ "${RUN_MODE}" == "foreground" ]]; then
+  set +e
+  ssh "${SSH_ALIAS}" "bash '${REMOTE_SCRIPT}'"
+  REMOTE_EXIT=$?
+  set -e
+  if [[ "${FETCH_AFTER_FOREGROUND}" == "1" && "${AUTO_SHUTDOWN}" != "1" ]]; then
+    mkdir -p "${LOCAL_OUTPUT}"
+    rsync -av \
+      --include "manifest.json" \
+      --include "config_resolved.json" \
+      --include "metrics.json" \
+      --include "environment.txt" \
+      --include "environment_snapshot.json" \
+      --include "autodl_run_summary.json" \
+      --include "exit_code.txt" \
+      --include "train.log" \
+      --include "checksums.sha256" \
+      --exclude "*" \
+      "${SSH_ALIAS}:${REMOTE_OUTPUT}/" "${LOCAL_OUTPUT}"
+  fi
+  exit "${REMOTE_EXIT}"
+fi
+
+ssh "${SSH_ALIAS}" "mkdir -p '${REMOTE_OUTPUT}' && cd '${REMOTE_PROJECT}' && nohup bash '${REMOTE_SCRIPT}' > '${REMOTE_OUTPUT}/autodl_nohup.log' 2>&1 < /dev/null &"
+
+cat <<EOF
+Submitted AutoDL job in detached mode.
+
+Remote script:
+  ${SSH_ALIAS}:${REMOTE_SCRIPT}
+
+Remote output:
+  ssh://${SSH_ALIAS}${REMOTE_OUTPUT}
+
+Remote archive:
+  ssh://${SSH_ALIAS}${REMOTE_ARCHIVE}
+
+Auto shutdown:
+  ${AUTO_SHUTDOWN}
+
+After the instance shuts down, restart it only when you need to fetch results:
+  SSH_ALIAS=${SSH_ALIAS} EXP_ID=${EXP_ID} bash scripts/remote_fetch_autodl_results.sh.template
+
+Update docs/thesis/experiment-registry.md after review:
+  Storage Backend: cloud_autodl
+  Remote Artifact URI: ssh://${SSH_ALIAS}${REMOTE_ARCHIVE}
+  Remote Status: archived / verified
+  Artifact Hash / Manifest: ${REMOTE_ARCHIVE}/checksums.sha256
+EOF

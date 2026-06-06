@@ -118,7 +118,7 @@ Use a three-device execution strategy when this Mac is the research console, the
 |---|---|---|---|
 | `local_mac` | research console, debug, and smoke test | CPU-only small sample, 1 epoch, short run, output-format check | local command, local output path, known failures |
 | `remote_desktop_4060` | primary formal GPU execution target | full dataset when feasible, full epochs, baselines, ablations, multi-seed runs | SSH alias, remote paths, RTX 4060/env, environment snapshot, run command, result recovery |
-| `cloud_autodl` | fallback formal GPU execution target | larger runs when the desktop 4060 is unavailable or insufficient | AutoDL instance/image, remote paths, GPU/env, run command, result recovery, shutdown policy |
+| `cloud_autodl` | fallback formal GPU execution target | larger runs when the desktop 4060 is unavailable or insufficient | user-created AutoDL instance, remote paths, GPU/env, run command, evidence auto-save, result recovery, auto-shutdown status |
 
 Local smoke test must verify:
 
@@ -135,6 +135,9 @@ Remote handoff templates:
 scripts/remote_sync_to_4060.sh.template
 scripts/remote_run_4060.sh.template
 scripts/remote_fetch_results.sh.template
+scripts/remote_sync_to_autodl.sh.template
+scripts/remote_run_autodl_autoshutdown.sh.template
+scripts/remote_fetch_autodl_results.sh.template
 ```
 
 Fill only SSH aliases, paths, and commands. Do not store passwords or token values.
@@ -150,6 +153,7 @@ Remote GPU formal training must record:
 - remote log path and remote output path.
 - artifact download destination.
 - shutdown/release policy after completion when a cloud fallback target is used.
+- for AutoDL fallback: `exit_code.txt`, `autodl_run_summary.json`, environment snapshot, `checksums.sha256`, remote archive path, and verified auto-shutdown status.
 
 Safe credential rule:
 
@@ -177,7 +181,7 @@ $research-experiment-engineering
   -> research-code-quality contract check
   -> local_mac smoke test
   -> remote_desktop_4060 formal GPU training when needed
-  -> cloud_autodl fallback only when the desktop 4060 is unavailable or insufficient
+  -> cloud_autodl fallback only when the desktop 4060 is unavailable or insufficient, using auto-save and auto-shutdown templates
   -> lightweight index fetch plus remote/cloud artifact archive when needed
   -> run outputs, remote URI/hash/status, and registry updates
   -> research-autoresearch-loop verify/guard record when iterative
@@ -197,6 +201,6 @@ $research-experiment-engineering
 - Experiment contract check passes or has explicit documented warnings.
 - Remote desktop 4060 runs have remote paths, lightweight result recovery, GPU environment recorded, environment snapshot saved, and remote artifact URI/hash/status recorded when full outputs remain remote.
 - Iterative improvements have verify/guard status in `autoresearch-results.tsv`.
-- AutoDL fallback runs have remote paths, result recovery, and shutdown policy recorded.
+- AutoDL fallback runs have remote paths, result recovery, `exit_code.txt`, `autodl_run_summary.json`, checksums, remote archive URI, and shutdown status recorded.
 - Reproducibility risks are explicit.
 - Completed outputs are ready for `$research-results-analysis`.

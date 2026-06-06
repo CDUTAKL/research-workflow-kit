@@ -17,5 +17,5 @@
 - Local script: `scripts/check_experiment_contract.py`.
 - Local skeleton renderer: `scripts/render_project_skeleton.py`.
 - Local remote templates: `scripts/remote_*_4060.sh.template`.
-- Integrated with `$research-experiment-engineering` and `remote_desktop_4060` workflow.
-
+- Local AutoDL fallback templates: `scripts/remote_sync_to_autodl.sh.template`, `scripts/remote_run_autodl_autoshutdown.sh.template`, `scripts/remote_fetch_autodl_results.sh.template`.
+- Integrated with `$research-experiment-engineering`, `remote_desktop_4060`, and `cloud_autodl` fallback workflows.

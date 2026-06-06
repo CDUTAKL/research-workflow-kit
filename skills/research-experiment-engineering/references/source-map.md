@@ -35,6 +35,7 @@ This skill is a lightweight Codex-native synthesis for research experiment engin
 - The default workflow is plain Python plus JSON/YAML files and stable output directories.
 - Hydra, MLflow, DVC, and W&B are optional tools, not dependencies.
 - macOS Codex plus `remote_desktop_4060` is the default device workflow.
+- AutoDL support is implemented locally as a fallback run-template workflow: user-created instance, SSH sync, evidence auto-save, checksum archive, and automatic shutdown.
 - This skill plans experiment engineering and handoffs; final empirical claims belong to `$research-results-analysis`.
 - Code contract details live in `$research-code-quality`.
 - Iterative experiment logging lives in `$research-autoresearch-loop`.
