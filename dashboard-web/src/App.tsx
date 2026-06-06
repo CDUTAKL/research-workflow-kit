@@ -78,8 +78,10 @@ const stageNameLabels: Record<string, string> = {
   'Results analysis and claim mapping': '结果分析与论点映射',
   'Figure and table production': '图表与模型结构图制作',
   'Paper writing and polishing': '论文写作与润色',
-  'Mac draft production and handoff preparation': 'Mac 初稿生产与终稿交接准备',
-  'Laptop finalization and defense preparation': '笔记本终稿定版与答辩准备',
+  'Mac DOCX PDF PPTX main production': 'Mac DOCX / PDF / PPTX 主生产',
+  'Windows compatibility review and final submission preparation': 'Windows 兼容性复核与最终提交准备',
+  'Mac draft production and handoff preparation': 'Mac DOCX / PDF / PPTX 主生产',
+  'Laptop finalization and defense preparation': 'Windows 兼容性复核与最终提交准备',
   'Laptop DOCX / optional LaTeX / PDF': '笔记本 DOCX / 可选 LaTeX / PDF',
   'Laptop DOCX / PDF production': '笔记本 DOCX / PDF 生产',
   'Laptop final audit and defense': '笔记本终审与答辩准备',
@@ -591,7 +593,7 @@ function HandoffPanel({ data, onReload }: { data: DashboardData; onReload: () =>
     <section className="panel handoff-panel">
       <div className="panel-title-row">
         <FileText size={18} />
-        <h2>最终交接</h2>
+        <h2>终稿验收</h2>
       </div>
       <div className="handoff-counts">
         {['pending', 'copied', 'verified', 'blocked'].map((key) => (
@@ -1071,12 +1073,12 @@ function FlowEditorPanel({ onReload }: { onReload: () => void }) {
           <Field label="阶段" value={artifactFields.stage} onChange={(value) => updateArtifactValue('stage', value)} />
           <Field label="关联 Source IDs" value={artifactFields.source_ids} onChange={(value) => updateArtifactValue('source_ids', value)} />
           <Field label="Mac 源路径" value={artifactFields.mac_source_path} onChange={(value) => updateArtifactValue('mac_source_path', value)} />
-          <Field label="笔记本目标路径" value={artifactFields.laptop_target_path} onChange={(value) => updateArtifactValue('laptop_target_path', value)} />
+          <Field label="Windows 验收路径" value={artifactFields.laptop_target_path} onChange={(value) => updateArtifactValue('laptop_target_path', value)} />
           <Field label="格式" value={artifactFields.format} onChange={(value) => updateArtifactValue('format', value)} />
           <Field label="Checksum" value={artifactFields.checksum} onChange={(value) => updateArtifactValue('checksum', value)} />
           <Field label="生成工具" value={artifactFields.produced_by} onChange={(value) => updateArtifactValue('produced_by', value)} />
           <Field label="交接状态" value={artifactFields.transfer_status} onChange={(value) => updateArtifactValue('transfer_status', value)} />
-          <Field label="笔记本验证" value={artifactFields.laptop_verification} onChange={(value) => updateArtifactValue('laptop_verification', value)} />
+          <Field label="Windows 兼容性验证" value={artifactFields.laptop_verification} onChange={(value) => updateArtifactValue('laptop_verification', value)} />
           <Field label="备注" value={artifactFields.notes} onChange={(value) => updateArtifactValue('notes', value)} multiline />
           <button type="submit" disabled={busy}><Save size={16} /> 登记交付物</button>
         </form>

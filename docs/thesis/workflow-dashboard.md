@@ -14,9 +14,9 @@ The local web dashboard is the operational view of the same console. It is desig
 ./scripts/open_dashboard.sh
 ```
 
-It starts a local-only control service on `127.0.0.1:8765` so the page can refresh dashboard data, export the evidence graph, run the quick health check, open whitelisted source files, copy recommended commands, update the current research workspace, generate local citation suggestions, package final handoff artifacts, verify the latest handoff package, and use the flow editor to append standard records.
+It starts a local-only control service on `127.0.0.1:8765` so the page can refresh dashboard data, export the evidence graph, run the quick health check, open whitelisted source files, copy recommended commands, update the current research workspace, generate local citation suggestions, package final artifacts for Windows compatibility review, verify the latest package, and use the flow editor to append standard records.
 
-The web dashboard is organized as a current research workspace instead of a long report page. The first screen answers: current stage, current focus, blocker, next action, P0/P1 evidence gaps, audit tier, latest experiment, and the three most common actions. Lower-frequency views live in tabs: overview, current workspace, literature/citation, experiment loop, evidence graph, final handoff, record editor, and system health.
+The web dashboard is organized as a current research workspace instead of a long report page. The first screen answers: current stage, current focus, blocker, next action, P0/P1 evidence gaps, audit tier, latest experiment, and the three most common actions. Lower-frequency views live in tabs: overview, current workspace, literature/citation, experiment loop, evidence graph, final artifact review, record editor, and system health.
 
 `daily-workflow-entry.md` is retained as a legacy-compatible file name. In the web UI and operating language, treat it as the current research workspace record.
 
@@ -57,13 +57,13 @@ Use Build Web Data Visualization principles when the dashboard becomes advisor-f
 | 8 | Results analysis and claim mapping | pending | `claim-evidence-map.md`, `data-availability.md` |  |
 | 9 | Figure and table production | pending | `figure-plan.md`, `diagram-replica-tasks.md` |  |
 | 10 | Paper writing and polishing | pending | `writing-outline.md` |  |
-| 11 | Mac draft production and final handoff preparation | pending | `final-artifact-manifest.md`, draft DOCX/PDF/PPTX artifacts | Mac produces the draft and handoff package |
-| 12 | Laptop finalization and defense preparation | pending | `final-audit.md`, `defense-prep.md`, `final-artifact-manifest.md` | Laptop verifies, finalizes, exports, and prepares defense |
+| 11 | Mac DOCX / PDF / PPTX main production | pending | `final-artifact-manifest.md`, DOCX/PDF/PPTX artifacts | Mac produces the main thesis document, PDF candidate, and PPTX candidate |
+| 12 | Windows compatibility review and final submission preparation | pending | `final-audit.md`, `defense-prep.md`, `final-artifact-manifest.md` | Windows laptop verifies Word/WPS/PowerPoint compatibility and final submission readiness |
 
 ## Health Summary
 
 <!-- workflow-doctor:start -->
-Generated: 2026-05-30T21:45:39
+Generated: 2026-06-06T18:39:02
 
 **Workflow Health:** `warning`
 
@@ -78,12 +78,15 @@ Generated: 2026-05-30T21:45:39
 ### P1 Issues
 
 - SEC-INTRO-001 has missing section citation coverage
-- thesis-docx is still pending laptop handoff
+- thesis-docx is still pending Windows compatibility review
 - thesis-docx is missing checksum
-- final-pdf is still pending laptop handoff
+- final-pdf is still pending Windows compatibility review
 - final-pdf is missing checksum
-- defense-pptx is still pending laptop handoff
+- defense-pptx is still pending Windows compatibility review
 - defense-pptx is missing checksum
+- SEC-INTRO-001 has no Zotero-backed citation
+- SEC-INTRO-001 has no strong Zotero-backed citation
+- SEC-INTRO-001 has missing Zotero collection coverage
 
 ### Recent Experiment Candidates
 
@@ -162,8 +165,8 @@ Manual launchers remain available:
 | 可视化质量检查 | Build Web Data Visualization checklist | readable charts, visible uncertainty, accessible contrast, no hidden evidence gaps |
 | 使用流程编辑器新增记录 | Dashboard `流程编辑器` | `claim-evidence-map.md`, `experiment-registry.md`, `material-passport.md`, `citation-provenance.md`, `final-artifact-manifest.md` |
 | 审计最终交付物 | `python scripts/audit_final_artifacts.py --tier quick --warn-only` | stage 11-12 handoff risk list |
-| 打包最终交接 | Dashboard `最终交接` or `python scripts/package_final_handoff.py --update-manifest-checksums` | `handoff-packages/final-handoff-*/` zip, manifest, checksum, summary |
-| 校验最终交接 | Dashboard `校验最新包` or `python scripts/verify_final_handoff.py --latest --write-report docs/thesis/final-handoff-verify-report.md` | `final-handoff-verify-report.md` |
+| 打包终稿验收文件 | Dashboard `终稿验收` or `python scripts/package_final_handoff.py --update-manifest-checksums` | `handoff-packages/final-handoff-*/` zip, manifest, checksum, summary |
+| 校验终稿验收文件 | Dashboard `校验最新包` or `python scripts/verify_final_handoff.py --latest --write-report docs/thesis/final-handoff-verify-report.md` | `final-handoff-verify-report.md` |
 | 审计 ID 生命周期 | `python scripts/audit_id_lifecycle.py --warn-only` | orphan, unknown, deprecated, or weakly linked ID warnings |
 | 查看插件门禁建议 | Dashboard `插件建议` or `python scripts/plugin_gate_advisor.py` | recommended / required plugin checks |
 | 审计插件门禁配置 | `python scripts/plugin_gate_advisor.py --audit-only` | policy/log presence and current recommendations |
@@ -187,8 +190,8 @@ Manual launchers remain available:
 | What citation search task should run next? | `deep-research-tasks.md`, `section-research-packets/` |
 | What changed versus baseline? | `experiment-reports/` |
 | What figures are final? | `figure-plan.md`, `diagram-replica-tasks.md`, `network-architecture-figures.md` |
-| What Mac draft artifacts must move to the laptop? | `final-artifact-manifest.md` |
-| What final handoff package was verified? | `final-handoff-verify-report.md`, `handoff-packages/` |
+| What Mac-produced final candidates need Windows compatibility review? | `final-artifact-manifest.md` |
+| What final artifact package was verified? | `final-handoff-verify-report.md`, `handoff-packages/` |
 | What did the dashboard edit? | `workflow-edit-log.md` |
 | Is this ready for advisor or final review? | `final-audit.md` |
 

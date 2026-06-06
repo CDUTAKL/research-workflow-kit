@@ -56,7 +56,7 @@ Always include:
 - source-grounded reading status for important citations when Scite is insufficient
 - citation provenance, Zotero literature hub, bibliography export, and Zotero collection coverage issues
 - ID lifecycle issues
-- final artifact manifest and Mac-to-laptop handoff issues
+- final artifact manifest, Mac production, and Windows compatibility-review issues
 - reproducibility checklist issues
 - remote experiment artifact URI/hash/status issues
 - material passport and benchmark report schema issues

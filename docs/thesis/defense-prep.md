@@ -5,7 +5,7 @@
 - Use this file to prepare the defense narrative, slides, evidence backups, and likely Q&A.
 - Every slide claim must trace to `claim-evidence-map.md`, `figure-plan.md`, `section-citation-map.md`, or `final-audit.md`.
 - Use Presentations for PPTX creation/editing. Use draw.io exports for structured method/model/workflow diagrams on Mac, or Visio exports when the figure was produced on Windows. Use nature-paper2ppt-derived structure when converting a paper or thesis chapter into a Chinese academic deck. Use Figma or BioRender only for optional visual refinement when useful. Canva is optional only when available.
-- Stage 11 draft production happens on the Mac; stage 12 final layout/export and defense finishing happen on the user's laptop. Keep slide/evidence versions traceable back to the Mac `docs/thesis/` console and the handoff manifest.
+- Stage 11 main DOCX/PDF/PPTX production happens on the Mac, using WPS-compatible DOCX and Presentations/PPTX as the primary production path. Stage 12 uses the Windows laptop for compatibility review, final submission checks, and defense playback testing. Keep slide/evidence versions traceable back to the Mac `docs/thesis/` console and the final artifact manifest.
 
 ## Defense Narrative
 

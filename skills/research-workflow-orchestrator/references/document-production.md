@@ -2,8 +2,8 @@
 
 ## Tool Routing
 
-- Treat document production as a two-device handoff. Stage 11 happens on the Mac: draft DOCX/PDF/PPTX artifacts, inspect evidence/citations, and prepare the handoff package. Stage 12 happens on the user's laptop: verify the package, finalize layout/export, and finish defense materials.
-- Use the Documents plugin (`documents:documents` in Codex plugin contexts) for `.docx` reading, editing, formatting, and thesis templates.
+- Treat document production as Mac-first with Windows compatibility review. Stage 11 happens on the Mac: produce the main DOCX/PDF/PPTX artifacts, inspect evidence/citations, and prepare the final artifact package. Stage 12 happens on the Windows laptop: verify Word/WPS/PowerPoint compatibility, final submission details, and defense playback.
+- Use WPS-compatible DOCX as the main document format on Mac. Use the Documents plugin (`documents:documents` in Codex plugin contexts) for `.docx` reading, editing, formatting, and thesis templates when useful.
 - Use `$pdf` for PDF reading, visual rendering checks, extraction, and final PDF review.
 - Use LaTeX only after running the LaTeX doctor; compile only when the doctor finds a usable TeX runtime.
 - Use `$research-final-audit` before final submission or defense.
@@ -38,7 +38,7 @@ For LaTeX manuscripts:
 
 ## Final Production Checklist
 
-- Mac draft artifact path and laptop final artifact path/version are recorded in `docs/thesis/final-artifact-manifest.md` and `docs/thesis/final-audit.md`.
+- Mac production artifact path and Windows compatibility-review path/version are recorded in `docs/thesis/final-artifact-manifest.md` and `docs/thesis/final-audit.md`.
 - Abstract and keywords satisfy template requirements.
 - Figures and tables are numbered and cited in text.
 - Equations are numbered only when referenced, and variables are defined.

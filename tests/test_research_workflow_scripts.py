@@ -1056,7 +1056,7 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             )
             self.assertIn("Final Artifacts: 1", result.stdout)
             self.assertIn("missing checksum", result.stdout)
-            self.assertIn("not verified on the laptop", result.stdout)
+            self.assertIn("not verified on Windows", result.stdout)
 
     def test_final_handoff_package_and_verify_roundtrip(self):
         with tempfile.TemporaryDirectory() as tmp:

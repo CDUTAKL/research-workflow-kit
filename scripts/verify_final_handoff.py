@@ -1,4 +1,4 @@
-"""Verify a final handoff zip or directory with checksums.sha256."""
+"""Verify a final artifact review zip or directory with checksums.sha256."""
 from __future__ import annotations
 
 import argparse
@@ -102,7 +102,7 @@ def render_report(result: dict[str, Any]) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Verify a final handoff package.")
+    parser = argparse.ArgumentParser(description="Verify a final artifact review package.")
     parser.add_argument("package", nargs="?", help="handoff zip or extracted directory")
     parser.add_argument("--latest", action="store_true", help="verify latest handoff package under handoff-packages/")
     parser.add_argument("--root", default=".")

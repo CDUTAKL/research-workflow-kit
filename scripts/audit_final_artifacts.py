@@ -1,4 +1,4 @@
-"""Audit final artifact handoff readiness for stages 11-12."""
+"""Audit final artifact production and Windows compatibility readiness."""
 from __future__ import annotations
 
 import argparse
@@ -102,13 +102,13 @@ def audit(thesis_dir: Path, tier: str = "quick") -> tuple[list[str], list[str], 
             p0.append(f"{key} transfer is blocked")
         if status == "pending":
             if tier == "quick":
-                p1.append(f"{key} is still pending laptop handoff")
+                p1.append(f"{key} is still pending Windows compatibility review")
             else:
-                p0.append(f"{key} is still pending laptop handoff for {tier} audit")
+                p0.append(f"{key} is still pending Windows compatibility review for {tier} audit")
         if tier in {"advisor", "final"} and fmt in FINAL_FORMATS and status not in {"copied", "verified"}:
             p0.append(f"{key} ({fmt}) is not copied or verified for {tier} audit")
         if tier == "final" and status != "verified":
-            p0.append(f"{key} is not verified on the laptop for final audit")
+            p0.append(f"{key} is not verified on Windows for final audit")
         if missing(item["checksum"]):
             if tier == "final":
                 p0.append(f"{key} is missing checksum for final audit")
@@ -122,12 +122,12 @@ def audit(thesis_dir: Path, tier: str = "quick") -> tuple[list[str], list[str], 
             else:
                 p1.append(message)
         if status == "verified" and missing(item["laptop_verification"]):
-            p1.append(f"{key} is verified but laptop verification note is missing")
+            p1.append(f"{key} is verified but Windows compatibility note is missing")
         if tier == "final" and missing(item["laptop_target_path"]):
-            p0.append(f"{key} is missing laptop target path for final audit")
+            p0.append(f"{key} is missing Windows verification target path for final audit")
 
     if package_exists and any(item["transfer_status"] == "pending" for item in artifacts):
-        p1.append("handoff package exists, but some manifest artifacts are still pending laptop verification")
+        p1.append("final artifact package exists, but some manifest artifacts are still pending Windows compatibility verification")
     if tier == "final":
         failed, message = verify_report_has_failures(thesis_dir)
         if failed:
@@ -138,7 +138,7 @@ def audit(thesis_dir: Path, tier: str = "quick") -> tuple[list[str], list[str], 
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Audit final artifact handoff readiness.")
+    parser = argparse.ArgumentParser(description="Audit final artifact production and Windows compatibility readiness.")
     parser.add_argument("--thesis-dir", default="docs/thesis")
     parser.add_argument("--tier", choices=["quick", "advisor", "final"], default="quick")
     parser.add_argument("--warn-only", action="store_true")

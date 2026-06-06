@@ -85,16 +85,16 @@ STAGE_WORKSPACES = {
         "recommendedActions": ["只基于已支持论点、已验证章节引用覆盖和 Zotero-backed 引用来写正文。"],
     },
     "11": {
-        "name": "Mac draft production and handoff preparation",
+        "name": "Mac DOCX PDF PPTX main production",
         "fileKeys": ["finalArtifactManifest", "dailyWorkflowEntry"],
         "commands": ["python scripts/package_final_handoff.py"],
-        "recommendedActions": ["先在 Mac 完成 DOCX/PDF/PPTX 初稿与交接清单，再打包给笔记本最终定版。"],
+        "recommendedActions": ["在 Mac 上完成论文 DOCX 主生产、PDF 初导出和 PPTX 主版本，登记 checksum 后准备 Windows 兼容性验收包。"],
     },
     "12": {
-        "name": "Laptop finalization and defense preparation",
+        "name": "Windows compatibility review and final submission preparation",
         "fileKeys": ["finalAudit", "finalArtifactManifest"],
         "commands": ["python scripts/audit_final_artifacts.py --tier final --warn-only"],
-        "recommendedActions": ["在笔记本完成最终排版、导出、checksum 验证、终审等级和答辩幻灯片证据链。"],
+        "recommendedActions": ["在 Windows 笔记本打开 Mac 生成的 DOCX/PDF/PPTX，检查 Word/WPS/PowerPoint 兼容性、目录编号、字体、分页和放映效果。"],
     },
 }
 
@@ -472,10 +472,10 @@ def console_file_layers() -> list[dict[str, str]]:
             "rule": "按阶段打开，不要全开。",
         },
         {
-            "layer": "终稿交接",
+            "layer": "终稿验收",
             "when": "第 11-12 步",
             "files": "final-artifact-manifest.md; final-handoff-verify-report.md; final-audit.md; defense-prep.md",
-            "rule": "只在交接、终审、答辩时使用。",
+            "rule": "只在 Mac 终稿主生产、Windows 兼容性验收、终审和答辩时使用。",
         },
         {
             "layer": "审计维护",
@@ -709,8 +709,8 @@ def issue_recommendation(issue: str) -> str:
         match = re.search(r"(SEC-[A-Za-z0-9.-]+)", issue)
         section = match.group(1) if match else "对应章节"
         return f"建议：打开 Zotero 文献中枢和覆盖表，给 {section} 补 collection/tag、Zotero item key 和 CIT-* 记录。"
-    if "missing checksum" in issue or "pending laptop handoff" in issue:
-        return "建议：打开最终交接，补齐交付物 checksum 并完成笔记本验证。"
+    if "missing checksum" in issue or "pending Windows compatibility review" in issue or "pending laptop handoff" in issue:
+        return "建议：打开终稿验收，补齐交付物 checksum，并在 Windows 笔记本完成兼容性验证。"
     if "missing plugin gate" in issue or "plugin gate" in issue:
         return "建议：打开插件建议，按当前阶段补一条 plugin-review-log.md 记录。"
     if "no experiment" in issue or "no structured evidence" in issue:
@@ -906,7 +906,7 @@ def dashboard_data(
         {
             "id": item.get("artifact_key", "TBD"),
             "status": item.get("transfer_status", "TBD"),
-            "row": f"{item.get('format', 'TBD')} | laptop: {item.get('laptop_target_path', 'TBD')} | verification: {item.get('laptop_verification', 'TBD')}",
+            "row": f"{item.get('format', 'TBD')} | Windows check path: {item.get('laptop_target_path', 'TBD')} | compatibility: {item.get('laptop_verification', 'TBD')}",
         }
         for item in final_artifacts
         if isinstance(item, dict)

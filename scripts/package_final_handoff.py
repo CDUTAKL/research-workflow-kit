@@ -1,4 +1,4 @@
-"""Package final artifacts listed in final-artifact-manifest.md for laptop handoff."""
+"""Package final artifacts listed in final-artifact-manifest.md for Windows review."""
 from __future__ import annotations
 
 import argparse
@@ -163,7 +163,7 @@ def package_handoff(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Package final handoff artifacts from the manifest.")
+    parser = argparse.ArgumentParser(description="Package final artifacts from the manifest for Windows compatibility review.")
     parser.add_argument("--root", default=".")
     parser.add_argument("--thesis-dir", default=str(THESIS_DIR))
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))

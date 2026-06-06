@@ -5,11 +5,11 @@
 - Use this file before submission, defense, export, or major supervisor review.
 - Record issues by priority and close them only after checking the manuscript or source file.
 - Link each serious issue to the affected claim, section, figure, table, citation, or experiment.
-- Stage 11 starts on the Mac: complete draft DOCX/PDF/PPTX artifacts, check evidence/citations, and prepare the handoff manifest/package.
-- Stage 12 finishes on the user's laptop: verify the handoff package, finalize document layout/export, finish defense materials, and record the laptop artifact path/version.
+- Stage 11 is now the Mac main production stage: complete WPS-compatible DOCX, PDF export candidate, and PPTX candidate on the Mac, then check evidence/citations/figures and prepare the final artifact review package.
+- Stage 12 is now Windows compatibility review and final submission preparation: open the Mac-produced DOCX/PDF/PPTX on the Windows laptop, check Word/WPS/PowerPoint compatibility, final submission details, and defense playback.
 - Apply `evidence-promotion-policy.md` before promoting any `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` item to final evidence.
 - Apply `id-lifecycle-policy.md` before final writing so deprecated or superseded IDs do not leak into the thesis.
-- Use `final-artifact-manifest.md` as the Mac-to-laptop handoff contract.
+- Use `final-artifact-manifest.md` as the Mac production and Windows compatibility-review contract.
 - Run `scripts/research_workflow_doctor.py --write-dashboard` before advisor or final audit when the project console exists.
 - Check `plugin-gate-policy.md` and `plugin-review-log.md` when Codex Security, Build Web Apps, Data Analytics, Product Design, or CodeRabbit gates were recommended.
 - If the Dashboard, evidence graph, or result charts will be shown to an advisor, apply Build Web Data Visualization checks for truthful chart choice, readable labels, accessible contrast, uncertainty/missingness visibility, and desktop/mobile legibility.
@@ -34,8 +34,8 @@
 | Tier | When To Run | Must Check | Output |
 |---|---|---|---|
 | quick | daily, after new experiment output, before continuing a branch | changed `CLM-*`, new `EXP-*`, new `DATA-*`, new `FIG-*`, broken citations, obvious overclaiming | short issue list and next action |
-| advisor | before supervisor meeting, milestone review, or chapter handoff | claim map, section citation coverage, figures/tables, data traceability, code contracts, 4060 snapshots, final artifact copied/verified status, limitations | advisor-ready risk list |
-| final | before DOCX/PDF release, defense, or submission | all quick/advisor checks plus formatting, bibliography, final data availability, defense slides, laptop artifact paths, artifact checksums, ID lifecycle conflicts | final go/no-go decision |
+| advisor | before supervisor meeting, milestone review, or chapter review | claim map, section citation coverage, figures/tables, data traceability, code contracts, 4060 snapshots, Mac-produced DOCX/PDF/PPTX candidate status, limitations | advisor-ready risk list |
+| final | before DOCX/PDF release, defense, or submission | all quick/advisor checks plus formatting, bibliography, final data availability, defense slides, Windows compatibility paths, artifact checksums, ID lifecycle conflicts | final go/no-go decision |
 
 ## Issue Table
 
@@ -109,7 +109,7 @@
 | Data restrictions and availability language are advisor-reviewable | pending |  |
 | Advisor-facing charts and evidence graph are readable and do not hide uncertainty | pending |  |
 | Data Analytics / Product Design review notes exist when formal results or visuals are advisor-facing | pending |  |
-| DOCX/PDF/PPTX handoff rows in `final-artifact-manifest.md` are copied or verified | pending |  |
+| Mac-produced DOCX/PDF/PPTX rows in `final-artifact-manifest.md` exist and are ready for Windows compatibility review | pending |  |
 | Important IDs have valid lifecycle status in `id-lifecycle-policy.md` | pending |  |
 
 ## Final Audit Checklist
@@ -129,14 +129,14 @@
 | Dashboard and evidence graph pass visual readability and accessibility checks | pending |  |
 | `plugin_gate_advisor.py --audit-only` passes and required plugin gates are closed | pending |  |
 | Defense slides only use promoted evidence | pending |  |
-| All final artifacts are verified on the laptop with checksums | pending |  |
+| All final artifacts are verified on Windows with checksums | pending |  |
 | Deprecated or superseded IDs are absent from final prose, figures, and slides | pending |  |
 
 ## Export And Defense Checklist
 
 | Check | Status | Notes |
 |---|---|---|
-| DOCX exports cleanly through Documents / Pages / optional Word | pending |  |
+| DOCX is produced on Mac through WPS / Documents / Pages and opens cleanly in Windows Word/WPS | pending |  |
 | LaTeX doctor passes before optional LaTeX compile | pending |  |
 | References render correctly | pending |  |
 | Section citation map covers each citation-worthy section | pending |  |
@@ -149,7 +149,7 @@
 | Appendix and acknowledgements are complete | pending |  |
 | Defense slides align with supported claims | pending |  |
 | Backup evidence files are traceable | pending |  |
-| Final laptop artifact paths or versions are recorded | pending |  |
+| Final Windows compatibility paths or versions are recorded | pending |  |
 | `final-artifact-manifest.md` passes `scripts/audit_final_artifacts.py --tier final` | pending |  |
 | `id-lifecycle-policy.md` passes `scripts/audit_id_lifecycle.py --warn-only` without final blockers | pending |  |
 

@@ -9,7 +9,7 @@ Use this file as the low-noise map of the research console. The Dashboard is the
 | Current workspace | Start or resume work | `workflow-dashboard.md`, `daily-workflow-entry.md`, `task-board-sync.md` | Open first. These decide what to do next. |
 | Evidence core | Before promoting a result, claim, figure, or citation | `claim-evidence-map.md`, `experiment-registry.md`, `section-citation-map.md`, `citation-provenance.md`, `data-availability.md`, `figure-plan.md` | These are source-of-truth evidence records. |
 | Stage workspace | Only when the current stage needs it | `idea-discovery.md`, `literature-matrix.md`, `deep-research-tasks.md`, `experiment-runbook.md`, `autoresearch-loop.md`, `experiment-reports/`, `writing-outline.md` | Open by stage, not all at once. |
-| Final handoff | Stage 11-12 only | `final-artifact-manifest.md`, `final-handoff-verify-report.md`, `final-audit.md`, `defense-prep.md` | Use only when preparing laptop handoff, final DOCX/PDF/PPTX, or defense. |
+| Final artifact review | Stage 11-12 only | `final-artifact-manifest.md`, `final-handoff-verify-report.md`, `final-audit.md`, `defense-prep.md` | Use only when producing Mac DOCX/PDF/PPTX candidates, checking Windows compatibility, or preparing defense. |
 | Audit / maintenance | Weekly or before merge/final audit | `id-lifecycle-policy.md`, `evidence-promotion-policy.md`, `plugin-review-log.md`, `skill-audit-report.md`, `workflow-edit-log.md` | Do not open daily unless Dashboard flags a risk. |
 | Legacy / optional | Compatibility or optional plugin routes | `daily-workflow-entry.md`, `zotero-screening-loop.md`, `zotero-collection-coverage.md`, `diagram-replica-tasks.md`, `spreadsheet-exports.md` | Keep available; do not let them become extra daily chores. |
 
@@ -31,4 +31,4 @@ During weekly review, check:
 - which claim became stronger or weaker;
 - which experiment is the current best run;
 - which files can stay unopened next week;
-- which final handoff artifact needs attention.
+- which final artifact review item needs attention.

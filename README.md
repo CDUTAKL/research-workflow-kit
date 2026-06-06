@@ -125,8 +125,8 @@ The workflow has 12 stages:
 8. Results analysis and claim mapping
 9. Figure, table, and model diagram production
 10. Paper writing and polishing
-11. Mac draft production and final handoff preparation
-12. Laptop finalization and defense preparation
+11. Mac DOCX / PDF / PPTX main production
+12. Windows compatibility review and final submission preparation
 
 `docs/thesis/` is the project evidence source of truth. Notion or other task tools should be used for progress tracking only, not as the primary evidence archive.
 
@@ -143,12 +143,12 @@ The workflow includes optional enhancement layers:
 - `docs/thesis/evidence-promotion-policy.md` defines when `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, and `FIG-*` records can be promoted from candidate material to thesis evidence.
 - `docs/thesis/material-passport.md` identifies evidence-critical materials, while `benchmark-report-schema.md` standardizes baseline/new experiment comparisons before claim promotion.
 - `docs/thesis/workflow-dashboard.md` plus the legacy-compatible `daily-workflow-entry.md` are the current research workspace records for current stage, blockers, recommended actions, recent experiments, missing evidence, and audit tier.
-- `docs/thesis/console-file-index.md` keeps console files layered into current workspace, evidence core, stage workspace, final handoff, and audit/maintenance so daily work stays focused.
+- `docs/thesis/console-file-index.md` keeps console files layered into current workspace, evidence core, stage workspace, final artifact review, and audit/maintenance so daily work stays focused.
 - `docs/thesis/weekly-review.md` keeps a short weekly review: what became stronger/weaker, current best experiment, next 1-3 actions, and files to ignore next week.
 - The local React/Vite Dashboard opens with a Chinese current research workspace, tabbed workflow views, an evidence chain inspector, gap-first section citation coverage, baseline experiment comparison, file-layer guidance, and weekly review. The evidence chain inspector defaults to `SEC/SEG -> CLM -> EXP/DATA/FIG/CIT`, collapses duplicate/reverse relations, and keeps the full-project graph as an advanced view. It is a view/editor over `docs/thesis/`, not a replacement source of truth.
 - `scripts/suggest_section_citations.py` gives offline citation suggestions from existing local records, helping each `SEC-*` section move from “missing coverage” to manually confirmed citations.
 - Zotero scripts keep the library connected to the thesis console without making Zotero the evidence source of truth: `sync_zotero_inventory.py` snapshots local library inventory, `audit_zotero_coverage.py` checks section-level Zotero coverage, and `export_zotero_bibliography.py` exports or stages `references.bib` from verified citation rows.
-- `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for Mac-to-laptop stages 11-12.
+- `scripts/package_final_handoff.py` and `scripts/verify_final_handoff.py` package only manifest-registered final artifacts and verify checksums for the stage 11 Mac production -> stage 12 Windows compatibility-review path.
 - Experiment outputs use a local-index plus remote-artifact model: keep thesis-readable registry/report records locally, fetch lightweight `outputs/EXP-*` indexes to the Mac, and keep full logs/checkpoints/predictions on `remote_desktop_4060`, NAS, cloud drive, or object storage with URI/hash recorded in `experiment-registry.md`.
 
 ## Engineering Quality Gates
@@ -215,8 +215,9 @@ Run it only when CodeRabbit is installed and authenticated. It is not part of de
 - `cloud_autodl` is an optional stronger fallback when the desktop 4060 is unavailable or insufficient.
 - Remote training uses macOS Terminal, VS Code SSH, `ssh`, `scp`, and `rsync`; MobaXterm is a Windows-only convenience and is not assumed.
 - Stage 11 happens on the Mac first: finish the DOCX/PDF/PPTX draft, check evidence and citations, register final artifacts, and build the handoff package.
-- Stage 12 happens on the laptop: open and verify the handoff package, complete final document layout/export, finalize the defense deck, and run final audit.
-- Before moving to the laptop, register DOCX/PDF/PPTX/figure/table deliverables in `docs/thesis/final-artifact-manifest.md`.
+- Stage 11 happens on the Mac: use WPS-compatible DOCX, Documents, Pages when useful, PDF export, and Presentations to complete the main thesis document and defense deck candidates.
+- Stage 12 happens on the Windows laptop as a compatibility and submission-readiness environment: open Mac-produced DOCX/PDF/PPTX in Word/WPS/PowerPoint, check fonts, page breaks, table of contents, captions, references, PDF rendering, and slide playback.
+- Before Windows compatibility review, register DOCX/PDF/PPTX/figure/table deliverables in `docs/thesis/final-artifact-manifest.md`.
 - DOCX work uses the Documents plugin and local `.docx` files. Pages can open or review documents locally; Microsoft Word is optional when installed.
 - LaTeX is optional. Run the LaTeX doctor first, then compile only when a TeX runtime is available.
 - Diagram polish uses draw.io / draw.io MCP as the default formal redraw route for model architecture, method workflow, system architecture, and process diagrams. Presentations handles PPTX; Figma and BioRender are optional visual refinement tools when available. Canva is not assumed on this Mac.
@@ -285,7 +286,7 @@ The launcher also starts a local-only control service on `http://127.0.0.1:8765`
 The web dashboard can then refresh workflow data, export the evidence graph, run
 the quick health check, open whitelisted source files, copy the next terminal
 command, update the current research workspace, generate offline citation suggestions,
-package final handoff artifacts, verify the latest handoff package, show an
+package final artifacts for Windows compatibility review, verify the latest artifact package, show an
 interactive evidence graph, summarize section citation coverage as a heatmap,
 and use the Chinese flow editor to append standard records. Flow-editor
 writes are limited to known Markdown source files, create backups under

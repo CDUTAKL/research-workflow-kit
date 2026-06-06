@@ -22,10 +22,10 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 | Product Design | advisor-facing visual/UX review for Dashboard, figures, diagrams, and defense slides | `docs/thesis/visual-design-review.md` |
 | CodeRabbit | optional pre-merge AI code review for scripts, dashboard, CI, and skill changes | PR checklist, `docs/thesis/git-version-log.md` |
 | Vercel | optional future read-only dashboard preview for advisor/demo review | future export notes in `docs/thesis/workflow-dashboard.md` |
-| `local_mac` | stages 1-10 research console, literature/writing/remote-run control, CPU-only smoke tests | `docs/thesis/experiment-runbook.md`, `docs/thesis/reproducibility-checklist.md` |
+| `local_mac` | stages 1-11 research console, literature/writing/remote-run control, CPU-only smoke tests, DOCX/PDF/PPTX main production | `docs/thesis/experiment-runbook.md`, `docs/thesis/reproducibility-checklist.md`, `docs/thesis/final-artifact-manifest.md` |
 | `remote_desktop_4060` | primary RTX 4060 GPU target for training, evaluation, tuning, and reproducibility artifacts | `docs/thesis/experiment-runbook.md`, `docs/thesis/experiment-registry.md` |
 | `cloud_autodl` | fallback GPU target when the desktop 4060 is unavailable or insufficient | `docs/thesis/reproducibility-checklist.md` |
-| Laptop finalization | stage 11-12 final DOCX/optional Word/optional LaTeX/PDF production and defense finishing | `docs/thesis/final-audit.md`, `docs/thesis/defense-prep.md` |
+| Windows compatibility review | stage 12 Word/WPS/PowerPoint compatibility review, final submission checks, and defense playback testing | `docs/thesis/final-audit.md`, `docs/thesis/defense-prep.md`, `docs/thesis/final-artifact-manifest.md` |
 | Spreadsheets | reviewable literature/result/claim/audit tables | `docs/thesis/spreadsheet-exports.md` |
 | Zotero screening loop | recurring literature intake, A/B/C/D screening, Zotero writeback queue, spreadsheet feedback learning | `docs/thesis/zotero-screening-loop.md` |
 | Scite | support/contrast/mention checks for citation-backed claims | `docs/thesis/citation-provenance.md`, `docs/thesis/section-citation-map.md`, `docs/thesis/final-audit.md` |
@@ -59,7 +59,7 @@ Keep `docs/thesis/` as the local evidence archive. Use plugins and external tool
 - Stage 9 dashboard/evidence visuals: use Build Web Data Visualization for interaction design, accessibility, responsive layout, and visual QA. Keep source data and evidence records in `docs/thesis/`.
 - Stage 9 model diagrams: keep `.network.json`, `model.py`, paper source, or manual architecture spec as topology source of truth; generated references are not topology truth.
 - Stage 10 writing: `nature-polishing` rules can be used for the final wording pass after claims, evidence, and citations are already stable.
-- Stage 11-12 laptop finalization: move final DOCX/optional Word/optional LaTeX/PDF production and defense finishing to the user's laptop; keep artifact paths or versions traceable in `final-audit.md` and `defense-prep.md`.
+- Stage 11-12 final documents: produce main DOCX/PDF/PPTX artifacts on the Mac, then use the Windows laptop only for compatibility review, final submission checks, and defense playback testing; keep artifact paths or versions traceable in `final-audit.md` and `defense-prep.md`.
 - Stage 12 defense: Presentations handles PPTX work; draw.io or Visio exports supply structured diagrams; `nature-paper2ppt` supplies paper-to-slide structure; Figma/BioRender handle optional visual refinement when useful; Canva is optional only when available.
 - Vercel route: only consider a future read-only dashboard preview. Never deploy the local write API, private research artifacts, unpublished thesis evidence, or credentials.
 - Exclusions: Supabase database migration, Overleaf synchronization, reviewer-response workflow, and arXiv auto-submit are outside the current workflow.

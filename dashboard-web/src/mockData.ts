@@ -58,8 +58,8 @@ export const demoFallbackData: DashboardData = {
     { stage: '8', name: '结果分析与论点映射', status: 'pending', record: 'claim-evidence-map.md', notes: '' },
     { stage: '9', name: '图表与模型结构图制作', status: 'pending', record: 'figure-plan.md', notes: '' },
     { stage: '10', name: '论文写作与润色', status: 'pending', record: 'writing-outline.md', notes: '' },
-    { stage: '11', name: 'Mac 初稿生产与终稿交接准备', status: 'pending', record: 'final artifacts', notes: '' },
-    { stage: '12', name: '笔记本终稿定版与答辩准备', status: 'pending', record: 'final-audit.md', notes: '' },
+    { stage: '11', name: 'Mac DOCX / PDF / PPTX 主生产', status: 'pending', record: 'final artifacts', notes: '' },
+    { stage: '12', name: 'Windows 兼容性复核与最终提交准备', status: 'pending', record: 'final-audit.md', notes: '' },
   ],
   issues: {
     p0: [],

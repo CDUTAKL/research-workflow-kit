@@ -74,7 +74,7 @@
 - `local_mac` is the main research console for stages 1-10 and may run CPU-only smoke tests for shapes, configs, and output files.
 - `remote_desktop_4060` is the primary formal experiment target for CUDA/GPU training, evaluation, tuning, and reproducibility artifacts.
 - `cloud_autodl` is a fallback for runs that exceed or cannot use the desktop 4060.
-- Stage 11 prepares Mac draft artifacts and the handoff package; stage 12 uses the user's laptop for final document export, final audit, and defense finishing.
+- Stage 11 uses the Mac for main DOCX/PDF/PPTX production; stage 12 uses the Windows laptop for compatibility review, final submission checks, and defense playback testing.
 - Use macOS Terminal, VS Code SSH, `ssh`, `scp`, or `rsync` for remote upload/run/download workflows. Do not assume MobaXterm on this Mac.
 
 ## Status Legend
