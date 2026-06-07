@@ -10,6 +10,7 @@ The goal is to keep the experiment system coherent across Mac orchestration, `re
 
 - Update this file when the research question, data flow, model/algorithm boundary, metric definition, baseline, output convention, or remote storage plan changes.
 - Every serious experiment should connect to at least one `CLM-*`, one config, one output location, and one evidence-review path.
+- When the title contains method-heavy or structure-heavy wording, update `project-scope-control.md` before coding so the experiment can verify or downgrade those title phrases.
 - Local Mac records are the thesis evidence index; complete experiment folders may live on `remote_desktop_4060`, NAS, cloud drive, or object storage.
 - Formal `remote_desktop_4060` or cloud results require an environment snapshot and a remote artifact URI/hash before they can be marked `reviewed`. AutoDL fallback runs also require an exit code, run summary, checksum file, and recorded shutdown status.
 - Do not store passwords, private keys, tokens, or private dataset contents in this file.
@@ -25,6 +26,18 @@ The goal is to keep the experiment system coherent across Mac orchestration, `re
 | Local smoke target | `local_mac` CPU-only or small sample | planned | No local GPU assumption |
 | Cloud fallback | `cloud_autodl` / other / not needed | pending | Only when 4060 is unavailable or insufficient; AutoDL fallback should auto-save evidence and auto-shutdown after completion |
 | Long-term artifact storage | 4060 run folder / NAS / cloud drive / object storage / TBD | pending | Record URI in `experiment-registry.md` |
+
+## Topic-Derived Feasibility Gates
+
+Use this section before implementation when the project begins from a fixed title or a detailed exploration proposal.
+
+| Gate | Required Decision | Source Record | Status | Notes |
+|---|---|---|---|---|
+| Title phrase under test | Which title phrase is being validated by this experiment family? | `project-scope-control.md` | pending |  |
+| Causal availability | Which fields are visible before prediction / decision time? | `project-scope-control.md` | pending |  |
+| Node / unit definition | What is a node, sample, unit, or comparable entity? | `project-scope-control.md` | pending |  |
+| Edge / relation meaning | What does a relation mean, and can it be computed without leakage? | `project-scope-control.md` | pending |  |
+| Downgrade route | What title/method wording will be used if the main route fails? | `project-scope-control.md` | pending |  |
 
 ## Claim-To-Experiment Map
 
@@ -143,3 +156,4 @@ Use AutoDL only when the desktop 4060 is unavailable, insufficient, or explicitl
 | Full artifacts only on Mac | storage bloat and handoff risk | output audit | move large files to 4060/cloud and record URI | open |
 | Remote artifacts unverified | evidence chain breaks | doctor / final audit | write manifest/hash and verify remote status | open |
 | Environment snapshot missing | formal GPU evidence weak | contract check | write snapshot before or during formal run | open |
+| Title phrase unsupported | final title overclaims method or application value | project scope audit / advisor review | narrow or rename title before final writing | open |

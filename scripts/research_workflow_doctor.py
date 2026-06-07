@@ -9,6 +9,7 @@ from pathlib import Path
 
 from audit_final_artifacts import audit as audit_final_artifacts
 from audit_id_lifecycle import audit as audit_id_lifecycle
+from audit_project_scope import audit as audit_project_scope
 from audit_skills import audit_repo, render_report
 from audit_zotero_coverage import audit as audit_zotero_coverage
 from export_evidence_graph import build_graph
@@ -20,9 +21,12 @@ ID_RE = re.compile(r"\b(?:SEC|SEG|CLM|EXP|DATA|FIG|MAT|CIT|BMK|ZCOL|DRT|ZREV)-(?
 STAGE_WORKSPACES = {
     "1": {
         "name": "Paper planning",
-        "fileKeys": ["dashboard", "dailyWorkflowEntry"],
-        "commands": ["python scripts/research_workflow_doctor.py --warn-only"],
-        "recommendedActions": ["明确当前论文题目、阻塞项和下一步具体动作。"],
+        "fileKeys": ["dashboard", "dailyWorkflowEntry", "topicIntake", "thesisBrief", "projectScopeControl"],
+        "commands": [
+            "python scripts/audit_project_scope.py --warn-only",
+            "python scripts/research_workflow_doctor.py --warn-only",
+        ],
+        "recommendedActions": ["把初始标题当作待验证假设，先记录标题含义、研究边界、复核节点和可能降级路线。"],
     },
     "2": {
         "name": "Literature discovery, Zotero intake, and review",
@@ -35,15 +39,18 @@ STAGE_WORKSPACES = {
     },
     "3": {
         "name": "Experiment question definition",
-        "fileKeys": ["claimMap", "dailyWorkflowEntry"],
-        "commands": ["python scripts/research_workflow_doctor.py --warn-only"],
-        "recommendedActions": ["把下一个核心论点连接到需要的实验、数据、引用或图表证据。"],
+        "fileKeys": ["claimMap", "projectScopeControl", "dailyWorkflowEntry"],
+        "commands": ["python scripts/audit_project_scope.py --warn-only", "python scripts/research_workflow_doctor.py --warn-only"],
+        "recommendedActions": ["把标题拆成可检验研究问题，并确认每个关键短语都有文献、数据或实验验证路径。"],
     },
     "4": {
         "name": "Experiment architecture planning",
-        "fileKeys": ["experimentArchitecture", "experimentRegistry", "benchmarkReportSchema"],
-        "commands": ["python scripts/check_experiment_contract.py --experiment-id EXP-001 --warn-only"],
-        "recommendedActions": ["编码前先确定全局实验架构、数据流、baseline、指标、输出结构和 smoke test 契约。"],
+        "fileKeys": ["experimentArchitecture", "projectScopeControl", "experimentRegistry", "benchmarkReportSchema"],
+        "commands": [
+            "python scripts/audit_project_scope.py --warn-only",
+            "python scripts/check_experiment_contract.py --experiment-id EXP-001 --warn-only",
+        ],
+        "recommendedActions": ["编码前先确定因果可用字段、节点/边定义、baseline、指标、输出结构和降级预案。"],
     },
     "5": {
         "name": "Research code implementation",
@@ -65,9 +72,9 @@ STAGE_WORKSPACES = {
     },
     "8": {
         "name": "Results analysis and claim mapping",
-        "fileKeys": ["claimMap", "dataAvailability", "benchmarkReportSchema"],
+        "fileKeys": ["claimMap", "projectScopeControl", "dataAvailability", "benchmarkReportSchema"],
         "commands": ["python scripts/new_experiment_report.py --experiment-id EXP-001 --baseline EXP-000"],
-        "recommendedActions": ["只提升与结果、数据和引用证据一致的保守论点。"],
+        "recommendedActions": ["只提升与结果、数据和引用证据一致的保守论点；若结果不支撑标题关键词，记录降级或改题。"],
     },
     "9": {
         "name": "Figure and table production",
@@ -77,12 +84,12 @@ STAGE_WORKSPACES = {
     },
     "10": {
         "name": "Paper writing and polishing",
-        "fileKeys": ["natureStyleWritingChecklist", "sectionCitationMap", "citationProvenance", "zoteroLiteratureHub", "claimMap"],
+        "fileKeys": ["projectScopeControl", "natureStyleWritingChecklist", "sectionCitationMap", "citationProvenance", "zoteroLiteratureHub", "claimMap"],
         "commands": [
             "python scripts/audit_section_citations.py --warn-only",
             "python scripts/export_zotero_bibliography.py --allow-stub --out references.bib",
         ],
-        "recommendedActions": ["只基于已支持论点、已验证章节引用覆盖和 Zotero-backed 引用来写正文。"],
+        "recommendedActions": ["写作前复核标题是否仍成立；只基于已支持论点、已验证章节引用覆盖和 Zotero-backed 引用来写正文。"],
     },
     "11": {
         "name": "Mac DOCX PDF PPTX main production",
@@ -201,6 +208,7 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
         "console-file-index.md",
         "daily-workflow-entry.md",
         "weekly-review.md",
+        "project-scope-control.md",
         "experiment-architecture.md",
         "evidence-promotion-policy.md",
         "id-lifecycle-policy.md",
@@ -284,10 +292,13 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
 
     final_p0, final_p1, final_info, final_artifacts = audit_final_artifacts(thesis_dir, tier="quick")
     id_p0, id_p1, id_info, id_details = audit_id_lifecycle(thesis_dir)
+    scope_p0, scope_p1, scope_info, scope_details = audit_project_scope(thesis_dir)
     p0.extend(final_p0)
     p0.extend(id_p0)
+    p0.extend(scope_p0)
     p1.extend(final_p1)
     p1.extend(id_p1)
+    p1.extend(scope_p1)
     plugin_gate = recommend_plugins(thesis_dir, issues=p0 + p1)
     plugin_health = plugin_gate.get("health", {})
     if isinstance(plugin_health, dict):
@@ -305,10 +316,12 @@ def diagnose(thesis_dir: Path) -> tuple[list[str], list[str], list[str], dict[st
     info.append(f"claims={len(claims)} experiments={len(experiments)} datasets={len(datasets)} figures={len(figures)} sections={len(sections)}")
     data["final_artifacts"] = final_artifacts
     data["id_lifecycle"] = id_details
+    data["project_scope"] = scope_details
     data["plugin_gate"] = plugin_gate
     data["zotero_coverage"] = zotero_details
     info.extend(final_info)
     info.extend(id_info)
+    info.extend(scope_info)
     return p0, p1, info, data
 
 
@@ -469,8 +482,8 @@ def console_file_layers() -> list[dict[str, str]]:
         {
             "layer": "当前工作区",
             "when": "开始或恢复工作",
-            "files": "workflow-dashboard.md; daily-workflow-entry.md; task-board-sync.md",
-            "rule": "先看这里，只决定当前做什么。",
+            "files": "workflow-dashboard.md; daily-workflow-entry.md; project-scope-control.md; task-board-sync.md",
+            "rule": "先看这里，只决定当前做什么，以及标题是否仍符合证据。",
         },
         {
             "layer": "证据核心",
@@ -1011,6 +1024,7 @@ def dashboard_data(
             "consoleFileIndex": "docs/thesis/console-file-index.md",
             "dailyWorkflowEntry": "docs/thesis/daily-workflow-entry.md",
             "weeklyReview": "docs/thesis/weekly-review.md",
+            "projectScopeControl": "docs/thesis/project-scope-control.md",
             "claimMap": "docs/thesis/claim-evidence-map.md",
             "experimentArchitecture": "docs/thesis/experiment-architecture.md",
             "experimentRegistry": "docs/thesis/experiment-registry.md",

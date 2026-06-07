@@ -37,6 +37,7 @@ SYNC_ZOTERO_INVENTORY = REPO_ROOT / "scripts" / "sync_zotero_inventory.py"
 AUDIT_ZOTERO_COVERAGE = REPO_ROOT / "scripts" / "audit_zotero_coverage.py"
 EXPORT_ZOTERO_BIBLIOGRAPHY = REPO_ROOT / "scripts" / "export_zotero_bibliography.py"
 INIT_RESEARCH_WORKFLOW = REPO_ROOT / "init_research_workflow.py"
+AUDIT_PROJECT_SCOPE = REPO_ROOT / "scripts" / "audit_project_scope.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -365,8 +366,32 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "academic-search-policy.md",
                 "figure-style-qa.md",
                 "nature-style-writing-checklist.md",
+                "project-scope-control.md",
             ):
                 self.assertTrue((project / "docs" / "thesis" / name).exists(), name)
+
+    def test_audit_project_scope_reports_pending_title_gates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            thesis = project / "docs" / "thesis"
+            thesis.mkdir(parents=True)
+            (thesis / "project-scope-control.md").write_text(
+                "# Project Scope Control\n\n"
+                "## Title Review Gates\n\n| Gate | Status |\n|---|---|\n| title-intake | pending |\n\n"
+                "## Causal Availability Contract\n\n| Field | Status |\n|---|---|\n| future field | pending |\n\n"
+                "## Graph / Structure Definition Gate\n\n| Item | Status |\n|---|---|\n| node | pending |\n\n"
+                "## Downgrade / Rename Policy\n\n| Trigger | Status |\n|---|---|\n| weak graph | pending |\n\n"
+                "## Promotion Rule\n\n| Phrase | Status |\n|---|---|\n| dynamic graph | pending |\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(AUDIT_PROJECT_SCOPE), "--warn-only"],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertIn("project scope control still has pending", result.stdout)
 
     def test_sync_zotero_inventory_writes_hub_snapshot(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -704,6 +729,7 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
                 "console-file-index.md",
                 "daily-workflow-entry.md",
                 "weekly-review.md",
+                "project-scope-control.md",
                 "evidence-promotion-policy.md",
                 "id-lifecycle-policy.md",
                 "material-passport.md",
@@ -762,6 +788,15 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             )
             (thesis / "experiment-architecture.md").write_text(
                 "# Experiment Architecture\n\n| Area | Decision | Status | Notes |\n|---|---|---|---|\n| Primary execution target | local_mac | planned | test |\n",
+                encoding="utf-8",
+            )
+            (thesis / "project-scope-control.md").write_text(
+                "# Project Scope Control\n\n"
+                "## Title Review Gates\n\n| Gate | Status | Linked IDs |\n|---|---|---|\n| title-intake | ready | CLM-001 |\n\n"
+                "## Causal Availability Contract\n\n| Field | Status | Linked IDs |\n|---|---|---|\n| historical target | ready | DATA-001 |\n\n"
+                "## Graph / Structure Definition Gate\n\n| Item | Status | Linked IDs |\n|---|---|---|\n| node | ready | EXP-001 |\n\n"
+                "## Downgrade / Rename Policy\n\n| Trigger | Status | Linked IDs |\n|---|---|---|\n| weak graph | ready | CLM-001 |\n\n"
+                "## Promotion Rule\n\n| Phrase | Status | Linked IDs |\n|---|---|---|\n| title phrase | ready | CLM-001; EXP-001 |\n",
                 encoding="utf-8",
             )
             (thesis / "claim-evidence-map.md").write_text(

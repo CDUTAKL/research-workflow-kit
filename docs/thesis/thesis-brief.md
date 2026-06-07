@@ -5,6 +5,7 @@
 - Keep this file as the stable project brief. Update it when the title, research question, contribution, scope, or timeline changes.
 - Link supporting files from `docs/thesis/` instead of duplicating detailed tables here.
 - Mark uncertain items as `TBD` rather than filling gaps with assumptions.
+- If the project starts from a fixed or tentative title, keep the title as `draft` until `project-scope-control.md` confirms the title phrases survive literature, experiment architecture, and result checks.
 
 ## Working Title
 
@@ -14,6 +15,16 @@
 | English title | TBD | draft |  |
 | Degree/project type | TBD | draft |  |
 | Target format | Word/LaTeX/TBD | draft |  |
+
+## Title Survival Summary
+
+| Checkpoint | Source File | Decision | Status | Notes |
+|---|---|---|---|---|
+| Original title preserved | `topic-intake.md` | keep/narrow/rename/TBD | pending |  |
+| Literature pressure review | `literature-matrix.md`, `section-citation-map.md` | keep/narrow/rename/TBD | pending |  |
+| Experiment feasibility review | `experiment-architecture.md`, `project-scope-control.md` | keep/narrow/rename/TBD | pending |  |
+| Result survival review | `experiment-reports/`, `claim-evidence-map.md` | keep/narrow/rename/TBD | pending |  |
+| Final title lock | `final-audit.md` | lock/revise/TBD | pending |  |
 
 ## Research Problem
 
@@ -56,6 +67,7 @@
 | File | Purpose |
 |---|---|
 | `topic-intake.md` | Advisor title decomposition and first research blueprint |
+| `project-scope-control.md` | Title survival, causal availability, graph/node definition, downgrade/rename policy |
 | `idea-discovery.md` | Paper pool, idea matrix, novelty risk, shortlist |
 | `literature-matrix.md` | Literature search, grouping, citation status |
 | `section-citation-map.md` | Section-level citation candidates and support checks |

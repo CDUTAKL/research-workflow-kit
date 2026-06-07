@@ -7,6 +7,7 @@
 - Use `local_mac` for orchestration and CPU-only smoke tests, `remote_desktop_4060` as the primary GPU experiment target, and AutoDL only as a stronger fallback.
 - Record SSH alias, remote paths, and environment details only; do not record passwords, token values, or private-key contents.
 - Run the experiment contract check before expensive remote GPU work.
+- Run the project scope audit before experiments that test a title-derived method, graph, causal, interval, or risk claim.
 - Record human-supervised iteration decisions in `autoresearch-results.tsv` when the run changes a claim or method.
 - For `remote_desktop_4060` formal runs, save an environment snapshot even when CUDA and PyTorch versions are fixed on the desktop.
 - For AutoDL fallback runs, create/start the instance manually in the AutoDL web console, then use the auto-shutdown template so logs, exit code, environment snapshot, run summary, checksums, and archive path are saved before the instance shuts down.
@@ -19,6 +20,14 @@
 | EXP-001 | local_mac/remote_desktop_4060/cloud_autodl | TBD | TBD | TBD | metrics, logs, checkpoint, predictions/TBD | logs finite, output dir exists | TBD | record failure and rerun plan | TBD | `$research-results-analysis` | planned |
 
 ## Contract Check
+
+Project-scope check:
+
+```bash
+python scripts/audit_project_scope.py --warn-only
+```
+
+Experiment contract check:
 
 ```bash
 python scripts/check_experiment_contract.py \

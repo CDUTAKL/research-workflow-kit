@@ -15,6 +15,7 @@ Use this skill as the last quality gate before submission or defense. It checks 
 - Treat missing data availability for core data-backed claims as a blocker.
 - Apply `evidence-promotion-policy.md` before promoting `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` records to final evidence.
 - Apply `id-lifecycle-policy.md` before final writing so deprecated or superseded IDs do not leak into thesis text, figures, slides, or final artifact records.
+- Apply `project-scope-control.md` before locking a title, abstract, contribution wording, graph/method phrasing, causal wording, interval wording, or application/risk explanation.
 - Check `final-artifact-manifest.md`, `material-passport.md`, `benchmark-report-schema.md`, `citation-provenance.md`, `zotero-literature-hub.md`, and `zotero-collection-coverage.md` when the project uses those records.
 - Check `academic-search-policy.md`, `figure-style-qa.md`, and `nature-style-writing-checklist.md` when the project uses Nature-derived quality gates.
 - For formal GPU/cloud results, check both the local output index and remote artifact fields in `experiment-registry.md`: storage backend, remote URI, remote status, and hash/manifest.
@@ -32,24 +33,26 @@ Read `references/workflow.md` for audit tables and checklists. Read `references/
 
 1. Identify the target artifact: manuscript, thesis, references, figures, LaTeX/PDF, Word document, or slides.
 2. Extract quantitative claims, comparisons, scope wording, figure/table captions, and citation-backed statements.
-3. Audit claims against raw result files, cited evidence, configs, and rendered figures/tables.
-4. Audit citations for existence, metadata accuracy, claim support, provenance, Zotero hub/collection coverage, and export trace.
-5. Audit reproducibility and benchmark records, including run commands, configs, seeds, splits, code version, metric files, output directories, local output indexes, 4060/cloud environment snapshots, remote artifact URI/hash/status records, code contract checks, benchmark report schema, material passports, ID lifecycle records, final artifact handoff records, and autoresearch verify/guard records when the thesis console exists.
-6. Audit tool-layer records when available: task board sync, git version log, spreadsheet exports, and defense prep.
-7. Audit data availability records, including dataset provenance, access restrictions, hash/manifest, data dictionary, and claim-to-data traceability.
-8. Check section citation coverage for citation-heavy manuscript sections.
-9. Check figures, tables, equations, numbering, captions, cross-references, rendering, and publication-grade figure readiness. For final figures, require the Nature-derived figure audit standard or explicit revision items.
-10. For advisor-tier or final-tier writing, apply the Nature-style thesis precheck: novelty boundary, evidence strength, overclaim risk, figure clarity, method reproducibility, and citation support.
-11. Check dashboard/evidence-graph views when they are used for advisor review, defense preparation, or project handoff.
-12. Check plugin gate records for Codex Security, Build Web Apps, Data Analytics, Product Design, or CodeRabbit when they were recommended or required by `plugin_gate_advisor.py`.
-13. For defense or paper-to-PPT work, check slide claims, selected figures, speaker notes, and paper-to-slide traceability.
-14. Route each issue to the right revision skill and return a prioritized fix list.
+3. Audit the title and abstract against `project-scope-control.md`; flag title phrases that lack literature, experiment, data, figure, or citation evidence.
+4. Audit claims against raw result files, cited evidence, configs, and rendered figures/tables.
+5. Audit citations for existence, metadata accuracy, claim support, provenance, Zotero hub/collection coverage, and export trace.
+6. Audit reproducibility and benchmark records, including run commands, configs, seeds, splits, code version, metric files, output directories, local output indexes, 4060/cloud environment snapshots, remote artifact URI/hash/status records, code contract checks, benchmark report schema, material passports, ID lifecycle records, final artifact handoff records, and autoresearch verify/guard records when the thesis console exists.
+7. Audit tool-layer records when available: task board sync, git version log, spreadsheet exports, and defense prep.
+8. Audit data availability records, including dataset provenance, access restrictions, hash/manifest, data dictionary, and claim-to-data traceability.
+9. Check section citation coverage for citation-heavy manuscript sections.
+10. Check figures, tables, equations, numbering, captions, cross-references, rendering, and publication-grade figure readiness. For final figures, require the Nature-derived figure audit standard or explicit revision items.
+11. For advisor-tier or final-tier writing, apply the Nature-style thesis precheck: novelty boundary, evidence strength, overclaim risk, figure clarity, method reproducibility, and citation support.
+12. Check dashboard/evidence-graph views when they are used for advisor review, defense preparation, or project handoff.
+13. Check plugin gate records for Codex Security, Build Web Apps, Data Analytics, Product Design, or CodeRabbit when they were recommended or required by `plugin_gate_advisor.py`.
+14. For defense or paper-to-PPT work, check slide claims, selected figures, speaker notes, and paper-to-slide traceability.
+15. Route each issue to the right revision skill and return a prioritized fix list.
 
 ## Output Contract
 
 Always include:
 
 - claim audit table
+- title survival / narrowing / rename audit from `project-scope-control.md`
 - paper-to-evidence audit table
 - citation issue table
 - formatting issue table
@@ -58,6 +61,7 @@ Always include:
 - source-grounded reading status for important citations when Scite is insufficient
 - citation provenance, Zotero literature hub, bibliography export, and Zotero collection coverage issues
 - ID lifecycle issues
+- project scope control issues: title phrase evidence, causal availability, node/structure definition, and downgrade route
 - final artifact manifest, Mac production, and Windows compatibility-review issues
 - reproducibility checklist issues
 - remote experiment artifact URI/hash/status issues

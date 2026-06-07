@@ -18,6 +18,7 @@ Use this skill before result analysis when a research project needs experiment c
 - For `cloud_autodl`, assume the user creates and starts the instance manually; after SSH access is available, require auto-save evidence and automatic shutdown by default so the instance does not keep billing after training.
 - Treat the desktop CUDA/PyTorch profile as fixed when the user confirms it, but still save `outputs/EXP-*/environment.txt` for every formal 4060 evidence run.
 - Treat `docs/thesis/experiment-architecture.md` as the global experiment blueprint: claim map, data flow, module boundaries, config/output contract, baseline/metric policy, and remote storage plan.
+- For title-first projects, check `docs/thesis/project-scope-control.md` before coding: title phrase under test, causal availability, node/structure definition, anti-leakage rule, and downgrade route.
 - Use the local-index plus remote-artifact model for formal runs: fetch lightweight `outputs/EXP-*` evidence to the Mac, keep full logs/checkpoints/predictions on `remote_desktop_4060` or another archive backend, and record URI/hash/status in `experiment-registry.md`.
 - Use `$research-code-quality` or `scripts/check_experiment_contract.py` before expensive remote GPU runs.
 - Use `$research-autoresearch-loop` when a run is part of iterative method improvement.
@@ -28,10 +29,10 @@ Use this skill before result analysis when a research project needs experiment c
 
 Read `references/workflow.md` for the six-stage engineering flow. Read `references/code-architecture.md` for module and file conventions. Read `references/run-and-reproducibility.md` for run, output, and reproducibility checks. Read `references/source-map.md` for provenance.
 
-1. Identify the research question, planned claim, and experiment type.
+1. Identify the research question, planned claim, title phrase under test, and experiment type.
 2. Inspect or propose the project architecture.
-3. Define the data pipeline contract.
-4. Define the model or algorithm module contract.
+3. Define the data pipeline contract, including which fields are causally available before prediction or decision time.
+4. Define the model, algorithm, node/unit, edge/relation, or structure module contract.
 5. Define train, evaluate, and predict script interfaces.
 6. Define config, run naming, logging, metrics, checkpoints, predictions, and artifact outputs.
 7. Define the experiment contract: config, seed, split, metric, output path, registry row, and smoke config.
@@ -47,9 +48,10 @@ Read `references/workflow.md` for the six-stage engineering flow. Read `referenc
 Always include:
 
 - experiment objective
+- title-derived phrase under test and downgrade route when applicable
 - proposed or inspected code architecture
-- data pipeline contract
-- model/algorithm module contract
+- data pipeline contract, including causal availability and leakage checks when applicable
+- model/algorithm module contract, including node/edge or structure definition when graph/network wording is used
 - training/evaluation/prediction entrypoints
 - config and run naming convention
 - logging and output directory convention

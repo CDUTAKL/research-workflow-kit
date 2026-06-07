@@ -22,6 +22,7 @@ ALLOWED_OPEN_PATHS = {
     "consoleFileIndex": ROOT / "docs" / "thesis" / "console-file-index.md",
     "dailyWorkflowEntry": ROOT / "docs" / "thesis" / "daily-workflow-entry.md",
     "weeklyReview": ROOT / "docs" / "thesis" / "weekly-review.md",
+    "projectScopeControl": ROOT / "docs" / "thesis" / "project-scope-control.md",
     "claimMap": ROOT / "docs" / "thesis" / "claim-evidence-map.md",
     "experimentRegistry": ROOT / "docs" / "thesis" / "experiment-registry.md",
     "benchmarkReportSchema": ROOT / "docs" / "thesis" / "benchmark-report-schema.md",

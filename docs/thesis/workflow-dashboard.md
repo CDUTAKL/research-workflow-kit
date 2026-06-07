@@ -27,6 +27,7 @@ The evidence graph is rendered inside the page from `dashboard-data.json` as an 
 The Dashboard also includes three convergence aids:
 
 - `console-file-index.md` groups source records into file layers so daily work opens fewer files.
+- `project-scope-control.md` keeps a title-first thesis honest: title survival, causal availability, node/structure definition, and downgrade routes are reviewed before experiments and final writing.
 - `experiment-reports/` and the experiment comparison panel show baseline -> new metric delta, verify gate, guard gate, and environment snapshot status.
 - `weekly-review.md` records what became stronger or weaker, the current best experiment, and only 1-3 next actions.
 
@@ -47,16 +48,16 @@ Use Build Web Data Visualization principles when the dashboard becomes advisor-f
 
 | Stage | Name | Status | Main Record | Notes |
 |---|---|---|---|---|
-| 1 | Paper planning | pending | `thesis-brief.md`, `idea-discovery.md` |  |
+| 1 | Paper planning | pending | `thesis-brief.md`, `project-scope-control.md`, `idea-discovery.md` | Treat fixed titles as draft hypotheses until reviewed |
 | 2 | Literature discovery and review | pending | `literature-matrix.md`, `zotero-screening-loop.md`, `section-citation-map.md` |  |
-| 3 | Experiment question definition | pending | `claim-evidence-map.md` |  |
-| 4 | Experiment architecture planning | pending | `experiment-architecture.md` |  |
+| 3 | Experiment question definition | pending | `claim-evidence-map.md`, `project-scope-control.md` | Convert title phrases into testable claims |
+| 4 | Experiment architecture planning | pending | `experiment-architecture.md`, `project-scope-control.md` | Confirm causal fields, node definition, metrics, and downgrade route |
 | 5 | Research code implementation | pending | code repo, `git-version-log.md` |  |
 | 6 | Experiment run and monitoring | pending | `experiment-runbook.md` |  |
 | 7 | Experiment recording and result scan | pending | `experiment-registry.md` |  |
-| 8 | Results analysis and claim mapping | pending | `claim-evidence-map.md`, `data-availability.md` |  |
+| 8 | Results analysis and claim mapping | pending | `claim-evidence-map.md`, `project-scope-control.md`, `data-availability.md` | Keep, narrow, or rename title phrases based on results |
 | 9 | Figure and table production | pending | `figure-plan.md`, `diagram-replica-tasks.md` |  |
-| 10 | Paper writing and polishing | pending | `writing-outline.md` |  |
+| 10 | Paper writing and polishing | pending | `writing-outline.md`, `project-scope-control.md` | Lock title only when chapters and evidence support it |
 | 11 | Mac DOCX / PDF / PPTX main production | pending | `final-artifact-manifest.md`, DOCX/PDF/PPTX artifacts | Mac produces the main thesis document, PDF candidate, and PPTX candidate |
 | 12 | Windows compatibility review and final submission preparation | pending | `final-audit.md`, `defense-prep.md`, `final-artifact-manifest.md` | Windows laptop verifies Word/WPS/PowerPoint compatibility and final submission readiness |
 

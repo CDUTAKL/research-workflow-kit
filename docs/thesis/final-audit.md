@@ -9,6 +9,7 @@
 - Stage 12 is now Windows compatibility review and final submission preparation: open the Mac-produced DOCX/PDF/PPTX on the Windows laptop, check Word/WPS/PowerPoint compatibility, final submission details, and defense playback.
 - Apply `evidence-promotion-policy.md` before promoting any `SEC-*`, `CLM-*`, `EXP-*`, `DATA-*`, or `FIG-*` item to final evidence.
 - Apply `id-lifecycle-policy.md` before final writing so deprecated or superseded IDs do not leak into the thesis.
+- Apply `project-scope-control.md` before locking the title, abstract, contribution wording, and method/application claims.
 - Use `final-artifact-manifest.md` as the Mac production and Windows compatibility-review contract.
 - Run `scripts/research_workflow_doctor.py --write-dashboard` before advisor or final audit when the project console exists.
 - Check `plugin-gate-policy.md` and `plugin-review-log.md` when Codex Security, Build Web Apps, Data Analytics, Product Design, or CodeRabbit gates were recommended.
@@ -35,8 +36,8 @@
 | Tier | When To Run | Must Check | Output |
 |---|---|---|---|
 | quick | daily, after new experiment output, before continuing a branch | changed `CLM-*`, new `EXP-*`, new `DATA-*`, new `FIG-*`, broken citations, obvious overclaiming | short issue list and next action |
-| advisor | before supervisor meeting, milestone review, or chapter review | claim map, section citation coverage, figures/tables, data traceability, code contracts, 4060 snapshots, Mac-produced DOCX/PDF/PPTX candidate status, limitations | advisor-ready risk list |
-| final | before DOCX/PDF release, defense, or submission | all quick/advisor checks plus formatting, bibliography, final data availability, defense slides, Windows compatibility paths, artifact checksums, ID lifecycle conflicts | final go/no-go decision |
+| advisor | before supervisor meeting, milestone review, or chapter review | title survival, claim map, section citation coverage, figures/tables, data traceability, code contracts, 4060 snapshots, Mac-produced DOCX/PDF/PPTX candidate status, limitations | advisor-ready risk list |
+| final | before DOCX/PDF release, defense, or submission | all quick/advisor checks plus final title lock, formatting, bibliography, final data availability, defense slides, Windows compatibility paths, artifact checksums, ID lifecycle conflicts | final go/no-go decision |
 
 ## Issue Table
 
@@ -92,6 +93,7 @@
 | Dashboard flow-editor writes are reviewed in `workflow-edit-log.md` | pending |  |
 | Dashboard/evidence graph visual issues do not hide P0/P1 blockers | pending |  |
 | Required plugin gates are recorded or explicitly not applicable | pending |  |
+| Title-derived claims still match `project-scope-control.md` | pending |  |
 
 ## Advisor Audit Checklist
 
@@ -111,6 +113,7 @@
 | Data restrictions and availability language are advisor-reviewable | pending |  |
 | Advisor-facing charts and evidence graph are readable and do not hide uncertainty | pending |  |
 | Nature-style advisor precheck covers novelty, evidence strength, overclaim risk, figure clarity, method reproducibility, and citation support | pending | `nature-style-writing-checklist.md` |
+| Title survival, causal availability, graph/node definition, and downgrade policy are reviewable | pending | `project-scope-control.md` |
 | Data Analytics / Product Design review notes exist when formal results or visuals are advisor-facing | pending |  |
 | Mac-produced DOCX/PDF/PPTX rows in `final-artifact-manifest.md` exist and are ready for Windows compatibility review | pending |  |
 | Important IDs have valid lifecycle status in `id-lifecycle-policy.md` | pending |  |
