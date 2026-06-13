@@ -20,30 +20,54 @@ class GraphTemporalTCN(nn.Module if nn is not None else object):
         horizon_steps: int,
         use_events: bool,
         use_graph: bool,
+        graph_mode: str = "concat",
     ) -> None:
         if nn is None:
             raise RuntimeError("PyTorch is required for GraphTemporalTCN")
         super().__init__()
+        if graph_mode not in {"concat", "gated_residual"}:
+            raise ValueError(f"unsupported graph_mode: {graph_mode}")
         self.use_events = use_events
         self.use_graph = use_graph
+        self.graph_mode = graph_mode
         self.horizon_steps = horizon_steps
+        self.last_gate = None
         base_channels = load_channels + (event_channels if use_events else 0)
-        input_channels = base_channels * (2 if use_graph else 1)
-        layers = []
-        current = input_channels
-        for _ in range(tcn_layers):
-            layers.append(_TemporalBlock(current, hidden_channels, kernel_size, dropout))
-            current = hidden_channels
-        self.encoder = nn.Sequential(*layers)
-        self.head = nn.Linear(hidden_channels, horizon_steps)
+        if graph_mode == "gated_residual" and use_graph:
+            self.self_encoder = _make_encoder(base_channels, hidden_channels, tcn_layers, kernel_size, dropout)
+            self.graph_encoder = _make_encoder(base_channels, hidden_channels, tcn_layers, kernel_size, dropout)
+            self.self_head = nn.Linear(hidden_channels, horizon_steps)
+            self.graph_head = nn.Linear(hidden_channels, horizon_steps)
+            self.gate_mlp = nn.Sequential(
+                nn.Linear(hidden_channels * 2, hidden_channels),
+                nn.ReLU(),
+                nn.Linear(hidden_channels, 1),
+            )
+        else:
+            input_channels = base_channels * (2 if use_graph else 1)
+            self.encoder = _make_encoder(input_channels, hidden_channels, tcn_layers, kernel_size, dropout)
+            self.head = nn.Linear(hidden_channels, horizon_steps)
 
     def forward(self, history_load, history_events, graph_indices, graph_weights):
         if torch is None:
             raise RuntimeError("PyTorch is required for GraphTemporalTCN")
+        self.last_gate = None
         features = [history_load.unsqueeze(-1)]
         if self.use_events:
             features.append(history_events)
         node_features = torch.cat(features, dim=-1)
+        if self.use_graph and self.graph_mode == "gated_residual":
+            neighbor_features = _neighbor_aggregate(node_features, graph_indices, graph_weights)
+            self_state = _encode_last(self.self_encoder, node_features)
+            graph_state = _encode_last(self.graph_encoder, neighbor_features)
+            batch, _, node_count, _ = node_features.shape
+            # 门控残差分支让模型自己判断图信息该加多少；当事件图噪声大时，gate 可以自动压低图分支权重。
+            gate = torch.sigmoid(self.gate_mlp(torch.cat([self_state, graph_state], dim=-1))).reshape(batch, node_count, 1)
+            self_prediction = self.self_head(self_state).reshape(batch, node_count, self.horizon_steps)
+            graph_prediction = self.graph_head(graph_state).reshape(batch, node_count, self.horizon_steps)
+            self.last_gate = gate.detach()
+            prediction = self_prediction + gate * graph_prediction
+            return prediction.permute(0, 2, 1).contiguous()
         if self.use_graph:
             neighbor_features = _neighbor_aggregate(node_features, graph_indices, graph_weights)
             node_features = torch.cat([node_features, neighbor_features], dim=-1)
@@ -71,6 +95,22 @@ class _TemporalBlock(nn.Module if nn is not None else object):
             out = out[..., -inputs.shape[-1] :]
         out = self.dropout(self.activation(out))
         return out + self.residual(inputs)
+
+
+def _make_encoder(input_channels: int, hidden_channels: int, tcn_layers: int, kernel_size: int, dropout: float):
+    layers = []
+    current = input_channels
+    for _ in range(tcn_layers):
+        layers.append(_TemporalBlock(current, hidden_channels, kernel_size, dropout))
+        current = hidden_channels
+    return nn.Sequential(*layers)
+
+
+def _encode_last(encoder, node_features):
+    batch, history, node_count, channel_count = node_features.shape
+    encoded_input = node_features.permute(0, 2, 3, 1).reshape(batch * node_count, channel_count, history)
+    encoded = encoder(encoded_input)
+    return encoded[:, :, -1]
 
 
 def _neighbor_aggregate(node_features, graph_indices, graph_weights):

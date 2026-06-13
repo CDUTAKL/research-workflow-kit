@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 import platform
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -72,6 +74,8 @@ def main() -> None:
         top_k=int(graph_config.get("top_k", 5)),
         seed=seed,
         dtw_max_points=int(graph_config["dtw_max_points"]) if graph_config.get("dtw_max_points") else None,
+        rho=float(graph_config.get("rho", 0.0)),
+        lambda_event=float(graph_config.get("lambda_event", 0.3)),
     )
     write_json(
         out_dir / "graph_manifest.json",
@@ -79,6 +83,8 @@ def main() -> None:
             "experiment_id": str(config.get("experiment_id", "EXP-103")),
             "graph_contract": {
                 "top_k": int(graph_config.get("top_k", 5)),
+                "rho": float(graph_config.get("rho", 0.0)),
+                "lambda_event": float(graph_config.get("lambda_event", 0.3)),
                 "causal_static_graph_policy": "dtw/correlation use train split load only",
                 "causal_dynamic_graph_policy": "event graph uses each origin history window only",
             },
@@ -113,15 +119,19 @@ def main() -> None:
         log_lines.append(f"{baseline_id}: test_MAE={train_result['metrics']['MAE']:.6f}")
 
     graph_rows = _graph_ablation_rows(baseline_rows, metrics_by_baseline)
+    primary_summary = build_primary_metric_summary(baseline_rows)
     pd.DataFrame(baseline_rows).to_csv(out_dir / "baseline_metrics.csv", index=False)
     pd.DataFrame(graph_rows).to_csv(out_dir / "graph_ablation_table.csv", index=False)
+    primary_summary.to_csv(out_dir / "primary_metric_summary.csv", index=False)
     pd.DataFrame(event_rows).to_csv(out_dir / "event_window_metrics.csv", index=False)
     pd.DataFrame(curve_rows).to_csv(out_dir / "training_curves.csv", index=False)
     pd.DataFrame(sample_rows).to_csv(out_dir / "predictions_sample.csv", index=False)
     write_json(out_dir / "metrics.json", {"experiment_id": "EXP-103", "baselines": metrics_by_baseline})
+    (out_dir / "metric_guide.md").write_text(_metric_guide_text(), encoding="utf-8")
     (out_dir / "logs" / "train.log").write_text("\n".join(log_lines) + "\n", encoding="utf-8")
     artifacts = [
         "metrics.json",
+        "primary_metric_summary.csv",
         "baseline_metrics.csv",
         "graph_ablation_table.csv",
         "event_window_metrics.csv",
@@ -130,6 +140,7 @@ def main() -> None:
         "predictions_sample.csv",
         "config_resolved.json",
         "environment.txt",
+        "metric_guide.md",
         "logs/train.log",
     ]
     write_manifest(out_dir, str(config.get("experiment_id", "EXP-103")), artifacts)
@@ -139,10 +150,16 @@ def main() -> None:
 def _load_or_build_cache(config: dict[str, Any]):
     data_config = config.get("data", {})
     cache_config = config.get("cache", {})
+    feature_config = config.get("features", {})
     cache_path = Path(str(cache_config.get("tensor_cache_path", "data/processed/evcs_tensor_cache.npz")))
     manifest_path = Path(str(cache_config.get("manifest_path", "data/processed/evcs_tensor_cache_manifest.json")))
     split_path = Path(str(cache_config.get("split_path", "data/processed/splits/chronological_70_15_15.json")))
-    if not cache_path.exists():
+    should_build = not cache_path.exists()
+    if cache_path.exists() and not _tensor_cache_manifest_matches(manifest_path, cache_config, feature_config):
+        if not bool(cache_config.get("auto_build", False)):
+            raise ValueError(f"tensor cache manifest does not match config and auto_build is false: {manifest_path}")
+        should_build = True
+    if should_build:
         if not bool(cache_config.get("auto_build", False)):
             raise FileNotFoundError(f"tensor cache not found: {cache_path}")
         frame = pd.read_csv(Path(str(data_config["source_path"])))
@@ -155,9 +172,28 @@ def _load_or_build_cache(config: dict[str, Any]):
             history_steps=int(cache_config.get("history_steps", 96)),
             horizon_steps=int(cache_config.get("horizon_steps", 4)),
             split_rule=dict(cache_config.get("split_rule", {"train": 0.7, "validation": 0.15, "test": 0.15})),
+            include_time_context=bool(feature_config.get("include_time_context", False)),
+            include_enhanced_events=bool(feature_config.get("include_enhanced_events", False)),
+            near_capacity_quantile=float(feature_config.get("near_capacity_quantile", 0.9)),
         )
         save_tensor_cache(cache, cache_path, split_path, manifest_path)
     return load_tensor_cache(cache_path, manifest_path)
+
+
+def _tensor_cache_manifest_matches(manifest_path: Path, cache_config: dict[str, Any], feature_config: dict[str, Any]) -> bool:
+    if not manifest_path.exists():
+        return False
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    feature_manifest = manifest.get("feature_engineering", {}) if isinstance(manifest.get("feature_engineering", {}), dict) else {}
+    return (
+        int(manifest.get("history_steps", -1)) == int(cache_config.get("history_steps", 96))
+        and int(manifest.get("horizon_steps", -1)) == int(cache_config.get("horizon_steps", 4))
+        and bool(feature_manifest.get("include_time_context", False)) == bool(feature_config.get("include_time_context", False))
+        and bool(feature_manifest.get("include_enhanced_events", False)) == bool(feature_config.get("include_enhanced_events", False))
+    )
 
 
 def _train_one_baseline(
@@ -177,10 +213,19 @@ def _train_one_baseline(
     test_dataset = EVCSWindowDataset(cache, "test", graph, use_events=use_events, normalize=True)
     batch_size = int(training_config.get("batch_size", 128))
     workers = int(training_config.get("num_workers", 0))
+    graph_mode = str(training_config.get("graph_mode", "concat"))
     pin_memory = bool(training_config.get("pin_memory", False)) and device.type == "cuda"
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=pin_memory)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=workers, pin_memory=pin_memory)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=workers, pin_memory=pin_memory)
+    setup_line = (
+        f"[{baseline_id}] setup train={len(train_dataset)} val={len(val_dataset)} test={len(test_dataset)} "
+        f"train_batches={len(train_loader)} val_batches={len(val_loader)} test_batches={len(test_loader)} "
+        f"batch_size={batch_size} num_workers={workers} use_events={use_events} use_graph={use_graph} graph_mode={graph_mode}"
+    )
+    log_lines.append(setup_line)
+    if bool(training_config.get("verbose", True)):
+        print(setup_line, flush=True)
     model = GraphTemporalTCN(
         load_channels=1,
         event_channels=len(cache.event_feature_names) if use_events else 0,
@@ -191,8 +236,10 @@ def _train_one_baseline(
         horizon_steps=cache.horizon_steps,
         use_events=use_events,
         use_graph=use_graph,
+        graph_mode=graph_mode,
     ).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=float(training_config.get("lr", 1e-3)))
+    scheduler = _make_scheduler(optimizer, training_config)
     criterion = nn.SmoothL1Loss() if str(training_config.get("loss", "SmoothL1")).lower() == "smoothl1" else nn.L1Loss()
     use_amp = bool(training_config.get("amp", False)) and device.type == "cuda"
     scaler = _make_grad_scaler(use_amp)
@@ -202,9 +249,16 @@ def _train_one_baseline(
     best_val = float("inf")
     stale_epochs = 0
     curve_rows = []
+    baseline_started_at = time.perf_counter()
+    best_epoch = 0
     for epoch in range(1, epochs + 1):
+        epoch_started_at = time.perf_counter()
         train_loss = _run_epoch(model, train_loader, criterion, optimizer, scaler, device, training_config, train=True, use_amp=use_amp)
         val_loss = _run_epoch(model, val_loader, criterion, None, scaler, device, training_config, train=False, use_amp=use_amp)
+        if scheduler is not None:
+            scheduler.step(val_loss)
+        current_lr = float(optimizer.param_groups[0]["lr"])
+        epoch_seconds = time.perf_counter() - epoch_started_at
         improved = val_loss < best_val
         curve_rows.append(
             {
@@ -214,18 +268,22 @@ def _train_one_baseline(
                 "validation_loss": val_loss,
                 "best_validation_loss": min(best_val, val_loss),
                 "improved": improved,
+                "epoch_seconds": epoch_seconds,
+                "lr": current_lr,
             }
         )
         progress_line = (
             f"[{baseline_id}] epoch {epoch}/{epochs} "
             f"train_loss={train_loss:.6f} val_loss={val_loss:.6f} "
-            f"best_val={min(best_val, val_loss):.6f}"
+            f"best_val={min(best_val, val_loss):.6f} "
+            f"lr={current_lr:.6g} seconds={epoch_seconds:.1f}"
         )
         log_lines.append(progress_line)
         if verbose:
             print(progress_line, flush=True)
         if improved:
             best_val = val_loss
+            best_epoch = epoch
             stale_epochs = 0
             torch.save({"model_state_dict": model.state_dict(), "config": config, "baseline_id": baseline_id}, checkpoint_path)
         else:
@@ -240,16 +298,29 @@ def _train_one_baseline(
         state = _load_checkpoint(checkpoint_path, device)
         model.load_state_dict(state["model_state_dict"])
     eval_payload = _evaluate(model, test_loader, device, cache)
+    baseline_seconds = time.perf_counter() - baseline_started_at
     metrics = {
         "baseline_id": baseline_id,
         "MAE": eval_payload["MAE"],
         "RMSE": eval_payload["RMSE"],
         "prediction_count": eval_payload["prediction_count"],
         "best_validation_loss": best_val,
+        "best_epoch": best_epoch,
         "epochs_ran": len(curve_rows),
+        "train_seconds": baseline_seconds,
         "uses_events": use_events,
         "uses_graph": use_graph,
+        "graph_mode": graph_mode,
+        "gate_mean": eval_payload["gate_mean"],
+        "gate_std": eval_payload["gate_std"],
     }
+    summary_line = (
+        f"[{baseline_id}] test MAE={metrics['MAE']:.6f} RMSE={metrics['RMSE']:.6f} "
+        f"best_epoch={best_epoch} epochs_ran={len(curve_rows)} seconds={baseline_seconds:.1f}"
+    )
+    log_lines.append(summary_line)
+    if verbose:
+        print(summary_line, flush=True)
     return {
         "metrics": metrics,
         "event_metrics": _event_window_metrics(baseline_id, eval_payload, cache),
@@ -291,6 +362,7 @@ def _evaluate(model, loader, device, cache) -> dict[str, Any]:
     predictions = []
     targets = []
     origins = []
+    gate_values = []
     with torch.no_grad():
         for batch in loader:
             output = model(
@@ -303,6 +375,9 @@ def _evaluate(model, loader, device, cache) -> dict[str, Any]:
             predictions.append(raw_output.astype(np.float32))
             targets.append(batch["target_raw"].numpy().astype(np.float32))
             origins.extend(batch["origin"].numpy().astype(int).tolist())
+            gate = getattr(model, "last_gate", None)
+            if gate is not None:
+                gate_values.append(gate.detach().cpu().numpy().astype(np.float32))
     prediction = np.concatenate(predictions, axis=0) if predictions else np.zeros((0, cache.horizon_steps, len(cache.nodes)), dtype=np.float32)
     target = np.concatenate(targets, axis=0) if targets else np.zeros_like(prediction)
     error = prediction - target
@@ -313,6 +388,8 @@ def _evaluate(model, loader, device, cache) -> dict[str, Any]:
         "MAE": float(np.mean(np.abs(error))) if error.size else float("nan"),
         "RMSE": float(np.sqrt(np.mean(error**2))) if error.size else float("nan"),
         "prediction_count": int(error.size),
+        "gate_mean": float(np.concatenate([values.reshape(-1) for values in gate_values]).mean()) if gate_values else np.nan,
+        "gate_std": float(np.concatenate([values.reshape(-1) for values in gate_values]).std()) if gate_values else np.nan,
     }
 
 
@@ -409,6 +486,67 @@ def _graph_ablation_rows(baseline_rows: list[dict[str, Any]], metrics_by_baselin
     return rows
 
 
+def build_primary_metric_summary(baseline_rows: list[dict[str, Any]]) -> pd.DataFrame:
+    frame = pd.DataFrame(baseline_rows).copy()
+    if frame.empty:
+        return frame
+    behavior_mae = _baseline_metric(frame, "behavior_concat", "MAE")
+    dtw_mae = _baseline_metric(frame, "dtw_demand_graph", "MAE")
+    best_mae = float(frame["MAE"].min())
+    frame["rank_by_MAE"] = frame["MAE"].rank(method="min", ascending=True).astype(int)
+    frame["is_best_mae"] = frame["MAE"] == best_mae
+    frame["delta_vs_behavior_concat"] = frame["MAE"] - behavior_mae if behavior_mae is not None else np.nan
+    frame["delta_vs_dtw_graph"] = frame["MAE"] - dtw_mae if dtw_mae is not None else np.nan
+    columns = [
+        "rank_by_MAE",
+        "baseline_id",
+        "MAE",
+        "RMSE",
+        "delta_vs_behavior_concat",
+        "delta_vs_dtw_graph",
+        "is_best_mae",
+        "best_validation_loss",
+        "best_epoch",
+        "epochs_ran",
+        "train_seconds",
+        "prediction_count",
+        "uses_events",
+        "uses_graph",
+        "graph_mode",
+        "gate_mean",
+        "gate_std",
+    ]
+    existing = [column for column in columns if column in frame.columns]
+    return frame.sort_values(["MAE", "baseline_id"])[existing].reset_index(drop=True)
+
+
+def _baseline_metric(frame: pd.DataFrame, baseline_id: str, metric: str) -> float | None:
+    values = frame.loc[frame["baseline_id"] == baseline_id, metric]
+    if values.empty:
+        return None
+    return float(values.iloc[0])
+
+
+def _metric_guide_text() -> str:
+    return """# EXP-103 Metric Guide
+
+Read outputs in this order:
+
+1. primary_metric_summary.csv: main ranking by test MAE, plus deltas vs behavior_concat and dtw_demand_graph.
+2. graph_ablation_table.csv: graph-specific claim checks, especially event_graph_dynamic vs behavior_concat, dtw_demand_graph, and deleted_event_graph.
+3. event_window_metrics.csv: event-state checks for access_count, departure_count, load_jump_flag, high occupancy, and near_capacity_proxy.
+4. training_curves.csv: train/validation loss, best epoch, early stopping behavior, and epoch runtime.
+5. baseline_metrics.csv: complete per-baseline test MAE/RMSE and runtime fields.
+
+Interpretation rules:
+
+- Lower MAE/RMSE is better.
+- For delta columns, negative means the row baseline is better than the comparator.
+- event_graph_dynamic supports a strong C1 claim only if it improves over behavior_concat and responds competitively to dtw_demand_graph / historical_correlation_graph.
+- If behavior_concat improves over no_graph but event_graph_dynamic does not beat strong graph baselines, write the result as behavior-event feature value plus graph-boundary evidence.
+"""
+
+
 def _resolve_device(requested: str):
     if requested == "auto":
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -419,6 +557,21 @@ def _make_grad_scaler(use_amp: bool):
     if hasattr(torch, "amp") and hasattr(torch.amp, "GradScaler"):
         return torch.amp.GradScaler("cuda", enabled=use_amp)
     return torch.cuda.amp.GradScaler(enabled=use_amp)
+
+
+def _make_scheduler(optimizer, training_config):
+    scheduler_name = str(training_config.get("scheduler", "none")).lower()
+    if scheduler_name in {"", "none", "null"}:
+        return None
+    if scheduler_name != "reduce_on_plateau":
+        raise ValueError(f"unsupported scheduler: {scheduler_name}")
+    return torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        mode="min",
+        factor=float(training_config.get("scheduler_factor", 0.5)),
+        patience=int(training_config.get("scheduler_patience", 3)),
+        min_lr=float(training_config.get("min_lr", 1e-5)),
+    )
 
 
 def _autocast_context(device, use_amp: bool):

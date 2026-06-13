@@ -26,6 +26,12 @@ graph:
     - load_jump_flag
   top_k: 1
   dtw_max_points: 8
+  rho: 0.7
+  lambda_event: 0.3
+features:
+  include_time_context: true
+  include_enhanced_events: true
+  near_capacity_quantile: 0.9
 training:
   epochs: 1
   batch_size: 2
@@ -40,10 +46,11 @@ training:
   amp: false
   num_workers: 0
   pin_memory: false
+  graph_mode: gated_residual
   max_train_batches: 2
   max_eval_batches: 2
 baselines:
   - no_graph
   - behavior_concat
   - event_graph_dynamic
-  - dtw_demand_graph
+  - event_dtw_fusion_graph

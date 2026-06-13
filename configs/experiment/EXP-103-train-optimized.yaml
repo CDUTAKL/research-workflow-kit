@@ -1,0 +1,66 @@
+experiment_id: EXP-103
+seed: 42
+split: chronological_70_15_15
+metric: MAE
+output: outputs/EXP-103-train-optimized-42
+data:
+  source_path: data/processed/evcs_timeslice.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+cache:
+  tensor_cache_path: data/processed/evcs_tensor_cache_optimized.npz
+  split_path: data/processed/splits/chronological_70_15_15_optimized.json
+  manifest_path: data/processed/evcs_tensor_cache_optimized_manifest.json
+  history_steps: 96
+  horizon_steps: 4
+  split_rule: {'train': 0.7, 'validation': 0.15, 'test': 0.15}
+  auto_build: true
+graph:
+  event_feature_fields:
+    - access_count
+    - departure_count
+    - active_count
+    - occupancy_rate
+    - demand_intensity
+    - load_jump_flag
+  similarity: cosine
+  top_k: 5
+  rho: 0.7
+  lambda_event: 0.3
+  dtw_max_points: 128
+features:
+  include_time_context: true
+  include_enhanced_events: true
+  near_capacity_quantile: 0.9
+training:
+  epochs: 50
+  batch_size: 256
+  hidden_channels: 64
+  tcn_layers: 4
+  kernel_size: 3
+  dropout: 0.1
+  optimizer: AdamW
+  lr: 0.001
+  loss: SmoothL1
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_patience: 3
+  min_lr: 0.00001
+  early_stopping_patience: 8
+  amp: true
+  num_workers: 8
+  pin_memory: true
+  graph_mode: gated_residual
+  write_full_predictions: false
+baselines:
+  - no_graph
+  - behavior_concat
+  - event_graph_dynamic
+  - event_graph_dynamic_rho
+  - dtw_demand_graph
+  - historical_correlation_graph
+  - event_dtw_fusion_graph
+  - random_event_graph
+  - shuffled_event_graph
+  - deleted_event_graph

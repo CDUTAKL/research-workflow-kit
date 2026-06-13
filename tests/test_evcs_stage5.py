@@ -426,6 +426,45 @@ class EvcsStage5Tests(unittest.TestCase):
             self.assertEqual(manifest["history_steps"], 3)
             self.assertEqual(manifest["horizon_steps"], 2)
 
+    def test_exp103_tensor_cache_adds_time_context_and_enhanced_event_features(self):
+        from evcs.data.tensor_cache import build_tensor_cache
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "timeslice.csv"
+            _write_training_timeslice_fixture(source, periods=18, nodes=("A", "B", "C"))
+
+            cache = build_tensor_cache(
+                pd.read_csv(source),
+                timestamp_field="timestamp",
+                node_field="node_id",
+                target_field="load",
+                event_feature_fields=[
+                    "access_count",
+                    "departure_count",
+                    "active_count",
+                    "occupancy_rate",
+                    "demand_intensity",
+                    "load_jump_flag",
+                ],
+                history_steps=4,
+                horizon_steps=2,
+                split_rule={"train": 0.5, "validation": 0.25, "test": 0.25},
+                include_time_context=True,
+                include_enhanced_events=True,
+            )
+
+        feature_names = set(cache.event_feature_names)
+        self.assertIn("hour_sin", feature_names)
+        self.assertIn("dow_cos", feature_names)
+        self.assertIn("weekend_flag", feature_names)
+        self.assertIn("access_count_roll_1h", feature_names)
+        self.assertIn("active_count_diff", feature_names)
+        self.assertIn("near_capacity_history_rate_24h", feature_names)
+        self.assertEqual(cache.event_features.shape[-1], len(cache.event_feature_names))
+        self.assertTrue(cache.manifest["feature_engineering"]["include_time_context"])
+        self.assertTrue(cache.manifest["feature_engineering"]["include_enhanced_events"])
+        self.assertEqual(cache.manifest["feature_engineering"]["near_capacity_threshold_source"], "train_only")
+
     def test_exp103_graph_cache_keeps_train_only_static_graphs_and_dynamic_origin_graphs(self):
         from evcs.data.tensor_cache import build_tensor_cache
         from evcs.graphs.cache import build_exp103_graph_cache
@@ -457,6 +496,49 @@ class EvcsStage5Tests(unittest.TestCase):
             self.assertEqual(graphs["dtw_demand_graph"].train_origin_end, train_end)
             self.assertEqual(graphs["historical_correlation_graph"].train_origin_end, train_end)
             self.assertTrue((graphs["deleted_event_graph"].weights == 0.0).all())
+
+    def test_exp103_graph_cache_supports_rho_smoothing_and_event_dtw_fusion(self):
+        from evcs.data.tensor_cache import build_tensor_cache
+        from evcs.graphs.cache import build_exp103_graph_cache
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "timeslice.csv"
+            _write_training_timeslice_fixture(source, periods=12, nodes=("A", "B", "C"))
+            cache = build_tensor_cache(
+                pd.read_csv(source),
+                timestamp_field="timestamp",
+                node_field="node_id",
+                target_field="load",
+                event_feature_fields=["access_count", "departure_count", "active_count", "occupancy_rate"],
+                history_steps=3,
+                horizon_steps=1,
+                split_rule={"train": 0.5, "validation": 0.25, "test": 0.25},
+            )
+
+            raw_graphs = build_exp103_graph_cache(
+                cache,
+                baseline_ids=["event_graph_dynamic", "event_graph_dynamic_rho", "dtw_demand_graph", "event_dtw_fusion_graph"],
+                top_k=1,
+                seed=42,
+                rho=0.0,
+                lambda_event=1.0,
+            )
+            dtw_only_graphs = build_exp103_graph_cache(
+                cache,
+                baseline_ids=["dtw_demand_graph", "event_dtw_fusion_graph"],
+                top_k=1,
+                seed=42,
+                rho=0.7,
+                lambda_event=0.0,
+            )
+
+        self.assertTrue((raw_graphs["event_graph_dynamic"].indices == raw_graphs["event_graph_dynamic_rho"].indices).all())
+        self.assertTrue((raw_graphs["event_graph_dynamic"].weights == raw_graphs["event_graph_dynamic_rho"].weights).all())
+        self.assertTrue((raw_graphs["event_graph_dynamic_rho"].indices == raw_graphs["event_dtw_fusion_graph"].indices).all())
+        self.assertTrue((raw_graphs["event_graph_dynamic_rho"].weights == raw_graphs["event_dtw_fusion_graph"].weights).all())
+        self.assertTrue((dtw_only_graphs["dtw_demand_graph"].indices == dtw_only_graphs["event_dtw_fusion_graph"].indices).all())
+        self.assertTrue((dtw_only_graphs["dtw_demand_graph"].weights == dtw_only_graphs["event_dtw_fusion_graph"].weights).all())
+        self.assertAlmostEqual(float(raw_graphs["event_dtw_fusion_graph"].weights.sum(axis=-1).mean()), 1.0)
 
     def test_exp103_historical_correlation_graph_handles_constant_nodes_without_warning(self):
         from evcs.data.tensor_cache import build_tensor_cache
@@ -490,6 +572,23 @@ class EvcsStage5Tests(unittest.TestCase):
             self.assertEqual(captured, [])
             self.assertFalse(pd.isna(graphs["historical_correlation_graph"].weights).any())
 
+    def test_exp103_primary_metric_summary_ranks_baselines_and_deltas(self):
+        from training.train_exp103 import build_primary_metric_summary
+
+        baseline_rows = [
+            {"baseline_id": "behavior_concat", "MAE": 0.23, "RMSE": 0.4, "epochs_ran": 8},
+            {"baseline_id": "event_graph_dynamic", "MAE": 0.21, "RMSE": 0.39, "epochs_ran": 6},
+            {"baseline_id": "dtw_demand_graph", "MAE": 0.20, "RMSE": 0.38, "epochs_ran": 7},
+        ]
+
+        summary = build_primary_metric_summary(baseline_rows)
+
+        self.assertEqual(list(summary["baseline_id"]), ["dtw_demand_graph", "event_graph_dynamic", "behavior_concat"])
+        event_row = summary.set_index("baseline_id").loc["event_graph_dynamic"]
+        self.assertAlmostEqual(float(event_row["delta_vs_behavior_concat"]), -0.02)
+        self.assertAlmostEqual(float(event_row["delta_vs_dtw_graph"]), 0.01)
+        self.assertEqual(bool(event_row["is_best_mae"]), False)
+
     def test_exp103_graph_temporal_tcn_forward_contract_when_torch_available(self):
         torch = _maybe_import_torch()
         if torch is None:
@@ -515,6 +614,36 @@ class EvcsStage5Tests(unittest.TestCase):
         prediction = model(history_load, history_events, graph_indices, graph_weights)
 
         self.assertEqual(tuple(prediction.shape), (4, 2, 3))
+
+    def test_exp103_graph_temporal_tcn_gated_residual_forward_contract_when_torch_available(self):
+        torch = _maybe_import_torch()
+        if torch is None:
+            self.skipTest("PyTorch is not installed in the local smoke environment")
+        from evcs.models.graph_tcn import GraphTemporalTCN
+
+        model = GraphTemporalTCN(
+            load_channels=1,
+            event_channels=3,
+            hidden_channels=8,
+            tcn_layers=2,
+            kernel_size=3,
+            dropout=0.0,
+            horizon_steps=2,
+            use_events=True,
+            use_graph=True,
+            graph_mode="gated_residual",
+        )
+        history_load = torch.ones(4, 5, 3)
+        history_events = torch.ones(4, 5, 3, 3)
+        graph_indices = torch.tensor([[[1], [2], [0]]] * 4)
+        graph_weights = torch.ones(4, 3, 1)
+
+        prediction = model(history_load, history_events, graph_indices, graph_weights)
+
+        self.assertEqual(tuple(prediction.shape), (4, 2, 3))
+        self.assertIsNotNone(model.last_gate)
+        self.assertGreaterEqual(float(model.last_gate.min()), 0.0)
+        self.assertLessEqual(float(model.last_gate.max()), 1.0)
 
     def test_exp103_train_runner_writes_smoke_artifacts_when_torch_available(self):
         if _maybe_import_torch() is None:

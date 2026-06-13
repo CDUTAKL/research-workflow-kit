@@ -38,9 +38,85 @@ AUDIT_ZOTERO_COVERAGE = REPO_ROOT / "scripts" / "audit_zotero_coverage.py"
 EXPORT_ZOTERO_BIBLIOGRAPHY = REPO_ROOT / "scripts" / "export_zotero_bibliography.py"
 INIT_RESEARCH_WORKFLOW = REPO_ROOT / "init_research_workflow.py"
 AUDIT_PROJECT_SCOPE = REPO_ROOT / "scripts" / "audit_project_scope.py"
+COLLECT_EXP103_RESULTS = REPO_ROOT / "scripts" / "collect_exp103_results.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
+    def test_collect_exp103_results_builds_reproducible_ledger_without_touching_runs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            run_dir = project / "outputs" / "EXP-103-train-seed-42"
+            run_dir.mkdir(parents=True)
+            (run_dir / "baseline_metrics.csv").write_text(
+                textwrap.dedent(
+                    """\
+                    baseline_id,MAE,RMSE,prediction_count,best_validation_loss,epochs_ran,uses_events,uses_graph
+                    behavior_concat,0.023,0.31,100,0.032,8,True,False
+                    event_graph_dynamic,0.022,0.30,100,0.031,9,True,True
+                    dtw_demand_graph,0.021,0.29,100,0.030,7,True,True
+                    """
+                ),
+                encoding="utf-8",
+            )
+            (run_dir / "graph_ablation_table.csv").write_text(
+                textwrap.dedent(
+                    """\
+                    baseline_id,MAE,RMSE,delta_vs_behavior_concat,delta_vs_dtw_graph,graph_destruction_delta,conclusion_level
+                    event_graph_dynamic,0.022,0.30,-0.001,0.001,0.002,training_smoke_or_formal_lite
+                    """
+                ),
+                encoding="utf-8",
+            )
+            (run_dir / "manifest.json").write_text('{"hashes": {"baseline_metrics.csv": "abc"}}\n', encoding="utf-8")
+            (run_dir / "config_resolved.json").write_text(
+                json.dumps(
+                    {
+                        "seed": 42,
+                        "graph": {"rho": 0.7, "lambda_event": 0.3},
+                        "training": {"graph_mode": "gated_residual"},
+                        "features": {"include_time_context": True, "include_enhanced_events": True},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            before = (run_dir / "baseline_metrics.csv").read_text(encoding="utf-8")
+            out = project / "outputs" / "EXP-103-run-ledger.csv"
+            summary_out = project / "outputs" / "EXP-103-run-summary.csv"
+            optimization_out = project / "outputs" / "EXP-103-optimization-ledger.csv"
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(COLLECT_EXP103_RESULTS),
+                    "--outputs-root",
+                    str(project / "outputs"),
+                    "--out",
+                    str(out),
+                    "--summary-out",
+                    str(summary_out),
+                    "--optimization-out",
+                    str(optimization_out),
+                ],
+                cwd=project,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+
+            self.assertIn("wrote EXP-103 run ledger", result.stdout)
+            self.assertEqual((run_dir / "baseline_metrics.csv").read_text(encoding="utf-8"), before)
+            ledger = out.read_text(encoding="utf-8")
+            self.assertIn("EXP-103-train-seed-42", ledger)
+            self.assertIn("event_graph_dynamic", ledger)
+            self.assertIn("delta_vs_behavior_concat", ledger)
+            summary = summary_out.read_text(encoding="utf-8")
+            optimization = optimization_out.read_text(encoding="utf-8")
+            self.assertIn("MAE_mean", summary)
+            self.assertIn("event_vs_behavior_delta", optimization)
+            self.assertIn("event_vs_dtw_delta", optimization)
+            self.assertIn("gated_residual", optimization)
+
     def test_new_experiment_appends_registry_row_without_experiment_log(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)

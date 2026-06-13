@@ -24,6 +24,7 @@ def main() -> None:
     data_config = config.get("data", {})
     cache_config = config.get("cache", {})
     graph_config = config.get("graph", {})
+    feature_config = config.get("features", {})
 
     source_path = Path(str(data_config["source_path"]))
     tensor_cache_path = Path(str(cache_config.get("tensor_cache_path", "data/processed/evcs_tensor_cache.npz")))
@@ -40,6 +41,9 @@ def main() -> None:
         history_steps=int(cache_config.get("history_steps", 96)),
         horizon_steps=int(cache_config.get("horizon_steps", 4)),
         split_rule=dict(cache_config.get("split_rule", {"train": 0.7, "validation": 0.15, "test": 0.15})),
+        include_time_context=bool(feature_config.get("include_time_context", False)),
+        include_enhanced_events=bool(feature_config.get("include_enhanced_events", False)),
+        near_capacity_quantile=float(feature_config.get("near_capacity_quantile", 0.9)),
     )
     save_tensor_cache(cache, tensor_cache_path, split_path, manifest_path)
     print(f"wrote EXP-103 tensor cache to {tensor_cache_path}")
