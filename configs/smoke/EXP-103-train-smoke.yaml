@@ -26,6 +26,8 @@ graph:
     - load_jump_flag
   top_k: 1
   dtw_max_points: 8
+  dtw_cache_path: outputs/EXP-103-train-smoke-optimized/cache/dtw_demand_graph_top1_points8.npz
+  verbose: true
   rho: 0.7
   lambda_event: 0.3
 features:

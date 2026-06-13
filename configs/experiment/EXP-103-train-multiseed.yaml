@@ -28,6 +28,8 @@ graph:
   top_k: 5
   rho: 0.7
   dtw_max_points: 128
+  dtw_cache_path: data/processed/graphs/dtw_demand_graph_top5_points128.npz
+  verbose: true
 training:
   epochs: 12
   batch_size: 256

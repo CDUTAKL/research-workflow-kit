@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -38,6 +40,8 @@ def build_exp103_graph_cache(
     dtw_max_points: int | None = None,
     rho: float = 0.0,
     lambda_event: float = 0.3,
+    dtw_cache_path: str | Path | None = None,
+    verbose: bool = False,
 ) -> dict[str, SparseGraphCache]:
     if top_k < 1:
         raise ValueError("top_k must be >= 1")
@@ -60,7 +64,7 @@ def build_exp103_graph_cache(
         elif baseline_id == "event_graph_dynamic_rho":
             graphs[baseline_id] = smoothed_event_graph
         elif baseline_id == "dtw_demand_graph":
-            dtw_graph = dtw_graph or _dtw_graph(cache, top_k, train_end, dtw_max_points)
+            dtw_graph = dtw_graph or _dtw_graph(cache, top_k, train_end, dtw_max_points, dtw_cache_path, verbose)
             graphs[baseline_id] = dtw_graph
         elif baseline_id == "historical_correlation_graph":
             values = cache.load[: train_end + 1].T
@@ -69,7 +73,7 @@ def build_exp103_graph_cache(
             np.fill_diagonal(similarity, 0.0)
             graphs[baseline_id] = _static_graph(baseline_id, cache, similarity, top_k, train_end)
         elif baseline_id == "event_dtw_fusion_graph":
-            dtw_graph = dtw_graph or _dtw_graph(cache, top_k, train_end, dtw_max_points)
+            dtw_graph = dtw_graph or _dtw_graph(cache, top_k, train_end, dtw_max_points, dtw_cache_path, verbose)
             graphs[baseline_id] = _fusion_graph(cache, smoothed_event_graph, dtw_graph, top_k, lambda_event, train_end)
         elif baseline_id == "random_event_graph":
             graphs[baseline_id] = _random_like_event(cache, event_graph, rng)
@@ -100,14 +104,34 @@ def build_exp103_graph_cache(
     return graphs
 
 
-def _dtw_graph(cache: EVCSTensorCache, top_k: int, train_end: int, dtw_max_points: int | None) -> SparseGraphCache:
-    return _static_graph(
-        "dtw_demand_graph",
-        cache,
-        _dtw_similarity(_prepare_static_load(cache.load[: train_end + 1], dtw_max_points)),
-        top_k,
-        train_end,
-    )
+def _dtw_graph(
+    cache: EVCSTensorCache,
+    top_k: int,
+    train_end: int,
+    dtw_max_points: int | None,
+    dtw_cache_path: str | Path | None,
+    verbose: bool,
+) -> SparseGraphCache:
+    metadata = _dtw_metadata(cache, top_k, train_end, dtw_max_points)
+    if dtw_cache_path:
+        cached = _load_cached_dtw_graph(Path(dtw_cache_path), metadata, cache)
+        if cached is not None:
+            if verbose:
+                print(f"loaded cached DTW graph: {dtw_cache_path}", flush=True)
+            return cached
+    if verbose:
+        print(
+            "building DTW graph: "
+            f"nodes={len(cache.nodes)} train_end={train_end} dtw_max_points={dtw_max_points or 'full'}",
+            flush=True,
+        )
+    similarity = _dtw_similarity(_prepare_static_load(cache.load[: train_end + 1], dtw_max_points), verbose=verbose)
+    graph = _static_graph("dtw_demand_graph", cache, similarity, top_k, train_end)
+    if dtw_cache_path:
+        _save_cached_dtw_graph(Path(dtw_cache_path), graph, metadata)
+        if verbose:
+            print(f"saved DTW graph cache: {dtw_cache_path}", flush=True)
+    return graph
 
 
 def _dynamic_event_graph(cache: EVCSTensorCache, top_k: int) -> SparseGraphCache:
@@ -251,15 +275,22 @@ def _prepare_static_load(load: np.ndarray, max_points: int | None) -> np.ndarray
     return values.T
 
 
-def _dtw_similarity(values: np.ndarray) -> np.ndarray:
+def _dtw_similarity(values: np.ndarray, verbose: bool = False) -> np.ndarray:
     count = values.shape[0]
     similarity = np.zeros((count, count), dtype=np.float32)
+    total_pairs = count * (count - 1) // 2
+    completed_pairs = 0
+    progress_interval = max(1, total_pairs // 20)
     for left in range(count):
         for right in range(left + 1, count):
             distance = _dtw_distance(values[left], values[right])
             weight = 1.0 / (1.0 + distance)
             similarity[left, right] = weight
             similarity[right, left] = weight
+            completed_pairs += 1
+            if verbose and (completed_pairs == 1 or completed_pairs == total_pairs or completed_pairs % progress_interval == 0):
+                percent = completed_pairs / max(1, total_pairs) * 100.0
+                print(f"building DTW graph: pair {completed_pairs}/{total_pairs} ({percent:.1f}%)", flush=True)
     return similarity
 
 
@@ -330,3 +361,53 @@ def _cosine_similarity(values: np.ndarray) -> np.ndarray:
     norm[norm == 0] = 1.0
     normalized = values / norm
     return normalized @ normalized.T
+
+
+def _dtw_metadata(cache: EVCSTensorCache, top_k: int, train_end: int, dtw_max_points: int | None) -> dict[str, Any]:
+    train_load = cache.load[: train_end + 1]
+    return {
+        "baseline_id": "dtw_demand_graph",
+        "node_count": len(cache.nodes),
+        "nodes": cache.nodes,
+        "origin_count": len(cache.origin_indices),
+        "top_k": int(top_k),
+        "train_end": int(train_end),
+        "dtw_max_points": int(dtw_max_points) if dtw_max_points is not None else None,
+        "load_shape": list(cache.load.shape),
+        "train_load_fingerprint": {
+            "sum": float(train_load.sum()),
+            "mean": float(train_load.mean()) if train_load.size else 0.0,
+            "std": float(train_load.std()) if train_load.size else 0.0,
+        },
+    }
+
+
+def _load_cached_dtw_graph(path: Path, expected_metadata: dict[str, Any], cache: EVCSTensorCache) -> SparseGraphCache | None:
+    if not path.exists():
+        return None
+    try:
+        payload = np.load(path, allow_pickle=False)
+        metadata = json.loads(str(payload["metadata"].item()))
+    except (OSError, KeyError, ValueError, json.JSONDecodeError):
+        return None
+    if metadata != expected_metadata:
+        return None
+    return SparseGraphCache(
+        baseline_id="dtw_demand_graph",
+        indices=payload["indices"].astype(np.int32),
+        weights=payload["weights"].astype(np.float32),
+        nodes=cache.nodes,
+        dynamic=False,
+        train_origin_end=int(metadata["train_end"]),
+        top_k=int(metadata["top_k"]),
+    )
+
+
+def _save_cached_dtw_graph(path: Path, graph: SparseGraphCache, metadata: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        path,
+        indices=graph.indices.astype(np.int32),
+        weights=graph.weights.astype(np.float32),
+        metadata=np.asarray(json.dumps(metadata, ensure_ascii=False, sort_keys=True)),
+    )

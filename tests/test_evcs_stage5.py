@@ -540,6 +540,56 @@ class EvcsStage5Tests(unittest.TestCase):
         self.assertTrue((dtw_only_graphs["dtw_demand_graph"].weights == dtw_only_graphs["event_dtw_fusion_graph"].weights).all())
         self.assertAlmostEqual(float(raw_graphs["event_dtw_fusion_graph"].weights.sum(axis=-1).mean()), 1.0)
 
+    def test_exp103_dtw_graph_cache_reuses_precomputed_static_graph(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+
+        from evcs.data.tensor_cache import build_tensor_cache
+        from evcs.graphs.cache import build_exp103_graph_cache
+
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            source = project / "timeslice.csv"
+            dtw_cache = project / "dtw_graph.npz"
+            _write_training_timeslice_fixture(source, periods=12, nodes=("A", "B", "C"))
+            cache = build_tensor_cache(
+                pd.read_csv(source),
+                timestamp_field="timestamp",
+                node_field="node_id",
+                target_field="load",
+                event_feature_fields=["access_count", "departure_count", "active_count", "occupancy_rate"],
+                history_steps=3,
+                horizon_steps=1,
+                split_rule={"train": 0.5, "validation": 0.25, "test": 0.25},
+            )
+
+            first_stdout = StringIO()
+            with redirect_stdout(first_stdout):
+                first = build_exp103_graph_cache(
+                    cache,
+                    baseline_ids=["dtw_demand_graph"],
+                    top_k=1,
+                    seed=42,
+                    dtw_cache_path=dtw_cache,
+                    verbose=True,
+                )
+            second_stdout = StringIO()
+            with redirect_stdout(second_stdout):
+                second = build_exp103_graph_cache(
+                    cache,
+                    baseline_ids=["dtw_demand_graph"],
+                    top_k=1,
+                    seed=42,
+                    dtw_cache_path=dtw_cache,
+                    verbose=True,
+                )
+
+            self.assertTrue(dtw_cache.exists())
+            self.assertIn("building DTW graph", first_stdout.getvalue())
+            self.assertIn("loaded cached DTW graph", second_stdout.getvalue())
+            self.assertTrue((first["dtw_demand_graph"].indices == second["dtw_demand_graph"].indices).all())
+            self.assertTrue((first["dtw_demand_graph"].weights == second["dtw_demand_graph"].weights).all())
+
     def test_exp103_historical_correlation_graph_handles_constant_nodes_without_warning(self):
         from evcs.data.tensor_cache import build_tensor_cache
         from evcs.graphs.cache import build_exp103_graph_cache

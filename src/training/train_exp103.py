@@ -77,6 +77,8 @@ def main() -> None:
         dtw_max_points=int(graph_config["dtw_max_points"]) if graph_config.get("dtw_max_points") else None,
         rho=float(graph_config.get("rho", 0.0)),
         lambda_event=float(graph_config.get("lambda_event", 0.3)),
+        dtw_cache_path=graph_config.get("dtw_cache_path"),
+        verbose=bool(graph_config.get("verbose", True)),
     )
     write_json(
         out_dir / "graph_manifest.json",
@@ -86,6 +88,7 @@ def main() -> None:
                 "top_k": int(graph_config.get("top_k", 5)),
                 "rho": float(graph_config.get("rho", 0.0)),
                 "lambda_event": float(graph_config.get("lambda_event", 0.3)),
+                "dtw_cache_path": str(graph_config.get("dtw_cache_path", "")),
                 "causal_static_graph_policy": "dtw/correlation use train split load only",
                 "causal_dynamic_graph_policy": "event graph uses each origin history window only",
             },
