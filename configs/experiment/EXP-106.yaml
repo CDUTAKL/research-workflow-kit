@@ -1,0 +1,17 @@
+experiment_id: EXP-106
+seed: 42
+split: chronological_70_15_15
+metric: sensitivity_delta
+output: outputs/EXP-106
+sensitivity:
+  base_experiments:
+    - EXP-103
+    - EXP-104
+    - EXP-105
+  time_granularity: ["15min", "30min"]
+  lookback_hours: [12, 24, 48]
+  smoothing_rho: [0, 0.5, 0.7, 0.9]
+  node_routes:
+    - evse_or_space
+    - station_aggregate
+  seeds: [42, 2026, 3407]

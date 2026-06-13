@@ -1,0 +1,16 @@
+experiment_id: EXP-104
+seed: 42
+split: smoke_chronological
+metric: WIS
+output: outputs/EXP-104-smoke
+data:
+  source_path: tests/fixtures/evcs_timeslice_smoke.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+interval:
+  quantiles: [0.1, 0.5, 0.9]
+  calibration_scope: validation_only
+  calibration_modes:
+    - global
+    - event_state_grouped

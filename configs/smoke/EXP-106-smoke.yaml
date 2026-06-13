@@ -1,0 +1,14 @@
+experiment_id: EXP-106
+seed: 42
+split: smoke_chronological
+metric: sensitivity_delta
+output: outputs/EXP-106-smoke
+sensitivity:
+  base_experiments:
+    - EXP-103
+  time_granularity: ["15min", "30min"]
+  lookback_hours: [12, 24]
+  smoothing_rho: [0, 0.7]
+  node_routes:
+    - station_aggregate
+  seeds: [42]

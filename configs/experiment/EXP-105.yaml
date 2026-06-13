@@ -1,0 +1,17 @@
+experiment_id: EXP-105
+seed: 42
+split: chronological_70_15_15
+metric: missed_risk_rate
+output: outputs/EXP-105
+data:
+  predictions_path: outputs/EXP-104/predictions_quantiles.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+risk:
+  threshold_source: train_quantile_proxy
+  threshold_quantiles: [0.9, 0.95, 0.98]
+  methods:
+    - point_threshold
+    - interval_upper_bound
+    - historical_peak_threshold

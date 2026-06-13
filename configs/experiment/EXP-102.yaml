@@ -1,0 +1,12 @@
+experiment_id: EXP-102
+seed: 42
+split: chronological_70_15_15
+metric: MAE
+output: outputs/EXP-102
+data:
+  source_path: data/processed/evcs_timeslice.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+model:
+  baseline_id: persistence

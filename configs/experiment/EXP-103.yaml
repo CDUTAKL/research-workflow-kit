@@ -1,0 +1,30 @@
+experiment_id: EXP-103
+seed: 42
+split: chronological_70_15_15
+metric: event_window_MAE
+output: outputs/EXP-103
+data:
+  source_path: data/processed/evcs_timeslice.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+graph:
+  event_feature_fields:
+    - access_count
+    - departure_count
+    - active_count
+    - occupancy_rate
+    - demand_intensity
+    - load_jump_flag
+  similarity: cosine
+  top_k: 5
+  rho: 0.7
+  dtw_resample: 1D
+  dtw_max_points: 128
+baselines:
+  - behavior_concat
+  - dtw_demand_graph
+  - historical_correlation_graph
+  - random_event_graph
+  - shuffled_event_graph
+  - deleted_event_graph

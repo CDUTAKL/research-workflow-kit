@@ -12,10 +12,18 @@ ignore = [
 "scripts/stress_test_templates.py" = ["E402", "F403", "F405"]
 "scripts/plugin_gate_advisor.py" = ["UP045"]
 "tests/test_research_workflow_scripts.py" = ["B011"]
+"src/data/audit_evcs_data.py" = ["E402"]
+"src/data/fetch_acn_data.py" = ["E402"]
+"src/data/build_evcs_tensor_cache.py" = ["E402"]
+"src/data/merge_acn_sessions.py" = ["E402"]
+"src/data/prepare_evcs_timeslices.py" = ["E402"]
+"src/training/run_graph_ablation.py" = ["E402"]
+"src/training/run_evcs_forecast.py" = ["E402"]
+"src/training/train_exp103.py" = ["E402"]
 
 [tool.coverage.run]
 branch = true
-source = ["scripts"]
+source = ["scripts", "src"]
 omit = ["*/scripts/stress_test_templates.py"]
 patch = ["subprocess"]
 

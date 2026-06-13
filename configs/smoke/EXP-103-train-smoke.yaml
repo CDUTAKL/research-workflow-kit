@@ -1,0 +1,49 @@
+experiment_id: EXP-103
+seed: 42
+split: smoke_chronological
+metric: MAE
+output: outputs/EXP-103-train-smoke
+data:
+  source_path: tests/fixtures/evcs_timeslice_smoke.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+cache:
+  tensor_cache_path: outputs/EXP-103-train-smoke/cache/evcs_tensor_cache.npz
+  split_path: outputs/EXP-103-train-smoke/cache/chronological_70_15_15.json
+  manifest_path: outputs/EXP-103-train-smoke/cache/evcs_tensor_cache_manifest.json
+  history_steps: 2
+  horizon_steps: 1
+  split_rule: {'train': 0.5, 'validation': 0.25, 'test': 0.25}
+  auto_build: true
+graph:
+  event_feature_fields:
+    - access_count
+    - departure_count
+    - active_count
+    - occupancy_rate
+    - demand_intensity
+    - load_jump_flag
+  top_k: 1
+  dtw_max_points: 8
+training:
+  epochs: 1
+  batch_size: 2
+  hidden_channels: 8
+  tcn_layers: 1
+  kernel_size: 3
+  dropout: 0.0
+  optimizer: AdamW
+  lr: 0.001
+  loss: SmoothL1
+  early_stopping_patience: 1
+  amp: false
+  num_workers: 0
+  pin_memory: false
+  max_train_batches: 2
+  max_eval_batches: 2
+baselines:
+  - no_graph
+  - behavior_concat
+  - event_graph_dynamic
+  - dtw_demand_graph

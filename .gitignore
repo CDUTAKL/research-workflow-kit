@@ -36,7 +36,7 @@ id_ed25519*
 cookies.*
 
 # Research data and generated outputs
-data/
+/data/
 datasets/
 outputs/
 output/

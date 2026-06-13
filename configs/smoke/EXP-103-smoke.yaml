@@ -1,0 +1,26 @@
+experiment_id: EXP-103
+seed: 42
+split: smoke_chronological
+metric: event_window_MAE
+output: outputs/EXP-103-smoke
+data:
+  source_path: tests/fixtures/evcs_timeslice_smoke.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+graph:
+  event_feature_fields:
+    - access_count
+    - departure_count
+    - active_count
+    - occupancy_rate
+    - demand_intensity
+    - load_jump_flag
+  similarity: cosine
+  top_k: 1
+  rho: 0.7
+baselines:
+  - behavior_concat
+  - dtw_demand_graph
+  - random_event_graph
+  - shuffled_event_graph

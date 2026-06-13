@@ -1,0 +1,26 @@
+experiment_id: EXP-101
+seed: 42
+split: chronological_70_15_15
+metric: field_coverage
+output: outputs/EXP-101
+data:
+  source_path: data/raw/acn_sessions.csv
+  timestamp_field: connectionTime
+  required_fields:
+    - connectionTime
+    - disconnectTime
+    - doneChargingTime
+    - kWhDelivered
+    - stationID
+  node_candidates:
+    - spaceID
+    - EVSEID
+    - stationID
+  blocked_feature_fields:
+    - disconnectTime
+    - doneChargingTime
+    - kWhDelivered
+  split_rule:
+    train: 0.7
+    validation: 0.15
+    test: 0.15

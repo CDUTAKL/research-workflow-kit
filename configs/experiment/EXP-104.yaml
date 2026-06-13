@@ -1,0 +1,16 @@
+experiment_id: EXP-104
+seed: 42
+split: chronological_70_15_15
+metric: WIS
+output: outputs/EXP-104
+data:
+  source_path: data/processed/evcs_timeslice.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+interval:
+  quantiles: [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95]
+  calibration_scope: validation_only
+  calibration_modes:
+    - global
+    - event_state_grouped

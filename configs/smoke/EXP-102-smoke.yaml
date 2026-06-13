@@ -1,0 +1,12 @@
+experiment_id: EXP-102
+seed: 42
+split: smoke_chronological
+metric: MAE
+output: outputs/EXP-102-smoke
+data:
+  source_path: tests/fixtures/evcs_timeslice_smoke.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+model:
+  baseline_id: persistence
