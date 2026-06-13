@@ -53,6 +53,10 @@ training:
   pin_memory: true
   graph_mode: gated_residual
   write_full_predictions: false
+progress:
+  terminal_bar: true
+  live_html: true
+  refresh_seconds: 10
 baselines:
   - no_graph
   - behavior_concat

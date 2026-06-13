@@ -44,6 +44,10 @@ training:
   pin_memory: true
   verbose: true
   write_full_predictions: false
+progress:
+  terminal_bar: true
+  live_html: true
+  refresh_seconds: 10
 baselines:
   - no_graph
   - behavior_concat

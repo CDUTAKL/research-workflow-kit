@@ -49,6 +49,10 @@ training:
   graph_mode: gated_residual
   max_train_batches: 2
   max_eval_batches: 2
+progress:
+  terminal_bar: true
+  live_html: true
+  refresh_seconds: 5
 baselines:
   - no_graph
   - behavior_concat

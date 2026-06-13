@@ -589,6 +589,62 @@ class EvcsStage5Tests(unittest.TestCase):
         self.assertAlmostEqual(float(event_row["delta_vs_dtw_graph"]), 0.01)
         self.assertEqual(bool(event_row["is_best_mae"]), False)
 
+    def test_exp103_progress_helpers_render_terminal_line_and_dashboard(self):
+        from training.train_exp103 import _format_epoch_progress, _write_training_dashboard
+
+        curve_rows = [
+            {
+                "baseline_id": "event_graph_dynamic",
+                "epoch": 1,
+                "train_loss": 0.5,
+                "validation_loss": 0.4,
+                "best_validation_loss": 0.4,
+                "improved": True,
+                "epoch_seconds": 1.2,
+                "lr": 0.001,
+            },
+            {
+                "baseline_id": "event_graph_dynamic",
+                "epoch": 2,
+                "train_loss": 0.4,
+                "validation_loss": 0.35,
+                "best_validation_loss": 0.35,
+                "improved": True,
+                "epoch_seconds": 1.1,
+                "lr": 0.001,
+            },
+        ]
+
+        line = _format_epoch_progress(
+            "event_graph_dynamic",
+            2,
+            10,
+            0.4,
+            0.35,
+            0.35,
+            0.001,
+            1.1,
+            curve_rows,
+            improved=True,
+        )
+        self.assertIn("[####", line)
+        self.assertIn("val:", line)
+        with tempfile.TemporaryDirectory() as tmp:
+            dashboard = Path(tmp) / "training_dashboard.html"
+            _write_training_dashboard(
+                dashboard,
+                curve_rows,
+                [{"baseline_id": "event_graph_dynamic", "MAE": 0.02, "RMSE": 0.03, "best_epoch": 2}],
+                ["event_graph_dynamic", "dtw_demand_graph"],
+                active_baseline="event_graph_dynamic",
+                refresh_seconds=5,
+            )
+            html = dashboard.read_text(encoding="utf-8")
+
+        self.assertIn("EXP-103 Training Dashboard", html)
+        self.assertIn("event_graph_dynamic", html)
+        self.assertIn("polyline", html)
+
     def test_exp103_graph_temporal_tcn_forward_contract_when_torch_available(self):
         torch = _maybe_import_torch()
         if torch is None:

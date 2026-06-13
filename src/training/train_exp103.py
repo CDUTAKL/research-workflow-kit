@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import platform
 import sys
 import time
@@ -110,6 +111,8 @@ def main() -> None:
             device,
             out_dir / "checkpoints" / f"best_{baseline_id}.pt",
             log_lines,
+            out_dir,
+            baseline_ids,
         )
         baseline_rows.append(train_result["metrics"])
         event_rows.extend(train_result["event_metrics"])
@@ -117,6 +120,14 @@ def main() -> None:
         sample_rows.extend(train_result["samples"])
         metrics_by_baseline[baseline_id] = train_result["metrics"]
         log_lines.append(f"{baseline_id}: test_MAE={train_result['metrics']['MAE']:.6f}")
+        _write_training_dashboard(
+            out_dir / "training_dashboard.html",
+            curve_rows,
+            baseline_rows,
+            baseline_ids,
+            active_baseline=None,
+            refresh_seconds=int(config.get("progress", {}).get("refresh_seconds", 10)),
+        )
 
     graph_rows = _graph_ablation_rows(baseline_rows, metrics_by_baseline)
     primary_summary = build_primary_metric_summary(baseline_rows)
@@ -141,6 +152,8 @@ def main() -> None:
         "config_resolved.json",
         "environment.txt",
         "metric_guide.md",
+        "training_dashboard.html",
+        "logs/progress_events.jsonl",
         "logs/train.log",
     ]
     write_manifest(out_dir, str(config.get("experiment_id", "EXP-103")), artifacts)
@@ -204,6 +217,8 @@ def _train_one_baseline(
     device,
     checkpoint_path: Path,
     log_lines: list[str],
+    out_dir: Path,
+    baseline_ids: list[str],
 ) -> dict[str, Any]:
     training_config = config.get("training", {})
     use_events = baseline_id != "no_graph"
@@ -246,6 +261,10 @@ def _train_one_baseline(
     epochs = int(training_config.get("epochs", 20))
     patience = int(training_config.get("early_stopping_patience", 4))
     verbose = bool(training_config.get("verbose", True))
+    progress_config = config.get("progress", {})
+    terminal_progress = bool(progress_config.get("terminal_bar", True))
+    live_html = bool(progress_config.get("live_html", True))
+    refresh_seconds = int(progress_config.get("refresh_seconds", 10))
     best_val = float("inf")
     stale_epochs = 0
     curve_rows = []
@@ -272,15 +291,46 @@ def _train_one_baseline(
                 "lr": current_lr,
             }
         )
-        progress_line = (
-            f"[{baseline_id}] epoch {epoch}/{epochs} "
-            f"train_loss={train_loss:.6f} val_loss={val_loss:.6f} "
-            f"best_val={min(best_val, val_loss):.6f} "
-            f"lr={current_lr:.6g} seconds={epoch_seconds:.1f}"
+        progress_line = _format_epoch_progress(
+            baseline_id,
+            epoch,
+            epochs,
+            train_loss,
+            val_loss,
+            min(best_val, val_loss),
+            current_lr,
+            epoch_seconds,
+            curve_rows,
+            improved=improved,
+            terminal_bar=terminal_progress,
         )
         log_lines.append(progress_line)
         if verbose:
             print(progress_line, flush=True)
+        _append_progress_event(
+            out_dir / "logs" / "progress_events.jsonl",
+            {
+                "event": "epoch",
+                "baseline_id": baseline_id,
+                "epoch": epoch,
+                "epochs": epochs,
+                "train_loss": train_loss,
+                "validation_loss": val_loss,
+                "best_validation_loss": min(best_val, val_loss),
+                "lr": current_lr,
+                "epoch_seconds": epoch_seconds,
+                "improved": improved,
+            },
+        )
+        if live_html:
+            _write_training_dashboard(
+                out_dir / "training_dashboard.html",
+                curve_rows,
+                [],
+                baseline_ids,
+                active_baseline=baseline_id,
+                refresh_seconds=refresh_seconds,
+            )
         if improved:
             best_val = val_loss
             best_epoch = epoch
@@ -321,6 +371,18 @@ def _train_one_baseline(
     log_lines.append(summary_line)
     if verbose:
         print(summary_line, flush=True)
+    _append_progress_event(
+        out_dir / "logs" / "progress_events.jsonl",
+        {
+            "event": "baseline_complete",
+            "baseline_id": baseline_id,
+            "MAE": metrics["MAE"],
+            "RMSE": metrics["RMSE"],
+            "best_epoch": best_epoch,
+            "epochs_ran": len(curve_rows),
+            "train_seconds": baseline_seconds,
+        },
+    )
     return {
         "metrics": metrics,
         "event_metrics": _event_window_metrics(baseline_id, eval_payload, cache),
@@ -557,6 +619,207 @@ def _make_grad_scaler(use_amp: bool):
     if hasattr(torch, "amp") and hasattr(torch.amp, "GradScaler"):
         return torch.amp.GradScaler("cuda", enabled=use_amp)
     return torch.cuda.amp.GradScaler(enabled=use_amp)
+
+
+def _format_epoch_progress(
+    baseline_id: str,
+    epoch: int,
+    epochs: int,
+    train_loss: float,
+    val_loss: float,
+    best_val: float,
+    lr: float,
+    epoch_seconds: float,
+    curve_rows: list[dict[str, Any]],
+    improved: bool,
+    terminal_bar: bool = True,
+) -> str:
+    if not terminal_bar:
+        return (
+            f"[{baseline_id}] epoch {epoch}/{epochs} "
+            f"train_loss={train_loss:.6f} val_loss={val_loss:.6f} best_val={best_val:.6f} "
+            f"lr={lr:.6g} seconds={epoch_seconds:.1f}"
+        )
+    fraction = min(1.0, max(0.0, epoch / max(1, epochs)))
+    bar = _ascii_progress_bar(fraction, width=24)
+    recent_val = [float(row["validation_loss"]) for row in curve_rows if row.get("baseline_id") == baseline_id][-12:]
+    spark = _sparkline(recent_val)
+    marker = "best" if improved else "wait"
+    return (
+        f"[{baseline_id}] {bar} {epoch:02d}/{epochs:02d} {marker:<4} "
+        f"train={train_loss:.6f} val={val_loss:.6f} best={best_val:.6f} "
+        f"lr={lr:.3g} {epoch_seconds:.1f}s val:{spark}"
+    )
+
+
+def _ascii_progress_bar(fraction: float, width: int = 24) -> str:
+    filled = int(round(width * fraction))
+    return "[" + "#" * filled + "." * (width - filled) + f"] {fraction * 100:5.1f}%"
+
+
+def _sparkline(values: list[float]) -> str:
+    if not values:
+        return ""
+    ticks = "▁▂▃▄▅▆▇█"
+    low = min(values)
+    high = max(values)
+    if math.isclose(low, high):
+        return ticks[0] * len(values)
+    return "".join(ticks[min(len(ticks) - 1, int((value - low) / (high - low) * (len(ticks) - 1)))] for value in values)
+
+
+def _append_progress_event(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    event = {"timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"), **payload}
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(event, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def _write_training_dashboard(
+    path: Path,
+    curve_rows: list[dict[str, Any]],
+    baseline_rows: list[dict[str, Any]],
+    baseline_ids: list[str],
+    active_baseline: str | None,
+    refresh_seconds: int,
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    latest_rows = _latest_curve_by_baseline(curve_rows)
+    ranking_rows = sorted(baseline_rows, key=lambda row: float(row.get("MAE", "inf")))
+    cards = "".join(_baseline_card(baseline_id, latest_rows.get(baseline_id), active_baseline) for baseline_id in baseline_ids)
+    ranking = "".join(
+        f"<tr><td>{index + 1}</td><td>{row['baseline_id']}</td><td>{float(row['MAE']):.6f}</td>"
+        f"<td>{float(row['RMSE']):.6f}</td><td>{int(row.get('best_epoch', 0))}</td></tr>"
+        for index, row in enumerate(ranking_rows)
+    )
+    html = f"""<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="{max(3, refresh_seconds)}">
+  <title>EXP-103 Training Dashboard</title>
+  <style>
+    :root {{ color-scheme: light; --ink:#17202a; --muted:#5d6d7e; --line:#d7dbdd; --blue:#246bfe; --green:#138d75; --amber:#b9770e; }}
+    body {{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; color:var(--ink); background:#f6f8fb; }}
+    main {{ max-width:1180px; margin:0 auto; padding:28px; }}
+    h1 {{ margin:0 0 6px; font-size:28px; letter-spacing:0; }}
+    .sub {{ color:var(--muted); margin-bottom:20px; }}
+    .cards {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:18px 0 24px; }}
+    .card {{ background:white; border:1px solid var(--line); border-radius:8px; padding:14px; box-shadow:0 1px 2px rgba(0,0,0,.04); }}
+    .active {{ border-color:var(--blue); box-shadow:0 0 0 2px rgba(36,107,254,.10); }}
+    .name {{ font-weight:700; margin-bottom:8px; }}
+    .metric {{ color:var(--muted); font-size:13px; line-height:1.7; }}
+    .bar {{ height:8px; background:#eaeef5; border-radius:999px; overflow:hidden; margin-top:10px; }}
+    .fill {{ height:100%; background:linear-gradient(90deg,var(--blue),var(--green)); }}
+    .panel {{ background:white; border:1px solid var(--line); border-radius:8px; padding:18px; margin-bottom:18px; }}
+    svg {{ width:100%; height:auto; display:block; }}
+    table {{ width:100%; border-collapse:collapse; font-size:14px; }}
+    th,td {{ border-bottom:1px solid var(--line); padding:9px 8px; text-align:left; }}
+    th {{ color:var(--muted); font-weight:600; }}
+    .foot {{ color:var(--muted); font-size:12px; margin-top:16px; }}
+  </style>
+</head>
+<body>
+<main>
+  <h1>EXP-103 Training Dashboard</h1>
+  <div class="sub">自动刷新：{max(3, refresh_seconds)} 秒。蓝线为 validation loss，绿线为 train loss；数值越低越好。</div>
+  <section class="cards">{cards}</section>
+  <section class="panel">
+    <h2>Loss Curves</h2>
+    {_svg_loss_chart(curve_rows)}
+  </section>
+  <section class="panel">
+    <h2>Current Test Ranking</h2>
+    <table><thead><tr><th>Rank</th><th>Baseline</th><th>MAE</th><th>RMSE</th><th>Best Epoch</th></tr></thead><tbody>{ranking}</tbody></table>
+  </section>
+  <div class="foot">Generated at {time.strftime("%Y-%m-%d %H:%M:%S")} from training_curves.csv-compatible rows.</div>
+</main>
+</body>
+</html>
+"""
+    path.write_text(html, encoding="utf-8")
+
+
+def _latest_curve_by_baseline(curve_rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    latest: dict[str, dict[str, Any]] = {}
+    for row in curve_rows:
+        latest[str(row["baseline_id"])] = row
+    return latest
+
+
+def _baseline_card(baseline_id: str, row: dict[str, Any] | None, active_baseline: str | None) -> str:
+    css_class = "card active" if baseline_id == active_baseline else "card"
+    if row is None:
+        return f'<div class="{css_class}"><div class="name">{baseline_id}</div><div class="metric">waiting</div><div class="bar"><div class="fill" style="width:0%"></div></div></div>'
+    epoch = int(row["epoch"])
+    width = min(100.0, 100.0 * epoch / max(1, epoch))
+    return (
+        f'<div class="{css_class}"><div class="name">{baseline_id}</div>'
+        f'<div class="metric">epoch {epoch} · train {float(row["train_loss"]):.6f}<br>'
+        f'val {float(row["validation_loss"]):.6f} · best {float(row["best_validation_loss"]):.6f}<br>'
+        f'lr {float(row["lr"]):.3g} · {float(row["epoch_seconds"]):.1f}s</div>'
+        f'<div class="bar"><div class="fill" style="width:{width:.1f}%"></div></div></div>'
+    )
+
+
+def _svg_loss_chart(curve_rows: list[dict[str, Any]]) -> str:
+    if not curve_rows:
+        return '<svg viewBox="0 0 760 260" role="img"><text x="24" y="132" fill="#5d6d7e">等待第一个 epoch...</text></svg>'
+    width, height = 760, 260
+    pad_left, pad_top, pad_right, pad_bottom = 56, 24, 20, 44
+    plot_w = width - pad_left - pad_right
+    plot_h = height - pad_top - pad_bottom
+    values = [float(row["train_loss"]) for row in curve_rows] + [float(row["validation_loss"]) for row in curve_rows]
+    low, high = min(values), max(values)
+    if math.isclose(low, high):
+        high = low + 1.0
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for row in curve_rows:
+        grouped.setdefault(str(row["baseline_id"]), []).append(row)
+    colors = ["#246bfe", "#138d75", "#b9770e", "#8e44ad", "#c0392b", "#2e86c1", "#566573", "#16a085", "#d35400", "#7d3c98"]
+    paths = []
+    legends = []
+    for index, (baseline_id, rows) in enumerate(grouped.items()):
+        color = colors[index % len(colors)]
+        max_epoch = max(int(row["epoch"]) for row in rows)
+        train_points = _svg_points(rows, "train_loss", max_epoch, low, high, pad_left, pad_top, plot_w, plot_h)
+        val_points = _svg_points(rows, "validation_loss", max_epoch, low, high, pad_left, pad_top, plot_w, plot_h)
+        paths.append(f'<polyline points="{train_points}" fill="none" stroke="{color}" stroke-width="2" opacity=".45"/>')
+        paths.append(f'<polyline points="{val_points}" fill="none" stroke="{color}" stroke-width="3"/>')
+        legends.append(f'<span style="display:inline-block;margin-right:14px;color:{color}">● {baseline_id}</span>')
+    grid = "".join(
+        f'<line x1="{pad_left}" y1="{pad_top + plot_h * i / 4:.1f}" x2="{width - pad_right}" y2="{pad_top + plot_h * i / 4:.1f}" stroke="#e5e8ec"/>'
+        for i in range(5)
+    )
+    return (
+        f'<svg viewBox="0 0 {width} {height}" role="img">'
+        f'{grid}<line x1="{pad_left}" y1="{pad_top}" x2="{pad_left}" y2="{height - pad_bottom}" stroke="#85929e"/>'
+        f'<line x1="{pad_left}" y1="{height - pad_bottom}" x2="{width - pad_right}" y2="{height - pad_bottom}" stroke="#85929e"/>'
+        f'{"".join(paths)}'
+        f'<text x="{pad_left}" y="{height - 14}" fill="#5d6d7e">epoch</text>'
+        f'<text x="8" y="{pad_top + 12}" fill="#5d6d7e">loss</text>'
+        f'</svg><div class="foot">{"".join(legends)}<br>粗线 validation loss，细线 train loss。</div>'
+    )
+
+
+def _svg_points(
+    rows: list[dict[str, Any]],
+    field: str,
+    max_epoch: int,
+    low: float,
+    high: float,
+    pad_left: int,
+    pad_top: int,
+    plot_w: int,
+    plot_h: int,
+) -> str:
+    points = []
+    for row in rows:
+        epoch = int(row["epoch"])
+        x = pad_left + plot_w * (epoch - 1) / max(1, max_epoch - 1)
+        y = pad_top + plot_h * (1.0 - (float(row[field]) - low) / (high - low))
+        points.append(f"{x:.1f},{y:.1f}")
+    return " ".join(points)
 
 
 def _make_scheduler(optimizer, training_config):
