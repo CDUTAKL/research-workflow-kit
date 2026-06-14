@@ -1,0 +1,86 @@
+experiment_id: EXP-103
+seed: 42
+split: smoke_chronological
+metric: MAE
+output: outputs/EXP-103-v3-smoke
+data:
+  source_path: tests/fixtures/evcs_timeslice_smoke.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+cache:
+  tensor_cache_path: outputs/EXP-103-v3-smoke/cache/evcs_tensor_cache.npz
+  split_path: outputs/EXP-103-v3-smoke/cache/chronological_70_15_15.json
+  manifest_path: outputs/EXP-103-v3-smoke/cache/evcs_tensor_cache_manifest.json
+  history_steps: 2
+  horizon_steps: 1
+  split_rule: {'train': 0.5, 'validation': 0.25, 'test': 0.25}
+  auto_build: true
+graph:
+  event_feature_fields:
+    - access_count
+    - departure_count
+    - active_count
+    - occupancy_rate
+    - demand_intensity
+    - load_jump_flag
+  top_k: 1
+  rho: 0.7
+  lambda_event: 0.3
+  dtw_max_points: 8
+  dtw_cache_path: outputs/EXP-103-v3-smoke/cache/dtw_demand_graph_top1_points8.npz
+  verbose: true
+features:
+  include_time_context: true
+  include_enhanced_events: true
+  near_capacity_quantile: 0.9
+loss_weighting:
+  enabled: true
+  base_weight: 1.0
+  max_weight: 6.0
+  windows:
+    access_count: 3.0
+    departure_count: 3.0
+    load_jump_flag: 3.0
+    near_capacity_proxy: 2.5
+    active_count_high: 1.5
+    occupancy_rate_high: 1.5
+training:
+  epochs: 2
+  batch_size: 2
+  hidden_channels: 8
+  tcn_layers: 1
+  kernel_size: 3
+  dropout: 0.0
+  optimizer: AdamW
+  lr: 0.001
+  loss: SmoothL1
+  early_stopping_patience: 1
+  early_stopping_min_epochs:
+    default: 0
+    event_graph_dynamic: 2
+    event_graph_multichannel: 2
+    historical_event_dual_graph: 2
+  amp: false
+  num_workers: 0
+  pin_memory: false
+  graph_mode: concat
+  baseline_graph_modes:
+    event_graph_multichannel: multichannel_concat
+    historical_event_dual_graph: dual_residual
+  branch_alpha_init: 0.2
+  max_train_batches: 2
+  max_eval_batches: 2
+progress:
+  terminal_bar: true
+  live_html: true
+  refresh_seconds: 5
+baselines:
+  - behavior_concat
+  - event_graph_dynamic
+  - event_graph_multichannel
+  - historical_correlation_graph
+  - historical_event_dual_graph
+  - dtw_demand_graph
+  - shuffled_event_graph
+  - semantic_shuffled_event_graph

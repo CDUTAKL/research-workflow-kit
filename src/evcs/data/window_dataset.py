@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from evcs.data.event_windows import build_event_loss_weights
 from evcs.data.tensor_cache import EVCSTensorCache
 from evcs.graphs.cache import SparseGraphCache
 
@@ -19,6 +20,7 @@ class EVCSWindowDataset(Dataset):
         graph: SparseGraphCache,
         use_events: bool,
         normalize: bool = True,
+        loss_weight_config: dict[str, object] | None = None,
     ) -> None:
         if torch is None:
             raise RuntimeError("PyTorch is required for EVCSWindowDataset")
@@ -28,6 +30,7 @@ class EVCSWindowDataset(Dataset):
         self.use_events = use_events
         self.normalize = normalize
         self.origin_to_graph_position = {origin: position for position, origin in enumerate(cache.origin_indices)}
+        self.loss_weights = build_event_loss_weights(cache, self.origins, loss_weight_config or {})
 
     def __len__(self) -> int:
         return len(self.origins)
@@ -52,7 +55,20 @@ class EVCSWindowDataset(Dataset):
             "history_events": torch.as_tensor(history_events, dtype=torch.float32),
             "target": torch.as_tensor(target, dtype=torch.float32),
             "target_raw": torch.as_tensor(self.cache.load[origin + 1 : target_end], dtype=torch.float32),
+            "loss_weight": torch.as_tensor(self.loss_weights[index], dtype=torch.float32),
             "origin": torch.as_tensor(origin, dtype=torch.long),
             "graph_indices": torch.as_tensor(self.graph.indices[graph_position], dtype=torch.long),
             "graph_weights": torch.as_tensor(self.graph.weights[graph_position], dtype=torch.float32),
+            "historical_graph_indices": torch.as_tensor(self.graph.historical_indices[graph_position], dtype=torch.long)
+            if self.graph.historical_indices is not None
+            else torch.as_tensor(self.graph.indices[graph_position], dtype=torch.long),
+            "historical_graph_weights": torch.as_tensor(self.graph.historical_weights[graph_position], dtype=torch.float32)
+            if self.graph.historical_weights is not None
+            else torch.as_tensor(self.graph.weights[graph_position], dtype=torch.float32),
+            "event_channel_indices": torch.as_tensor(self.graph.channel_indices[graph_position], dtype=torch.long)
+            if self.graph.channel_indices is not None
+            else torch.zeros((0, *self.graph.indices[graph_position].shape), dtype=torch.long),
+            "event_channel_weights": torch.as_tensor(self.graph.channel_weights[graph_position], dtype=torch.float32)
+            if self.graph.channel_weights is not None
+            else torch.zeros((0, *self.graph.weights[graph_position].shape), dtype=torch.float32),
         }

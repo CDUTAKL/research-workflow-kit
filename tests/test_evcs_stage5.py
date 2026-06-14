@@ -639,6 +639,145 @@ class EvcsStage5Tests(unittest.TestCase):
         self.assertAlmostEqual(float(event_row["delta_vs_dtw_graph"]), 0.01)
         self.assertEqual(bool(event_row["is_best_mae"]), False)
 
+    def test_exp103_core_event_graphs_can_delay_early_stopping(self):
+        from training.train_exp103 import _early_stopping_min_epochs
+
+        training_config = {
+            "early_stopping_min_epochs": {
+                "default": 0,
+                "event_graph_dynamic": 50,
+                "event_graph_dynamic_rho": 50,
+                "event_graph_multichannel": 50,
+                "historical_event_dual_graph": 50,
+                "event_dtw_fusion_graph": 50,
+            }
+        }
+
+        self.assertEqual(_early_stopping_min_epochs(training_config, "event_graph_dynamic", epochs=50), 50)
+        self.assertEqual(_early_stopping_min_epochs(training_config, "event_graph_multichannel", epochs=50), 50)
+        self.assertEqual(_early_stopping_min_epochs(training_config, "historical_event_dual_graph", epochs=50), 50)
+        self.assertEqual(_early_stopping_min_epochs(training_config, "event_dtw_fusion_graph", epochs=50), 50)
+        self.assertEqual(_early_stopping_min_epochs(training_config, "behavior_concat", epochs=50), 0)
+        self.assertEqual(_early_stopping_min_epochs(training_config, "event_graph_dynamic", epochs=12), 12)
+
+    def test_exp103_event_loss_weights_emphasize_event_windows(self):
+        from evcs.data.event_windows import build_event_loss_weights
+        from evcs.data.tensor_cache import build_tensor_cache
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "timeslice.csv"
+            _write_training_timeslice_fixture(source, periods=12, nodes=("A", "B", "C"))
+            cache = build_tensor_cache(
+                pd.read_csv(source),
+                timestamp_field="timestamp",
+                node_field="node_id",
+                target_field="load",
+                event_feature_fields=[
+                    "access_count",
+                    "departure_count",
+                    "active_count",
+                    "occupancy_rate",
+                    "demand_intensity",
+                    "load_jump_flag",
+                ],
+                history_steps=3,
+                horizon_steps=2,
+                split_rule={"train": 0.5, "validation": 0.25, "test": 0.25},
+                include_enhanced_events=True,
+                near_capacity_quantile=0.9,
+            )
+
+            weights = build_event_loss_weights(
+                cache,
+                cache.origin_indices,
+                {
+                    "enabled": True,
+                    "base_weight": 1.0,
+                    "max_weight": 6.0,
+                    "windows": {
+                        "access_count": 3.0,
+                        "departure_count": 3.0,
+                        "load_jump_flag": 3.0,
+                        "near_capacity_proxy": 2.5,
+                        "active_count_high": 1.5,
+                        "occupancy_rate_high": 1.5,
+                    },
+                },
+            )
+
+        self.assertEqual(weights.shape, (len(cache.origin_indices), cache.horizon_steps, len(cache.nodes)))
+        self.assertGreater(float(weights.max()), 1.0)
+        self.assertLessEqual(float(weights.max()), 6.0)
+
+    def test_exp103_weighted_loss_matches_unweighted_when_weights_are_one(self):
+        torch = _maybe_import_torch()
+        if torch is None:
+            self.skipTest("PyTorch is not installed in the local smoke environment")
+        from training.train_exp103 import _weighted_loss
+
+        prediction = torch.tensor([[[1.0, 2.0], [3.0, 4.0]]])
+        target = torch.tensor([[[1.5, 1.0], [2.0, 5.0]]])
+        weights = torch.ones_like(prediction)
+        criterion = torch.nn.L1Loss(reduction="none")
+
+        self.assertAlmostEqual(float(_weighted_loss(criterion, prediction, target, weights)), float(torch.abs(prediction - target).mean()))
+
+    def test_exp103_graph_cache_supports_multichannel_dual_and_semantic_shuffle(self):
+        from evcs.data.tensor_cache import build_tensor_cache
+        from evcs.graphs.cache import build_exp103_graph_cache
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "timeslice.csv"
+            _write_training_timeslice_fixture(source, periods=12, nodes=("A", "B", "C", "D"))
+            cache = build_tensor_cache(
+                pd.read_csv(source),
+                timestamp_field="timestamp",
+                node_field="node_id",
+                target_field="load",
+                event_feature_fields=[
+                    "access_count",
+                    "departure_count",
+                    "active_count",
+                    "occupancy_rate",
+                    "demand_intensity",
+                    "load_jump_flag",
+                ],
+                history_steps=3,
+                horizon_steps=1,
+                split_rule={"train": 0.5, "validation": 0.25, "test": 0.25},
+                include_enhanced_events=True,
+                near_capacity_quantile=0.9,
+            )
+
+            graphs = build_exp103_graph_cache(
+                cache,
+                baseline_ids=[
+                    "event_graph_dynamic",
+                    "event_graph_multichannel",
+                    "historical_event_dual_graph",
+                    "shuffled_event_graph",
+                    "semantic_shuffled_event_graph",
+                ],
+                top_k=2,
+                seed=42,
+            )
+
+        multichannel = graphs["event_graph_multichannel"]
+        dual = graphs["historical_event_dual_graph"]
+        semantic = graphs["semantic_shuffled_event_graph"]
+        old_shuffle = graphs["shuffled_event_graph"]
+        event_graph = graphs["event_graph_dynamic"]
+
+        self.assertEqual(multichannel.channel_indices.shape[:2], (len(cache.origin_indices), 6))
+        self.assertEqual(multichannel.channel_indices.shape[2:], (len(cache.nodes), 2))
+        self.assertEqual(multichannel.channel_weights.shape, multichannel.channel_indices.shape)
+        self.assertEqual(multichannel.channel_names, ["access", "departure", "activity", "occupancy", "demand", "load_jump"])
+        self.assertIsNotNone(dual.historical_indices)
+        self.assertEqual(dual.historical_indices.shape, event_graph.indices.shape)
+        semantic_overlap = (semantic.indices == event_graph.indices).mean()
+        old_overlap = (old_shuffle.indices == event_graph.indices).mean()
+        self.assertLess(float(semantic_overlap), float(old_overlap))
+
     def test_exp103_progress_helpers_render_terminal_line_and_dashboard(self):
         from training.train_exp103 import _format_epoch_progress, _write_training_dashboard
 
@@ -750,6 +889,68 @@ class EvcsStage5Tests(unittest.TestCase):
         self.assertIsNotNone(model.last_gate)
         self.assertGreaterEqual(float(model.last_gate.min()), 0.0)
         self.assertLessEqual(float(model.last_gate.max()), 1.0)
+
+    def test_exp103_graph_temporal_tcn_dual_and_multichannel_forward_when_torch_available(self):
+        torch = _maybe_import_torch()
+        if torch is None:
+            self.skipTest("PyTorch is not installed in the local smoke environment")
+        from evcs.models.graph_tcn import GraphTemporalTCN
+
+        history_load = torch.ones(2, 5, 3)
+        history_events = torch.ones(2, 5, 3, 4)
+        graph_indices = torch.tensor([[[1, 2], [2, 0], [0, 1]]] * 2)
+        graph_weights = torch.full((2, 3, 2), 0.5)
+        channel_indices = torch.tensor([[[[1, 2], [2, 0], [0, 1]], [[2, 1], [0, 2], [1, 0]]]] * 2)
+        channel_weights = torch.full((2, 2, 3, 2), 0.5)
+
+        dual_model = GraphTemporalTCN(
+            load_channels=1,
+            event_channels=4,
+            hidden_channels=8,
+            tcn_layers=1,
+            kernel_size=3,
+            dropout=0.0,
+            horizon_steps=2,
+            use_events=True,
+            use_graph=True,
+            graph_mode="dual_residual",
+        )
+        dual_prediction = dual_model(
+            history_load,
+            history_events,
+            graph_indices,
+            graph_weights,
+            historical_graph_indices=graph_indices,
+            historical_graph_weights=graph_weights,
+        )
+
+        multi_model = GraphTemporalTCN(
+            load_channels=1,
+            event_channels=4,
+            hidden_channels=8,
+            tcn_layers=1,
+            kernel_size=3,
+            dropout=0.0,
+            horizon_steps=2,
+            use_events=True,
+            use_graph=True,
+            graph_mode="multichannel_concat",
+            graph_channel_count=2,
+        )
+        multi_prediction = multi_model(
+            history_load,
+            history_events,
+            graph_indices,
+            graph_weights,
+            event_channel_indices=channel_indices,
+            event_channel_weights=channel_weights,
+        )
+
+        self.assertEqual(tuple(dual_prediction.shape), (2, 2, 3))
+        self.assertGreaterEqual(float(dual_model.alpha_hist), 0.0)
+        self.assertGreaterEqual(float(dual_model.alpha_event), 0.0)
+        self.assertEqual(tuple(multi_prediction.shape), (2, 2, 3))
+        self.assertAlmostEqual(float(multi_model.last_channel_weights.sum()), 1.0, places=5)
 
     def test_exp103_train_runner_writes_smoke_artifacts_when_torch_available(self):
         if _maybe_import_torch() is None:

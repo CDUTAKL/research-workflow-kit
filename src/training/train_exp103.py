@@ -29,6 +29,7 @@ except Exception as exc:  # pragma: no cover - local Mac may intentionally skip 
 else:
     TORCH_IMPORT_ERROR = None
 
+from evcs.data.event_windows import build_event_loss_weights, event_window_masks
 from evcs.data.tensor_cache import build_tensor_cache, load_tensor_cache, save_tensor_cache
 from evcs.data.window_dataset import EVCSWindowDataset
 from evcs.graphs.cache import build_exp103_graph_cache
@@ -226,12 +227,13 @@ def _train_one_baseline(
     training_config = config.get("training", {})
     use_events = baseline_id != "no_graph"
     use_graph = baseline_id not in {"no_graph", "behavior_concat"}
-    train_dataset = EVCSWindowDataset(cache, "train", graph, use_events=use_events, normalize=True)
-    val_dataset = EVCSWindowDataset(cache, "validation", graph, use_events=use_events, normalize=True)
-    test_dataset = EVCSWindowDataset(cache, "test", graph, use_events=use_events, normalize=True)
+    loss_weight_config = config.get("loss_weighting", {})
+    train_dataset = EVCSWindowDataset(cache, "train", graph, use_events=use_events, normalize=True, loss_weight_config=loss_weight_config)
+    val_dataset = EVCSWindowDataset(cache, "validation", graph, use_events=use_events, normalize=True, loss_weight_config=loss_weight_config)
+    test_dataset = EVCSWindowDataset(cache, "test", graph, use_events=use_events, normalize=True, loss_weight_config=loss_weight_config)
     batch_size = int(training_config.get("batch_size", 128))
     workers = int(training_config.get("num_workers", 0))
-    graph_mode = str(training_config.get("graph_mode", "concat"))
+    graph_mode = _graph_mode_for_baseline(training_config, baseline_id)
     pin_memory = bool(training_config.get("pin_memory", False)) and device.type == "cuda"
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=pin_memory)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=workers, pin_memory=pin_memory)
@@ -255,14 +257,17 @@ def _train_one_baseline(
         use_events=use_events,
         use_graph=use_graph,
         graph_mode=graph_mode,
+        graph_channel_count=len(graph.channel_names or []),
+        branch_alpha_init=float(training_config.get("branch_alpha_init", 0.2)),
     ).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=float(training_config.get("lr", 1e-3)))
     scheduler = _make_scheduler(optimizer, training_config)
-    criterion = nn.SmoothL1Loss() if str(training_config.get("loss", "SmoothL1")).lower() == "smoothl1" else nn.L1Loss()
+    criterion = nn.SmoothL1Loss(reduction="none") if str(training_config.get("loss", "SmoothL1")).lower() == "smoothl1" else nn.L1Loss(reduction="none")
     use_amp = bool(training_config.get("amp", False)) and device.type == "cuda"
     scaler = _make_grad_scaler(use_amp)
     epochs = int(training_config.get("epochs", 20))
     patience = int(training_config.get("early_stopping_patience", 4))
+    early_stop_min_epochs = _early_stopping_min_epochs(training_config, baseline_id, epochs)
     verbose = bool(training_config.get("verbose", True))
     progress_config = config.get("progress", {})
     terminal_progress = bool(progress_config.get("terminal_bar", True))
@@ -292,6 +297,7 @@ def _train_one_baseline(
                 "improved": improved,
                 "epoch_seconds": epoch_seconds,
                 "lr": current_lr,
+                "early_stop_min_epochs": early_stop_min_epochs,
             }
         )
         progress_line = _format_epoch_progress(
@@ -341,8 +347,11 @@ def _train_one_baseline(
             torch.save({"model_state_dict": model.state_dict(), "config": config, "baseline_id": baseline_id}, checkpoint_path)
         else:
             stale_epochs += 1
-            if stale_epochs >= patience:
-                stop_line = f"[{baseline_id}] early_stop epoch={epoch} patience={patience}"
+            if stale_epochs >= patience and epoch >= early_stop_min_epochs:
+                stop_line = (
+                    f"[{baseline_id}] early_stop epoch={epoch} patience={patience} "
+                    f"min_epochs={early_stop_min_epochs}"
+                )
                 log_lines.append(stop_line)
                 if verbose:
                     print(stop_line, flush=True)
@@ -350,23 +359,29 @@ def _train_one_baseline(
     if checkpoint_path.exists():
         state = _load_checkpoint(checkpoint_path, device)
         model.load_state_dict(state["model_state_dict"])
-    eval_payload = _evaluate(model, test_loader, device, cache)
+    eval_payload = _evaluate(model, test_loader, device, cache, loss_weight_config, graph)
     baseline_seconds = time.perf_counter() - baseline_started_at
     metrics = {
         "baseline_id": baseline_id,
         "MAE": eval_payload["MAE"],
         "RMSE": eval_payload["RMSE"],
+        "event_weighted_MAE": eval_payload["event_weighted_MAE"],
         "prediction_count": eval_payload["prediction_count"],
         "best_validation_loss": best_val,
+        "weighted_validation_loss": best_val,
         "best_epoch": best_epoch,
         "epochs_ran": len(curve_rows),
+        "early_stop_min_epochs": early_stop_min_epochs,
         "train_seconds": baseline_seconds,
         "uses_events": use_events,
         "uses_graph": use_graph,
         "graph_mode": graph_mode,
         "gate_mean": eval_payload["gate_mean"],
         "gate_std": eval_payload["gate_std"],
+        "alpha_hist": eval_payload["alpha_hist"],
+        "alpha_event": eval_payload["alpha_event"],
     }
+    metrics.update(eval_payload["channel_weights"])
     summary_line = (
         f"[{baseline_id}] test MAE={metrics['MAE']:.6f} RMSE={metrics['RMSE']:.6f} "
         f"best_epoch={best_epoch} epochs_ran={len(curve_rows)} seconds={baseline_seconds:.1f}"
@@ -407,12 +422,26 @@ def _run_epoch(model, loader, criterion, optimizer, scaler, device, training_con
         target = batch["target"].to(device)
         graph_indices = batch["graph_indices"].to(device)
         graph_weights = batch["graph_weights"].to(device)
+        loss_weight = batch["loss_weight"].to(device)
+        historical_graph_indices = batch["historical_graph_indices"].to(device)
+        historical_graph_weights = batch["historical_graph_weights"].to(device)
+        event_channel_indices = batch["event_channel_indices"].to(device)
+        event_channel_weights = batch["event_channel_weights"].to(device)
         if train:
             optimizer.zero_grad(set_to_none=True)
         with torch.set_grad_enabled(train):
             with _autocast_context(device, use_amp):
-                prediction = model(history_load, history_events, graph_indices, graph_weights)
-                loss = criterion(prediction, target)
+                prediction = model(
+                    history_load,
+                    history_events,
+                    graph_indices,
+                    graph_weights,
+                    historical_graph_indices=historical_graph_indices,
+                    historical_graph_weights=historical_graph_weights,
+                    event_channel_indices=event_channel_indices,
+                    event_channel_weights=event_channel_weights,
+                )
+                loss = _weighted_loss(criterion, prediction, target, loss_weight)
             if train:
                 scaler.scale(loss).backward()
                 scaler.step(optimizer)
@@ -422,7 +451,7 @@ def _run_epoch(model, loader, criterion, optimizer, scaler, device, training_con
     return total_loss / max(1, total_batches)
 
 
-def _evaluate(model, loader, device, cache) -> dict[str, Any]:
+def _evaluate(model, loader, device, cache, loss_weight_config: dict[str, Any] | None = None, graph=None) -> dict[str, Any]:
     model.eval()
     predictions = []
     targets = []
@@ -435,6 +464,10 @@ def _evaluate(model, loader, device, cache) -> dict[str, Any]:
                 batch["history_events"].to(device),
                 batch["graph_indices"].to(device),
                 batch["graph_weights"].to(device),
+                historical_graph_indices=batch["historical_graph_indices"].to(device),
+                historical_graph_weights=batch["historical_graph_weights"].to(device),
+                event_channel_indices=batch["event_channel_indices"].to(device),
+                event_channel_weights=batch["event_channel_weights"].to(device),
             )
             raw_output = output.detach().cpu().numpy() * cache.normalization["load_std"] + cache.normalization["load_mean"]
             predictions.append(raw_output.astype(np.float32))
@@ -446,15 +479,30 @@ def _evaluate(model, loader, device, cache) -> dict[str, Any]:
     prediction = np.concatenate(predictions, axis=0) if predictions else np.zeros((0, cache.horizon_steps, len(cache.nodes)), dtype=np.float32)
     target = np.concatenate(targets, axis=0) if targets else np.zeros_like(prediction)
     error = prediction - target
+    loss_weight = build_event_loss_weights(cache, origins, loss_weight_config or {}) if origins else np.zeros_like(error)
+    weighted_abs = np.abs(error) * loss_weight if error.size else error
+    alpha_hist = getattr(model, "last_alpha_hist", None)
+    alpha_event = getattr(model, "last_alpha_event", None)
+    channel_weights = getattr(model, "last_channel_weights", None)
+    channel_weight_metrics = {}
+    if channel_weights is not None:
+        channel_names = list(getattr(graph, "channel_names", None) or [])
+        for index, value in enumerate(channel_weights.detach().cpu().numpy().astype(np.float32)):
+            channel_name = channel_names[index] if index < len(channel_names) else str(index)
+            channel_weight_metrics[f"channel_weight_{channel_name}"] = float(value)
     return {
         "prediction": prediction,
         "target": target,
         "origins": origins,
         "MAE": float(np.mean(np.abs(error))) if error.size else float("nan"),
         "RMSE": float(np.sqrt(np.mean(error**2))) if error.size else float("nan"),
+        "event_weighted_MAE": float(weighted_abs.sum() / max(float(loss_weight.sum()), 1.0)) if error.size else float("nan"),
         "prediction_count": int(error.size),
         "gate_mean": float(np.concatenate([values.reshape(-1) for values in gate_values]).mean()) if gate_values else np.nan,
         "gate_std": float(np.concatenate([values.reshape(-1) for values in gate_values]).std()) if gate_values else np.nan,
+        "alpha_hist": float(alpha_hist.detach().cpu()) if alpha_hist is not None else np.nan,
+        "alpha_event": float(alpha_event.detach().cpu()) if alpha_event is not None else np.nan,
+        "channel_weights": channel_weight_metrics,
     }
 
 
@@ -482,25 +530,7 @@ def _event_window_metrics(baseline_id: str, eval_payload: dict[str, Any], cache)
 
 
 def _event_masks(cache, origins: list[int]) -> dict[str, np.ndarray]:
-    origin_array = np.asarray(origins, dtype=int)
-    current_events = cache.event_features[origin_array] if len(origin_array) else np.zeros((0, len(cache.nodes), 0))
-    feature_names = list(cache.event_feature_names)
-    masks: dict[str, np.ndarray] = {}
-    for name in ("access_count", "departure_count", "load_jump_flag"):
-        if name in feature_names:
-            masks[name] = current_events[:, :, feature_names.index(name)] > 0
-    for name in ("active_count", "occupancy_rate"):
-        if name in feature_names:
-            index = feature_names.index(name)
-            train_origins = cache.split_indices.get("train", [])
-            train_values = cache.event_features[train_origins, :, index] if train_origins else cache.event_features[:, :, index]
-            threshold = float(np.quantile(train_values, 0.9)) if train_values.size else float("inf")
-            masks[f"{name}_high"] = current_events[:, :, index] >= threshold
-    train_origins = cache.split_indices.get("train", [])
-    train_load = cache.load[train_origins] if train_origins else cache.load
-    threshold = np.quantile(train_load, 0.9, axis=0) if train_load.size else np.zeros((len(cache.nodes),), dtype=np.float32)
-    masks["near_capacity_proxy"] = cache.load[origin_array] >= threshold if len(origin_array) else np.zeros((0, len(cache.nodes)), dtype=bool)
-    return masks
+    return event_window_masks(cache, origins)
 
 
 def _prediction_samples(baseline_id: str, eval_payload: dict[str, Any], cache, limit: int = 200) -> list[dict[str, Any]]:
@@ -838,6 +868,35 @@ def _make_scheduler(optimizer, training_config):
         patience=int(training_config.get("scheduler_patience", 3)),
         min_lr=float(training_config.get("min_lr", 1e-5)),
     )
+
+
+def _graph_mode_for_baseline(training_config: dict[str, Any], baseline_id: str) -> str:
+    overrides = training_config.get("baseline_graph_modes", {})
+    if isinstance(overrides, dict) and baseline_id in overrides:
+        return str(overrides[baseline_id])
+    return str(training_config.get("graph_mode", "concat"))
+
+
+def _weighted_loss(criterion, prediction, target, loss_weight):
+    unreduced = criterion(prediction, target)
+    if loss_weight.shape != unreduced.shape:
+        loss_weight = loss_weight.expand_as(unreduced)
+    return (unreduced * loss_weight).sum() / torch.clamp(loss_weight.sum(), min=1.0)
+
+
+def _early_stopping_min_epochs(training_config: dict[str, Any], baseline_id: str, epochs: int) -> int:
+    """返回某个 baseline 的最小早停轮数。
+
+    事件图是 EXP-103 的核心候选模型，验证集短期波动时不应该和普通基线一样过早停止。
+    配置可以给特定 baseline 单独设置最小训练轮数；若总 epoch 更小，则自动截断到总 epoch。
+    """
+    raw_config = training_config.get("early_stopping_min_epochs", 0)
+    if isinstance(raw_config, dict):
+        raw_value = raw_config.get(baseline_id, raw_config.get("default", 0))
+    else:
+        raw_value = raw_config
+    min_epochs = max(0, int(raw_value))
+    return min(int(epochs), min_epochs)
 
 
 def _autocast_context(device, use_amp: bool):

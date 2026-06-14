@@ -19,9 +19,15 @@ class SparseGraphCache:
     dynamic: bool
     train_origin_end: int | None
     top_k: int
+    historical_indices: np.ndarray | None = None
+    historical_weights: np.ndarray | None = None
+    channel_indices: np.ndarray | None = None
+    channel_weights: np.ndarray | None = None
+    channel_names: list[str] | None = None
+    channel_feature_names: dict[str, list[str]] | None = None
 
     def manifest(self) -> dict[str, Any]:
-        return {
+        manifest = {
             "baseline_id": self.baseline_id,
             "dynamic": self.dynamic,
             "node_count": len(self.nodes),
@@ -30,6 +36,23 @@ class SparseGraphCache:
             "origin_count": int(self.indices.shape[0]),
             "edge_count_per_origin_budget": int(np.count_nonzero(self.weights[0])) if len(self.weights) else 0,
         }
+        if self.historical_indices is not None:
+            manifest["has_historical_branch"] = True
+        if self.channel_indices is not None:
+            manifest["channel_count"] = int(self.channel_indices.shape[1])
+            manifest["channel_names"] = list(self.channel_names or [])
+            manifest["channel_feature_names"] = self.channel_feature_names or {}
+        return manifest
+
+
+DEFAULT_EVENT_CHANNELS = {
+    "access": ["access_count", "access_count_roll_1h"],
+    "departure": ["departure_count", "departure_count_roll_1h"],
+    "activity": ["active_count", "active_count_diff"],
+    "occupancy": ["occupancy_rate", "occupancy_rate_roll_max_3h"],
+    "demand": ["demand_intensity", "near_capacity_history_rate_24h"],
+    "load_jump": ["load_jump_flag", "load_jump_roll_count_3h"],
+}
 
 
 def build_exp103_graph_cache(
@@ -56,6 +79,7 @@ def build_exp103_graph_cache(
     smoothed_event_graph = _smooth_dynamic_event_graph(cache, event_graph, top_k, rho)
     train_end = max(cache.split_indices.get("train", []) or [cache.origin_indices[0]])
     dtw_graph: SparseGraphCache | None = None
+    historical_graph: SparseGraphCache | None = None
     rng = np.random.default_rng(seed)
     graphs: dict[str, SparseGraphCache] = {}
     for baseline_id in baseline_ids:
@@ -63,15 +87,27 @@ def build_exp103_graph_cache(
             graphs[baseline_id] = event_graph
         elif baseline_id == "event_graph_dynamic_rho":
             graphs[baseline_id] = smoothed_event_graph
+        elif baseline_id == "event_graph_multichannel":
+            graphs[baseline_id] = _dynamic_multichannel_event_graph(cache, top_k)
         elif baseline_id == "dtw_demand_graph":
             dtw_graph = dtw_graph or _dtw_graph(cache, top_k, train_end, dtw_max_points, dtw_cache_path, verbose)
             graphs[baseline_id] = dtw_graph
         elif baseline_id == "historical_correlation_graph":
-            values = cache.load[: train_end + 1].T
-            similarity = _safe_positive_correlation(values)
-            similarity = np.clip(similarity, 0.0, None)
-            np.fill_diagonal(similarity, 0.0)
-            graphs[baseline_id] = _static_graph(baseline_id, cache, similarity, top_k, train_end)
+            historical_graph = historical_graph or _historical_correlation_graph(cache, top_k, train_end)
+            graphs[baseline_id] = historical_graph
+        elif baseline_id == "historical_event_dual_graph":
+            historical_graph = historical_graph or _historical_correlation_graph(cache, top_k, train_end)
+            graphs[baseline_id] = SparseGraphCache(
+                baseline_id,
+                event_graph.indices.copy(),
+                event_graph.weights.copy(),
+                cache.nodes,
+                dynamic=True,
+                train_origin_end=train_end,
+                top_k=top_k,
+                historical_indices=historical_graph.indices.copy(),
+                historical_weights=historical_graph.weights.copy(),
+            )
         elif baseline_id == "event_dtw_fusion_graph":
             dtw_graph = dtw_graph or _dtw_graph(cache, top_k, train_end, dtw_max_points, dtw_cache_path, verbose)
             graphs[baseline_id] = _fusion_graph(cache, smoothed_event_graph, dtw_graph, top_k, lambda_event, train_end)
@@ -79,6 +115,8 @@ def build_exp103_graph_cache(
             graphs[baseline_id] = _random_like_event(cache, event_graph, rng)
         elif baseline_id == "shuffled_event_graph":
             graphs[baseline_id] = _shuffled_like_event(cache, event_graph, rng)
+        elif baseline_id == "semantic_shuffled_event_graph":
+            graphs[baseline_id] = _semantic_shuffled_event_graph(cache, top_k, rng)
         elif baseline_id == "deleted_event_graph":
             graphs[baseline_id] = SparseGraphCache(
                 baseline_id,
@@ -102,6 +140,14 @@ def build_exp103_graph_cache(
         else:
             raise ValueError(f"unsupported EXP-103 graph baseline: {baseline_id}")
     return graphs
+
+
+def _historical_correlation_graph(cache: EVCSTensorCache, top_k: int, train_end: int) -> SparseGraphCache:
+    values = cache.load[: train_end + 1].T
+    similarity = _safe_positive_correlation(values)
+    similarity = np.clip(similarity, 0.0, None)
+    np.fill_diagonal(similarity, 0.0)
+    return _static_graph("historical_correlation_graph", cache, similarity, top_k, train_end)
 
 
 def _dtw_graph(
@@ -134,27 +180,74 @@ def _dtw_graph(
     return graph
 
 
-def _dynamic_event_graph(cache: EVCSTensorCache, top_k: int) -> SparseGraphCache:
+def _dynamic_event_graph(
+    cache: EVCSTensorCache,
+    top_k: int,
+    event_features: np.ndarray | None = None,
+    baseline_id: str = "event_graph_dynamic",
+) -> SparseGraphCache:
+    features_source = event_features if event_features is not None else cache.event_features
     origin_count = len(cache.origin_indices)
     node_count = len(cache.nodes)
     indices = np.zeros((origin_count, node_count, top_k), dtype=np.int32)
     weights = np.zeros((origin_count, node_count, top_k), dtype=np.float32)
     for origin_pos, origin in enumerate(cache.origin_indices):
         start = max(0, origin - cache.history_steps + 1)
-        features = cache.event_features[start : origin + 1].mean(axis=0)
+        features = features_source[start : origin + 1].mean(axis=0)
         similarity = _cosine_similarity(_zscore(features))
         np.fill_diagonal(similarity, 0.0)
         row_indices, row_weights = _topk_sparse(similarity, top_k)
         indices[origin_pos] = row_indices
         weights[origin_pos] = row_weights
     return SparseGraphCache(
-        baseline_id="event_graph_dynamic",
+        baseline_id=baseline_id,
         indices=indices,
         weights=weights,
         nodes=cache.nodes,
         dynamic=True,
         train_origin_end=None,
         top_k=top_k,
+    )
+
+
+def _dynamic_multichannel_event_graph(cache: EVCSTensorCache, top_k: int) -> SparseGraphCache:
+    origin_count = len(cache.origin_indices)
+    node_count = len(cache.nodes)
+    feature_names = list(cache.event_feature_names)
+    channel_names = list(DEFAULT_EVENT_CHANNELS)
+    channel_feature_names: dict[str, list[str]] = {}
+    channel_indices = np.zeros((origin_count, len(channel_names), node_count, top_k), dtype=np.int32)
+    channel_weights = np.zeros((origin_count, len(channel_names), node_count, top_k), dtype=np.float32)
+    dense_sum = np.zeros((origin_count, node_count, node_count), dtype=np.float32)
+    for channel_pos, channel_name in enumerate(channel_names):
+        selected = [name for name in DEFAULT_EVENT_CHANNELS[channel_name] if name in feature_names]
+        if not selected:
+            selected = [name for name in DEFAULT_EVENT_CHANNELS[channel_name][:1] if name in feature_names] or feature_names[:1]
+        channel_feature_names[channel_name] = selected
+        selected_indices = [feature_names.index(name) for name in selected]
+        for origin_pos, origin in enumerate(cache.origin_indices):
+            start = max(0, origin - cache.history_steps + 1)
+            features = cache.event_features[start : origin + 1, :, selected_indices].mean(axis=0)
+            similarity = _cosine_similarity(_zscore(features))
+            np.fill_diagonal(similarity, 0.0)
+            row_indices, row_weights = _topk_sparse(similarity, top_k)
+            channel_indices[origin_pos, channel_pos] = row_indices
+            channel_weights[origin_pos, channel_pos] = row_weights
+            dense_sum[origin_pos] += _sparse_origin_to_dense(row_indices, row_weights, node_count)
+    combined = np.asarray([_row_normalize_dense(matrix) for matrix in dense_sum], dtype=np.float32)
+    combined_graph = _dynamic_dense_graph("event_graph_multichannel", cache, combined, top_k, train_origin_end=None)
+    return SparseGraphCache(
+        "event_graph_multichannel",
+        combined_graph.indices,
+        combined_graph.weights,
+        cache.nodes,
+        dynamic=True,
+        train_origin_end=None,
+        top_k=top_k,
+        channel_indices=channel_indices,
+        channel_weights=channel_weights,
+        channel_names=channel_names,
+        channel_feature_names=channel_feature_names,
     )
 
 
@@ -265,6 +358,20 @@ def _shuffled_like_event(cache: EVCSTensorCache, event_graph: SparseGraphCache, 
         None,
         event_graph.top_k,
     )
+
+
+def _semantic_shuffled_event_graph(cache: EVCSTensorCache, top_k: int, rng: np.random.Generator) -> SparseGraphCache:
+    shuffled = cache.event_features.copy()
+    feature_names = list(cache.event_feature_names)
+    for channel_features in DEFAULT_EVENT_CHANNELS.values():
+        selected = [feature_names.index(name) for name in channel_features if name in feature_names]
+        if not selected:
+            continue
+        values = shuffled[:, :, selected].reshape(-1, len(selected)).copy()
+        order = np.arange(values.shape[0])
+        rng.shuffle(order)
+        shuffled[:, :, selected] = values[order].reshape(shuffled.shape[0], shuffled.shape[1], len(selected))
+    return _dynamic_event_graph(cache, top_k, event_features=shuffled, baseline_id="semantic_shuffled_event_graph")
 
 
 def _prepare_static_load(load: np.ndarray, max_points: int | None) -> np.ndarray:
