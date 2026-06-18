@@ -1,4 +1,5 @@
 import csv
+import gzip
 import json
 import socket
 import subprocess
@@ -45,6 +46,55 @@ COLLECT_EXP103_RESULTS = REPO_ROOT / "scripts" / "collect_exp103_results.py"
 RUN_EXP103_HPARAM_SEARCH = REPO_ROOT / "scripts" / "run_exp103_hparam_search.py"
 DIAGNOSE_EXP103_EVENT_GRAPH = REPO_ROOT / "scripts" / "diagnose_exp103_event_graph.py"
 SUMMARIZE_EXP103_MULTISEED = REPO_ROOT / "scripts" / "summarize_exp103_multiseed.py"
+ANALYZE_EXP103_V5_PLUS_EVIDENCE = REPO_ROOT / "scripts" / "analyze_exp103_v5_plus_evidence.py"
+STACK_EXP103_V5_PREDICTIONS = REPO_ROOT / "scripts" / "stack_exp103_v5_predictions.py"
+
+FULL_PREDICTION_COLUMNS = [
+    "baseline_id",
+    "seed",
+    "split",
+    "origin_index",
+    "timestamp",
+    "node_id",
+    "horizon_step",
+    "target",
+    "prediction",
+    "abs_error",
+    "squared_error",
+    "event_window_any",
+    "event_window_access",
+    "event_window_departure",
+    "event_window_load_jump",
+]
+
+
+def _write_full_prediction_fixture(path: Path, baseline_id: str, seed: int, split: str, predictions: list[float]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    targets = [10.0, 20.0, 30.0, 40.0]
+    with gzip.open(path, "wt", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=FULL_PREDICTION_COLUMNS)
+        writer.writeheader()
+        for index, (target, prediction) in enumerate(zip(targets, predictions)):
+            error = prediction - target
+            writer.writerow(
+                {
+                    "baseline_id": baseline_id,
+                    "seed": seed,
+                    "split": split,
+                    "origin_index": 100 + index,
+                    "timestamp": f"2026-01-01T00:{index:02d}:00",
+                    "node_id": "N0",
+                    "horizon_step": 1,
+                    "target": target,
+                    "prediction": prediction,
+                    "abs_error": abs(error),
+                    "squared_error": error * error,
+                    "event_window_any": 1 if index % 2 == 0 else 0,
+                    "event_window_access": 1 if index == 0 else 0,
+                    "event_window_departure": 1 if index == 2 else 0,
+                    "event_window_load_jump": 0,
+                }
+            )
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
@@ -328,6 +378,160 @@ class ResearchWorkflowScriptTests(unittest.TestCase):
             self.assertEqual(event_row["best_mae_seed_count"], "3")
             self.assertAlmostEqual(float(event_row["MAE_mean"]), 0.022)
             self.assertAlmostEqual(float(event_row["rank_by_MAE_mean"]), 1.0)
+
+    def test_analyze_exp103_v5_plus_evidence_writes_bootstrap_and_event_tables(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            run_dir = project / "outputs" / "EXP-103-v5-plus-42-5090"
+            pred_dir = run_dir / "predictions_full"
+            _write_full_prediction_fixture(
+                pred_dir / "test_event_graph_dynamic_v5.csv.gz",
+                "event_graph_dynamic_v5",
+                42,
+                "test",
+                [10.1, 19.9, 30.2, 39.8],
+            )
+            _write_full_prediction_fixture(
+                pred_dir / "test_behavior_concat_v5.csv.gz",
+                "behavior_concat_v5",
+                42,
+                "test",
+                [11.0, 18.8, 31.2, 38.5],
+            )
+            _write_full_prediction_fixture(
+                pred_dir / "test_historical_correlation_graph_v5.csv.gz",
+                "historical_correlation_graph_v5",
+                42,
+                "test",
+                [10.5, 19.5, 30.7, 39.3],
+            )
+            out = project / "outputs" / "EXP-103-v5-plus-evidence-analysis"
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ANALYZE_EXP103_V5_PLUS_EVIDENCE),
+                    "--runs",
+                    str(run_dir),
+                    "--out",
+                    str(out),
+                    "--primary",
+                    "event_graph_dynamic_v5",
+                    "--comparators",
+                    "behavior_concat_v5,historical_correlation_graph_v5",
+                    "--bootstrap-samples",
+                    "50",
+                ],
+                cwd=REPO_ROOT,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+
+            self.assertIn("wrote V5 Plus paired evidence analysis", result.stdout)
+            for name in (
+                "paired_deltas.csv",
+                "bootstrap_ci.csv",
+                "event_window_delta_summary.csv",
+                "event_stable_primary_table.csv",
+                "v5_plus_decision_summary.md",
+            ):
+                self.assertTrue((out / name).exists(), name)
+            bootstrap_rows = list(csv.DictReader((out / "bootstrap_ci.csv").read_text(encoding="utf-8").splitlines()))
+            behavior_row = next(row for row in bootstrap_rows if row["comparator_baseline"] == "behavior_concat_v5")
+            self.assertLess(float(behavior_row["delta_mean"]), 0.0)
+            primary_rows = list(csv.DictReader((out / "event_stable_primary_table.csv").read_text(encoding="utf-8").splitlines()))
+            self.assertEqual(
+                list(primary_rows[0].keys()),
+                [
+                    "baseline_id",
+                    "split",
+                    "MAE_global",
+                    "MAE_event_window",
+                    "MAE_stable_window",
+                    "delta_global_vs_behavior",
+                    "delta_event_vs_behavior",
+                    "delta_stable_vs_behavior",
+                ],
+            )
+            decision = (out / "v5_plus_decision_summary.md").read_text(encoding="utf-8")
+            self.assertIn("负数 delta 代表 primary baseline", decision)
+
+    def test_stack_exp103_v5_predictions_writes_validation_stack_and_seed_ensemble(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            runs = []
+            for seed in (42, 2026):
+                run_dir = project / "outputs" / f"EXP-103-v5-plus-{seed}-5090"
+                pred_dir = run_dir / "predictions_full"
+                runs.append(run_dir)
+                _write_full_prediction_fixture(
+                    pred_dir / "validation_event_graph_dynamic_v5.csv.gz",
+                    "event_graph_dynamic_v5",
+                    seed,
+                    "validation",
+                    [10.0, 20.0, 30.0, 40.0],
+                )
+                _write_full_prediction_fixture(
+                    pred_dir / "validation_event_dtw_fusion_graph_v5.csv.gz",
+                    "event_dtw_fusion_graph_v5",
+                    seed,
+                    "validation",
+                    [11.0, 19.0, 31.0, 39.0],
+                )
+                _write_full_prediction_fixture(
+                    pred_dir / "test_event_graph_dynamic_v5.csv.gz",
+                    "event_graph_dynamic_v5",
+                    seed,
+                    "test",
+                    [10.2, 19.8, 30.2, 39.8],
+                )
+                _write_full_prediction_fixture(
+                    pred_dir / "test_event_dtw_fusion_graph_v5.csv.gz",
+                    "event_dtw_fusion_graph_v5",
+                    seed,
+                    "test",
+                    [10.6, 19.4, 30.6, 39.4],
+                )
+            out = project / "outputs" / "EXP-103-v5-plus-stacking"
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(STACK_EXP103_V5_PREDICTIONS),
+                    "--runs",
+                    *[str(run) for run in runs],
+                    "--out",
+                    str(out),
+                    "--members",
+                    "event_graph_dynamic_v5,event_dtw_fusion_graph_v5",
+                    "--seed-ensemble-baselines",
+                    "event_graph_dynamic_v5",
+                    "--grid-step",
+                    "0.5",
+                ],
+                cwd=REPO_ROOT,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+
+            self.assertIn("wrote V5 Plus stacking outputs", result.stdout)
+            for name in (
+                "stacking_weights.csv",
+                "stacking_metrics.csv",
+                "stacking_test_predictions.csv.gz",
+                "seed_ensemble_metrics.csv",
+                "seed_ensemble_predictions.csv.gz",
+            ):
+                self.assertTrue((out / name).exists(), name)
+            weight_rows = list(csv.DictReader((out / "stacking_weights.csv").read_text(encoding="utf-8").splitlines()))
+            weights = {row["baseline_id"]: float(row["weight"]) for row in weight_rows}
+            self.assertAlmostEqual(weights["event_graph_dynamic_v5"], 1.0)
+            metrics = (out / "stacking_metrics.csv").read_text(encoding="utf-8")
+            self.assertIn("v5_plus_validation_stack", metrics)
+            seed_metrics = (out / "seed_ensemble_metrics.csv").read_text(encoding="utf-8")
+            self.assertIn("event_graph_dynamic_v5_seed_ensemble", seed_metrics)
 
     def test_collect_exp103_results_builds_reproducible_ledger_without_touching_runs(self):
         with tempfile.TemporaryDirectory() as tmp:

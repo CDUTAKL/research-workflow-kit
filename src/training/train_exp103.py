@@ -20,6 +20,8 @@ from __future__ import annotations
 """
 
 import argparse
+import csv
+import gzip
 import hashlib
 import json
 import math
@@ -67,6 +69,25 @@ DEFAULT_BASELINES = [
     "random_event_graph",
     "shuffled_event_graph",
     "deleted_event_graph",
+]
+
+CHECKPOINT_METRICS = {"validation_loss", "val_MAE_raw", "val_RMSE_raw"}
+FULL_PREDICTION_COLUMNS = [
+    "baseline_id",
+    "seed",
+    "split",
+    "origin_index",
+    "timestamp",
+    "node_id",
+    "horizon_step",
+    "target",
+    "prediction",
+    "abs_error",
+    "squared_error",
+    "event_window_any",
+    "event_window_access",
+    "event_window_departure",
+    "event_window_load_jump",
 ]
 
 
@@ -205,6 +226,12 @@ def main() -> None:
         "logs/progress_events.jsonl",
         "logs/train.log",
     ]
+    if bool(config.get("training", {}).get("write_full_predictions", False)):
+        predictions_dir = out_dir / "predictions_full"
+        artifacts.extend(
+            str(path.relative_to(out_dir))
+            for path in sorted(predictions_dir.glob("*.csv.gz"))
+        )
     write_manifest(out_dir, str(config.get("experiment_id", "EXP-103")), artifacts)
     print(f"wrote EXP-103 training outputs to {out_dir}")
 
@@ -370,12 +397,16 @@ def _train_one_baseline(
     epochs = int(training_config.get("epochs", 20))
     patience = int(training_config.get("early_stopping_patience", 4))
     early_stop_min_epochs = _early_stopping_min_epochs(training_config, baseline_id, epochs)
+    checkpoint_metric = _checkpoint_metric(training_config)
     verbose = bool(training_config.get("verbose", True))
     progress_config = config.get("progress", {})
     terminal_progress = bool(progress_config.get("terminal_bar", True))
     live_html = bool(progress_config.get("live_html", True))
     refresh_seconds = int(progress_config.get("refresh_seconds", 10))
     best_val = float("inf")
+    best_checkpoint_score = float("inf")
+    best_validation_mae = float("inf")
+    best_validation_rmse = float("inf")
     stale_epochs = 0
     curve_rows = []
     baseline_started_at = time.perf_counter()
@@ -384,18 +415,47 @@ def _train_one_baseline(
         epoch_started_at = time.perf_counter()
         train_loss = _run_epoch(model, train_loader, criterion, optimizer, scaler, device, config, train=True, use_amp=use_amp)
         val_loss = _run_epoch(model, val_loader, criterion, None, scaler, device, config, train=False, use_amp=use_amp)
+        if checkpoint_metric == "validation_loss":
+            # 旧实验默认仍以 validation loss 保存 checkpoint。此时不额外跑 raw-scale
+            # 预测评估，避免无意中把历史训练时间放大；曲线中保留列但写 NaN。
+            val_mae_raw = float("nan")
+            val_rmse_raw = float("nan")
+        else:
+            val_eval_payload = _evaluate(
+                model,
+                val_loader,
+                device,
+                cache,
+                loss_weight_config,
+                graph,
+                config.get("event_loss", {}),
+                split_name="validation",
+            )
+            val_mae_raw = float(val_eval_payload["MAE"])
+            val_rmse_raw = float(val_eval_payload["RMSE"])
+        # V5 Plus 允许用 raw-scale validation MAE/RMSE 选择 checkpoint。
+        # 训练 loss 可能包含 SmoothL1、事件窗口权重和 gate 正则项，它对优化有帮助，
+        # 但论文主结论锁定 MAE 时，best checkpoint 应可选择与主指标一致的验证指标。
+        checkpoint_score = _checkpoint_score(checkpoint_metric, val_loss, val_mae_raw, val_rmse_raw)
         if scheduler is not None:
             scheduler.step(val_loss)
         current_lr = float(optimizer.param_groups[0]["lr"])
         epoch_seconds = time.perf_counter() - epoch_started_at
-        improved = val_loss < best_val
+        improved = checkpoint_score < best_checkpoint_score
+        best_val_display = min(best_val, val_loss)
+        best_checkpoint_display = min(best_checkpoint_score, checkpoint_score)
         curve_rows.append(
             {
                 "baseline_id": baseline_id,
                 "epoch": epoch,
                 "train_loss": train_loss,
                 "validation_loss": val_loss,
-                "best_validation_loss": min(best_val, val_loss),
+                "best_validation_loss": best_val_display,
+                "val_MAE_raw": val_mae_raw,
+                "val_RMSE_raw": val_rmse_raw,
+                "checkpoint_metric": checkpoint_metric,
+                "checkpoint_score": checkpoint_score,
+                "best_checkpoint_score": best_checkpoint_display,
                 "improved": improved,
                 "epoch_seconds": epoch_seconds,
                 "lr": current_lr,
@@ -408,7 +468,7 @@ def _train_one_baseline(
             epochs,
             train_loss,
             val_loss,
-            min(best_val, val_loss),
+            best_checkpoint_display,
             current_lr,
             epoch_seconds,
             curve_rows,
@@ -427,7 +487,12 @@ def _train_one_baseline(
                 "epochs": epochs,
                 "train_loss": train_loss,
                 "validation_loss": val_loss,
-                "best_validation_loss": min(best_val, val_loss),
+                "best_validation_loss": best_val_display,
+                "val_MAE_raw": val_mae_raw,
+                "val_RMSE_raw": val_rmse_raw,
+                "checkpoint_metric": checkpoint_metric,
+                "checkpoint_score": checkpoint_score,
+                "best_checkpoint_score": best_checkpoint_display,
                 "lr": current_lr,
                 "epoch_seconds": epoch_seconds,
                 "improved": improved,
@@ -442,12 +507,25 @@ def _train_one_baseline(
                 active_baseline=baseline_id,
                 refresh_seconds=refresh_seconds,
             )
+        best_val = min(best_val, val_loss)
         if improved:
-            # 只保存 validation loss 最优 checkpoint；test set 在训练结束后统一评估一次。
-            best_val = val_loss
+            # 只保存 validation 指标最优 checkpoint；test set 在训练结束后统一评估一次。
+            # 这里绝不读取 test 指标做选择，避免把测试集变成调参集。
+            best_checkpoint_score = checkpoint_score
+            best_validation_mae = val_mae_raw
+            best_validation_rmse = val_rmse_raw
             best_epoch = epoch
             stale_epochs = 0
-            torch.save({"model_state_dict": model.state_dict(), "config": config, "baseline_id": baseline_id}, checkpoint_path)
+            torch.save(
+                {
+                    "model_state_dict": model.state_dict(),
+                    "config": config,
+                    "baseline_id": baseline_id,
+                    "checkpoint_metric": checkpoint_metric,
+                    "checkpoint_score": checkpoint_score,
+                },
+                checkpoint_path,
+            )
         else:
             stale_epochs += 1
             if stale_epochs >= patience and epoch >= early_stop_min_epochs:
@@ -462,8 +540,37 @@ def _train_one_baseline(
     if checkpoint_path.exists():
         state = _load_checkpoint(checkpoint_path, device)
         model.load_state_dict(state["model_state_dict"])
+    validation_eval_payload = _evaluate(
+        model,
+        val_loader,
+        device,
+        cache,
+        loss_weight_config,
+        graph,
+        config.get("event_loss", {}),
+        split_name="validation",
+    )
+    if not math.isfinite(best_validation_mae):
+        best_validation_mae = float(validation_eval_payload["MAE"])
+    if not math.isfinite(best_validation_rmse):
+        best_validation_rmse = float(validation_eval_payload["RMSE"])
+    if not math.isfinite(best_checkpoint_score):
+        best_checkpoint_score = float(best_val)
     # 所有报告指标都来自 best checkpoint 在 test split 上的预测，避免使用最后一轮偶然波动。
-    eval_payload = _evaluate(model, test_loader, device, cache, loss_weight_config, graph, config.get("event_loss", {}))
+    eval_payload = _evaluate(
+        model,
+        test_loader,
+        device,
+        cache,
+        loss_weight_config,
+        graph,
+        config.get("event_loss", {}),
+        split_name="test",
+    )
+    if bool(training_config.get("write_full_predictions", False)):
+        predictions_dir = out_dir / "predictions_full"
+        _write_full_predictions_gzip(predictions_dir / f"validation_{baseline_id}.csv.gz", baseline_id, seed=int(config.get("seed", 42)), split_name="validation", eval_payload=validation_eval_payload, cache=cache)
+        _write_full_predictions_gzip(predictions_dir / f"test_{baseline_id}.csv.gz", baseline_id, seed=int(config.get("seed", 42)), split_name="test", eval_payload=eval_payload, cache=cache)
     baseline_seconds = time.perf_counter() - baseline_started_at
     metrics = {
         "baseline_id": baseline_id,
@@ -473,6 +580,10 @@ def _train_one_baseline(
         "prediction_count": eval_payload["prediction_count"],
         "best_validation_loss": best_val,
         "weighted_validation_loss": best_val,
+        "best_checkpoint_metric": checkpoint_metric,
+        "best_checkpoint_score": best_checkpoint_score,
+        "best_validation_MAE": best_validation_mae,
+        "best_validation_RMSE": best_validation_rmse,
         "best_epoch": best_epoch,
         "epochs_ran": len(curve_rows),
         "early_stop_min_epochs": early_stop_min_epochs,
@@ -575,6 +686,31 @@ def _run_epoch(model, loader, criterion, optimizer, scaler, device, config: dict
     return total_loss / max(1, total_batches)
 
 
+def _checkpoint_metric(training_config: dict[str, Any]) -> str:
+    """解析 checkpoint 选择指标，并对拼写错误尽早报错。
+
+    默认仍是旧版 `validation_loss`，保证历史配置可复现；V5 Plus 新增的
+    `val_MAE_raw` / `val_RMSE_raw` 用来让 best checkpoint 与论文主指标口径对齐。
+    """
+
+    metric = str(training_config.get("checkpoint_metric", "validation_loss"))
+    if metric not in CHECKPOINT_METRICS:
+        raise ValueError(f"unsupported checkpoint_metric={metric!r}; expected one of {sorted(CHECKPOINT_METRICS)}")
+    return metric
+
+
+def _checkpoint_score(metric: str, validation_loss: float, val_mae_raw: float, val_rmse_raw: float) -> float:
+    """把不同 validation 指标统一成“越小越好”的 checkpoint score。"""
+
+    if metric == "validation_loss":
+        return float(validation_loss)
+    if metric == "val_MAE_raw":
+        return float(val_mae_raw)
+    if metric == "val_RMSE_raw":
+        return float(val_rmse_raw)
+    raise ValueError(f"unsupported checkpoint_metric={metric!r}")
+
+
 def compute_event_residual_loss(batch, prediction, model, target, criterion, loss_weight, event_loss_config: dict[str, Any] | None = None):
     """计算 V5 事件窗口感知 loss。
 
@@ -641,7 +777,16 @@ def _event_window_name_to_index() -> dict[str, int]:
     }
 
 
-def _evaluate(model, loader, device, cache, loss_weight_config: dict[str, Any] | None = None, graph=None, event_loss_config: dict[str, Any] | None = None) -> dict[str, Any]:
+def _evaluate(
+    model,
+    loader,
+    device,
+    cache,
+    loss_weight_config: dict[str, Any] | None = None,
+    graph=None,
+    event_loss_config: dict[str, Any] | None = None,
+    split_name: str = "",
+) -> dict[str, Any]:
     """在 test/validation loader 上评估并收集诊断中间量。
 
     评估时会把标准化预测还原到原始负载尺度；因此输出 MAE/RMSE 可以直接跨 baseline 比较。
@@ -728,6 +873,7 @@ def _evaluate(model, loader, device, cache, loss_weight_config: dict[str, Any] |
         "prediction": prediction,
         "target": target,
         "origins": origins,
+        "split": split_name,
         "MAE": float(np.mean(np.abs(error))) if error.size else float("nan"),
         "RMSE": float(np.sqrt(np.mean(error**2))) if error.size else float("nan"),
         "event_weighted_MAE": float(weighted_abs.sum() / max(float(loss_weight.sum()), 1.0)) if error.size else float("nan"),
@@ -962,6 +1108,58 @@ def _prediction_samples(baseline_id: str, eval_payload: dict[str, Any], cache, l
                 if len(rows) >= limit:
                     return rows
     return rows
+
+
+def _write_full_predictions_gzip(path: Path, baseline_id: str, seed: int, split_name: str, eval_payload: dict[str, Any], cache) -> None:
+    """流式写出 validation/test 全量预测。
+
+    V5 Plus 的 full prediction 文件是 paired bootstrap、validation stacking 和 seed ensemble
+    的共同证据底座。这里故意不使用 test 指标做任何选择，只把已经固定 checkpoint 的
+    预测结果写盘；后续脚本只能读取这些文件，不能反向影响训练。
+
+    正式 test 大约有数百万行，若先构造 DataFrame 会占用大量内存，所以使用 gzip +
+    csv.writer 逐行写出。
+    """
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    prediction = eval_payload["prediction"]
+    target = eval_payload["target"]
+    origins = list(eval_payload["origins"])
+    masks = event_window_masks(cache, origins)
+    access_mask = masks.get("access_count", np.zeros((len(origins), len(cache.nodes)), dtype=bool))
+    departure_mask = masks.get("departure_count", np.zeros((len(origins), len(cache.nodes)), dtype=bool))
+    load_jump_mask = masks.get("load_jump_flag", np.zeros((len(origins), len(cache.nodes)), dtype=bool))
+    any_mask = access_mask | departure_mask | load_jump_mask
+    with gzip.open(path, "wt", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=FULL_PREDICTION_COLUMNS)
+        writer.writeheader()
+        for sample_index, origin in enumerate(origins):
+            for horizon_index in range(cache.horizon_steps):
+                timestamp_index = int(origin) + 1 + horizon_index
+                timestamp = cache.timestamps[timestamp_index] if timestamp_index < len(cache.timestamps) else ""
+                for node_index, node in enumerate(cache.nodes):
+                    y_pred = float(prediction[sample_index, horizon_index, node_index])
+                    y_true = float(target[sample_index, horizon_index, node_index])
+                    error = y_pred - y_true
+                    writer.writerow(
+                        {
+                            "baseline_id": baseline_id,
+                            "seed": seed,
+                            "split": split_name,
+                            "origin_index": int(origin),
+                            "timestamp": timestamp,
+                            "node_id": node,
+                            "horizon_step": horizon_index + 1,
+                            "target": y_true,
+                            "prediction": y_pred,
+                            "abs_error": abs(error),
+                            "squared_error": error * error,
+                            "event_window_any": int(bool(any_mask[sample_index, node_index])),
+                            "event_window_access": int(bool(access_mask[sample_index, node_index])),
+                            "event_window_departure": int(bool(departure_mask[sample_index, node_index])),
+                            "event_window_load_jump": int(bool(load_jump_mask[sample_index, node_index])),
+                        }
+                    )
 
 
 def _graph_ablation_rows(baseline_rows: list[dict[str, Any]], metrics_by_baseline: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:

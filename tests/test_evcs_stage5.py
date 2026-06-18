@@ -1,3 +1,5 @@
+import csv
+import gzip
 import json
 import subprocess
 import sys
@@ -7,6 +9,7 @@ import unittest
 import warnings
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -659,6 +662,64 @@ class EvcsStage5Tests(unittest.TestCase):
         self.assertEqual(_early_stopping_min_epochs(training_config, "event_dtw_fusion_graph", epochs=50), 50)
         self.assertEqual(_early_stopping_min_epochs(training_config, "behavior_concat", epochs=50), 0)
         self.assertEqual(_early_stopping_min_epochs(training_config, "event_graph_dynamic", epochs=12), 12)
+
+    def test_exp103_checkpoint_metric_validation_and_score(self):
+        from training.train_exp103 import _checkpoint_metric, _checkpoint_score
+
+        self.assertEqual(_checkpoint_metric({}), "validation_loss")
+        self.assertEqual(_checkpoint_metric({"checkpoint_metric": "val_MAE_raw"}), "val_MAE_raw")
+        self.assertAlmostEqual(_checkpoint_score("validation_loss", 1.2, 0.4, 0.5), 1.2)
+        self.assertAlmostEqual(_checkpoint_score("val_MAE_raw", 1.2, 0.4, 0.5), 0.4)
+        self.assertAlmostEqual(_checkpoint_score("val_RMSE_raw", 1.2, 0.4, 0.5), 0.5)
+        with self.assertRaisesRegex(ValueError, "unsupported checkpoint_metric"):
+            _checkpoint_metric({"checkpoint_metric": "test_MAE_raw"})
+
+    def test_exp103_full_prediction_writer_uses_expected_schema(self):
+        from training.train_exp103 import FULL_PREDICTION_COLUMNS, _write_full_predictions_gzip
+
+        class TinyCache:
+            horizon_steps = 2
+            nodes = np.asarray(["A", "B"])
+            timestamps = np.asarray(
+                [
+                    "2026-01-01T00:00:00",
+                    "2026-01-01T00:15:00",
+                    "2026-01-01T00:30:00",
+                    "2026-01-01T00:45:00",
+                ]
+            )
+            event_feature_names = np.asarray(["access_count", "departure_count", "load_jump_flag"])
+            split_indices = {"train": [0]}
+            load = np.asarray([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0]], dtype=np.float32)
+            event_features = np.asarray(
+                [
+                    [[0, 0, 0], [1, 0, 0]],
+                    [[1, 0, 0], [0, 1, 0]],
+                    [[0, 0, 1], [0, 0, 0]],
+                    [[0, 0, 0], [0, 0, 0]],
+                ],
+                dtype=np.float32,
+            )
+
+        payload = {
+            "prediction": np.asarray([[[1.5, 2.5], [3.0, 4.0]]], dtype=np.float32),
+            "target": np.asarray([[[1.0, 2.0], [2.0, 5.0]]], dtype=np.float32),
+            "origins": [1],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "predictions_full" / "test_event_graph_dynamic_v5.csv.gz"
+            _write_full_predictions_gzip(path, "event_graph_dynamic_v5", 42, "test", payload, TinyCache())
+
+            with gzip.open(path, "rt", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+
+        self.assertEqual(list(rows[0].keys()), FULL_PREDICTION_COLUMNS)
+        self.assertEqual(len(rows), 4)
+        self.assertEqual(rows[0]["baseline_id"], "event_graph_dynamic_v5")
+        self.assertEqual(rows[0]["split"], "test")
+        self.assertEqual(rows[0]["timestamp"], "2026-01-01T00:30:00")
+        self.assertEqual(rows[0]["event_window_any"], "1")
+        self.assertAlmostEqual(float(rows[0]["abs_error"]), 0.5)
 
     def test_exp103_event_loss_weights_emphasize_event_windows(self):
         from evcs.data.event_windows import build_event_loss_weights
