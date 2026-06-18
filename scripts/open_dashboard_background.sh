@@ -37,7 +37,7 @@ if ! lsof -ti tcp:8765 >/dev/null 2>&1; then
 fi
 
 if ! lsof -ti tcp:5173 >/dev/null 2>&1; then
-  nohup pnpm run dev -- --host 127.0.0.1 >"${VITE_LOG}" 2>&1 &
+  nohup pnpm exec vite --host 127.0.0.1 >"${VITE_LOG}" 2>&1 &
 fi
 
 python3 - <<'PY'

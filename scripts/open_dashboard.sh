@@ -31,4 +31,4 @@ echo "Opening ${URL}"
 open "${URL}" >/dev/null 2>&1 || true
 
 echo "Starting dashboard server. Keep this terminal window open while using the dashboard."
-pnpm run dev
+pnpm exec vite --host 127.0.0.1
