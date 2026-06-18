@@ -448,6 +448,7 @@ def _train_one_baseline(
             {
                 "baseline_id": baseline_id,
                 "epoch": epoch,
+                "epochs": epochs,
                 "train_loss": train_loss,
                 "validation_loss": val_loss,
                 "best_validation_loss": best_val_display,
@@ -1468,7 +1469,14 @@ def _write_training_dashboard(
     path.parent.mkdir(parents=True, exist_ok=True)
     latest_rows = _latest_curve_by_baseline(curve_rows)
     ranking_rows = sorted(baseline_rows, key=lambda row: float(row.get("MAE", "inf")))
-    cards = "".join(_baseline_card(baseline_id, latest_rows.get(baseline_id), active_baseline) for baseline_id in baseline_ids)
+    completed_ids = {str(row["baseline_id"]) for row in baseline_rows}
+    cards = "".join(
+        _baseline_card(baseline_id, latest_rows.get(baseline_id), active_baseline, completed_ids)
+        for baseline_id in baseline_ids
+    )
+    completed_count = len(completed_ids)
+    best_row = ranking_rows[0] if ranking_rows else None
+    best_label = f"{best_row['baseline_id']} · MAE {float(best_row['MAE']):.6f}" if best_row else "等待首个 baseline 完成"
     ranking = "".join(
         f"<tr><td>{index + 1}</td><td>{row['baseline_id']}</td><td>{float(row['MAE']):.6f}</td>"
         f"<td>{float(row['RMSE']):.6f}</td><td>{int(row.get('best_epoch', 0))}</td></tr>"
@@ -1481,16 +1489,25 @@ def _write_training_dashboard(
   <meta http-equiv="refresh" content="{max(3, refresh_seconds)}">
   <title>EXP-103 Training Dashboard</title>
   <style>
-    :root {{ color-scheme: light; --ink:#17202a; --muted:#5d6d7e; --line:#d7dbdd; --blue:#246bfe; --green:#138d75; --amber:#b9770e; }}
-    body {{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; color:var(--ink); background:#f6f8fb; }}
+    :root {{ color-scheme: light; --ink:#17202a; --muted:#5d6d7e; --line:#d7dbdd; --blue:#246bfe; --green:#138d75; --amber:#b9770e; --red:#b03a2e; }}
+    body {{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; color:var(--ink); background:#f4f7fb; }}
     main {{ max-width:1180px; margin:0 auto; padding:28px; }}
     h1 {{ margin:0 0 6px; font-size:28px; letter-spacing:0; }}
+    h2 {{ margin:0 0 14px; font-size:18px; letter-spacing:0; }}
     .sub {{ color:var(--muted); margin-bottom:20px; }}
+    .summary {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:18px 0; }}
+    .summary-item {{ background:white; border:1px solid var(--line); border-radius:8px; padding:14px; }}
+    .summary-label {{ color:var(--muted); font-size:12px; text-transform:uppercase; }}
+    .summary-value {{ font-size:20px; font-weight:700; margin-top:4px; }}
     .cards {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:18px 0 24px; }}
     .card {{ background:white; border:1px solid var(--line); border-radius:8px; padding:14px; box-shadow:0 1px 2px rgba(0,0,0,.04); }}
     .active {{ border-color:var(--blue); box-shadow:0 0 0 2px rgba(36,107,254,.10); }}
-    .name {{ font-weight:700; margin-bottom:8px; }}
+    .done {{ border-color:rgba(19,141,117,.45); }}
+    .name {{ font-weight:700; margin-bottom:8px; overflow-wrap:anywhere; }}
     .metric {{ color:var(--muted); font-size:13px; line-height:1.7; }}
+    .badge {{ display:inline-block; border:1px solid var(--line); border-radius:999px; padding:2px 8px; font-size:12px; color:var(--muted); margin-bottom:8px; }}
+    .badge.running {{ color:var(--blue); border-color:rgba(36,107,254,.45); }}
+    .badge.done {{ color:var(--green); border-color:rgba(19,141,117,.45); }}
     .bar {{ height:8px; background:#eaeef5; border-radius:999px; overflow:hidden; margin-top:10px; }}
     .fill {{ height:100%; background:linear-gradient(90deg,var(--blue),var(--green)); }}
     .panel {{ background:white; border:1px solid var(--line); border-radius:8px; padding:18px; margin-bottom:18px; }}
@@ -1504,7 +1521,12 @@ def _write_training_dashboard(
 <body>
 <main>
   <h1>EXP-103 Training Dashboard</h1>
-  <div class="sub">自动刷新：{max(3, refresh_seconds)} 秒。蓝线为 validation loss，绿线为 train loss；数值越低越好。</div>
+  <div class="sub">自动刷新：{max(3, refresh_seconds)} 秒。粗线为 validation loss，细线为 train loss；checkpoint metric 只来自 validation，不看 test。</div>
+  <section class="summary">
+    <div class="summary-item"><div class="summary-label">Baselines</div><div class="summary-value">{completed_count}/{len(baseline_ids)} completed</div></div>
+    <div class="summary-item"><div class="summary-label">Active</div><div class="summary-value">{active_baseline or "idle"}</div></div>
+    <div class="summary-item"><div class="summary-label">Best So Far</div><div class="summary-value">{best_label}</div></div>
+  </section>
   <section class="cards">{cards}</section>
   <section class="panel">
     <h2>Loss Curves</h2>
@@ -1529,19 +1551,52 @@ def _latest_curve_by_baseline(curve_rows: list[dict[str, Any]]) -> dict[str, dic
     return latest
 
 
-def _baseline_card(baseline_id: str, row: dict[str, Any] | None, active_baseline: str | None) -> str:
-    css_class = "card active" if baseline_id == active_baseline else "card"
+def _baseline_card(baseline_id: str, row: dict[str, Any] | None, active_baseline: str | None, completed_ids: set[str] | None = None) -> str:
+    completed_ids = completed_ids or set()
+    is_active = baseline_id == active_baseline
+    is_done = baseline_id in completed_ids
+    css_class = "card active" if is_active else "card done" if is_done else "card"
+    badge = "running" if is_active else "done" if is_done else "waiting"
+    badge_class = f"badge {badge}" if badge in {"running", "done"} else "badge"
     if row is None:
-        return f'<div class="{css_class}"><div class="name">{baseline_id}</div><div class="metric">waiting</div><div class="bar"><div class="fill" style="width:0%"></div></div></div>'
+        return f'<div class="{css_class}"><span class="{badge_class}">{badge}</span><div class="name">{baseline_id}</div><div class="metric">等待训练</div><div class="bar"><div class="fill" style="width:0%"></div></div></div>'
     epoch = int(row["epoch"])
-    width = min(100.0, 100.0 * epoch / max(1, epoch))
+    epochs = int(row.get("epochs", epoch))
+    width = min(100.0, 100.0 * epoch / max(1, epochs))
+    remaining_seconds = max(0, epochs - epoch) * float(row["epoch_seconds"])
+    eta_text = _format_duration(remaining_seconds)
+    checkpoint_metric = str(row.get("checkpoint_metric", "validation_loss"))
+    checkpoint_score = float(row.get("checkpoint_score", row.get("validation_loss", float("nan"))))
+    mae = row.get("val_MAE_raw", float("nan"))
+    mae_text = f" · val_MAE {float(mae):.6f}" if _is_finite_number(mae) else ""
     return (
-        f'<div class="{css_class}"><div class="name">{baseline_id}</div>'
-        f'<div class="metric">epoch {epoch} · train {float(row["train_loss"]):.6f}<br>'
-        f'val {float(row["validation_loss"]):.6f} · best {float(row["best_validation_loss"]):.6f}<br>'
-        f'lr {float(row["lr"]):.3g} · {float(row["epoch_seconds"]):.1f}s</div>'
+        f'<div class="{css_class}"><span class="{badge_class}">{badge}</span><div class="name">{baseline_id}</div>'
+        f'<div class="metric">epoch {epoch}/{epochs} · ETA {eta_text}<br>'
+        f'train {float(row["train_loss"]):.6f} · val_loss {float(row["validation_loss"]):.6f}<br>'
+        f'{checkpoint_metric} {checkpoint_score:.6f}{mae_text}<br>'
+        f'lr {float(row["lr"]):.3g} · {float(row["epoch_seconds"]):.1f}s/epoch</div>'
         f'<div class="bar"><div class="fill" style="width:{width:.1f}%"></div></div></div>'
     )
+
+
+def _format_duration(seconds: float) -> str:
+    if not math.isfinite(seconds):
+        return "n/a"
+    seconds = max(0, int(round(seconds)))
+    minutes, sec = divmod(seconds, 60)
+    hours, minute = divmod(minutes, 60)
+    if hours:
+        return f"{hours}h{minute:02d}m"
+    if minute:
+        return f"{minute}m{sec:02d}s"
+    return f"{sec}s"
+
+
+def _is_finite_number(value: Any) -> bool:
+    try:
+        return math.isfinite(float(value))
+    except (TypeError, ValueError):
+        return False
 
 
 def _svg_loss_chart(curve_rows: list[dict[str, Any]]) -> str:

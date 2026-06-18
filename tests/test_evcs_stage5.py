@@ -889,9 +889,13 @@ class EvcsStage5Tests(unittest.TestCase):
             {
                 "baseline_id": "event_graph_dynamic",
                 "epoch": 1,
+                "epochs": 10,
                 "train_loss": 0.5,
                 "validation_loss": 0.4,
                 "best_validation_loss": 0.4,
+                "val_MAE_raw": 0.08,
+                "checkpoint_metric": "val_MAE_raw",
+                "checkpoint_score": 0.08,
                 "improved": True,
                 "epoch_seconds": 1.2,
                 "lr": 0.001,
@@ -899,9 +903,13 @@ class EvcsStage5Tests(unittest.TestCase):
             {
                 "baseline_id": "event_graph_dynamic",
                 "epoch": 2,
+                "epochs": 10,
                 "train_loss": 0.4,
                 "validation_loss": 0.35,
                 "best_validation_loss": 0.35,
+                "val_MAE_raw": 0.07,
+                "checkpoint_metric": "val_MAE_raw",
+                "checkpoint_score": 0.07,
                 "improved": True,
                 "epoch_seconds": 1.1,
                 "lr": 0.001,
@@ -936,6 +944,9 @@ class EvcsStage5Tests(unittest.TestCase):
 
         self.assertIn("EXP-103 Training Dashboard", html)
         self.assertIn("event_graph_dynamic", html)
+        self.assertIn("1/2 completed", html)
+        self.assertIn("val_MAE_raw", html)
+        self.assertIn("width:20.0%", html)
         self.assertIn("polyline", html)
 
     def test_exp103_graph_temporal_tcn_forward_contract_when_torch_available(self):
