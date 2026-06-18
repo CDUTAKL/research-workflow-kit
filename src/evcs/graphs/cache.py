@@ -1,5 +1,18 @@
 from __future__ import annotations
 
+"""EXP-103 图结构缓存与 baseline 构造。
+
+这里的“图”不是静态论文插图，而是训练时喂给 GraphTemporalTCN 的稀疏邻接张量：
+
+- 静态图：`indices/weights` 在所有 prediction origin 上重复，例如 DTW 图和历史相关图。
+- 动态图：每个 prediction origin 都有自己的 top-k 邻居，例如事件动态图。
+- 双分支图：主 `indices/weights` 保存事件图，同时 `historical_*` 保存历史相关图。
+- 多通道图：`channel_indices/channel_weights` 为 access、departure、occupancy 等事件族各建一张图。
+
+因果边界非常重要：历史相关图和 DTW 图只使用 train split 的负载历史；
+事件动态图只使用当前预测 origin 之前的 history window。这样训练和测试都不会偷看未来。
+"""
+
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,6 +25,13 @@ from evcs.data.tensor_cache import EVCSTensorCache
 
 @dataclass(frozen=True)
 class SparseGraphCache:
+    """训练阶段使用的稀疏图缓存。
+
+    `indices[o, i, k]` 表示第 `o` 个预测起点、源节点 `i` 的第 `k` 个邻居；
+    `weights[o, i, k]` 是对应归一化权重。即使是静态图，也会复制到 origin 维度，
+    这样 Dataset/Model 可以使用同一套张量接口。
+    """
+
     baseline_id: str
     indices: np.ndarray
     weights: np.ndarray
@@ -27,6 +47,8 @@ class SparseGraphCache:
     channel_feature_names: dict[str, list[str]] | None = None
 
     def manifest(self) -> dict[str, Any]:
+        """导出可写入 `graph_manifest.json` 的轻量说明，便于 evidence 包审计。"""
+
         manifest = {
             "baseline_id": self.baseline_id,
             "dynamic": self.dynamic,
@@ -66,6 +88,13 @@ def build_exp103_graph_cache(
     dtw_cache_path: str | Path | None = None,
     verbose: bool = False,
 ) -> dict[str, SparseGraphCache]:
+    """根据 baseline 列表构造 EXP-103 所需图缓存。
+
+    该函数是 baseline 身份的总入口：训练脚本传入配置中的 baseline id，
+    这里负责映射到真实图结构。为了保证对照公平，所有图共享 `top_k` 和节点顺序；
+    只有边权来源不同。
+    """
+
     if top_k < 1:
         raise ValueError("top_k must be >= 1")
     if not 0.0 <= rho <= 1.0:
@@ -84,18 +113,36 @@ def build_exp103_graph_cache(
     graphs: dict[str, SparseGraphCache] = {}
     for baseline_id in baseline_ids:
         if baseline_id == "event_graph_dynamic":
+            # 主事件图：按每个预测起点的近期事件特征相似度动态选邻居。
             graphs[baseline_id] = event_graph
         elif baseline_id == "event_graph_dynamic_rho":
+            # 平滑事件图：检验动态事件图是否受单个时间片噪声影响过大。
             graphs[baseline_id] = smoothed_event_graph
         elif baseline_id == "event_graph_multichannel":
             graphs[baseline_id] = _dynamic_multichannel_event_graph(cache, top_k)
         elif baseline_id == "dtw_demand_graph":
+            # 强传统图 baseline：只看历史负载形状相似，不使用事件特征。
             dtw_graph = dtw_graph or _dtw_graph(cache, top_k, train_end, dtw_max_points, dtw_cache_path, verbose)
             graphs[baseline_id] = dtw_graph
         elif baseline_id == "historical_correlation_graph":
+            # 另一个强 baseline：训练期负载相关性图，不能用测试期负载。
             historical_graph = historical_graph or _historical_correlation_graph(cache, top_k, train_end)
             graphs[baseline_id] = historical_graph
         elif baseline_id == "historical_event_dual_graph":
+            # 双分支候选：事件图和历史相关图同时输入模型，用于证明事件结构可补充稳态相关结构。
+            historical_graph = historical_graph or _historical_correlation_graph(cache, top_k, train_end)
+            graphs[baseline_id] = SparseGraphCache(
+                baseline_id,
+                event_graph.indices.copy(),
+                event_graph.weights.copy(),
+                cache.nodes,
+                dynamic=True,
+                train_origin_end=train_end,
+                top_k=top_k,
+                historical_indices=historical_graph.indices.copy(),
+                historical_weights=historical_graph.weights.copy(),
+            )
+        elif baseline_id == "historical_event_residual_graph":
             historical_graph = historical_graph or _historical_correlation_graph(cache, top_k, train_end)
             graphs[baseline_id] = SparseGraphCache(
                 baseline_id,
@@ -109,15 +156,34 @@ def build_exp103_graph_cache(
                 historical_weights=historical_graph.weights.copy(),
             )
         elif baseline_id == "event_dtw_fusion_graph":
+            # 事件图与 DTW 图线性融合，作为“结构融合是否更稳”的候选模型。
             dtw_graph = dtw_graph or _dtw_graph(cache, top_k, train_end, dtw_max_points, dtw_cache_path, verbose)
             graphs[baseline_id] = _fusion_graph(cache, smoothed_event_graph, dtw_graph, top_k, lambda_event, train_end)
         elif baseline_id == "random_event_graph":
+            # 随机图对照：验证收益不是来自“任意邻居聚合”。
             graphs[baseline_id] = _random_like_event(cache, event_graph, rng)
         elif baseline_id == "shuffled_event_graph":
+            # 时间打乱对照：保留事件图边权分布，但破坏事件发生时序。
             graphs[baseline_id] = _shuffled_like_event(cache, event_graph, rng)
         elif baseline_id == "semantic_shuffled_event_graph":
+            # 语义打乱对照：按事件族内部打乱特征，检验事件语义是否真的有用。
             graphs[baseline_id] = _semantic_shuffled_event_graph(cache, top_k, rng)
+        elif baseline_id == "semantic_shuffled_event_residual_graph":
+            historical_graph = historical_graph or _historical_correlation_graph(cache, top_k, train_end)
+            semantic_graph = _semantic_shuffled_event_graph(cache, top_k, rng)
+            graphs[baseline_id] = SparseGraphCache(
+                baseline_id,
+                semantic_graph.indices.copy(),
+                semantic_graph.weights.copy(),
+                cache.nodes,
+                dynamic=True,
+                train_origin_end=train_end,
+                top_k=top_k,
+                historical_indices=historical_graph.indices.copy(),
+                historical_weights=historical_graph.weights.copy(),
+            )
         elif baseline_id == "deleted_event_graph":
+            # 删除图对照：保留接口和训练预算，但把边权置零，隔离图结构贡献。
             graphs[baseline_id] = SparseGraphCache(
                 baseline_id,
                 event_graph.indices.copy(),
@@ -128,6 +194,7 @@ def build_exp103_graph_cache(
                 top_k=top_k,
             )
         elif baseline_id in {"no_graph", "behavior_concat"}:
+            # 非图 baseline 仍返回空图缓存，让 Dataset 和 Model 接口保持一致。
             graphs[baseline_id] = SparseGraphCache(
                 baseline_id,
                 np.zeros_like(event_graph.indices),
@@ -143,6 +210,8 @@ def build_exp103_graph_cache(
 
 
 def _historical_correlation_graph(cache: EVCSTensorCache, top_k: int, train_end: int) -> SparseGraphCache:
+    """用训练期负载相关性构造静态图，负相关会被裁剪为 0。"""
+
     values = cache.load[: train_end + 1].T
     similarity = _safe_positive_correlation(values)
     similarity = np.clip(similarity, 0.0, None)
@@ -158,6 +227,12 @@ def _dtw_graph(
     dtw_cache_path: str | Path | None,
     verbose: bool,
 ) -> SparseGraphCache:
+    """构造或读取 DTW 需求相似图。
+
+    DTW 计算昂贵，所以正式 run 会按 metadata 缓存。metadata 包含节点、top_k、train_end
+    和负载指纹，避免不同实验误读旧缓存。
+    """
+
     metadata = _dtw_metadata(cache, top_k, train_end, dtw_max_points)
     if dtw_cache_path:
         cached = _load_cached_dtw_graph(Path(dtw_cache_path), metadata, cache)
@@ -186,6 +261,12 @@ def _dynamic_event_graph(
     event_features: np.ndarray | None = None,
     baseline_id: str = "event_graph_dynamic",
 ) -> SparseGraphCache:
+    """构造预测起点相关的事件动态图。
+
+    每个 origin 只聚合 `[origin-history+1, origin]` 的事件特征均值，再对节点做 z-score
+    和余弦相似度。这样 A_event,t 随时间变化，但不会使用预测 horizon 内的信息。
+    """
+
     features_source = event_features if event_features is not None else cache.event_features
     origin_count = len(cache.origin_indices)
     node_count = len(cache.nodes)
@@ -211,6 +292,8 @@ def _dynamic_event_graph(
 
 
 def _dynamic_multichannel_event_graph(cache: EVCSTensorCache, top_k: int) -> SparseGraphCache:
+    """按事件语义族分别建图，并保存多通道稀疏邻接。"""
+
     origin_count = len(cache.origin_indices)
     node_count = len(cache.nodes)
     feature_names = list(cache.event_feature_names)
@@ -252,6 +335,8 @@ def _dynamic_multichannel_event_graph(cache: EVCSTensorCache, top_k: int) -> Spa
 
 
 def _smooth_dynamic_event_graph(cache: EVCSTensorCache, event_graph: SparseGraphCache, top_k: int, rho: float) -> SparseGraphCache:
+    """对动态图做一阶时间平滑，rho 越大越依赖上一时刻图。"""
+
     if rho == 0.0:
         return SparseGraphCache(
             "event_graph_dynamic_rho",
@@ -284,6 +369,12 @@ def _fusion_graph(
     lambda_event: float,
     train_end: int,
 ) -> SparseGraphCache:
+    """融合事件图和 DTW 图。
+
+    `lambda_event` 控制事件图占比；融合后重新 row-normalize 并截取 top-k，
+    因此输出仍满足模型的稀疏图接口。
+    """
+
     node_count = len(cache.nodes)
     event_dense = _sparse_cache_to_dense(event_graph, node_count)
     dtw_dense = _sparse_cache_to_dense(dtw_graph, node_count)
@@ -300,6 +391,8 @@ def _static_graph(
     top_k: int,
     train_end: int,
 ) -> SparseGraphCache:
+    """把静态相似度矩阵转成每个 origin 复用的 top-k 稀疏图。"""
+
     row_indices, row_weights = _topk_sparse(similarity, top_k)
     indices = np.repeat(row_indices[np.newaxis, :, :], len(cache.origin_indices), axis=0).astype(np.int32)
     weights = np.repeat(row_weights[np.newaxis, :, :], len(cache.origin_indices), axis=0).astype(np.float32)
@@ -321,6 +414,8 @@ def _dynamic_dense_graph(
     top_k: int,
     train_origin_end: int | None,
 ) -> SparseGraphCache:
+    """把 dense dynamic adjacency 转成统一的 top-k 稀疏缓存。"""
+
     origin_count = dense.shape[0]
     node_count = len(cache.nodes)
     indices = np.zeros((origin_count, node_count, top_k), dtype=np.int32)
@@ -333,6 +428,8 @@ def _dynamic_dense_graph(
 
 
 def _random_like_event(cache: EVCSTensorCache, event_graph: SparseGraphCache, rng: np.random.Generator) -> SparseGraphCache:
+    """生成随机邻居图，保持 top-k 预算但不保留事件语义。"""
+
     indices = np.zeros_like(event_graph.indices)
     weights = np.zeros_like(event_graph.weights)
     node_count = len(cache.nodes)
@@ -347,6 +444,8 @@ def _random_like_event(cache: EVCSTensorCache, event_graph: SparseGraphCache, rn
 
 
 def _shuffled_like_event(cache: EVCSTensorCache, event_graph: SparseGraphCache, rng: np.random.Generator) -> SparseGraphCache:
+    """打乱 origin 顺序，保留边权分布但破坏时间对应关系。"""
+
     order = np.arange(event_graph.indices.shape[0])
     rng.shuffle(order)
     return SparseGraphCache(
@@ -361,6 +460,8 @@ def _shuffled_like_event(cache: EVCSTensorCache, event_graph: SparseGraphCache, 
 
 
 def _semantic_shuffled_event_graph(cache: EVCSTensorCache, top_k: int, rng: np.random.Generator) -> SparseGraphCache:
+    """在事件族内部打乱特征行，破坏事件语义和节点-时间对应关系。"""
+
     shuffled = cache.event_features.copy()
     feature_names = list(cache.event_feature_names)
     for channel_features in DEFAULT_EVENT_CHANNELS.values():
@@ -383,6 +484,8 @@ def _prepare_static_load(load: np.ndarray, max_points: int | None) -> np.ndarray
 
 
 def _dtw_similarity(values: np.ndarray, verbose: bool = False) -> np.ndarray:
+    """计算所有节点两两 DTW 相似度，返回越大越相似的权重矩阵。"""
+
     count = values.shape[0]
     similarity = np.zeros((count, count), dtype=np.float32)
     total_pairs = count * (count - 1) // 2
@@ -441,6 +544,8 @@ def _row_normalize_dense(values: np.ndarray) -> np.ndarray:
 
 
 def _topk_sparse(similarity: np.ndarray, top_k: int) -> tuple[np.ndarray, np.ndarray]:
+    """将 dense 相似度矩阵转成每行 top-k 邻居及归一化权重。"""
+
     node_count = similarity.shape[0]
     indices = np.zeros((node_count, top_k), dtype=np.int32)
     weights = np.zeros((node_count, top_k), dtype=np.float32)

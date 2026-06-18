@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+"""早期 EXP-103 图 baseline 构造工具。
+
+这个模块保留了“静态图 + 一阶 lag 预测”的轻量评估路径，主要服务于快速 sanity check：
+在正式 TCN 训练之前，先确认 event graph、DTW graph、historical correlation graph
+和随机/打乱/删除负控之间确实存在结构差异。
+"""
+
 from dataclasses import dataclass
 from typing import Any
 
@@ -11,6 +18,8 @@ from evcs.graphs.event_graph import EventAdjacency, build_event_adjacency
 
 @dataclass(frozen=True)
 class GraphBaseline:
+    """一个静态图 baseline 的最小可复现实体。"""
+
     baseline_id: str
     nodes: list[str]
     adjacency: np.ndarray
@@ -31,6 +40,12 @@ def build_graph_baseline(
     event: EventAdjacency | None = None,
     target_pivot: pd.DataFrame | None = None,
 ) -> GraphBaseline:
+    """按 baseline_id 构造事件图、需求相似图或负控图。
+
+    该函数是轻量图实验的统一入口；正式 V5 训练使用 `evcs.graphs.cache`
+    构建动态图缓存，但这里仍然有价值，因为它能快速验证图语义和对照设计。
+    """
+
     if event is None:
         event = build_event_adjacency(frame, node_field=node_field, feature_fields=event_feature_fields, top_k=top_k)
     if baseline_id in {"event_graph", "A_event,t"}:
@@ -77,6 +92,8 @@ def graph_lag_prediction(
     node_field: str,
     target_field: str,
 ) -> pd.DataFrame:
+    """使用上一时刻的邻居加权负荷做最简单的图 lag 预测。"""
+
     data = frame.copy()
     data[timestamp_field] = pd.to_datetime(data[timestamp_field], errors="coerce")
     pivot = data.pivot_table(index=timestamp_field, columns=node_field, values=target_field, aggfunc="mean")
@@ -110,6 +127,8 @@ def graph_lag_metrics(
 
 
 def graph_lag_metrics_from_pivot(pivot: pd.DataFrame, graph: GraphBaseline) -> dict[str, float | int]:
+    """在同一 pivot 矩阵上计算 MAE/RMSE，保证不同图 baseline 公平比较。"""
+
     pivot = pivot.reindex(columns=graph.nodes).sort_index().fillna(0.0)
     actual = np.nan_to_num(pivot.iloc[1:].to_numpy(dtype=float), nan=0.0, posinf=0.0, neginf=0.0)
     lagged = np.nan_to_num(pivot.iloc[:-1].to_numpy(dtype=float), nan=0.0, posinf=0.0, neginf=0.0)
@@ -141,6 +160,8 @@ def _from_similarity(
     max_points: int | None = None,
     pivot: pd.DataFrame | None = None,
 ) -> GraphBaseline:
+    """从 DTW 距离或历史相关系数构造 top-k 行归一化邻接矩阵。"""
+
     if pivot is None:
         pivot = _node_target_matrix(frame, node_field, timestamp_field, target_field)
     pivot = _prepare_similarity_pivot(pivot, resample=resample, max_points=max_points)
@@ -181,6 +202,8 @@ def _prepare_similarity_pivot(pivot: pd.DataFrame, resample: str | None = None, 
 
 
 def _dtw_similarity(values: np.ndarray) -> np.ndarray:
+    """把两两 DTW 距离转换为相似度权重，距离越小权重越高。"""
+
     count = values.shape[0]
     similarity = np.zeros((count, count), dtype=float)
     for i in range(count):
@@ -205,6 +228,8 @@ def _dtw_distance(left: np.ndarray, right: np.ndarray) -> float:
 
 
 def _random_like(event: EventAdjacency, seed: int) -> GraphBaseline:
+    """保留事件图稀疏掩码但随机化权重，用作结构负控。"""
+
     rng = np.random.default_rng(seed)
     random_weights = rng.random(event.adjacency.shape)
     random_weights[event.adjacency <= 0] = 0.0
@@ -213,6 +238,8 @@ def _random_like(event: EventAdjacency, seed: int) -> GraphBaseline:
 
 
 def _shuffled(event: EventAdjacency, seed: int) -> GraphBaseline:
+    """打乱事件图边权，用作语义负控。"""
+
     rng = np.random.default_rng(seed)
     flat = event.adjacency.flatten()
     rng.shuffle(flat)

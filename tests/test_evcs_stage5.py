@@ -722,6 +722,42 @@ class EvcsStage5Tests(unittest.TestCase):
 
         self.assertAlmostEqual(float(_weighted_loss(criterion, prediction, target, weights)), float(torch.abs(prediction - target).mean()))
 
+    def test_exp103_event_residual_loss_handles_empty_masks_when_torch_available(self):
+        torch = _maybe_import_torch()
+        if torch is None:
+            self.skipTest("PyTorch is not installed in the local smoke environment")
+        from training.train_exp103 import compute_event_residual_loss
+
+        class DummyModel:
+            last_gate = torch.full((1, 2, 1), 0.25)
+            last_event_correction = torch.zeros(1, 2, 2)
+
+        prediction = torch.tensor([[[1.0, 2.0], [3.0, 4.0]]])
+        target = torch.tensor([[[1.5, 1.0], [2.0, 5.0]]])
+        batch = {"event_window_masks": torch.zeros(1, 2, 6)}
+        loss = compute_event_residual_loss(
+            batch,
+            prediction,
+            DummyModel(),
+            target,
+            torch.nn.L1Loss(reduction="none"),
+            torch.ones_like(prediction),
+            {
+                "enabled": True,
+                "mode": "event_residual_weighted_mae",
+                "global_weight": 1.0,
+                "event_window_weight": 0.35,
+                "departure_weight": 0.25,
+                "load_jump_weight": 0.20,
+                "access_weight": 0.10,
+                "gate_separation_weight": 0.05,
+                "gate_margin": 0.05,
+                "residual_l1_weight": 0.01,
+            },
+        )
+
+        self.assertTrue(torch.isfinite(loss))
+
     def test_exp103_graph_cache_supports_multichannel_dual_and_semantic_shuffle(self):
         from evcs.data.tensor_cache import build_tensor_cache
         from evcs.graphs.cache import build_exp103_graph_cache
@@ -755,8 +791,10 @@ class EvcsStage5Tests(unittest.TestCase):
                     "event_graph_dynamic",
                     "event_graph_multichannel",
                     "historical_event_dual_graph",
+                    "historical_event_residual_graph",
                     "shuffled_event_graph",
                     "semantic_shuffled_event_graph",
+                    "semantic_shuffled_event_residual_graph",
                 ],
                 top_k=2,
                 seed=42,
@@ -764,6 +802,8 @@ class EvcsStage5Tests(unittest.TestCase):
 
         multichannel = graphs["event_graph_multichannel"]
         dual = graphs["historical_event_dual_graph"]
+        residual = graphs["historical_event_residual_graph"]
+        semantic_residual = graphs["semantic_shuffled_event_residual_graph"]
         semantic = graphs["semantic_shuffled_event_graph"]
         old_shuffle = graphs["shuffled_event_graph"]
         event_graph = graphs["event_graph_dynamic"]
@@ -774,6 +814,9 @@ class EvcsStage5Tests(unittest.TestCase):
         self.assertEqual(multichannel.channel_names, ["access", "departure", "activity", "occupancy", "demand", "load_jump"])
         self.assertIsNotNone(dual.historical_indices)
         self.assertEqual(dual.historical_indices.shape, event_graph.indices.shape)
+        self.assertIsNotNone(residual.historical_indices)
+        self.assertEqual(residual.historical_indices.shape, event_graph.indices.shape)
+        self.assertIsNotNone(semantic_residual.historical_indices)
         semantic_overlap = (semantic.indices == event_graph.indices).mean()
         old_overlap = (old_shuffle.indices == event_graph.indices).mean()
         self.assertLess(float(semantic_overlap), float(old_overlap))
@@ -859,6 +902,32 @@ class EvcsStage5Tests(unittest.TestCase):
         prediction = model(history_load, history_events, graph_indices, graph_weights)
 
         self.assertEqual(tuple(prediction.shape), (4, 2, 3))
+
+    def test_exp103_v4_receptive_field_uses_dilation_schedule(self):
+        from evcs.models.graph_tcn import compute_receptive_field
+
+        self.assertEqual(compute_receptive_field(kernel_size=3, tcn_layers=6, dilation_schedule=[1, 2, 4, 8, 16, 32]), 127)
+        self.assertEqual(compute_receptive_field(kernel_size=3, tcn_layers=4, dilation_schedule=None), 9)
+
+    def test_exp103_v4_baseline_suffixes_resolve_to_graph_contracts(self):
+        from training.train_exp103 import _canonical_exp103_baseline_id, _graph_mode_for_baseline
+
+        training_config = {
+            "graph_mode": "concat",
+            "baseline_graph_modes": {
+                "historical_event_dual_graph_v4": "event_conditional_dual",
+                "historical_event_residual_graph_v5": "event_residual_correction",
+                "event_graph_multichannel": "multichannel_concat",
+            },
+        }
+
+        self.assertEqual(_canonical_exp103_baseline_id("event_graph_dynamic_v4"), "event_graph_dynamic")
+        self.assertEqual(_canonical_exp103_baseline_id("semantic_shuffled_event_graph_v4"), "semantic_shuffled_event_graph")
+        self.assertEqual(_canonical_exp103_baseline_id("historical_event_residual_graph_v5"), "historical_event_residual_graph")
+        self.assertEqual(_canonical_exp103_baseline_id("semantic_shuffled_event_residual_graph_v5"), "semantic_shuffled_event_residual_graph")
+        self.assertEqual(_graph_mode_for_baseline(training_config, "historical_event_dual_graph_v4"), "event_conditional_dual")
+        self.assertEqual(_graph_mode_for_baseline(training_config, "historical_event_residual_graph_v5"), "event_residual_correction")
+        self.assertEqual(_graph_mode_for_baseline(training_config, "event_graph_multichannel_v4"), "multichannel_concat")
 
     def test_exp103_graph_temporal_tcn_gated_residual_forward_contract_when_torch_available(self):
         torch = _maybe_import_torch()
@@ -952,6 +1021,145 @@ class EvcsStage5Tests(unittest.TestCase):
         self.assertEqual(tuple(multi_prediction.shape), (2, 2, 3))
         self.assertAlmostEqual(float(multi_model.last_channel_weights.sum()), 1.0, places=5)
 
+    def test_exp103_v4_event_conditional_dual_forward_when_torch_available(self):
+        torch = _maybe_import_torch()
+        if torch is None:
+            self.skipTest("PyTorch is not installed in the local smoke environment")
+        from evcs.models.graph_tcn import GraphTemporalTCN
+
+        history_load = torch.ones(2, 6, 3)
+        history_events = torch.ones(2, 6, 3, 4)
+        graph_indices = torch.tensor([[[1, 2], [2, 0], [0, 1]]] * 2)
+        graph_weights = torch.full((2, 3, 2), 0.5)
+        event_context = torch.zeros(2, 3, 10)
+        event_context[:, :, 0] = 1.0
+
+        model = GraphTemporalTCN(
+            load_channels=1,
+            event_channels=4,
+            hidden_channels=8,
+            tcn_layers=3,
+            kernel_size=3,
+            dropout=0.0,
+            horizon_steps=2,
+            use_events=True,
+            use_graph=True,
+            graph_mode="event_conditional_dual",
+            temporal_block="gated_dilated",
+            dilation_schedule=[1, 2, 4],
+            graph_message_stage="encoded_state",
+            event_context_channels=10,
+        )
+        prediction = model(
+            history_load,
+            history_events,
+            graph_indices,
+            graph_weights,
+            historical_graph_indices=graph_indices,
+            historical_graph_weights=graph_weights,
+            event_context=event_context,
+        )
+
+        self.assertEqual(tuple(prediction.shape), (2, 2, 3))
+        self.assertIsNotNone(model.last_gate)
+        self.assertGreaterEqual(float(model.last_gate.min()), 0.0)
+        self.assertLessEqual(float(model.last_gate.max()), 1.0)
+        self.assertGreaterEqual(float(model.alpha_hist), 0.0)
+        self.assertGreaterEqual(float(model.alpha_event), 0.0)
+
+    def test_exp103_v4_multichannel_event_conditional_forward_when_torch_available(self):
+        torch = _maybe_import_torch()
+        if torch is None:
+            self.skipTest("PyTorch is not installed in the local smoke environment")
+        from evcs.models.graph_tcn import GraphTemporalTCN
+
+        history_load = torch.ones(2, 6, 3)
+        history_events = torch.ones(2, 6, 3, 4)
+        graph_indices = torch.tensor([[[1, 2], [2, 0], [0, 1]]] * 2)
+        graph_weights = torch.full((2, 3, 2), 0.5)
+        channel_indices = torch.tensor([[[[1, 2], [2, 0], [0, 1]], [[2, 1], [0, 2], [1, 0]]]] * 2)
+        channel_weights = torch.full((2, 2, 3, 2), 0.5)
+        event_context = torch.zeros(2, 3, 8)
+
+        model = GraphTemporalTCN(
+            load_channels=1,
+            event_channels=4,
+            hidden_channels=8,
+            tcn_layers=2,
+            kernel_size=3,
+            dropout=0.0,
+            horizon_steps=2,
+            use_events=True,
+            use_graph=True,
+            graph_mode="multichannel_event_conditional",
+            graph_channel_count=2,
+            temporal_block="gated_dilated",
+            dilation_schedule=[1, 2],
+            graph_message_stage="encoded_state",
+            event_context_channels=8,
+        )
+        prediction = model(
+            history_load,
+            history_events,
+            graph_indices,
+            graph_weights,
+            event_channel_indices=channel_indices,
+            event_channel_weights=channel_weights,
+            event_context=event_context,
+        )
+
+        self.assertEqual(tuple(prediction.shape), (2, 2, 3))
+        self.assertIsNotNone(model.last_channel_weights)
+        self.assertAlmostEqual(float(model.last_channel_weights.sum()), 1.0, places=5)
+
+    def test_exp103_v5_event_residual_correction_forward_when_torch_available(self):
+        torch = _maybe_import_torch()
+        if torch is None:
+            self.skipTest("PyTorch is not installed in the local smoke environment")
+        from evcs.models.graph_tcn import GraphTemporalTCN
+
+        history_load = torch.ones(2, 6, 3)
+        history_events = torch.ones(2, 6, 3, 4)
+        graph_indices = torch.tensor([[[1, 2], [2, 0], [0, 1]]] * 2)
+        graph_weights = torch.full((2, 3, 2), 0.5)
+        event_context = torch.zeros(2, 3, 9)
+        model = GraphTemporalTCN(
+            load_channels=1,
+            event_channels=4,
+            hidden_channels=8,
+            tcn_layers=2,
+            kernel_size=3,
+            dropout=0.0,
+            horizon_steps=2,
+            use_events=True,
+            use_graph=True,
+            graph_mode="event_residual_correction",
+            temporal_block="gated_dilated",
+            dilation_schedule=[1, 2],
+            graph_message_stage="encoded_state",
+            event_context_channels=9,
+            node_count=3,
+            node_embedding_dim=4,
+            residual_clip=0.35,
+            event_gate_init_bias=-1.0,
+        )
+        prediction = model(
+            history_load,
+            history_events,
+            graph_indices,
+            graph_weights,
+            historical_graph_indices=graph_indices,
+            historical_graph_weights=graph_weights,
+            event_context=event_context,
+        )
+
+        self.assertEqual(tuple(prediction.shape), (2, 2, 3))
+        self.assertIsNotNone(model.last_gate)
+        self.assertIsNotNone(model.last_event_residual)
+        self.assertLessEqual(float(model.last_event_residual.abs().max()), 0.35001)
+        reconstructed = model.last_hist_prediction + model.last_event_correction
+        self.assertTrue(torch.allclose(prediction.permute(0, 2, 1), reconstructed, atol=1e-6))
+
     def test_exp103_train_runner_writes_smoke_artifacts_when_torch_available(self):
         if _maybe_import_torch() is None:
             self.skipTest("PyTorch is not installed in the local smoke environment")
@@ -1034,6 +1242,12 @@ class EvcsStage5Tests(unittest.TestCase):
                 "event_window_metrics.csv",
                 "training_curves.csv",
                 "predictions_sample.csv",
+                "horizon_metrics.csv",
+                "graph_gate_metrics.csv",
+                "residual_diagnostics.csv",
+                "event_loss_diagnostics.csv",
+                "run_manifest.json",
+                "baseline_deltas.csv",
                 "graph_manifest.json",
                 "manifest.json",
                 "logs/train.log",

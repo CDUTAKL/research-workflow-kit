@@ -50,6 +50,11 @@ training:
   scheduler_patience: 3
   min_lr: 0.00001
   early_stopping_patience: 8
+  early_stopping_min_epochs:
+    default: 0
+    event_graph_dynamic: 30
+    event_graph_dynamic_rho: 30
+    event_dtw_fusion_graph: 30
   amp: true
   num_workers: 8
   pin_memory: true

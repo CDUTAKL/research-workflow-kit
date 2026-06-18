@@ -1,9 +1,30 @@
 from __future__ import annotations
 
+"""EXP-103 图事件预测实验训练入口。
+
+这个脚本是 v3/v4/v5 正式 GPU 证据的统一训练器。它的设计目标不是只跑出一个模型，
+而是在同一数据 split、同一训练预算、同一指标口径下顺序训练一组 baseline，
+并把每个 baseline 的结果写成可审计的 evidence 表。
+
+关键输出文件：
+
+- `config_resolved.json`: 本次 run 实际使用的完整配置。
+- `graph_manifest.json`: 每个 baseline 的图结构、top-k、因果边界和通道信息。
+- `primary_metric_summary.csv`: 论文主表，按 test MAE 排名。
+- `baseline_deltas.csv`: 与行为拼接、DTW、历史相关等 comparator 的直接差值。
+- `event_window_metrics.csv`: 事件窗口内 MAE/RMSE，用来判断事件图是否在事件状态下更有价值。
+- `graph_gate_metrics.csv` / `residual_diagnostics.csv`: gate 和 residual 的解释性诊断。
+- `training_dashboard.html`: 长跑训练时的轻量可视化进度面板。
+
+正式结论优先引用 test MAE；RMSE 用作大误差和尾部风险的补充诊断。
+"""
+
 import argparse
+import hashlib
 import json
 import math
 import platform
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -33,7 +54,7 @@ from evcs.data.event_windows import build_event_loss_weights, event_window_masks
 from evcs.data.tensor_cache import build_tensor_cache, load_tensor_cache, save_tensor_cache
 from evcs.data.window_dataset import EVCSWindowDataset
 from evcs.graphs.cache import build_exp103_graph_cache
-from evcs.models.graph_tcn import GraphTemporalTCN
+from evcs.models.graph_tcn import GraphTemporalTCN, compute_receptive_field
 from evcs.utils.artifacts import write_json, write_manifest
 from evcs.utils.config import load_experiment_config
 
@@ -50,6 +71,8 @@ DEFAULT_BASELINES = [
 
 
 def main() -> None:
+    """读取配置、构图、逐 baseline 训练，并写出 EXP-103 evidence。"""
+
     if torch is None or nn is None or DataLoader is None:
         raise SystemExit(f"PyTorch is required for EXP-103 training: {TORCH_IMPORT_ERROR}")
     parser = argparse.ArgumentParser(description="Train EXP-103 Graph-TCN graph ablation baselines.")
@@ -58,6 +81,7 @@ def main() -> None:
     args = parser.parse_args()
 
     config = load_experiment_config(args.config)
+    _attach_model_contract(config)
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "logs").mkdir(parents=True, exist_ok=True)
@@ -67,12 +91,17 @@ def main() -> None:
 
     seed = int(config.get("seed", 42))
     _set_seed(seed)
+    # tensor cache 是所有 baseline 的共同输入，只有 manifest 与配置匹配时才复用，
+    # 防止 history/horizon/event feature 开关变化后误读旧缓存。
     cache = _load_or_build_cache(config)
     baseline_ids = list(config.get("baselines", DEFAULT_BASELINES))
+    # 带 _v4/_v5 后缀的 baseline 会映射回同一个图构造入口；
+    # 后缀只代表实验版本身份，不改变底层图语义。
+    graph_baseline_ids = list(dict.fromkeys(_canonical_exp103_baseline_id(baseline_id) for baseline_id in baseline_ids))
     graph_config = config.get("graph", {})
     graphs = build_exp103_graph_cache(
         cache,
-        baseline_ids=baseline_ids,
+        baseline_ids=graph_baseline_ids,
         top_k=int(graph_config.get("top_k", 5)),
         seed=seed,
         dtw_max_points=int(graph_config["dtw_max_points"]) if graph_config.get("dtw_max_points") else None,
@@ -94,6 +123,8 @@ def main() -> None:
                 "causal_dynamic_graph_policy": "event graph uses each origin history window only",
             },
             "graphs": {baseline_id: graph.manifest() for baseline_id, graph in graphs.items()},
+            "requested_baselines": baseline_ids,
+            "graph_baselines": graph_baseline_ids,
         },
     )
 
@@ -102,6 +133,10 @@ def main() -> None:
     log_lines = [f"device={device}", f"baselines={','.join(baseline_ids)}"]
     baseline_rows: list[dict[str, Any]] = []
     event_rows: list[dict[str, Any]] = []
+    horizon_rows: list[dict[str, Any]] = []
+    gate_rows: list[dict[str, Any]] = []
+    residual_rows: list[dict[str, Any]] = []
+    event_loss_rows: list[dict[str, Any]] = []
     curve_rows: list[dict[str, Any]] = []
     sample_rows: list[dict[str, Any]] = []
     metrics_by_baseline: dict[str, dict[str, Any]] = {}
@@ -111,7 +146,7 @@ def main() -> None:
             baseline_id,
             config,
             cache,
-            graphs[baseline_id],
+            graphs[_canonical_exp103_baseline_id(baseline_id)],
             device,
             out_dir / "checkpoints" / f"best_{baseline_id}.pt",
             log_lines,
@@ -120,10 +155,15 @@ def main() -> None:
         )
         baseline_rows.append(train_result["metrics"])
         event_rows.extend(train_result["event_metrics"])
+        horizon_rows.extend(train_result["horizon_metrics"])
+        gate_rows.extend(train_result["gate_metrics"])
+        residual_rows.extend(train_result["residual_metrics"])
+        event_loss_rows.extend(train_result["event_loss_metrics"])
         curve_rows.extend(train_result["curves"])
         sample_rows.extend(train_result["samples"])
         metrics_by_baseline[baseline_id] = train_result["metrics"]
         log_lines.append(f"{baseline_id}: test_MAE={train_result['metrics']['MAE']:.6f}")
+        # 每个 baseline 完成后立即刷新 dashboard 和 CSV；远程训练中断时也能保留已完成证据。
         _write_training_dashboard(
             out_dir / "training_dashboard.html",
             curve_rows,
@@ -132,29 +172,34 @@ def main() -> None:
             active_baseline=None,
             refresh_seconds=int(config.get("progress", {}).get("refresh_seconds", 10)),
         )
+        _write_exp103_tables(out_dir, baseline_rows, event_rows, horizon_rows, gate_rows, residual_rows, event_loss_rows, curve_rows, sample_rows, metrics_by_baseline)
 
-    graph_rows = _graph_ablation_rows(baseline_rows, metrics_by_baseline)
-    primary_summary = build_primary_metric_summary(baseline_rows)
-    pd.DataFrame(baseline_rows).to_csv(out_dir / "baseline_metrics.csv", index=False)
-    pd.DataFrame(graph_rows).to_csv(out_dir / "graph_ablation_table.csv", index=False)
-    primary_summary.to_csv(out_dir / "primary_metric_summary.csv", index=False)
-    pd.DataFrame(event_rows).to_csv(out_dir / "event_window_metrics.csv", index=False)
-    pd.DataFrame(curve_rows).to_csv(out_dir / "training_curves.csv", index=False)
-    pd.DataFrame(sample_rows).to_csv(out_dir / "predictions_sample.csv", index=False)
+    _write_exp103_tables(out_dir, baseline_rows, event_rows, horizon_rows, gate_rows, residual_rows, event_loss_rows, curve_rows, sample_rows, metrics_by_baseline)
     write_json(out_dir / "metrics.json", {"experiment_id": "EXP-103", "baselines": metrics_by_baseline})
+    _write_run_manifest(out_dir, config, args.config, args.out, status="completed")
+    (out_dir / "exit_code.txt").write_text("0\n", encoding="utf-8")
     (out_dir / "metric_guide.md").write_text(_metric_guide_text(), encoding="utf-8")
     (out_dir / "logs" / "train.log").write_text("\n".join(log_lines) + "\n", encoding="utf-8")
+    _write_checksums(out_dir)
     artifacts = [
         "metrics.json",
         "primary_metric_summary.csv",
         "baseline_metrics.csv",
         "graph_ablation_table.csv",
+        "baseline_deltas.csv",
         "event_window_metrics.csv",
+        "horizon_metrics.csv",
+        "graph_gate_metrics.csv",
+        "residual_diagnostics.csv",
+        "event_loss_diagnostics.csv",
         "graph_manifest.json",
         "training_curves.csv",
         "predictions_sample.csv",
         "config_resolved.json",
         "environment.txt",
+        "run_manifest.json",
+        "exit_code.txt",
+        "checksums.sha256",
         "metric_guide.md",
         "training_dashboard.html",
         "logs/progress_events.jsonl",
@@ -165,6 +210,13 @@ def main() -> None:
 
 
 def _load_or_build_cache(config: dict[str, Any]):
+    """加载或按配置构建 tensor cache。
+
+    训练缓存固定节点顺序、滑动窗口 origin、train/validation/test split、
+    标准化统计量和事件特征列。正式训练默认不悄悄重建，除非配置显式允许
+    `cache.auto_build=true`。
+    """
+
     data_config = config.get("data", {})
     cache_config = config.get("cache", {})
     feature_config = config.get("features", {})
@@ -198,6 +250,8 @@ def _load_or_build_cache(config: dict[str, Any]):
 
 
 def _tensor_cache_manifest_matches(manifest_path: Path, cache_config: dict[str, Any], feature_config: dict[str, Any]) -> bool:
+    """检查缓存 manifest 是否与当前配置兼容。"""
+
     if not manifest_path.exists():
         return False
     try:
@@ -224,13 +278,53 @@ def _train_one_baseline(
     out_dir: Path,
     baseline_ids: list[str],
 ) -> dict[str, Any]:
+    """训练单个 baseline 并返回所有 evidence 行。
+
+    同一个函数处理 proposed model 和对照模型，确保 loader、optimizer、loss、
+    early stopping、test evaluation 与输出表完全一致。这样 MAE/RMSE 差异更能归因于
+    `use_events`、`use_graph`、`graph_mode` 和具体图结构，而不是训练流程差异。
+    """
+
     training_config = config.get("training", {})
-    use_events = baseline_id != "no_graph"
-    use_graph = baseline_id not in {"no_graph", "behavior_concat"}
+    canonical_baseline_id = _canonical_exp103_baseline_id(baseline_id)
+    # baseline 身份到输入开关的映射：
+    # no_graph 不看事件也不用图；behavior_concat 看事件但不用图；
+    # 其余 graph baselines 同时使用事件特征和对应图结构。
+    use_events = canonical_baseline_id != "no_graph"
+    use_graph = canonical_baseline_id not in {"no_graph", "behavior_concat"}
     loss_weight_config = config.get("loss_weighting", {})
-    train_dataset = EVCSWindowDataset(cache, "train", graph, use_events=use_events, normalize=True, loss_weight_config=loss_weight_config)
-    val_dataset = EVCSWindowDataset(cache, "validation", graph, use_events=use_events, normalize=True, loss_weight_config=loss_weight_config)
-    test_dataset = EVCSWindowDataset(cache, "test", graph, use_events=use_events, normalize=True, loss_weight_config=loss_weight_config)
+    context_config = config.get("context_features", {})
+    normalization_config = config.get("normalization", {"mode": "zscore"})
+    train_dataset = EVCSWindowDataset(
+        cache,
+        "train",
+        graph,
+        use_events=use_events,
+        normalize=True,
+        loss_weight_config=loss_weight_config,
+        context_config=context_config,
+        normalization_config=normalization_config,
+    )
+    val_dataset = EVCSWindowDataset(
+        cache,
+        "validation",
+        graph,
+        use_events=use_events,
+        normalize=True,
+        loss_weight_config=loss_weight_config,
+        context_config=context_config,
+        normalization_config=normalization_config,
+    )
+    test_dataset = EVCSWindowDataset(
+        cache,
+        "test",
+        graph,
+        use_events=use_events,
+        normalize=True,
+        loss_weight_config=loss_weight_config,
+        context_config=context_config,
+        normalization_config=normalization_config,
+    )
     batch_size = int(training_config.get("batch_size", 128))
     workers = int(training_config.get("num_workers", 0))
     graph_mode = _graph_mode_for_baseline(training_config, baseline_id)
@@ -259,6 +353,14 @@ def _train_one_baseline(
         graph_mode=graph_mode,
         graph_channel_count=len(graph.channel_names or []),
         branch_alpha_init=float(training_config.get("branch_alpha_init", 0.2)),
+        temporal_block=str(training_config.get("temporal_block", "residual")),
+        dilation_schedule=list(training_config.get("dilation_schedule", [])) if training_config.get("dilation_schedule") else None,
+        graph_message_stage=str(training_config.get("graph_message_stage", "raw_history")),
+        event_context_channels=_event_context_channel_count(context_config),
+        node_count=len(cache.nodes),
+        node_embedding_dim=int(training_config.get("node_embedding_dim", 0)),
+        residual_clip=float(training_config.get("residual_clip", 0.0)),
+        event_gate_init_bias=training_config.get("event_gate_init_bias"),
     ).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=float(training_config.get("lr", 1e-3)))
     scheduler = _make_scheduler(optimizer, training_config)
@@ -280,8 +382,8 @@ def _train_one_baseline(
     best_epoch = 0
     for epoch in range(1, epochs + 1):
         epoch_started_at = time.perf_counter()
-        train_loss = _run_epoch(model, train_loader, criterion, optimizer, scaler, device, training_config, train=True, use_amp=use_amp)
-        val_loss = _run_epoch(model, val_loader, criterion, None, scaler, device, training_config, train=False, use_amp=use_amp)
+        train_loss = _run_epoch(model, train_loader, criterion, optimizer, scaler, device, config, train=True, use_amp=use_amp)
+        val_loss = _run_epoch(model, val_loader, criterion, None, scaler, device, config, train=False, use_amp=use_amp)
         if scheduler is not None:
             scheduler.step(val_loss)
         current_lr = float(optimizer.param_groups[0]["lr"])
@@ -341,6 +443,7 @@ def _train_one_baseline(
                 refresh_seconds=refresh_seconds,
             )
         if improved:
+            # 只保存 validation loss 最优 checkpoint；test set 在训练结束后统一评估一次。
             best_val = val_loss
             best_epoch = epoch
             stale_epochs = 0
@@ -359,7 +462,8 @@ def _train_one_baseline(
     if checkpoint_path.exists():
         state = _load_checkpoint(checkpoint_path, device)
         model.load_state_dict(state["model_state_dict"])
-    eval_payload = _evaluate(model, test_loader, device, cache, loss_weight_config, graph)
+    # 所有报告指标都来自 best checkpoint 在 test split 上的预测，避免使用最后一轮偶然波动。
+    eval_payload = _evaluate(model, test_loader, device, cache, loss_weight_config, graph, config.get("event_loss", {}))
     baseline_seconds = time.perf_counter() - baseline_started_at
     metrics = {
         "baseline_id": baseline_id,
@@ -376,10 +480,16 @@ def _train_one_baseline(
         "uses_events": use_events,
         "uses_graph": use_graph,
         "graph_mode": graph_mode,
+        "temporal_block": str(training_config.get("temporal_block", "residual")),
+        "graph_message_stage": str(training_config.get("graph_message_stage", "raw_history")),
+        "receptive_field": int(config.get("model_contract", {}).get("receptive_field", 0)),
         "gate_mean": eval_payload["gate_mean"],
         "gate_std": eval_payload["gate_std"],
+        "event_gate_event_window_mean": eval_payload["event_gate_event_window_mean"],
+        "event_gate_stable_window_mean": eval_payload["event_gate_stable_window_mean"],
         "alpha_hist": eval_payload["alpha_hist"],
         "alpha_event": eval_payload["alpha_event"],
+        "event_residual_clip_rate": eval_payload["event_residual_clip_rate"],
     }
     metrics.update(eval_payload["channel_weights"])
     summary_line = (
@@ -404,13 +514,25 @@ def _train_one_baseline(
     return {
         "metrics": metrics,
         "event_metrics": _event_window_metrics(baseline_id, eval_payload, cache),
+        "horizon_metrics": _horizon_metrics(baseline_id, eval_payload, cache),
+        "gate_metrics": _graph_gate_metrics(baseline_id, eval_payload, cache),
+        "residual_metrics": _residual_diagnostics(baseline_id, eval_payload, cache),
+        "event_loss_metrics": _event_loss_diagnostics(baseline_id, eval_payload, cache),
         "curves": curve_rows,
         "samples": _prediction_samples(baseline_id, eval_payload, cache),
     }
 
 
-def _run_epoch(model, loader, criterion, optimizer, scaler, device, training_config, train: bool, use_amp: bool) -> float:
+def _run_epoch(model, loader, criterion, optimizer, scaler, device, config: dict[str, Any], train: bool, use_amp: bool) -> float:
+    """运行一个 train 或 eval epoch，返回平均训练 loss。
+
+    这里的 loss 可以是普通加权 MAE/SmoothL1，也可以是 V5 的事件窗口残差加权 loss；
+    但最终论文主指标仍由 `_evaluate` 在真实尺度上计算。
+    """
+
     model.train(train)
+    training_config = config.get("training", {})
+    event_loss_config = config.get("event_loss", {})
     total_loss = 0.0
     total_batches = 0
     max_batches = training_config.get("max_train_batches" if train else "max_eval_batches")
@@ -427,6 +549,7 @@ def _run_epoch(model, loader, criterion, optimizer, scaler, device, training_con
         historical_graph_weights = batch["historical_graph_weights"].to(device)
         event_channel_indices = batch["event_channel_indices"].to(device)
         event_channel_weights = batch["event_channel_weights"].to(device)
+        event_context = batch["event_context"].to(device)
         if train:
             optimizer.zero_grad(set_to_none=True)
         with torch.set_grad_enabled(train):
@@ -440,8 +563,9 @@ def _run_epoch(model, loader, criterion, optimizer, scaler, device, training_con
                     historical_graph_weights=historical_graph_weights,
                     event_channel_indices=event_channel_indices,
                     event_channel_weights=event_channel_weights,
+                    event_context=event_context,
                 )
-                loss = _weighted_loss(criterion, prediction, target, loss_weight)
+                loss = compute_event_residual_loss(batch, prediction, model, target, criterion, loss_weight, event_loss_config)
             if train:
                 scaler.scale(loss).backward()
                 scaler.step(optimizer)
@@ -451,12 +575,89 @@ def _run_epoch(model, loader, criterion, optimizer, scaler, device, training_con
     return total_loss / max(1, total_batches)
 
 
-def _evaluate(model, loader, device, cache, loss_weight_config: dict[str, Any] | None = None, graph=None) -> dict[str, Any]:
+def compute_event_residual_loss(batch, prediction, model, target, criterion, loss_weight, event_loss_config: dict[str, Any] | None = None):
+    """计算 V5 事件窗口感知 loss。
+
+    默认关闭时退化为普通加权 loss。开启后会额外关注事件窗口、departure/access/load_jump
+    等局部状态，并可约束 gate 在事件窗口与稳定窗口之间拉开差异。这个 loss 用来引导模型
+    “在事件发生时更认真地使用事件图”，不是论文最终指标本身。
+    """
+
+    config = event_loss_config or {}
+    mode = str(config.get("mode", "event_residual_weighted_mae" if config.get("enabled") else "")).lower()
+    if not bool(config.get("enabled", False)) or mode != "event_residual_weighted_mae":
+        return _weighted_loss(criterion, prediction, target, loss_weight)
+    absolute_error = torch.abs(prediction - target)
+    global_loss = absolute_error.mean()
+    masks = batch.get("event_window_masks", batch.get("event_window_mask_summary"))
+    if masks is None:
+        return global_loss
+    masks = masks.to(device=prediction.device, dtype=prediction.dtype)
+    components = [float(config.get("global_weight", 1.0)) * global_loss]
+    event_union = torch.clamp(masks.sum(dim=-1), max=1.0)
+    event_mask = event_union.unsqueeze(1).expand_as(absolute_error)
+    components.append(float(config.get("event_window_weight", 0.0)) * _masked_mean(absolute_error, event_mask))
+    name_to_index = _event_window_name_to_index()
+    for name, weight_key in (
+        ("departure_count", "departure_weight"),
+        ("load_jump_flag", "load_jump_weight"),
+        ("access_count", "access_weight"),
+    ):
+        weight = float(config.get(weight_key, 0.0))
+        if weight <= 0.0:
+            continue
+        mask = masks[..., name_to_index[name]].unsqueeze(1).expand_as(absolute_error)
+        components.append(weight * _masked_mean(absolute_error, mask))
+    gate = getattr(model, "last_gate", None)
+    correction = getattr(model, "last_event_correction", None)
+    if gate is not None and float(config.get("gate_separation_weight", 0.0)) > 0.0:
+        # gate 分离项鼓励事件窗口 gate 高于稳定窗口 gate，用于增强可解释性。
+        gate_2d = gate.squeeze(-1)
+        event_gate = _masked_mean(gate_2d, event_union)
+        stable_gate = _masked_mean(gate_2d, 1.0 - event_union)
+        margin = float(config.get("gate_margin", 0.05))
+        components.append(float(config.get("gate_separation_weight", 0.0)) * torch.relu(torch.as_tensor(margin, device=prediction.device) - (event_gate - stable_gate)))
+    if correction is not None and float(config.get("residual_l1_weight", 0.0)) > 0.0:
+        # 残差 L1 防止事件修正分支无约束放大，尤其适合 residual_correction 结构。
+        correction_for_loss = correction.permute(0, 2, 1).contiguous()
+        components.append(float(config.get("residual_l1_weight", 0.0)) * correction_for_loss.abs().mean())
+    return sum(components)
+
+
+def _masked_mean(values, mask):
+    mask = mask.to(device=values.device, dtype=values.dtype)
+    denominator = torch.clamp(mask.sum(), min=1.0)
+    return (values * mask).sum() / denominator
+
+
+def _event_window_name_to_index() -> dict[str, int]:
+    return {
+        "access_count": 0,
+        "departure_count": 1,
+        "load_jump_flag": 2,
+        "near_capacity_proxy": 3,
+        "active_count_high": 4,
+        "occupancy_rate_high": 5,
+    }
+
+
+def _evaluate(model, loader, device, cache, loss_weight_config: dict[str, Any] | None = None, graph=None, event_loss_config: dict[str, Any] | None = None) -> dict[str, Any]:
+    """在 test/validation loader 上评估并收集诊断中间量。
+
+    评估时会把标准化预测还原到原始负载尺度；因此输出 MAE/RMSE 可以直接跨 baseline 比较。
+    gate、residual 和 channel weights 只在对应模型分支存在时记录。
+    """
+
     model.eval()
     predictions = []
     targets = []
     origins = []
     gate_values = []
+    residual_values = []
+    correction_values = []
+    hist_prediction_values = []
+    residual_clip_rates = []
+    channel_weight_values = []
     with torch.no_grad():
         for batch in loader:
             output = model(
@@ -468,14 +669,41 @@ def _evaluate(model, loader, device, cache, loss_weight_config: dict[str, Any] |
                 historical_graph_weights=batch["historical_graph_weights"].to(device),
                 event_channel_indices=batch["event_channel_indices"].to(device),
                 event_channel_weights=batch["event_channel_weights"].to(device),
+                event_context=batch["event_context"].to(device),
             )
-            raw_output = output.detach().cpu().numpy() * cache.normalization["load_std"] + cache.normalization["load_mean"]
+            center = batch.get("target_center")
+            scale = batch.get("target_scale")
+            if center is not None and scale is not None:
+                # RevIN 或 z-score 都通过 center/scale 还原到真实负载尺度。
+                raw_output = output.detach().cpu().numpy() * scale.numpy()[:, np.newaxis, :] + center.numpy()[:, np.newaxis, :]
+            else:
+                raw_output = output.detach().cpu().numpy() * cache.normalization["load_std"] + cache.normalization["load_mean"]
             predictions.append(raw_output.astype(np.float32))
             targets.append(batch["target_raw"].numpy().astype(np.float32))
             origins.extend(batch["origin"].numpy().astype(int).tolist())
             gate = getattr(model, "last_gate", None)
             if gate is not None:
                 gate_values.append(gate.detach().cpu().numpy().astype(np.float32))
+            residual = getattr(model, "last_event_residual", None)
+            correction = getattr(model, "last_event_correction", None)
+            hist_prediction = getattr(model, "last_hist_prediction", None)
+            if residual is not None and scale is not None:
+                scale_np = scale.numpy()[:, np.newaxis, :]
+                residual_values.append(residual.detach().cpu().numpy().astype(np.float32).transpose(0, 2, 1) * scale_np)
+            if correction is not None and scale is not None:
+                scale_np = scale.numpy()[:, np.newaxis, :]
+                correction_values.append(correction.detach().cpu().numpy().astype(np.float32).transpose(0, 2, 1) * scale_np)
+            if hist_prediction is not None and center is not None and scale is not None:
+                hist_prediction_values.append(
+                    hist_prediction.detach().cpu().numpy().astype(np.float32).transpose(0, 2, 1) * scale.numpy()[:, np.newaxis, :]
+                    + center.numpy()[:, np.newaxis, :]
+                )
+            clip_rate = getattr(model, "last_event_residual_clip_rate", None)
+            if clip_rate is not None:
+                residual_clip_rates.append(float(clip_rate.detach().cpu()))
+            channel_weights = getattr(model, "last_channel_weights", None)
+            if channel_weights is not None:
+                channel_weight_values.append(channel_weights.detach().cpu().numpy().astype(np.float32))
     prediction = np.concatenate(predictions, axis=0) if predictions else np.zeros((0, cache.horizon_steps, len(cache.nodes)), dtype=np.float32)
     target = np.concatenate(targets, axis=0) if targets else np.zeros_like(prediction)
     error = prediction - target
@@ -483,13 +711,19 @@ def _evaluate(model, loader, device, cache, loss_weight_config: dict[str, Any] |
     weighted_abs = np.abs(error) * loss_weight if error.size else error
     alpha_hist = getattr(model, "last_alpha_hist", None)
     alpha_event = getattr(model, "last_alpha_event", None)
-    channel_weights = getattr(model, "last_channel_weights", None)
     channel_weight_metrics = {}
-    if channel_weights is not None:
+    if channel_weight_values:
         channel_names = list(getattr(graph, "channel_names", None) or [])
-        for index, value in enumerate(channel_weights.detach().cpu().numpy().astype(np.float32)):
+        mean_weights = np.mean(np.stack(channel_weight_values, axis=0), axis=0)
+        for index, value in enumerate(mean_weights):
             channel_name = channel_names[index] if index < len(channel_names) else str(index)
             channel_weight_metrics[f"channel_weight_{channel_name}"] = float(value)
+    gate_array = np.concatenate(gate_values, axis=0) if gate_values else np.zeros((0, len(cache.nodes), 1), dtype=np.float32)
+    empty_prediction_like = np.zeros((0, cache.horizon_steps, len(cache.nodes)), dtype=np.float32)
+    residual_array = np.concatenate(residual_values, axis=0) if residual_values else empty_prediction_like
+    correction_array = np.concatenate(correction_values, axis=0) if correction_values else empty_prediction_like
+    hist_prediction_array = np.concatenate(hist_prediction_values, axis=0) if hist_prediction_values else empty_prediction_like
+    gate_window_stats = _gate_window_stats(gate_array, origins, cache)
     return {
         "prediction": prediction,
         "target": target,
@@ -500,13 +734,23 @@ def _evaluate(model, loader, device, cache, loss_weight_config: dict[str, Any] |
         "prediction_count": int(error.size),
         "gate_mean": float(np.concatenate([values.reshape(-1) for values in gate_values]).mean()) if gate_values else np.nan,
         "gate_std": float(np.concatenate([values.reshape(-1) for values in gate_values]).std()) if gate_values else np.nan,
+        "gate_values": gate_array,
+        "event_residual": residual_array,
+        "event_correction": correction_array,
+        "hist_prediction": hist_prediction_array,
+        "event_gate_event_window_mean": gate_window_stats["event_window_mean"],
+        "event_gate_stable_window_mean": gate_window_stats["stable_window_mean"],
         "alpha_hist": float(alpha_hist.detach().cpu()) if alpha_hist is not None else np.nan,
         "alpha_event": float(alpha_event.detach().cpu()) if alpha_event is not None else np.nan,
+        "event_residual_clip_rate": float(np.mean(residual_clip_rates)) if residual_clip_rates else np.nan,
         "channel_weights": channel_weight_metrics,
+        "event_loss_config": event_loss_config or {},
     }
 
 
 def _event_window_metrics(baseline_id: str, eval_payload: dict[str, Any], cache) -> list[dict[str, Any]]:
+    """按事件窗口拆分 MAE/RMSE，验证模型收益是否发生在事件相关时段。"""
+
     prediction = eval_payload["prediction"]
     target = eval_payload["target"]
     origins = eval_payload["origins"]
@@ -529,11 +773,173 @@ def _event_window_metrics(baseline_id: str, eval_payload: dict[str, Any], cache)
     return rows
 
 
+def _horizon_metrics(baseline_id: str, eval_payload: dict[str, Any], cache) -> list[dict[str, Any]]:
+    """按预测步长拆分指标，检查提升是否只来自最近一步。"""
+
+    prediction = eval_payload["prediction"]
+    target = eval_payload["target"]
+    rows = []
+    for horizon_index in range(cache.horizon_steps):
+        error = prediction[:, horizon_index, :] - target[:, horizon_index, :]
+        rows.append(
+            {
+                "baseline_id": baseline_id,
+                "horizon_step": horizon_index + 1,
+                "MAE": float(np.mean(np.abs(error))) if error.size else np.nan,
+                "RMSE": float(np.sqrt(np.mean(error**2))) if error.size else np.nan,
+                "prediction_count": int(error.size),
+            }
+        )
+    return rows
+
+
+def _graph_gate_metrics(baseline_id: str, eval_payload: dict[str, Any], cache) -> list[dict[str, Any]]:
+    """汇总 gate 在全局、事件窗口和稳定窗口中的使用情况。"""
+
+    gate_values = eval_payload.get("gate_values")
+    if gate_values is None or not np.asarray(gate_values).size:
+        return []
+    gate_array = np.asarray(gate_values, dtype=np.float32).squeeze(-1)
+    origins = eval_payload["origins"]
+    masks = _event_masks(cache, origins)
+    union = np.zeros(gate_array.shape, dtype=bool)
+    for mask in masks.values():
+        union |= mask
+    stable = ~union
+    event_mean = float(np.mean(gate_array[union])) if union.any() else np.nan
+    stable_mean = float(np.mean(gate_array[stable])) if stable.any() else np.nan
+    summary = {
+        "baseline_id": baseline_id,
+        "gate_scope": "summary",
+        "gate_mean": float(np.mean(gate_array)),
+        "gate_std": float(np.std(gate_array)),
+        "sample_count": int(gate_array.size),
+        "event_gate_mean": float(np.mean(gate_array)),
+        "event_gate_event_window_mean": event_mean,
+        "event_gate_stable_window_mean": stable_mean,
+        "gate_event_minus_stable": event_mean - stable_mean if not np.isnan(event_mean) and not np.isnan(stable_mean) else np.nan,
+        "alpha_hist": eval_payload.get("alpha_hist", np.nan),
+        "alpha_event": eval_payload.get("alpha_event", np.nan),
+    }
+    rows = [
+        summary,
+        {
+            "baseline_id": baseline_id,
+            "gate_scope": "global",
+            "gate_mean": float(np.mean(gate_array)),
+            "gate_std": float(np.std(gate_array)),
+            "sample_count": int(gate_array.size),
+        },
+        {
+            "baseline_id": baseline_id,
+            "gate_scope": "event_window",
+            "gate_mean": event_mean,
+            "gate_std": float(np.std(gate_array[union])) if union.any() else np.nan,
+            "sample_count": int(union.sum()),
+        },
+        {
+            "baseline_id": baseline_id,
+            "gate_scope": "stable_window",
+            "gate_mean": stable_mean,
+            "gate_std": float(np.std(gate_array[stable])) if stable.any() else np.nan,
+            "sample_count": int(stable.sum()),
+        },
+    ]
+    return rows
+
+
+def _residual_diagnostics(baseline_id: str, eval_payload: dict[str, Any], cache) -> list[dict[str, Any]]:
+    """汇总事件残差修正量，辅助解释 residual_correction 分支是否过度修正。"""
+
+    correction = np.asarray(eval_payload.get("event_correction"), dtype=np.float32)
+    residual = np.asarray(eval_payload.get("event_residual"), dtype=np.float32)
+    if not correction.size:
+        return []
+    origins = eval_payload["origins"]
+    union = np.zeros((len(origins), len(cache.nodes)), dtype=bool)
+    for mask in _event_masks(cache, origins).values():
+        union |= mask
+    expanded_event = np.repeat(union[:, np.newaxis, :], cache.horizon_steps, axis=1)
+    expanded_stable = ~expanded_event
+    abs_correction = np.abs(correction)
+    row = {
+        "baseline_id": baseline_id,
+        "residual_abs_mean": float(np.mean(abs_correction)) if abs_correction.size else np.nan,
+        "residual_abs_event_window_mean": float(np.mean(abs_correction[expanded_event])) if expanded_event.any() else np.nan,
+        "residual_abs_stable_window_mean": float(np.mean(abs_correction[expanded_stable])) if expanded_stable.any() else np.nan,
+        "residual_signed_mean": float(np.mean(correction)) if correction.size else np.nan,
+        "event_residual_raw_abs_mean": float(np.mean(np.abs(residual))) if residual.size else np.nan,
+        "event_residual_clip_rate": eval_payload.get("event_residual_clip_rate", np.nan),
+    }
+    return [row]
+
+
+def _event_loss_diagnostics(baseline_id: str, eval_payload: dict[str, Any], cache) -> list[dict[str, Any]]:
+    """按训练 loss 的事件组件回放 test MAE，检查加权目标是否确实覆盖有效样本。"""
+
+    config = dict(eval_payload.get("event_loss_config") or {})
+    prediction = eval_payload["prediction"]
+    target = eval_payload["target"]
+    origins = eval_payload["origins"]
+    absolute_error = np.abs(prediction - target)
+    rows = [
+        {
+            "baseline_id": baseline_id,
+            "component": "global",
+            "weight": float(config.get("global_weight", 1.0)),
+            "MAE": float(np.mean(absolute_error)) if absolute_error.size else np.nan,
+            "prediction_count": int(absolute_error.size),
+            "skipped": False,
+            "skipped_mask_count": 0,
+        }
+    ]
+    masks = _event_masks(cache, origins)
+    union = np.zeros((len(origins), len(cache.nodes)), dtype=bool)
+    for mask in masks.values():
+        union |= mask
+    component_specs = [
+        ("event_window", union, "event_window_weight"),
+        ("departure_count", masks.get("departure_count", np.zeros_like(union)), "departure_weight"),
+        ("load_jump_flag", masks.get("load_jump_flag", np.zeros_like(union)), "load_jump_weight"),
+        ("access_count", masks.get("access_count", np.zeros_like(union)), "access_weight"),
+    ]
+    for component, mask, weight_key in component_specs:
+        expanded = np.repeat(mask[:, np.newaxis, :], cache.horizon_steps, axis=1)
+        rows.append(
+            {
+                "baseline_id": baseline_id,
+                "component": component,
+                "weight": float(config.get(weight_key, 0.0)),
+                "MAE": float(np.mean(absolute_error[expanded])) if expanded.any() else np.nan,
+                "prediction_count": int(expanded.sum()),
+                "skipped": not bool(expanded.any()),
+                "skipped_mask_count": int(not bool(expanded.any())),
+            }
+        )
+    return rows
+
+
+def _gate_window_stats(gate_array: np.ndarray, origins: list[int], cache) -> dict[str, float]:
+    if not gate_array.size:
+        return {"event_window_mean": np.nan, "stable_window_mean": np.nan}
+    gate_2d = np.asarray(gate_array, dtype=np.float32).squeeze(-1)
+    union = np.zeros(gate_2d.shape, dtype=bool)
+    for mask in _event_masks(cache, origins).values():
+        union |= mask
+    stable = ~union
+    return {
+        "event_window_mean": float(np.mean(gate_2d[union])) if union.any() else np.nan,
+        "stable_window_mean": float(np.mean(gate_2d[stable])) if stable.any() else np.nan,
+    }
+
+
 def _event_masks(cache, origins: list[int]) -> dict[str, np.ndarray]:
     return event_window_masks(cache, origins)
 
 
 def _prediction_samples(baseline_id: str, eval_payload: dict[str, Any], cache, limit: int = 200) -> list[dict[str, Any]]:
+    """导出少量预测样本，便于人工抽查 dashboard 或论文附录示例。"""
+
     rows = []
     prediction = eval_payload["prediction"]
     target = eval_payload["target"]
@@ -559,9 +965,11 @@ def _prediction_samples(baseline_id: str, eval_payload: dict[str, Any], cache, l
 
 
 def _graph_ablation_rows(baseline_rows: list[dict[str, Any]], metrics_by_baseline: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
-    behavior = metrics_by_baseline.get("behavior_concat", {})
+    """生成图消融表：把主模型和行为拼接、DTW、删除图做直接差值。"""
+
+    behavior = metrics_by_baseline.get("behavior_concat", metrics_by_baseline.get("behavior_concat_v4", metrics_by_baseline.get("behavior_concat_v5", {})))
     dtw = metrics_by_baseline.get("dtw_demand_graph", {})
-    event = metrics_by_baseline.get("event_graph_dynamic", {})
+    event = metrics_by_baseline.get("event_graph_dynamic", metrics_by_baseline.get("event_graph_dynamic_v4", metrics_by_baseline.get("event_graph_dynamic_v5", {})))
     rows = []
     for row in baseline_rows:
         mae = float(row["MAE"])
@@ -581,11 +989,55 @@ def _graph_ablation_rows(baseline_rows: list[dict[str, Any]], metrics_by_baselin
     return rows
 
 
+def _baseline_delta_rows(baseline_rows: list[dict[str, Any]], metrics_by_baseline: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    """生成所有关键 comparator 的 MAE 差值，负数代表当前 baseline 更好。"""
+
+    rows = []
+    comparators = [
+        "behavior_concat",
+        "behavior_concat_v4",
+        "behavior_concat_v5",
+        "semantic_shuffled_event_graph",
+        "semantic_shuffled_event_graph_v4",
+        "semantic_shuffled_event_residual_graph_v5",
+        "historical_correlation_graph",
+        "historical_correlation_graph_v4",
+        "historical_correlation_graph_v5",
+    ]
+    for row in baseline_rows:
+        baseline_id = str(row["baseline_id"])
+        mae = float(row["MAE"])
+        for comparator in comparators:
+            if comparator == baseline_id or comparator not in metrics_by_baseline:
+                continue
+            rows.append(
+                {
+                    "baseline_id": baseline_id,
+                    "comparator_baseline": comparator,
+                    "metric": "MAE",
+                    "baseline_value": mae,
+                    "comparator_value": float(metrics_by_baseline[comparator]["MAE"]),
+                    "delta": mae - float(metrics_by_baseline[comparator]["MAE"]),
+                    "interpretation": "negative_delta_is_better",
+                }
+            )
+    return rows
+
+
 def build_primary_metric_summary(baseline_rows: list[dict[str, Any]]) -> pd.DataFrame:
+    """构建主指标表。
+
+    EXP-103 正式结论以 test MAE 为排序标准；RMSE 保留为补充指标。
+    """
+
     frame = pd.DataFrame(baseline_rows).copy()
     if frame.empty:
         return frame
     behavior_mae = _baseline_metric(frame, "behavior_concat", "MAE")
+    if behavior_mae is None:
+        behavior_mae = _baseline_metric(frame, "behavior_concat_v4", "MAE")
+    if behavior_mae is None:
+        behavior_mae = _baseline_metric(frame, "behavior_concat_v5", "MAE")
     dtw_mae = _baseline_metric(frame, "dtw_demand_graph", "MAE")
     best_mae = float(frame["MAE"].min())
     frame["rank_by_MAE"] = frame["MAE"].rank(method="min", ascending=True).astype(int)
@@ -622,6 +1074,92 @@ def _baseline_metric(frame: pd.DataFrame, baseline_id: str, metric: str) -> floa
     return float(values.iloc[0])
 
 
+def _write_exp103_tables(
+    out_dir: Path,
+    baseline_rows: list[dict[str, Any]],
+    event_rows: list[dict[str, Any]],
+    horizon_rows: list[dict[str, Any]],
+    gate_rows: list[dict[str, Any]],
+    residual_rows: list[dict[str, Any]],
+    event_loss_rows: list[dict[str, Any]],
+    curve_rows: list[dict[str, Any]],
+    sample_rows: list[dict[str, Any]],
+    metrics_by_baseline: dict[str, dict[str, Any]],
+) -> None:
+    """写出所有 EXP-103 CSV evidence 表。
+
+    该函数在每个 baseline 完成后会被调用一次，所以远程训练即使中断，
+    也能保留已经完成 baseline 的部分证据。
+    """
+
+    pd.DataFrame(baseline_rows).to_csv(out_dir / "baseline_metrics.csv", index=False)
+    pd.DataFrame(_graph_ablation_rows(baseline_rows, metrics_by_baseline)).to_csv(out_dir / "graph_ablation_table.csv", index=False)
+    pd.DataFrame(_baseline_delta_rows(baseline_rows, metrics_by_baseline)).to_csv(out_dir / "baseline_deltas.csv", index=False)
+    build_primary_metric_summary(baseline_rows).to_csv(out_dir / "primary_metric_summary.csv", index=False)
+    pd.DataFrame(event_rows).to_csv(out_dir / "event_window_metrics.csv", index=False)
+    pd.DataFrame(horizon_rows).to_csv(out_dir / "horizon_metrics.csv", index=False)
+    pd.DataFrame(gate_rows).to_csv(out_dir / "graph_gate_metrics.csv", index=False)
+    pd.DataFrame(residual_rows).to_csv(out_dir / "residual_diagnostics.csv", index=False)
+    pd.DataFrame(event_loss_rows).to_csv(out_dir / "event_loss_diagnostics.csv", index=False)
+    pd.DataFrame(curve_rows).to_csv(out_dir / "training_curves.csv", index=False)
+    pd.DataFrame(sample_rows).to_csv(out_dir / "predictions_sample.csv", index=False)
+
+
+def _write_run_manifest(out_dir: Path, config: dict[str, Any], config_path: str, output_dir: str, status: str) -> None:
+    """写出 run 级 manifest，连接配置、输出目录、git commit 和完成状态。"""
+
+    now = time.strftime("%Y-%m-%dT%H:%M:%S")
+    existing = {}
+    manifest_path = out_dir / "run_manifest.json"
+    if manifest_path.exists():
+        try:
+            existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            existing = {}
+    payload = {
+        "experiment_id": str(config.get("experiment_id", "EXP-103")),
+        "seed": int(config.get("seed", 42)),
+        "config": str(config_path),
+        "output_dir": str(output_dir),
+        "git_commit": _git_commit(),
+        "started_at": existing.get("started_at", now),
+        "finished_at": now,
+        "status": status,
+    }
+    write_json(manifest_path, payload)
+
+
+def _write_checksums(out_dir: Path) -> None:
+    """为轻量 evidence 文件生成 SHA-256，方便远程打包后校验。"""
+
+    candidates = []
+    for pattern in ("*.csv", "*.json", "*.txt", "*.md", "*.html"):
+        candidates.extend(out_dir.glob(pattern))
+    candidates.extend((out_dir / "logs").glob("*.log") if (out_dir / "logs").exists() else [])
+    candidates.extend((out_dir / "logs").glob("*.jsonl") if (out_dir / "logs").exists() else [])
+    rows = []
+    for path in sorted(set(candidates)):
+        if path.name == "checksums.sha256" or not path.is_file():
+            continue
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        rows.append(f"{digest}  {path.relative_to(out_dir)}")
+    (out_dir / "checksums.sha256").write_text("\n".join(rows) + ("\n" if rows else ""), encoding="utf-8")
+
+
+def _git_commit() -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=REPO_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except Exception:
+        return "unknown"
+    return result.stdout.strip() or "unknown"
+
+
 def _metric_guide_text() -> str:
     return """# EXP-103 Metric Guide
 
@@ -630,14 +1168,21 @@ Read outputs in this order:
 1. primary_metric_summary.csv: main ranking by test MAE, plus deltas vs behavior_concat and dtw_demand_graph.
 2. graph_ablation_table.csv: graph-specific claim checks, especially event_graph_dynamic vs behavior_concat, dtw_demand_graph, and deleted_event_graph.
 3. event_window_metrics.csv: event-state checks for access_count, departure_count, load_jump_flag, high occupancy, and near_capacity_proxy.
-4. training_curves.csv: train/validation loss, best epoch, early stopping behavior, and epoch runtime.
-5. baseline_metrics.csv: complete per-baseline test MAE/RMSE and runtime fields.
+4. horizon_metrics.csv: horizon-step MAE/RMSE, useful for checking whether gains are only at the closest forecast step.
+5. graph_gate_metrics.csv: graph gate usage split by event-window and stable-window states.
+6. residual_diagnostics.csv: V5 event residual correction size, event/stable split, and clip rate.
+7. event_loss_diagnostics.csv: V5 event-window weighted-loss component MAE and skipped masks.
+8. baseline_deltas.csv: direct MAE deltas against behavior, semantic shuffled, and historical comparators when present.
+9. training_curves.csv: train/validation loss, best epoch, early stopping behavior, and epoch runtime.
+10. baseline_metrics.csv: complete per-baseline test MAE/RMSE and runtime fields.
 
 Interpretation rules:
 
 - Lower MAE/RMSE is better.
 - For delta columns, negative means the row baseline is better than the comparator.
 - event_graph_dynamic supports a strong C1 claim only if it improves over behavior_concat and responds competitively to dtw_demand_graph / historical_correlation_graph.
+- For v4, historical_event_dual_graph_v4 is strongest when it beats or closely matches historical_correlation_graph_v4 globally while showing higher event-window gate usage.
+- For v5, historical_event_residual_graph_v5 supports the main claim when it beats semantic_shuffled_event_residual_graph_v5, stays within 0.0001 MAE of historical_correlation_graph_v5, and has higher event-window than stable-window gate.
 - If behavior_concat improves over no_graph but event_graph_dynamic does not beat strong graph baselines, write the result as behavior-event feature value plus graph-boundary evidence.
 """
 
@@ -716,6 +1261,12 @@ def _write_training_dashboard(
     active_baseline: str | None,
     refresh_seconds: int,
 ) -> None:
+    """生成训练中的 HTML dashboard。
+
+    该 dashboard 只展示训练曲线和当前 test ranking，不参与指标计算；
+    作用是远程长跑时快速判断是否卡住、发散或已经早停。
+    """
+
     path.parent.mkdir(parents=True, exist_ok=True)
     latest_rows = _latest_curve_by_baseline(curve_rows)
     ranking_rows = sorted(baseline_rows, key=lambda row: float(row.get("MAE", "inf")))
@@ -856,6 +1407,8 @@ def _svg_points(
 
 
 def _make_scheduler(optimizer, training_config):
+    """按配置创建学习率调度器；正式 run 只支持已审计的 ReduceLROnPlateau。"""
+
     scheduler_name = str(training_config.get("scheduler", "none")).lower()
     if scheduler_name in {"", "none", "null"}:
         return None
@@ -870,14 +1423,65 @@ def _make_scheduler(optimizer, training_config):
     )
 
 
+def _attach_model_contract(config: dict[str, Any]) -> None:
+    """把模型结构摘要写回 resolved config，便于 evidence 包复现和论文描述。"""
+
+    training_config = config.get("training", {})
+    kernel_size = int(training_config.get("kernel_size", 3))
+    tcn_layers = int(training_config.get("tcn_layers", 4))
+    dilation_schedule = training_config.get("dilation_schedule")
+    receptive_field = compute_receptive_field(kernel_size, tcn_layers, dilation_schedule if isinstance(dilation_schedule, list) else None)
+    contract = dict(config.get("model_contract", {}))
+    contract.update(
+        {
+            "temporal_block": str(training_config.get("temporal_block", "residual")),
+            "dilation_schedule": dilation_schedule or [1 for _ in range(tcn_layers)],
+            "receptive_field": int(receptive_field),
+            "history_steps": int(config.get("cache", {}).get("history_steps", 0)),
+            "graph_message_stage": str(training_config.get("graph_message_stage", "raw_history")),
+            "node_embedding_dim": int(training_config.get("node_embedding_dim", 0)),
+            "residual_clip": float(training_config.get("residual_clip", 0.0)),
+        }
+    )
+    config["model_contract"] = contract
+
+
+def _canonical_exp103_baseline_id(baseline_id: str) -> str:
+    """去掉版本后缀，让同一图构造逻辑可复用于 v4/v5 baseline 命名。"""
+
+    if baseline_id.endswith("_v4") or baseline_id.endswith("_v5"):
+        return baseline_id[:-3]
+    return baseline_id
+
+
+def _event_context_channel_count(context_config: dict[str, Any]) -> int:
+    """根据 context feature 开关计算 gate 需要接收的事件上下文通道数。"""
+
+    count = 0
+    if bool(context_config.get("event_window_summary", False)):
+        count += 6
+    if bool(context_config.get("event_recency", False)):
+        count += 4
+    if bool(context_config.get("time_context", False)):
+        count += 5
+    return count
+
+
 def _graph_mode_for_baseline(training_config: dict[str, Any], baseline_id: str) -> str:
+    """解析 baseline 专属 graph_mode；没有 override 时使用全局 graph_mode。"""
+
     overrides = training_config.get("baseline_graph_modes", {})
     if isinstance(overrides, dict) and baseline_id in overrides:
         return str(overrides[baseline_id])
+    canonical_id = _canonical_exp103_baseline_id(baseline_id)
+    if isinstance(overrides, dict) and canonical_id in overrides:
+        return str(overrides[canonical_id])
     return str(training_config.get("graph_mode", "concat"))
 
 
 def _weighted_loss(criterion, prediction, target, loss_weight):
+    """按样本/节点/ horizon 权重计算训练损失。"""
+
     unreduced = criterion(prediction, target)
     if loss_weight.shape != unreduced.shape:
         loss_weight = loss_weight.expand_as(unreduced)
@@ -892,7 +1496,7 @@ def _early_stopping_min_epochs(training_config: dict[str, Any], baseline_id: str
     """
     raw_config = training_config.get("early_stopping_min_epochs", 0)
     if isinstance(raw_config, dict):
-        raw_value = raw_config.get(baseline_id, raw_config.get("default", 0))
+        raw_value = raw_config.get(baseline_id, raw_config.get(_canonical_exp103_baseline_id(baseline_id), raw_config.get("default", 0)))
     else:
         raw_value = raw_config
     min_epochs = max(0, int(raw_value))

@@ -1,3 +1,4 @@
+import csv
 import json
 import socket
 import subprocess
@@ -9,6 +10,8 @@ import unittest
 import urllib.error
 import urllib.request
 from pathlib import Path
+
+import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 NEW_EXPERIMENT = REPO_ROOT / "scripts" / "new_experiment.py"
@@ -39,9 +42,293 @@ EXPORT_ZOTERO_BIBLIOGRAPHY = REPO_ROOT / "scripts" / "export_zotero_bibliography
 INIT_RESEARCH_WORKFLOW = REPO_ROOT / "init_research_workflow.py"
 AUDIT_PROJECT_SCOPE = REPO_ROOT / "scripts" / "audit_project_scope.py"
 COLLECT_EXP103_RESULTS = REPO_ROOT / "scripts" / "collect_exp103_results.py"
+RUN_EXP103_HPARAM_SEARCH = REPO_ROOT / "scripts" / "run_exp103_hparam_search.py"
+DIAGNOSE_EXP103_EVENT_GRAPH = REPO_ROOT / "scripts" / "diagnose_exp103_event_graph.py"
+SUMMARIZE_EXP103_MULTISEED = REPO_ROOT / "scripts" / "summarize_exp103_multiseed.py"
 
 
 class ResearchWorkflowScriptTests(unittest.TestCase):
+    def test_diagnose_exp103_event_graph_writes_report_from_result_tables(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            data = project / "data" / "processed"
+            splits = data / "splits"
+            data.mkdir(parents=True)
+            splits.mkdir(parents=True)
+            time_count = 20
+            node_count = 4
+            feature_count = 2
+
+            np.savez_compressed(
+                data / "cache.npz",
+                load=np.arange(time_count * node_count, dtype=np.float32).reshape(time_count, node_count),
+                event_features=np.arange(time_count * node_count * feature_count, dtype=np.float32).reshape(
+                    time_count, node_count, feature_count
+                ),
+                timestamps=np.asarray([f"2026-01-01T00:{index:02d}:00" for index in range(time_count)]),
+                nodes=np.asarray([f"N{index}" for index in range(node_count)]),
+                event_feature_names=np.asarray(["access_count", "departure_count"]),
+                origin_indices=np.asarray(list(range(3, 17)), dtype=np.int32),
+                train_origins=np.asarray(list(range(3, 11)), dtype=np.int32),
+                validation_origins=np.asarray(list(range(11, 14)), dtype=np.int32),
+                test_origins=np.asarray(list(range(14, 17)), dtype=np.int32),
+                load_mean=np.zeros((node_count,), dtype=np.float32),
+                load_std=np.ones((node_count,), dtype=np.float32),
+                event_mean=np.zeros((node_count, feature_count), dtype=np.float32),
+                event_std=np.ones((node_count, feature_count), dtype=np.float32),
+            )
+            (data / "cache_manifest.json").write_text(
+                json.dumps({"history_steps": 4, "horizon_steps": 1}) + "\n",
+                encoding="utf-8",
+            )
+            run_dir = project / "outputs" / "EXP-103-train-optimized-42-5090"
+            run_dir.mkdir(parents=True)
+            (run_dir / "config_resolved.json").write_text(
+                json.dumps(
+                    {
+                        "seed": 42,
+                        "cache": {
+                            "tensor_cache_path": str(data / "cache.npz"),
+                            "manifest_path": str(data / "cache_manifest.json"),
+                        },
+                        "graph": {"top_k": 2},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            (run_dir / "baseline_metrics.csv").write_text(
+                textwrap.dedent(
+                    """\
+                    baseline_id,MAE,RMSE,prediction_count,best_validation_loss,best_epoch,epochs_ran,train_seconds,uses_events,uses_graph,graph_mode,gate_mean,gate_std
+                    behavior_concat,0.023,0.31,100,0.032,8,10,12.0,True,False,gated_residual,,
+                    event_graph_dynamic,0.022,0.30,100,0.031,9,11,13.0,True,True,gated_residual,0.04,0.01
+                    historical_correlation_graph,0.021,0.29,100,0.030,7,9,14.0,True,True,gated_residual,0.05,0.02
+                    shuffled_event_graph,0.0225,0.30,100,0.031,6,8,10.0,True,True,gated_residual,0.03,0.01
+                    """
+                ),
+                encoding="utf-8",
+            )
+            (run_dir / "event_window_metrics.csv").write_text(
+                textwrap.dedent(
+                    """\
+                    baseline_id,event_window,MAE,RMSE,prediction_count
+                    event_graph_dynamic,departure_count,0.9,2.0,20
+                    historical_correlation_graph,departure_count,1.0,2.1,20
+                    shuffled_event_graph,departure_count,1.1,2.2,20
+                    behavior_concat,departure_count,1.2,2.3,20
+                    """
+                ),
+                encoding="utf-8",
+            )
+            out_dir = project / "outputs" / "diagnostics"
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(DIAGNOSE_EXP103_EVENT_GRAPH),
+                    "--outputs-root",
+                    str(project / "outputs"),
+                    "--run-glob",
+                    "EXP-103-train-optimized-*-5090",
+                    "--graph-run-dir",
+                    str(run_dir),
+                    "--sample-origins",
+                    "5",
+                    "--out-dir",
+                    str(out_dir),
+                ],
+                cwd=REPO_ROOT,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+
+            self.assertIn("wrote EXP-103 diagnostic outputs", result.stdout)
+            report = (out_dir / "EXP-103-event-graph-diagnosis.md").read_text(encoding="utf-8")
+            answers = (out_dir / "diagnostic_answers.csv").read_text(encoding="utf-8")
+            self.assertIn("Four Diagnostic Questions", report)
+            self.assertIn("event_graph_dynamic", report)
+            self.assertIn("event_gate_mean", answers)
+            self.assertTrue((out_dir / "global_metric_summary.csv").exists())
+
+    def test_run_exp103_hparam_search_dry_run_generates_configs_and_tables(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            base_config = project / "base.json"
+            base_config.write_text(
+                json.dumps(
+                    {
+                        "experiment_id": "EXP-103",
+                        "seed": 42,
+                        "output": "outputs/base",
+                        "data": {"source_path": "data/processed/evcs_timeslice.csv"},
+                        "cache": {
+                            "tensor_cache_path": "data/processed/evcs_tensor_cache_optimized.npz",
+                            "split_path": "data/processed/splits/chronological_70_15_15_optimized.json",
+                            "manifest_path": "data/processed/evcs_tensor_cache_optimized_manifest.json",
+                            "auto_build": False,
+                        },
+                        "graph": {
+                            "top_k": 5,
+                            "rho": 0.7,
+                            "lambda_event": 0.3,
+                            "dtw_max_points": 128,
+                            "dtw_cache_path": "data/processed/graphs/dtw_demand_graph_top5_points128.npz",
+                        },
+                        "features": {"include_time_context": True, "include_enhanced_events": True},
+                        "training": {
+                            "epochs": 50,
+                            "batch_size": 256,
+                            "hidden_channels": 64,
+                            "lr": 0.001,
+                            "dropout": 0.1,
+                            "graph_mode": "gated_residual",
+                        },
+                        "baselines": ["event_graph_dynamic", "behavior_concat"],
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(RUN_EXP103_HPARAM_SEARCH),
+                    "--base-config",
+                    str(base_config),
+                    "--out-root",
+                    str(project / "outputs" / "hparam"),
+                    "--generated-config-dir",
+                    str(project / "configs" / "generated"),
+                    "--summary-out",
+                    str(project / "outputs" / "summary.csv"),
+                    "--runs-out",
+                    str(project / "outputs" / "runs.csv"),
+                    "--command-log",
+                    str(project / "outputs" / "commands.sh"),
+                    "--batch-sizes",
+                    "512",
+                    "--graph-modes",
+                    "concat,gated_residual",
+                    "--top-ks",
+                    "3",
+                    "--hidden-channels",
+                    "64",
+                    "--baselines",
+                    "event_graph_dynamic,behavior_concat",
+                    "--dry-run",
+                ],
+                cwd=REPO_ROOT,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+
+            self.assertIn("generated 2 EXP-103 hparam configs", result.stdout)
+            generated = sorted((project / "configs" / "generated").glob("*.json"))
+            self.assertEqual(len(generated), 2)
+            config = json.loads(generated[0].read_text(encoding="utf-8"))
+            self.assertEqual(config["training"]["batch_size"], 512)
+            self.assertIn(config["training"]["graph_mode"], {"concat", "gated_residual"})
+            self.assertEqual(config["graph"]["top_k"], 3)
+            self.assertEqual(config["graph"]["dtw_cache_path"], "data/processed/graphs/dtw_demand_graph_top3_points128.npz")
+            commands = (project / "outputs" / "commands.sh").read_text(encoding="utf-8")
+            self.assertIn("src/training/train_exp103.py", commands)
+            self.assertIn("--config", commands)
+            summary = (project / "outputs" / "summary.csv").read_text(encoding="utf-8")
+            runs = (project / "outputs" / "runs.csv").read_text(encoding="utf-8")
+            self.assertIn("event_vs_historical_delta", summary)
+            self.assertIn("dry_run", summary)
+            self.assertIn("baseline_id", runs)
+
+    def test_summarize_exp103_multiseed_writes_v5_aggregate_tables(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            runs = []
+            for seed, mae in [(42, 0.022), (2026, 0.023), (3407, 0.021)]:
+                # 回归覆盖正式 full-baseline 命名：旧正则只识别 `v5-42-5090`，
+                # 会把 `v5-final-full-42-5090` 解析成 -1，导致 seed_count 被误写成 1。
+                run_dir = project / "outputs" / f"EXP-103-v5-final-full-{seed}-5090"
+                run_dir.mkdir(parents=True)
+                runs.append(run_dir)
+                (run_dir / "primary_metric_summary.csv").write_text(
+                    textwrap.dedent(
+                        f"""\
+                        baseline_id,MAE,RMSE,rank_by_MAE
+                        historical_event_residual_graph_v5,{mae},0.30,1
+                        semantic_shuffled_event_residual_graph_v5,{mae + 0.001},0.31,2
+                        """
+                    ),
+                    encoding="utf-8",
+                )
+                (run_dir / "baseline_deltas.csv").write_text(
+                    textwrap.dedent(
+                        f"""\
+                        baseline_id,comparator_baseline,metric,baseline_value,comparator_value,delta
+                        historical_event_residual_graph_v5,semantic_shuffled_event_residual_graph_v5,MAE,{mae},{mae + 0.001},-0.001
+                        """
+                    ),
+                    encoding="utf-8",
+                )
+                (run_dir / "event_window_metrics.csv").write_text(
+                    textwrap.dedent(
+                        f"""\
+                        baseline_id,event_window,MAE,RMSE,prediction_count
+                        historical_event_residual_graph_v5,departure_count,{mae},0.30,10
+                        """
+                    ),
+                    encoding="utf-8",
+                )
+                (run_dir / "graph_gate_metrics.csv").write_text(
+                    textwrap.dedent(
+                        """\
+                        baseline_id,gate_scope,gate_event_minus_stable,event_gate_event_window_mean,event_gate_stable_window_mean
+                        historical_event_residual_graph_v5,summary,0.08,0.30,0.22
+                        """
+                    ),
+                    encoding="utf-8",
+                )
+                (run_dir / "residual_diagnostics.csv").write_text(
+                    textwrap.dedent(
+                        """\
+                        baseline_id,residual_abs_mean,residual_abs_event_window_mean,residual_abs_stable_window_mean
+                        historical_event_residual_graph_v5,0.01,0.02,0.005
+                        """
+                    ),
+                    encoding="utf-8",
+                )
+                # 可选诊断表可能存在但没有内容；汇总脚本应跳过它，而不是中断主指标汇总。
+                (run_dir / "event_loss_diagnostics.csv").write_text("", encoding="utf-8")
+            out = project / "outputs" / "EXP-103-v5-multiseed-summary"
+
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(SUMMARIZE_EXP103_MULTISEED),
+                    "--runs",
+                    *[str(run) for run in runs],
+                    "--out",
+                    str(out),
+                ],
+                cwd=REPO_ROOT,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+
+            self.assertTrue((out / "primary_metric_summary_all_seeds.csv").exists())
+            self.assertTrue((out / "primary_metric_summary_multiseed.csv").exists())
+            summary = (out / "primary_metric_summary_multiseed.csv").read_text(encoding="utf-8")
+            self.assertIn("MAE_mean", summary)
+            self.assertIn("best_mae_seed_count", summary)
+            rows = {row["baseline_id"]: row for row in csv.DictReader(summary.splitlines())}
+            event_row = rows["historical_event_residual_graph_v5"]
+            self.assertEqual(event_row["seed_count"], "3")
+            self.assertEqual(event_row["best_mae_seed_count"], "3")
+            self.assertAlmostEqual(float(event_row["MAE_mean"]), 0.022)
+            self.assertAlmostEqual(float(event_row["rank_by_MAE_mean"]), 1.0)
+
     def test_collect_exp103_results_builds_reproducible_ledger_without_touching_runs(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)

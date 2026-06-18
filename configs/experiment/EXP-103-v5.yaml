@@ -1,0 +1,118 @@
+experiment_id: EXP-103
+seed: 42
+split: chronological_70_15_15
+metric: MAE
+output: outputs/EXP-103-v5-42
+data:
+  source_path: data/processed/evcs_timeslice.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+cache:
+  tensor_cache_path: data/processed/evcs_tensor_cache_optimized.npz
+  split_path: data/processed/splits/chronological_70_15_15_optimized.json
+  manifest_path: data/processed/evcs_tensor_cache_optimized_manifest.json
+  history_steps: 96
+  horizon_steps: 4
+  split_rule: {'train': 0.7, 'validation': 0.15, 'test': 0.15}
+  auto_build: true
+graph:
+  event_feature_fields:
+    - access_count
+    - departure_count
+    - active_count
+    - occupancy_rate
+    - demand_intensity
+    - load_jump_flag
+  similarity: cosine
+  top_k: 5
+  rho: 0.7
+  lambda_event: 0.3
+  dtw_max_points: 128
+  dtw_cache_path: data/processed/graphs/dtw_demand_graph_top5_points128.npz
+  verbose: true
+features:
+  include_time_context: true
+  include_enhanced_events: true
+  near_capacity_quantile: 0.9
+context_features:
+  time_context: true
+  event_recency: true
+  event_window_summary: false
+  event_window_masks: true
+normalization:
+  mode: zscore
+  std_clamp: 0.0001
+loss_weighting:
+  enabled: true
+  base_weight: 1.0
+  max_weight: 6.0
+  windows:
+    access_count: 3.0
+    departure_count: 3.0
+    load_jump_flag: 3.0
+    near_capacity_proxy: 2.5
+    active_count_high: 1.5
+    occupancy_rate_high: 1.5
+event_loss:
+  enabled: true
+  mode: event_residual_weighted_mae
+  global_weight: 1.0
+  event_window_weight: 0.35
+  departure_weight: 0.25
+  load_jump_weight: 0.20
+  access_weight: 0.10
+  gate_separation_weight: 0.05
+  gate_margin: 0.05
+  residual_l1_weight: 0.01
+training:
+  epochs: 50
+  batch_size: 512
+  hidden_channels: 64
+  tcn_layers: 6
+  kernel_size: 3
+  dilation_schedule: [1, 2, 4, 8, 16, 32]
+  temporal_block: gated_dilated
+  graph_message_stage: encoded_state
+  node_embedding_dim: 16
+  residual_clip: 0.35
+  event_gate_init_bias: -1.0
+  dropout: 0.1
+  optimizer: AdamW
+  lr: 0.001
+  loss: SmoothL1
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_patience: 3
+  min_lr: 0.00001
+  early_stopping_patience: 8
+  early_stopping_min_epochs:
+    default: 0
+    event_graph_dynamic_v5: 50
+    historical_event_dual_graph_v5: 50
+    historical_event_residual_graph_v5: 50
+    semantic_shuffled_event_residual_graph_v5: 50
+  amp: true
+  num_workers: 8
+  pin_memory: true
+  graph_mode: gated_residual
+  baseline_graph_modes:
+    behavior_concat_v5: concat
+    event_graph_dynamic_v5: gated_residual
+    historical_correlation_graph_v5: gated_residual
+    historical_event_dual_graph_v5: event_conditional_dual
+    historical_event_residual_graph_v5: event_residual_correction
+    semantic_shuffled_event_residual_graph_v5: event_residual_correction
+  branch_alpha_init: 0.2
+  write_full_predictions: false
+progress:
+  terminal_bar: true
+  live_html: true
+  refresh_seconds: 10
+baselines:
+  - behavior_concat_v5
+  - historical_correlation_graph_v5
+  - event_graph_dynamic_v5
+  - historical_event_dual_graph_v5
+  - historical_event_residual_graph_v5
+  - semantic_shuffled_event_residual_graph_v5
