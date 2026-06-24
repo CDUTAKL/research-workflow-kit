@@ -37,26 +37,26 @@ Use Build Web Data Visualization principles when the dashboard becomes advisor-f
 
 | Field | Value |
 |---|---|
-| Current stage | 1-12/TBD |
-| Active focus | planning/literature/experiment/writing/finalization/TBD |
-| Current audit tier | quick/advisor/final/TBD |
-| Main blocker | TBD |
-| Next concrete action | TBD |
-| Last dashboard refresh | TBD |
+| Current stage | 9 图表与表格生产 |
+| Active focus | EXP-103 至 EXP-106 结果已冻结，进入论文图表生产与实验章节落稿 |
+| Current audit tier | quick |
+| Main blocker | 无 P0；剩余工作是图表风格 QA、论文图表生成、实验章节落稿和后续终稿兼容性检查。 |
+| Next concrete action | 按 Stage 9 图表契约流程生成论文图表：先冻结每张图的结论、来源和图注口径，再用 Image Gen 生成方法图视觉母稿，经过内容准确性质检后用 draw.io 正式重绘；数据结果图由 Python/SVG/PDF 可复现生成。 |
+| Last dashboard refresh | 2026-06-23T16:41:42 |
 
 ## Stage Snapshot
 
 | Stage | Name | Status | Main Record | Notes |
 |---|---|---|---|---|
-| 1 | Paper planning | pending | `thesis-brief.md`, `project-scope-control.md`, `idea-discovery.md` | Treat fixed titles as draft hypotheses until reviewed |
-| 2 | Literature discovery and review | pending | `literature-matrix.md`, `zotero-screening-loop.md`, `section-citation-map.md` |  |
-| 3 | Experiment question definition | pending | `claim-evidence-map.md`, `project-scope-control.md` | Convert title phrases into testable claims |
-| 4 | Experiment architecture planning | pending | `experiment-architecture.md`, `project-scope-control.md` | Confirm causal fields, node definition, metrics, and downgrade route |
-| 5 | Research code implementation | pending | code repo, `git-version-log.md` |  |
-| 6 | Experiment run and monitoring | pending | `experiment-runbook.md` |  |
-| 7 | Experiment recording and result scan | pending | `experiment-registry.md` |  |
-| 8 | Results analysis and claim mapping | pending | `claim-evidence-map.md`, `project-scope-control.md`, `data-availability.md` | Keep, narrow, or rename title phrases based on results |
-| 9 | Figure and table production | pending | `figure-plan.md`, `diagram-replica-tasks.md` |  |
+| 1 | Paper planning | done | `topic-intake.md`, `thesis-brief.md`, `project-scope-control.md`, `writing-outline.md` | DOCX mother plan imported; fixed title is a draft hypothesis |
+| 2 | Literature discovery and review | done_for_stage_gate | `academic-search-policy.md`, `literature-matrix.md`, `zotero-literature-hub.md`, `section-citation-map.md`, `citation-provenance.md`, `core-literature-shortlist-and-review-structure.md` | 100-paper pool and 34-paper core shortlist complete; full source readers continue in parallel |
+| 3 | Experiment question definition | done_for_stage_gate | `experiment-question-definition.md`, `claim-evidence-map.md`, `experiment-registry.md`, `data-availability.md`, `metric-diagnostics.md` | Q1-Q5, H1-H5, CLM-101..CLM-106, EXP-101..EXP-106, DATA-101..DATA-104 defined |
+| 4 | Experiment architecture planning | done_for_stage_gate | `experiment-architecture.md`, `experiment-runbook.md`, `benchmark-report-schema.md`, `reproducibility-checklist.md`, `project-scope-control.md` | Data route, causal field audit, node definition, `A_event,t` construction, DTW/adaptive/destroyed graph baselines, metrics, outputs, and downgrade rules are specified |
+| 5 | Research code implementation | done_for_stage_gate | `src/`, `configs/`, `tests/`, `experiment-registry.md` | EXP-101..EXP-106 scripts/configs implemented; V6 event-triggered correction, interval calibration, capacity-risk proxy, and robustness guard scripts are available |
+| 6 | Experiment run and monitoring | done_for_stage_gate | `experiment-runbook.md`, `outputs/`, remote AutoDL archives | Formal EXP-103..EXP-106 runs completed on AutoDL clones with logs, manifests, and copied lightweight outputs |
+| 7 | Experiment recording and result scan | done_for_stage_gate | `experiment-registry.md`, `metric-diagnostics.md`, `benchmark-report-schema.md`, `experiment-reports/` | EXP-103 V6, EXP-104 interval calibration, EXP-105 capacity-risk proxy, and EXP-106 robustness decisions recorded |
+| 8 | Results analysis and claim mapping | done_for_stage_gate | `claim-evidence-map.md`, `project-scope-control.md`, `data-availability.md`, `experiment-reports/frozen-experiment-result-tables.md` | Main claim reframed as event-triggered forecast correction; frozen result tables and caveat wording are established |
+| 9 | Figure and table production | in_progress | `figure-plan.md`, `figure-style-qa.md`, `diagram-replica-tasks.md`, `experiment-reports/frozen-experiment-result-tables.md` | Current focus: use figure contracts, Image Gen visual mother drafts, draw.io formal redraw, Python result plots, and figure QA to turn frozen EXP-103..EXP-106 tables into manuscript-ready figures, tables, captions, and experiment-section text |
 | 10 | Paper writing and polishing | pending | `writing-outline.md`, `project-scope-control.md` | Lock title only when chapters and evidence support it |
 | 11 | Mac DOCX / PDF / PPTX main production | pending | `final-artifact-manifest.md`, DOCX/PDF/PPTX artifacts | Mac produces the main thesis document, PDF candidate, and PPTX candidate |
 | 12 | Windows compatibility review and final submission preparation | pending | `final-audit.md`, `defense-prep.md`, `final-artifact-manifest.md` | Windows laptop verifies Word/WPS/PowerPoint compatibility and final submission readiness |
@@ -64,13 +64,13 @@ Use Build Web Data Visualization principles when the dashboard becomes advisor-f
 ## Health Summary
 
 <!-- workflow-doctor:start -->
-Generated: 2026-06-06T18:39:02
+Generated: 2026-06-23T16:45:33
 
 **Workflow Health:** `warning`
 
 ### Counts
 
-- claims=1 experiments=1 datasets=1 figures=4 sections=1
+- claims=7 experiments=7 datasets=5 figures=4 sections=4
 
 ### P0 Blockers
 
@@ -78,20 +78,29 @@ Generated: 2026-06-06T18:39:02
 
 ### P1 Issues
 
-- SEC-INTRO-001 has missing section citation coverage
+- figure style QA checklist still has pending checklist items
+- Nature-style writing checklist still has pending checklist items
 - thesis-docx is still pending Windows compatibility review
 - thesis-docx is missing checksum
 - final-pdf is still pending Windows compatibility review
 - final-pdf is missing checksum
 - defense-pptx is still pending Windows compatibility review
 - defense-pptx is missing checksum
-- SEC-INTRO-001 has no Zotero-backed citation
-- SEC-INTRO-001 has no strong Zotero-backed citation
-- SEC-INTRO-001 has missing Zotero collection coverage
+- unknown ID prefix or unmanaged ID: TBL-101
+- unknown ID prefix or unmanaged ID: TBL-103
+- unknown ID prefix or unmanaged ID: TBL-103-
+- unknown ID prefix or unmanaged ID: TBL-106
+- unknown ID prefix or unmanaged ID: TBL-106-
+- project scope control still has pending title, causal, node, or downgrade decisions
+- plugin gate pending: Product Design for stage 9 -> docs/thesis/visual-design-review.md
 
 ### Recent Experiment Candidates
 
-- EXP-001
+- EXP-102
+- EXP-103
+- EXP-104
+- EXP-105
+- EXP-106
 <!-- workflow-doctor:end -->
 
 ## Evidence Graph
