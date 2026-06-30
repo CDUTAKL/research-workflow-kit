@@ -41,7 +41,7 @@ Use Build Web Data Visualization principles when the dashboard becomes advisor-f
 | Active focus | EXP-103 至 EXP-106 结果已冻结，进入论文图表生产与实验章节落稿 |
 | Current audit tier | quick |
 | Main blocker | 无 P0；剩余工作是图表风格 QA、论文图表生成、实验章节落稿和后续终稿兼容性检查。 |
-| Next concrete action | 按 Stage 9 图表契约流程生成论文图表：先冻结每张图的结论、来源和图注口径，再用 Image Gen 生成方法图视觉母稿，经过内容准确性质检后用 draw.io 正式重绘；数据结果图由 Python/SVG/PDF 可复现生成。 |
+| Next concrete action | 进入 Stage 10A 论文写作蓝图与正文初稿搭建：先用 `research-paper-plan` 锁定章节结构、三级标题、图表放置位置和每节论点职责；再用 `research-results-analysis` 将 EXP-103..EXP-106 冻结结果转成章节叙事；随后用 `research-paper-writing` 按“方法 -> 实验 -> 结果分析 -> 相关工作 -> 绪论 -> 摘要 -> 结论”的顺序起草正文。引用缺口通过 `research-literature-review`、Zotero、PDF 阅读和 `section-citation-map.md` 补齐。最终图表编号、Word/WPS 交叉引用和 DOCX 排版放到 Stage 10B/11，不能早于正文初稿。 |
 | Last dashboard refresh | 2026-06-23T16:41:42 |
 
 ## Stage Snapshot
@@ -56,21 +56,21 @@ Use Build Web Data Visualization principles when the dashboard becomes advisor-f
 | 6 | Experiment run and monitoring | done_for_stage_gate | `experiment-runbook.md`, `outputs/`, remote AutoDL archives | Formal EXP-103..EXP-106 runs completed on AutoDL clones with logs, manifests, and copied lightweight outputs |
 | 7 | Experiment recording and result scan | done_for_stage_gate | `experiment-registry.md`, `metric-diagnostics.md`, `benchmark-report-schema.md`, `experiment-reports/` | EXP-103 V6, EXP-104 interval calibration, EXP-105 capacity-risk proxy, and EXP-106 robustness decisions recorded |
 | 8 | Results analysis and claim mapping | done_for_stage_gate | `claim-evidence-map.md`, `project-scope-control.md`, `data-availability.md`, `experiment-reports/frozen-experiment-result-tables.md` | Main claim reframed as event-triggered forecast correction; frozen result tables and caveat wording are established |
-| 9 | Figure and table production | in_progress | `figure-plan.md`, `figure-style-qa.md`, `diagram-replica-tasks.md`, `experiment-reports/frozen-experiment-result-tables.md` | Current focus: use figure contracts, Image Gen visual mother drafts, draw.io formal redraw, Python result plots, and figure QA to turn frozen EXP-103..EXP-106 tables into manuscript-ready figures, tables, captions, and experiment-section text |
-| 10 | Paper writing and polishing | pending | `writing-outline.md`, `project-scope-control.md` | Lock title only when chapters and evidence support it |
+| 9 | Figure and table production | done_for_stage_gate | `figure-plan.md`, `figure-style-qa.md`, `diagram-replica-tasks.md`, `experiment-reports/frozen-experiment-result-tables.md`, `final-figure-freeze-20260630.md` | Main thesis figures/tables have been frozen for writing. Duplicate or deprecated figures were excluded from正文候选图；remaining figure edits should be treated as local polish, not a new figure-production stage. |
+| 10 | Paper writing and polishing | in_progress | `writing-outline.md`, `claim-evidence-map.md`, `section-citation-map.md`, `nature-style-writing-checklist.md` | Stage 10A is active: build the writing blueprint and first draft before final figure numbering. Stage 10B will handle final prose polish, citations, captions, cross-references, DOCX integration, and rendered checks after the full draft exists. |
 | 11 | Mac DOCX / PDF / PPTX main production | pending | `final-artifact-manifest.md`, DOCX/PDF/PPTX artifacts | Mac produces the main thesis document, PDF candidate, and PPTX candidate |
 | 12 | Windows compatibility review and final submission preparation | pending | `final-audit.md`, `defense-prep.md`, `final-artifact-manifest.md` | Windows laptop verifies Word/WPS/PowerPoint compatibility and final submission readiness |
 
 ## Health Summary
 
 <!-- workflow-doctor:start -->
-Generated: 2026-06-23T16:45:33
+Generated: 2026-06-26T20:34:51
 
 **Workflow Health:** `warning`
 
 ### Counts
 
-- claims=7 experiments=7 datasets=5 figures=4 sections=4
+- claims=7 experiments=7 datasets=5 figures=15 sections=4
 
 ### P0 Blockers
 
