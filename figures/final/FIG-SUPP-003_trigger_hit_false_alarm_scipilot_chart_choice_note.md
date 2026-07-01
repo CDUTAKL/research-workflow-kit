@@ -1,0 +1,1 @@
+Purpose: diagnose event-trigger hits and stable-window false triggers using test-set trigger records.

@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns='http://www.w3.org/2000/svg' width='1672' height='941' viewBox='0 0 1672 941'>
+<rect x='0' y='0' width='1672' height='941' fill='#ffffff'/>
+<text x='836.0' y='78' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='46' font-weight='800' fill='#07112d' text-anchor='middle' dominant-baseline='middle'>预测修正方法的综合评价体系</text>
+<text x='836.0' y='130' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='600' fill='#1f2937' text-anchor='middle' dominant-baseline='middle'>从预测精度、关键窗口、不确定性、风险代理与稳健性五方面系统评价方法有效性</text>
+<rect x='115' y='178' width='285' height='78' rx='4' ry='4' fill='#001f5b' stroke='#263968' stroke-width='2.4'/>
+<text x='257.5' y='217.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='30' font-weight='800' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>评价维度</text>
+<rect x='406' y='178' width='390' height='78' rx='4' ry='4' fill='#001f5b' stroke='#263968' stroke-width='2.4'/>
+<text x='601.0' y='217.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='30' font-weight='800' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>具体指标</text>
+<rect x='802' y='178' width='350' height='78' rx='4' ry='4' fill='#001f5b' stroke='#263968' stroke-width='2.4'/>
+<text x='977.0' y='217.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='30' font-weight='800' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>评价对象</text>
+<rect x='1158' y='178' width='417' height='78' rx='4' ry='4' fill='#001f5b' stroke='#263968' stroke-width='2.4'/>
+<text x='1366.5' y='217.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='30' font-weight='800' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>作用说明</text>
+<rect x='115' y='268' width='285' height='104' rx='3' ry='3' fill='#f7f9fc' stroke='#263968' stroke-width='1.8'/>
+<text x='257.5' y='320.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='28' font-weight='800' fill='#001f5b' text-anchor='middle' dominant-baseline='middle'>点预测精度</text>
+<rect x='406' y='268' width='390' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='601.0' y='320.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>MAE / RMSE / WAPE</text>
+<rect x='802' y='268' width='350' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='977.0' y='320.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>整体预测结果</text>
+<rect x='1158' y='268' width='417' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='1366.5' y='320.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>衡量总体误差水平</text>
+<rect x='115' y='382' width='285' height='104' rx='3' ry='3' fill='#f7f9fc' stroke='#263968' stroke-width='1.8'/>
+<text x='257.5' y='434.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='28' font-weight='800' fill='#001f5b' text-anchor='middle' dominant-baseline='middle'>分窗口误差</text>
+<rect x='406' y='382' width='390' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='601.0' y='420.5' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='22' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>事件窗口 MAE</text>
+<text x='601.0' y='447.5' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='22' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>稳定窗口 MAE</text>
+<rect x='802' y='382' width='350' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='977.0' y='434.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>事件窗口与稳定窗口</text>
+<rect x='1158' y='382' width='417' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='1366.5' y='434.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>检验关键窗口修正收益</text>
+<rect x='115' y='496' width='285' height='104' rx='3' ry='3' fill='#f7f9fc' stroke='#263968' stroke-width='1.8'/>
+<text x='257.5' y='548.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='28' font-weight='800' fill='#001f5b' text-anchor='middle' dominant-baseline='middle'>区间可靠性</text>
+<rect x='406' y='496' width='390' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='601.0' y='548.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>PICP / 区间宽度 / WIS</text>
+<rect x='802' y='496' width='350' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='977.0' y='548.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>预测区间</text>
+<rect x='1158' y='496' width='417' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='1366.5' y='548.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>衡量覆盖率与不确定性质量</text>
+<rect x='115' y='610' width='285' height='104' rx='3' ry='3' fill='#f7f9fc' stroke='#263968' stroke-width='1.8'/>
+<text x='257.5' y='662.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='28' font-weight='800' fill='#001f5b' text-anchor='middle' dominant-baseline='middle'>风险代理能力</text>
+<rect x='406' y='610' width='390' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='601.0' y='635.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='22' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>高负荷召回率</text>
+<text x='601.0' y='662.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='22' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>严重度捕获率</text>
+<text x='601.0' y='689.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='22' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>误报代价</text>
+<rect x='802' y='610' width='350' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='977.0' y='662.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>高风险样本</text>
+<rect x='1158' y='610' width='417' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='1366.5' y='662.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>评估容量风险筛查能力</text>
+<rect x='115' y='724' width='285' height='104' rx='3' ry='3' fill='#f7f9fc' stroke='#263968' stroke-width='1.8'/>
+<text x='257.5' y='776.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='28' font-weight='800' fill='#001f5b' text-anchor='middle' dominant-baseline='middle'>稳健性检验</text>
+<rect x='406' y='724' width='390' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='601.0' y='776.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>多随机种子 / 扰动 / 降级守门</text>
+<rect x='802' y='724' width='350' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='977.0' y='776.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>异常实验条件</text>
+<rect x='1158' y='724' width='417' height='104' rx='3' ry='3' fill='#ffffff' stroke='#263968' stroke-width='1.8'/>
+<text x='1366.5' y='776.0' font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Arial Unicode MS',sans-serif" font-size='25' font-weight='650' fill='#111111' text-anchor='middle' dominant-baseline='middle'>检验结论稳定性</text>
+</svg>

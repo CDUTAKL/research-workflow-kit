@@ -1,0 +1,1 @@
+Purpose: show that the correction mechanism improves event-window error while keeping the stable-window path controlled.

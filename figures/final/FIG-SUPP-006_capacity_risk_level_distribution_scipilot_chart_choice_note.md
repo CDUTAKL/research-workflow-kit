@@ -1,0 +1,1 @@
+Purpose: show capacity-risk distribution, risk-case composition, and event-window severity capture at selected capacity thresholds.

@@ -1,0 +1,1 @@
+Purpose: show a representative event-day trajectory with visible event-state periods and prediction error.

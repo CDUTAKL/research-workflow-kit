@@ -1,0 +1,1 @@
+Purpose: supplement point-prediction evidence with weak baseline, behavior branch, graph branch, and event-triggered correction. Panel A uses a lollipop ranking, Panel B shows relative reduction against the weak baseline, and Panel C compares event and stable windows. Visible labels avoid run identifiers.

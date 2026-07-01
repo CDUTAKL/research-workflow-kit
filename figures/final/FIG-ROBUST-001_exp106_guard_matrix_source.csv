@@ -1,0 +1,11 @@
+experiment_id,layer,guard_label,status,setting,metric,baseline_value,candidate_value,threshold
+EXP-103,point_forecast,多种随机种子均优于强行为基线,pass,gate_seed=42,global_mae_delta,0.0213853700784751,0.0212937162612465,<0
+EXP-103,point_forecast,事件窗口配对误差降低,pass,gate_seed=2026,mae_delta,0.7945942092716892,0.7834791186433911,<0
+EXP-103,point_forecast,稳定窗口退化受控,pass,gate_seed=2026,mae_delta,0.0166597615106126,0.0166636120145834,<=2e-05
+EXP-103,point_forecast,分组 bootstrap 置信区间支持胜出,pass,gate_seed=2026;cluster=forecast_seed_origin,ci_high_95,0.0,-4.9571990519785114e-05,<0
+EXP-104,interval_calibration,全局 WIS 改善,pass,level=0.8;scope=overall;event_state=all,wis_delta,0.213339452002489,0.1986789767119559,<0
+EXP-104,interval_calibration,事件窗口 WIS 改善,pass,level=0.8;scope=event_state;event_state=event,wis_delta,7.944811933420139,5.533320569858132,<0
+EXP-104,interval_calibration,事件窗口覆盖率达守门线,pass,level=0.9;mode=adaptive_event_state_grouped_conservative,event_picp,0.85,0.9096498599439776,>=0.85
+EXP-105,capacity_risk_proxy,风险召回提升,pass,threshold=0.9,recall_delta,0.5537560303239145,0.9135079255685734,>0
+EXP-105,capacity_risk_proxy,严重度捕获提升,pass,threshold=0.9,severity_capture_delta,0.6568381063180593,0.9178586182666691,>0
+EXP-105,capacity_risk_proxy,误报率未越过守门线,pass,threshold=0.95,false_alarm_rate,0.25,0.1392067817135937,<=0.25

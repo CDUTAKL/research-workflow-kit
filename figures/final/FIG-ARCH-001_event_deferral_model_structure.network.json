@@ -1,0 +1,29 @@
+{
+  "figure_id": "FIG-ARCH-001",
+  "title": "事件感知动态专家递延模型结构",
+  "core_conclusion": "稳定窗口默认回退强行为基线，事件窗口由保守触发器决定是否递延给事件专家；区间校准和容量风险代理位于点预测输出之后。",
+  "architecture_source": [
+    "docs/thesis/method-event-deferral-v6.md",
+    "configs/experiment/EXP-103-v6-event-deferral.yaml",
+    "src/evcs/models/graph_tcn.py",
+    "docs/thesis/experiment-reports/frozen-experiment-result-tables.md"
+  ],
+  "input": [
+    "历史负荷序列 X",
+    "历史事件特征 E",
+    "事件上下文 C",
+    "行为事件邻接与候选图 A"
+  ],
+  "modules": [
+    "行为基线专家",
+    "事件图专家",
+    "历史事件双图专家",
+    "相关/DTW 融合专家",
+    "保守事件触发器",
+    "事件类型专家选择",
+    "稳定窗口行为回退",
+    "事件状态区间校准",
+    "容量风险代理"
+  ],
+  "caption_safe_note": "This schematic describes model structure only; performance is reported in EXP-103 to EXP-106 result figures."
+}

@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1672" height="941" viewBox="0 0 1672 941">
+<style>
+text { font-family:'Noto Sans CJK SC','Microsoft YaHei','PingFang SC','Source Han Sans SC',Arial,sans-serif; fill:#1f1f1f; }
+.title { font-size:32px; font-weight:700; }
+.section { font-size:24px; font-weight:700; }
+.group { font-size:26px; font-weight:780; }
+.boxTitle { font-size:21px; font-weight:780; }
+.boxBody { font-size:18px; font-weight:420; }
+.boxBodySmall { font-size:16.5px; font-weight:420; }
+.small { font-size:16px; fill:#666; }
+.note { font-size:20px; fill:#666; }
+.math { font-family:'Cambria Math','STIX Two Math','Times New Roman',serif; font-size:19px; font-style:italic; }
+.mathSmall { font-family:'Cambria Math','STIX Two Math','Times New Roman',serif; font-size:17px; font-style:italic; }
+.frame { fill:none; stroke:#8f8f8f; stroke-width:1.45; stroke-dasharray:8 7; }
+.gray { fill:#ffffff; stroke:#5f5f5f; stroke-width:1.45; }
+.blue { fill:#edf3fb; stroke:#7ea8d6; stroke-width:1.45; }
+.green { fill:#f7f9f5; stroke:#b7cdb1; stroke-width:1.35; }
+.orange { fill:#fbf1e6; stroke:#e5a05c; stroke-width:1.45; }
+.purple { fill:#fbfbfb; stroke:#c8c8c8; stroke-width:1.25; }
+.line { stroke:#111; stroke-width:1.9; fill:none; marker-end:url(#arrow); }
+.lineNoArrow { stroke:#111; stroke-width:1.9; fill:none; }
+.lineThin { stroke:#111; stroke-width:1.55; fill:none; marker-end:url(#arrow); }
+.lineBlue { stroke:#2a74c9; stroke-width:1.9; fill:none; marker-end:url(#arrowBlue); }
+.lineOrange { stroke:#ee7c2a; stroke-width:1.9; fill:none; marker-end:url(#arrowOrange); }
+.lineGray { stroke:#b8b8b8; stroke-width:1.55; fill:none; marker-end:url(#arrowGray); }
+.dashGray { stroke:#a8a8a8; stroke-width:1.35; stroke-dasharray:6 5; fill:none; marker-end:url(#arrowGray); }
+.sep { stroke:#d9d9d9; stroke-width:2; }
+</style>
+<defs>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#111"/></marker>
+<marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2a74c9"/></marker>
+<marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#ee7c2a"/></marker>
+<marker id="arrowGray" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#b8b8b8"/></marker>
+</defs>
+<rect x="0.5" y="0.5" width="1671" height="940" fill="#fff" stroke="#cfcfcf"/>
+<rect x="18" y="16" width="642" height="40" rx="6" ry="6" fill="#eef4fd" stroke="#7ea8d6" stroke-width="1.45"/>
+<rect x="676" y="16" width="392" height="40" rx="6" ry="6" fill="#fbfcfa" stroke="#b7cdb1" stroke-width="1.45"/>
+<rect x="1112" y="16" width="516" height="40" rx="6" ry="6" fill="#fff4ee" stroke="#f1b07f" stroke-width="1.45"/>
+<text x="339" y="43" text-anchor="middle" class="group" fill="#215fb9"><tspan x="339" dy="0">时间特征提取层</tspan></text>
+<text x="872" y="43" text-anchor="middle" class="group" fill="#333333"><tspan x="872" dy="0">图结构预测分支层</tspan></text>
+<text x="1370" y="43" text-anchor="middle" class="group" fill="#e6591a"><tspan x="1370" dy="0">事件触发式预测修正层</tspan></text>
+<line x1="1072" y1="64" x2="1072" y2="748" stroke="#efb486" stroke-width="1.25" stroke-dasharray="6 5"/>
+<line x1="1628" y1="64" x2="1628" y2="748" stroke="#efb486" stroke-width="1.25" stroke-dasharray="6 5"/>
+<rect x="18" y="80" width="195" height="220" rx="8" ry="8" fill="#fff" stroke="#5f5f5f" stroke-width="1.45"/>
+<text x="115" y="120" text-anchor="middle" class="boxTitle"><tspan x="115" dy="0">历史负荷与</tspan><tspan x="115" dy="32">充电行为特征</tspan></text>
+<text x="115" y="182" text-anchor="middle" class="boxBodySmall"><tspan x="115" dy="0">历史负荷、接入、离站、</tspan><tspan x="115" dy="26">占用、活跃状态</tspan></text>
+<text x="115" y="265" text-anchor="middle" class="mathSmall"><tspan x="115" dy="0">X_b：B×T×F_b</tspan></text>
+<rect x="18" y="330" width="195" height="176" rx="8" ry="8" fill="#fff" stroke="#5f5f5f" stroke-width="1.45"/>
+<text x="115" y="370" text-anchor="middle" class="boxTitle"><tspan x="115" dy="0">事件状态与</tspan><tspan x="115" dy="32">因果可用特征</tspan></text>
+<text x="115" y="430" text-anchor="middle" class="boxBodySmall"><tspan x="115" dy="0">事件近期性、事件类型、</tspan><tspan x="115" dy="26">预测时刻可见状态</tspan></text>
+<text x="115" y="480" text-anchor="middle" class="mathSmall"><tspan x="115" dy="0">X_e：B×T×F_e</tspan></text>
+<rect x="18" y="532" width="195" height="200" rx="8" ry="8" fill="#fff" stroke="#5f5f5f" stroke-width="1.45"/>
+<text x="115" y="572" text-anchor="middle" class="boxTitle"><tspan x="115" dy="0">行为事件图结构</tspan></text>
+<text x="115" y="618" text-anchor="middle" class="boxBodySmall"><tspan x="115" dy="0">事件邻接图、</tspan><tspan x="115" dy="25">历史相关图、</tspan><tspan x="115" dy="25">动态时间规整图</tspan></text>
+<text x="115" y="700" text-anchor="middle" class="mathSmall"><tspan x="115" dy="0">A_event / A_hist / A_dtw</tspan></text>
+<rect x="252" y="80" width="620" height="266" rx="10" ry="10" fill="none" stroke="#8cb4e0" stroke-width="1.25" stroke-dasharray="6 4"/>
+<rect x="258" y="86" width="194" height="252" rx="10" ry="10" fill="#fff" stroke="#d7d7d7" stroke-width="1.2"/>
+<text x="355" y="132" text-anchor="middle" class="boxTitle"><tspan x="355" dy="0">时间卷积编码</tspan></text>
+<text x="355" y="204" text-anchor="middle" class="boxBodySmall"><tspan x="355" dy="0">提取短期变化</tspan><tspan x="355" dy="26">与行为节律</tspan></text>
+<rect x="292" y="232" width="24" height="20" fill="#9fc2ef" stroke="#4a86d9" stroke-width="1"/>
+<rect x="318" y="232" width="24" height="20" fill="#6ca0e8" stroke="#4a86d9" stroke-width="1"/>
+<rect x="344" y="232" width="24" height="20" fill="#3f7fd5" stroke="#4a86d9" stroke-width="1"/>
+<rect x="370" y="232" width="24" height="20" fill="#9fc2ef" stroke="#4a86d9" stroke-width="1"/>
+<rect x="302" y="222" width="24" height="20" fill="#9fc2ef" stroke="#4a86d9" stroke-width="1"/>
+<rect x="328" y="222" width="24" height="20" fill="#6ca0e8" stroke="#4a86d9" stroke-width="1"/>
+<rect x="354" y="222" width="24" height="20" fill="#3f7fd5" stroke="#4a86d9" stroke-width="1"/>
+<rect x="380" y="222" width="24" height="20" fill="#9fc2ef" stroke="#4a86d9" stroke-width="1"/>
+<rect x="312" y="212" width="24" height="20" fill="#9fc2ef" stroke="#4a86d9" stroke-width="1"/>
+<rect x="338" y="212" width="24" height="20" fill="#6ca0e8" stroke="#4a86d9" stroke-width="1"/>
+<rect x="364" y="212" width="24" height="20" fill="#3f7fd5" stroke="#4a86d9" stroke-width="1"/>
+<rect x="390" y="212" width="24" height="20" fill="#9fc2ef" stroke="#4a86d9" stroke-width="1"/>
+<rect x="322" y="202" width="24" height="20" fill="#9fc2ef" stroke="#4a86d9" stroke-width="1"/>
+<rect x="348" y="202" width="24" height="20" fill="#6ca0e8" stroke="#4a86d9" stroke-width="1"/>
+<rect x="374" y="202" width="24" height="20" fill="#3f7fd5" stroke="#4a86d9" stroke-width="1"/>
+<rect x="400" y="202" width="24" height="20" fill="#9fc2ef" stroke="#4a86d9" stroke-width="1"/>
+<line x1="274" y1="219" x2="274" y2="284" stroke="#111" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="270" y="238" text-anchor="middle" class="boxBody"><tspan x="270" dy="0">d</tspan></text>
+<line x1="288" y1="295" x2="400" y2="295" class="line"/>
+<text x="344" y="323" text-anchor="middle" class="math"><tspan x="344" dy="0">T</tspan></text>
+<rect x="472" y="86" width="196" height="252" rx="10" ry="10" fill="#fff" stroke="#d7d7d7" stroke-width="1.2"/>
+<text x="570" y="123" text-anchor="middle" class="boxTitle"><tspan x="570" dy="0">门控时间卷积 /</tspan><tspan x="570" dy="29">残差时间块</tspan></text>
+<text x="570" y="188" text-anchor="middle" class="boxBodySmall"><tspan x="570" dy="0">保留主要趋势，</tspan><tspan x="570" dy="25">抑制短时噪声</tspan></text>
+<rect x="507" y="214" width="126" height="42" rx="8" ry="8" fill="#f8fbff" stroke="#8caada" stroke-width="1.1"/>
+<text x="570" y="241" text-anchor="middle" class="boxBodySmall"><tspan x="570" dy="0">卷积变换</tspan></text>
+<rect x="507" y="270" width="126" height="42" rx="8" ry="8" fill="#fff" stroke="#8caada" stroke-width="1.1"/>
+<text x="570" y="297" text-anchor="middle" class="boxBodySmall"><tspan x="570" dy="0">门控融合</tspan></text>
+<line x1="452" y1="236" x2="472" y2="236" class="line"/>
+<polyline points="488,280 488,320 666,320 666,252" class="line"/>
+<rect x="676" y="86" width="188" height="252" rx="10" ry="10" fill="#fff" stroke="#d7d7d7" stroke-width="1.2"/>
+<text x="770" y="123" text-anchor="middle" class="boxTitle"><tspan x="770" dy="0">时间状态表示</tspan></text>
+<text x="770" y="164" text-anchor="middle" class="boxBodySmall"><tspan x="770" dy="0">形成预测时刻</tspan><tspan x="770" dy="26">的时序隐状态</tspan></text>
+<rect x="726" y="243" width="24" height="20" fill="#d6e6fa" stroke="#4a89dc" stroke-width="1"/>
+<rect x="750" y="243" width="24" height="20" fill="#8fb7ec" stroke="#4a89dc" stroke-width="1"/>
+<rect x="774" y="243" width="24" height="20" fill="#d6e6fa" stroke="#4a89dc" stroke-width="1"/>
+<rect x="798" y="243" width="24" height="20" fill="#4a89dc" stroke="#4a89dc" stroke-width="1"/>
+<text x="770" y="307" text-anchor="middle" class="mathSmall"><tspan x="770" dy="0">H_t：B×d</tspan></text>
+<line x1="668" y1="236" x2="696" y2="236" class="line"/>
+<rect x="908" y="120" width="132" height="138" rx="8" ry="8" fill="#edf3fb" stroke="#7ea8d6" stroke-width="1.45"/>
+<text x="974" y="154" text-anchor="middle" class="boxTitle"><tspan x="974" dy="0">行为基线</tspan><tspan x="974" dy="29">预测分支</tspan></text>
+<text x="974" y="210" text-anchor="middle" class="boxBodySmall"><tspan x="974" dy="0">稳定状态</tspan><tspan x="974" dy="24">默认路径</tspan></text>
+<text x="974" y="250" text-anchor="middle" class="math"><tspan x="974" dy="0">ŷ_b</tspan></text>
+<line x1="864" y1="184" x2="908" y2="184" class="line"/>
+<line x1="974" y1="258" x2="974" y2="285" class="line"/>
+<text x="974" y="312" text-anchor="middle" class="math"><tspan x="974" dy="0">ŷ_b</tspan></text>
+<rect x="236" y="532" width="160" height="190" rx="8" ry="8" fill="#f1f6eb" stroke="#97c089" stroke-width="1.45"/>
+<text x="316" y="572" text-anchor="middle" class="boxTitle"><tspan x="316" dy="0">图邻居聚合</tspan></text>
+<text x="316" y="612" text-anchor="middle" class="boxBodySmall"><tspan x="316" dy="0">基于行为事件关系</tspan><tspan x="316" dy="25">汇聚相邻状态</tspan></text>
+<circle cx="292" cy="678" r="6" fill="#9fc791" stroke="#2e6b2e" stroke-width="1.2"/>
+<circle cx="268" cy="698" r="6" fill="#9fc791" stroke="#2e6b2e" stroke-width="1.2"/>
+<circle cx="308" cy="713" r="6" fill="#9fc791" stroke="#2e6b2e" stroke-width="1.2"/>
+<circle cx="330" cy="690" r="6" fill="#9fc791" stroke="#2e6b2e" stroke-width="1.2"/>
+<line x1="292" y1="678" x2="268" y2="698" stroke="#2e6b2e" stroke-width="1.2"/>
+<line x1="292" y1="678" x2="330" y2="690" stroke="#2e6b2e" stroke-width="1.2"/>
+<line x1="268" y1="698" x2="308" y2="713" stroke="#2e6b2e" stroke-width="1.2"/>
+<line x1="308" y1="713" x2="330" y2="690" stroke="#2e6b2e" stroke-width="1.2"/>
+<rect x="350" y="660" width="38" height="16" fill="#b7d5a8" stroke="#2e6b2e" stroke-width="1"/>
+<rect x="350" y="682" width="38" height="16" fill="#b7d5a8" stroke="#2e6b2e" stroke-width="1"/>
+<rect x="350" y="704" width="38" height="16" fill="#b7d5a8" stroke="#2e6b2e" stroke-width="1"/>
+<rect x="422" y="458" width="186" height="226" rx="8" ry="8" fill="#f1f6eb" stroke="#97c089" stroke-width="1.45"/>
+<text x="515" y="492" text-anchor="middle" class="boxTitle"><tspan x="515" dy="0">事件状态融合</tspan></text>
+<text x="515" y="526" text-anchor="middle" class="boxBodySmall"><tspan x="515" dy="0">融合时间状态、</tspan><tspan x="515" dy="24">事件状态与</tspan><tspan x="515" dy="24">图结构信息</tspan></text>
+<rect x="438" y="592" width="154" height="38" rx="7" ry="7" fill="#edf3fb" stroke="#7ea8d6" stroke-width="1.1"/>
+<text x="515" y="617" text-anchor="middle" class="boxBodySmall"><tspan x="515" dy="0">时间状态  H_t</tspan></text>
+<rect x="438" y="646" width="154" height="38" rx="7" ry="7" fill="#fff6ee" stroke="#e5a05c" stroke-width="1.1"/>
+<text x="515" y="671" text-anchor="middle" class="boxBodySmall"><tspan x="515" dy="0">事件状态  X_e</tspan></text>
+<rect x="438" y="700" width="154" height="38" rx="7" ry="7" fill="#f6faf0" stroke="#97c089" stroke-width="1.1"/>
+<text x="515" y="725" text-anchor="middle" class="boxBodySmall"><tspan x="515" dy="0">图状态  G</tspan></text>
+<rect x="648" y="400" width="364" height="340" rx="10" ry="10" fill="none" stroke="#a6cd99" stroke-width="1.25" stroke-dasharray="6 4"/>
+<text x="830" y="428" text-anchor="middle" class="boxTitle"><tspan x="830" dy="0">图结构预测分支</tspan></text>
+<rect x="678" y="446" width="146" height="134" rx="8" ry="8" fill="#f1f6eb" stroke="#97c089" stroke-width="1.45"/>
+<text x="751" y="479" text-anchor="middle" class="boxTitle"><tspan x="751" dy="0">事件动态图</tspan><tspan x="751" dy="29">预测分支</tspan></text>
+<text x="751" y="530" text-anchor="middle" class="boxBodySmall"><tspan x="751" dy="0">输出分支预测值</tspan></text>
+<text x="751" y="560" text-anchor="middle" class="math"><tspan x="751" dy="0">ŷ_g1</tspan></text>
+<rect x="846" y="446" width="146" height="134" rx="8" ry="8" fill="#f1f6eb" stroke="#97c089" stroke-width="1.45"/>
+<text x="919" y="479" text-anchor="middle" class="boxTitle"><tspan x="919" dy="0">历史事件图</tspan><tspan x="919" dy="29">预测分支</tspan></text>
+<text x="919" y="530" text-anchor="middle" class="boxBodySmall"><tspan x="919" dy="0">输出分支预测值</tspan></text>
+<text x="919" y="560" text-anchor="middle" class="math"><tspan x="919" dy="0">ŷ_g2</tspan></text>
+<rect x="678" y="596" width="146" height="134" rx="8" ry="8" fill="#f1f6eb" stroke="#97c089" stroke-width="1.45"/>
+<text x="751" y="629" text-anchor="middle" class="boxTitle"><tspan x="751" dy="0">相关性图</tspan><tspan x="751" dy="29">预测分支</tspan></text>
+<text x="751" y="680" text-anchor="middle" class="boxBodySmall"><tspan x="751" dy="0">输出分支预测值</tspan></text>
+<text x="751" y="710" text-anchor="middle" class="math"><tspan x="751" dy="0">ŷ_g3</tspan></text>
+<rect x="846" y="596" width="146" height="134" rx="8" ry="8" fill="#f1f6eb" stroke="#97c089" stroke-width="1.45"/>
+<text x="919" y="629" text-anchor="middle" class="boxTitle"><tspan x="919" dy="0">融合图</tspan><tspan x="919" dy="29">预测分支</tspan></text>
+<text x="919" y="680" text-anchor="middle" class="boxBodySmall"><tspan x="919" dy="0">输出分支预测值</tspan></text>
+<text x="919" y="710" text-anchor="middle" class="math"><tspan x="919" dy="0">ŷ_g4</tspan></text>
+<line x1="213" y1="184" x2="252" y2="184" class="line"/>
+<polyline points="213,406 418,406 418,520 422,520" class="line"/>
+<line x1="213" y1="638" x2="236" y2="638" class="line"/>
+<line x1="396" y1="638" x2="422" y2="638" class="line"/>
+<polyline points="770,338 770,380 515,380 515,458" class="line"/>
+<line x1="608" y1="565" x2="648" y2="565" class="line"/>
+<rect x="1092" y="150" width="144" height="496" rx="8" ry="8" fill="#fffdf8" stroke="#e5a05c" stroke-width="1.45"/>
+<text x="1164" y="198" text-anchor="middle" class="boxTitle"><tspan x="1164" dy="0">候选分支</tspan><tspan x="1164" dy="30">预测结果</tspan></text>
+<rect x="1106" y="236" width="116" height="44" rx="7" ry="7" fill="#edf3fb" stroke="#7ea8d6" stroke-width="1.1"/>
+<text x="1164" y="265" text-anchor="middle" class="math"><tspan x="1164" dy="0">ŷ_b</tspan></text>
+<rect x="1106" y="294" width="116" height="44" rx="7" ry="7" fill="#f1f6eb" stroke="#97c089" stroke-width="1.1"/>
+<text x="1164" y="323" text-anchor="middle" class="math"><tspan x="1164" dy="0">ŷ_g1</tspan></text>
+<rect x="1106" y="352" width="116" height="44" rx="7" ry="7" fill="#f1f6eb" stroke="#97c089" stroke-width="1.1"/>
+<text x="1164" y="381" text-anchor="middle" class="math"><tspan x="1164" dy="0">ŷ_g2</tspan></text>
+<rect x="1106" y="410" width="116" height="44" rx="7" ry="7" fill="#f1f6eb" stroke="#97c089" stroke-width="1.1"/>
+<text x="1164" y="439" text-anchor="middle" class="math"><tspan x="1164" dy="0">ŷ_g3</tspan></text>
+<rect x="1106" y="468" width="116" height="44" rx="7" ry="7" fill="#f1f6eb" stroke="#97c089" stroke-width="1.1"/>
+<text x="1164" y="497" text-anchor="middle" class="math"><tspan x="1164" dy="0">ŷ_g4</tspan></text>
+<text x="1164" y="586" text-anchor="middle" class="mathSmall"><tspan x="1164" dy="0">P = [ŷ_b, ŷ_g1,</tspan><tspan x="1164" dy="27">ŷ_g2, ŷ_g3, ŷ_g4]</tspan></text>
+<polygon points="1398,131.0 1494.0,204 1398,277.0 1302.0,204" fill="#fff" stroke="#ee7c2a" stroke-width="1.55"/>
+<text x="1398" y="180" text-anchor="middle" class="boxTitle"><tspan x="1398" dy="0">保守事件</tspan><tspan x="1398" dy="30">触发判断</tspan></text>
+<text x="1398" y="238" text-anchor="middle" class="math"><tspan x="1398" dy="0">s(x) ≥ τ</tspan></text>
+<text x="1398" y="268" text-anchor="middle" class="boxBodySmall"><tspan x="1398" dy="0">仅使用预测时刻可见信息</tspan></text>
+<polyline points="1236,204 1302,204" class="dashGray"/>
+<text x="1318" y="300" text-anchor="middle" class="boxTitle" fill="#2a74c9"><tspan x="1318" dy="0">否</tspan><tspan x="1318" dy="28">（稳定状态）</tspan></text>
+<text x="1514" y="300" text-anchor="middle" class="boxTitle" fill="#ee7c2a"><tspan x="1514" dy="0">是</tspan><tspan x="1514" dy="28">（事件状态）</tspan></text>
+<rect x="1250" y="364" width="156" height="136" rx="8" ry="8" fill="#edf3fb" stroke="#7ea8d6" stroke-width="1.45"/>
+<text x="1328" y="402" text-anchor="middle" class="boxTitle"><tspan x="1328" dy="0">回退行为</tspan><tspan x="1328" dy="29">基线分支</tspan></text>
+<text x="1328" y="450" text-anchor="middle" class="boxBodySmall"><tspan x="1328" dy="0">稳定路径</tspan></text>
+<text x="1328" y="480" text-anchor="middle" class="math"><tspan x="1328" dy="0">ŷ = ŷ_b</tspan></text>
+<rect x="1472" y="364" width="156" height="136" rx="8" ry="8" fill="#fbf1e6" stroke="#e5a05c" stroke-width="1.45"/>
+<text x="1550" y="402" text-anchor="middle" class="boxTitle"><tspan x="1550" dy="0">选择事件图</tspan><tspan x="1550" dy="29">预测分支</tspan></text>
+<text x="1550" y="450" text-anchor="middle" class="boxBodySmall"><tspan x="1550" dy="0">事件路径</tspan></text>
+<text x="1550" y="480" text-anchor="middle" class="math"><tspan x="1550" dy="0">ŷ = ŷ_gj</tspan></text>
+<polyline points="1398,277 1398,348 1328,348 1328,364" class="line"/>
+<polyline points="1494,204 1494,348 1550,348 1550,364" class="line"/>
+<rect x="1252" y="544" width="356" height="146" rx="8" ry="8" fill="#fbf1e6" stroke="#e5a05c" stroke-width="1.45"/>
+<text x="1430" y="578" text-anchor="middle" class="boxTitle"><tspan x="1430" dy="0">事件触发式预测修正</tspan></text>
+<text x="1430" y="612" text-anchor="middle" class="boxBodySmall"><tspan x="1430" dy="0">稳定窗口保持行为预测，</tspan><tspan x="1430" dy="25">事件窗口采用图结构修正</tspan></text>
+<text x="1430" y="660" text-anchor="middle" class="mathSmall"><tspan x="1430" dy="0">ŷ = (1 - m)ŷ_b + mŷ_gj,  m ∈ {0,1}</tspan></text>
+<polyline points="1328,500 1328,528 1430,528 1430,544" class="line"/>
+<polyline points="1550,500 1550,528 1430,528 1430,544" class="line"/>
+<rect x="1258" y="720" width="344" height="126" rx="8" ry="8" fill="#fbfbfb" stroke="#c8c8c8" stroke-width="1.45"/>
+<text x="1430" y="758" text-anchor="middle" class="boxTitle" fill="#333333"><tspan x="1430" dy="0">最终充电负荷点预测</tspan></text>
+<text x="1430" y="796" text-anchor="middle" class="boxBodySmall"><tspan x="1430" dy="0">输出下一时刻或目标预测窗口负荷</tspan></text>
+<text x="1430" y="832" text-anchor="middle" class="math"><tspan x="1430" dy="0">ŷ</tspan></text>
+<line x1="1430" y1="690" x2="1430" y2="720" class="line"/>
+<line x1="1040" y1="184" x2="1092" y2="184" class="line"/>
+<line x1="1012" y1="428" x2="1092" y2="428" class="line"/>
+<line x1="1012" y1="486" x2="1092" y2="486" class="line"/>
+<line x1="1012" y1="534" x2="1092" y2="534" class="line"/>
+<rect x="176" y="770" width="980" height="86" rx="10" ry="10" fill="#fbfbfb" stroke="#c8c8c8" stroke-width="1.2" stroke-dasharray="6 4"/>
+<text x="666" y="796" text-anchor="middle" class="section" fill="#333333"><tspan x="666" dy="0">后续应用与决策层（可选）</tspan></text>
+<rect x="242" y="811" width="200" height="34" rx="7" ry="7" fill="#fff" stroke="#c8c8c8" stroke-width="1.05"/>
+<text x="342" y="833" text-anchor="middle" class="boxBodySmall" fill="#333333"><tspan x="342" dy="0">区间校准</tspan></text>
+<rect x="515" y="811" width="200" height="34" rx="7" ry="7" fill="#fff" stroke="#c8c8c8" stroke-width="1.05"/>
+<text x="615" y="833" text-anchor="middle" class="boxBodySmall" fill="#333333"><tspan x="615" dy="0">容量风险代理</tspan></text>
+<rect x="792" y="811" width="200" height="34" rx="7" ry="7" fill="#fff" stroke="#c8c8c8" stroke-width="1.05"/>
+<text x="892" y="833" text-anchor="middle" class="boxBodySmall" fill="#333333"><tspan x="892" dy="0">稳健性与降级决策</tspan></text>
+<rect x="16" y="878" width="1185" height="38" rx="6" ry="6" fill="#fff" stroke="#8f8f8f" stroke-width="1.2"/>
+<line x1="42" y1="897" x2="78" y2="897" class="line"/>
+<text x="106" y="903" text-anchor="start" class="boxBodySmall"><tspan x="106" dy="0">主要信息流</tspan></text>
+<line x1="198" y1="897" x2="236" y2="897" class="dashGray"/>
+<text x="264" y="903" text-anchor="start" class="boxBodySmall"><tspan x="264" dy="0">辅助信息流</tspan></text>
+<rect x="404" y="887" width="30" height="18" rx="4" ry="4" fill="#edf3fb" stroke="#7ea8d6" stroke-width="1"/>
+<text x="444" y="902" text-anchor="start" class="small" fill="#444"><tspan x="444" dy="0">时间特征相关模块</tspan></text>
+<rect x="624" y="887" width="30" height="18" rx="4" ry="4" fill="#f1f6eb" stroke="#97c089" stroke-width="1"/>
+<text x="664" y="902" text-anchor="start" class="small" fill="#444"><tspan x="664" dy="0">图结构相关模块</tspan></text>
+<rect x="846" y="887" width="30" height="18" rx="4" ry="4" fill="#fbf1e6" stroke="#e5a05c" stroke-width="1"/>
+<text x="886" y="902" text-anchor="start" class="small" fill="#444"><tspan x="886" dy="0">决策与修正模块</tspan></text>
+<rect x="1058" y="887" width="30" height="18" rx="4" ry="4" fill="#fbfbfb" stroke="#c8c8c8" stroke-width="1"/>
+<text x="1098" y="902" text-anchor="start" class="small" fill="#444"><tspan x="1098" dy="0">后续应用模块</tspan></text></svg>

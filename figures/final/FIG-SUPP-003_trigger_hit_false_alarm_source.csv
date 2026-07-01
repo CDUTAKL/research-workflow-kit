@@ -1,0 +1,8 @@
+actual_window,触发修正,保持基线,panel,metric,value
+事件窗口,50119.0,21281.0,matrix_count,,
+稳定窗口,0.0,11682540.0,matrix_count,,
+事件窗口,0.7019467787114846,0.2980532212885154,matrix_rate,,
+稳定窗口,0.0,1.0,matrix_rate,,
+,,,rate_summary,事件窗口召回率,0.7019467787114846
+,,,rate_summary,稳定窗口误触发率,0.0
+,,,rate_summary,整体触发率,0.0042640170019584

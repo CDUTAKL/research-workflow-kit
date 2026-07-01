@@ -1,0 +1,1 @@
+Purpose: summarize event-status and branch-difference features that support conservative event triggering.

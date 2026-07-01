@@ -1,0 +1,1 @@
+Purpose: show the class imbalance between event and stable windows and summarize the event-window type composition. Counts are from frozen correction metrics and event-type mapping.

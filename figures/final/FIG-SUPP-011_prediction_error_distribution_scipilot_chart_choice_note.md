@@ -1,0 +1,1 @@
+Purpose: compare sample-level absolute-error distributions between the behavior baseline branch and the dynamic graph branch using paired test-sample evidence. Panel B reports paired error differences, where negative values mean the graph branch has lower absolute error.

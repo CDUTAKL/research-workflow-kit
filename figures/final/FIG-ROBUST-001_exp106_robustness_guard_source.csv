@@ -1,0 +1,4 @@
+experiment_id,layer,pass_count,warn_count,fail_count,missing_count,decision
+EXP-103,point_forecast,15,0,0,0,keep_main_claim
+EXP-104,interval_calibration,5,0,0,0,keep_main_claim
+EXP-105,capacity_risk_proxy,7,0,0,0,keep_main_claim

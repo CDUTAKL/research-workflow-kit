@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="793.608pt" height="406.609422pt" viewBox="0 0 793.608 406.609422" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-06-29T21:16:18.790064</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M -0 406.609422 
+L 793.608 406.609422 
+L 793.608 0 
+L -0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 11.06304 265.183488 
+L 108.93696 265.183488 
+Q 122.70048 265.183488 122.70048 258.273216 
+L 122.70048 101.640384 
+Q 122.70048 94.730112 108.93696 94.730112 
+L 11.06304 94.730112 
+Q -2.70048 94.730112 -2.70048 101.640384 
+L -2.70048 258.273216 
+Q -2.70048 265.183488 11.06304 265.183488 
+z
+" clip-path="url(#pdb4211f83a)" style="fill: #ffffff; stroke: #b8bec8; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 148.69824 265.183488 
+L 246.57216 265.183488 
+Q 260.33568 265.183488 260.33568 258.273216 
+L 260.33568 101.640384 
+Q 260.33568 94.730112 246.57216 94.730112 
+L 148.69824 94.730112 
+Q 134.93472 94.730112 134.93472 101.640384 
+L 134.93472 258.273216 
+Q 134.93472 265.183488 148.69824 265.183488 
+z
+" clip-path="url(#pdb4211f83a)" style="fill: #ffffff; stroke: #cfe0f2; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 286.33344 265.183488 
+L 384.20736 265.183488 
+Q 397.97088 265.183488 397.97088 258.273216 
+L 397.97088 101.640384 
+Q 397.97088 94.730112 384.20736 94.730112 
+L 286.33344 94.730112 
+Q 272.56992 94.730112 272.56992 101.640384 
+L 272.56992 258.273216 
+Q 272.56992 265.183488 286.33344 265.183488 
+z
+" clip-path="url(#pdb4211f83a)" style="fill: #ffffff; stroke: #2c6daa; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 423.96864 265.183488 
+L 521.84256 265.183488 
+Q 535.60608 265.183488 535.60608 258.273216 
+L 535.60608 101.640384 
+Q 535.60608 94.730112 521.84256 94.730112 
+L 423.96864 94.730112 
+Q 410.20512 94.730112 410.20512 101.640384 
+L 410.20512 258.273216 
+Q 410.20512 265.183488 423.96864 265.183488 
+z
+" clip-path="url(#pdb4211f83a)" style="fill: #ffffff; stroke: #7b5ba7; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 561.60384 265.183488 
+L 659.47776 265.183488 
+Q 673.24128 265.183488 673.24128 258.273216 
+L 673.24128 101.640384 
+Q 673.24128 94.730112 659.47776 94.730112 
+L 561.60384 94.730112 
+Q 547.84032 94.730112 547.84032 101.640384 
+L 547.84032 258.273216 
+Q 547.84032 265.183488 561.60384 265.183488 
+z
+" clip-path="url(#pdb4211f83a)" style="fill: #ffffff; stroke: #d77a2d; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 699.23904 265.183488 
+L 797.11296 265.183488 
+Q 810.87648 265.183488 810.87648 258.273216 
+L 810.87648 101.640384 
+Q 810.87648 94.730112 797.11296 94.730112 
+L 699.23904 94.730112 
+Q 685.47552 94.730112 685.47552 101.640384 
+L 685.47552 258.273216 
+Q 685.47552 265.183488 699.23904 265.183488 
+z
+" clip-path="url(#pdb4211f83a)" style="fill: #ffffff; stroke: #4e9a63; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-size: 11px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: start; fill: #68717d" x="37.0608" y="34.07328" transform="rotate(-0 37.0608 34.07328)">从数据可信、点预测胜利、区间校准到容量风险解释与稳健性守门</text>
+   </g>
+   <g id="patch_8">
+    <path d="M 107.88054 176.11776 
+Q 128.818439 176.11776 148.191091 176.11776 
+" style="fill: none; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 144.111091 174.07776 
+L 148.191091 176.11776 
+L 144.111091 178.15776 
+z
+" style="fill: #68717d; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="text_2">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #b8bec8" x="60" y="123.560078" transform="rotate(-0 60 123.560078)">EXP-101</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 10.5px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="60" y="150.642509" transform="rotate(-0 60 150.642509)">数据审计</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(7.2 187.104666)">时空张量、事件特征、时间</text>
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(38 197.520978)">划分可追踪</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 8.6px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #68717d" x="60" y="244.081874" transform="rotate(-0 60 244.081874)">基础证据</text>
+   </g>
+   <g id="patch_9">
+    <path d="M 245.51574 176.11776 
+Q 266.453639 176.11776 285.826291 176.11776 
+" style="fill: none; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 281.746291 174.07776 
+L 285.826291 176.11776 
+L 281.746291 178.15776 
+z
+" style="fill: #68717d; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #cfe0f2" x="197.6352" y="123.560078" transform="rotate(-0 197.6352 123.560078)">EXP-102</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 10.5px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="197.6352" y="150.659735" transform="rotate(-0 197.6352 150.659735)">强行为基线</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="197.6352" y="192.349259" transform="rotate(-0 197.6352 192.349259)">建立行为基线与评估协议</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 8.6px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #68717d" x="197.6352" y="244.069108" transform="rotate(-0 197.6352 244.069108)">对照基准</text>
+   </g>
+   <g id="patch_10">
+    <path d="M 383.15094 176.11776 
+Q 404.088839 176.11776 423.461491 176.11776 
+" style="fill: none; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 419.381491 174.07776 
+L 423.461491 176.11776 
+L 419.381491 178.15776 
+z
+" style="fill: #68717d; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #2c6daa" x="335.2704" y="123.560078" transform="rotate(-0 335.2704 123.560078)">EXP-103</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 10.5px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="335.2704" y="150.580985" transform="rotate(-0 335.2704 150.580985)">点预测</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(305.690713 181.940509)">全局 MAE 降低</text>
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(300.795025 192.312822)">1.04%；事件窗口</text>
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(302.015337 202.767634)">MAE 降低 3.76%</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 8.6px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #68717d" x="335.2704" y="244.093967" transform="rotate(-0 335.2704 244.093967)">主胜利</text>
+   </g>
+   <g id="patch_11">
+    <path d="M 520.78614 176.11776 
+Q 541.724039 176.11776 561.096691 176.11776 
+" style="fill: none; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 557.016691 174.07776 
+L 561.096691 176.11776 
+L 557.016691 178.15776 
+z
+" style="fill: #68717d; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="text_14">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #7b5ba7" x="472.9056" y="123.560078" transform="rotate(-0 472.9056 123.560078)">EXP-104</text>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 700; font-size: 10.5px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="472.9056" y="150.570321" transform="rotate(-0 472.9056 150.570321)">区间预测</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(440.877038 187.180291)">90% 区间覆盖与</text>
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(454.572725 197.536103)">WIS 改善</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 8.6px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #68717d" x="472.9056" y="244.031483" transform="rotate(-0 472.9056 244.031483)">区间胜利</text>
+   </g>
+   <g id="patch_12">
+    <path d="M 658.42134 176.11776 
+Q 679.359239 176.11776 698.731891 176.11776 
+" style="fill: none; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 694.651891 174.07776 
+L 698.731891 176.11776 
+L 694.651891 178.15776 
+z
+" style="fill: #68717d; stroke: #68717d; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #d77a2d" x="610.5408" y="123.560078" transform="rotate(-0 610.5408 123.560078)">EXP-105</text>
+   </g>
+   <g id="text_19">
+    <text style="font-weight: 700; font-size: 10.5px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="610.5408" y="150.601493" transform="rotate(-0 610.5408 150.601493)">容量风险</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(557.7408 187.109478)">区间上界提高风险召回与严</text>
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(592.9408 197.439166)">重度捕获</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 8.6px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #68717d" x="610.5408" y="244.065077" transform="rotate(-0 610.5408 244.065077)">解释胜利</text>
+   </g>
+   <g id="text_22">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #4e9a63" x="748.176" y="123.560078" transform="rotate(-0 748.176 123.560078)">EXP-106</text>
+   </g>
+   <g id="text_23">
+    <text style="font-weight: 700; font-size: 10.5px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="748.176" y="150.601493" transform="rotate(-0 748.176 150.601493)">稳健性守门</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(737.906125 181.961822)">EXP-</text>
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(723.709937 191.376275)">103/104/105</text>
+    <text style="font-size: 8.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(717.376 201.705962)">预设检查均通过</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 8.6px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #68717d" x="748.176" y="244.142342" transform="rotate(-0 748.176 244.142342)">稳健性确认</text>
+   </g>
+   <g id="text_26">
+    <g id="patch_13">
+     <path d="M 60 403.819422 
+L 236.422969 403.819422 
+Q 240.832969 403.819422 240.832969 399.409422 
+L 240.832969 329.67936 
+Q 240.832969 325.26936 236.422969 325.26936 
+L 60 325.26936 
+Q 55.59 325.26936 55.59 329.67936 
+L 55.59 399.409422 
+Q 55.59 403.819422 60 403.819422 
+z
+" style="fill: #f5f7fa; stroke: #d9dee7; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 9.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(60 338.53745)">EXP-101：保证数据与因果一致性</text>
+    <text style="font-size: 9.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(60 350.160403)">EXP-102：提供主对照与生死线</text>
+    <text style="font-size: 9.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(60 361.783356)">EXP-103：事件触发式预测修正主结果</text>
+    <text style="font-size: 9.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(60 373.482872)">EXP-104：把点预测扩展为不确定性表达</text>
+    <text style="font-size: 9.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(60 385.006294)">EXP-105：形成运营风险代理解释</text>
+    <text style="font-size: 9.8px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(60 396.705809)">EXP-106：给出主张保留与降级依据</text>
+   </g>
+   <g id="text_27">
+    <g id="patch_14">
+     <path d="M 534.0768 382.475516 
+L 717.6768 382.475516 
+Q 722.2668 382.475516 722.2668 377.885516 
+L 722.2668 329.67936 
+Q 722.2668 325.08936 717.6768 325.08936 
+L 534.0768 325.08936 
+Q 529.4868 325.08936 529.4868 329.67936 
+L 529.4868 377.885516 
+Q 529.4868 382.475516 534.0768 382.475516 
+z
+" style="fill: #f3f7fc; stroke: #cfe0f2; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 10.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #0e4a82" transform="translate(534.0768 338.878286)">论文叙事口径：</text>
+    <text style="font-size: 10.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #0e4a82" transform="translate(534.0768 350.940583)">不是单一动态图骨干全面支配，</text>
+    <text style="font-size: 10.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #0e4a82" transform="translate(534.0768 362.974192)">而是事件感知的动态专家选择与</text>
+    <text style="font-size: 10.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #0e4a82" transform="translate(534.0768 375.071551)">事件触发式预测修正机制形成稳定优势。</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pdb4211f83a">
+   <rect x="21.768" y="7.2" width="764.64" height="383.904"/>
+  </clipPath>
+ </defs>
+</svg>

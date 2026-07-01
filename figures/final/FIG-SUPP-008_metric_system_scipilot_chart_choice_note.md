@@ -1,0 +1,1 @@
+Purpose: define the thesis evaluation metric system across point prediction, window-level error, interval reliability, risk proxy, and robustness checks. This is a schematic figure with traceable metric definitions.

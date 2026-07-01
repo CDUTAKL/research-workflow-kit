@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1693" height="929" viewBox="0 0 1693 929">
+<style>
+text { font-family:'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',Arial,sans-serif; fill:#222; }
+.title { font-size:31px; font-weight:700; }
+.section { font-size:24px; font-weight:700; }
+.label { font-size:24px; font-weight:700; }
+.boxtitle { font-size:19px; font-weight:700; }
+.boxbody { font-size:17px; }
+.small { font-size:16px; fill:#666; }
+.note { font-size:17px; fill:#6d6d6d; }
+.math { font-family:'Cambria Math','STIX Two Math','Times New Roman',serif; font-size:18px; font-style:italic; fill:#333; }
+.gray { fill:#ffffff; stroke:#676767; stroke-width:1.4; }
+.blue { fill:#edf4fc; stroke:#83abd6; stroke-width:1.4; }
+.blueDash { fill:#f7f9fc; stroke:#83abd6; stroke-width:1.4; stroke-dasharray:7 5; }
+.orange { fill:#fbf1e8; stroke:#e2a064; stroke-width:1.4; }
+.frame { fill:none; stroke:#8f8f8f; stroke-width:1.25; stroke-dasharray:10 8; }
+.frameLite { fill:none; stroke:#c8c8c8; stroke-width:1.25; stroke-dasharray:7 6; }
+.line { stroke:#111; stroke-width:1.9; fill:none; marker-end:url(#a); }
+.lineb { stroke:#2876d8; stroke-width:1.9; fill:none; marker-end:url(#ab); }
+.lineo { stroke:#ef7f2e; stroke-width:1.9; fill:none; marker-end:url(#ao); }
+.lineg { stroke:#c3c3c3; stroke-width:1.5; fill:none; marker-end:url(#ag); }
+.dashg { stroke:#b5b5b5; stroke-width:1.35; stroke-dasharray:5 5; fill:none; marker-end:url(#ag); }
+.sep { stroke:#d1d1d1; stroke-width:1.6; }
+</style>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#111"/></marker><marker id="ab" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2876d8"/></marker><marker id="ao" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#ef7f2e"/></marker><marker id="ag" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#c3c3c3"/></marker></defs><rect x="0.5" y="0.5" width="1692" height="928" fill="#fff" stroke="#cfcfcf"/><text x="846" y="45" text-anchor="middle" class="title"><tspan x="846" dy="0">A. 事件触发式预测修正机制</tspan></text>
+<text x="238" y="108" text-anchor="middle" class="section"><tspan x="238" dy="0">候选预测结果生成</tspan></text>
+<text x="702" y="108" text-anchor="middle" class="section"><tspan x="702" dy="0">保守事件触发判断</tspan></text>
+<text x="1247" y="108" text-anchor="middle" class="section"><tspan x="1247" dy="0">分支选择与预测修正</tspan></text>
+<rect x="32" y="136" width="435" height="314" rx="12" ry="12" class="frameLite"/>
+<rect x="50" y="160" width="252" height="118" rx="9" ry="9" class="blue"/>
+<text x="176" y="192" text-anchor="middle" class="boxtitle"><tspan x="176" dy="0">行为基线预测分支</tspan></text>
+<text x="176" y="224" text-anchor="middle" class="boxbody"><tspan x="176" dy="0">稳定状态默认预测路径</tspan></text>
+<text x="176" y="254" text-anchor="middle" class="math"><tspan x="176" dy="0">ŷ_b</tspan></text>
+<rect x="50" y="296" width="252" height="118" rx="9" ry="9" class="blueDash"/>
+<text x="176" y="328" text-anchor="middle" class="boxtitle"><tspan x="176" dy="0">图结构预测分支</tspan></text>
+<text x="176" y="360" text-anchor="middle" class="boxbody"><tspan x="176" dy="0">事件窗口候选修正来源</tspan></text>
+<text x="176" y="390" text-anchor="middle" class="math"><tspan x="176" dy="0">ŷ_g1, ŷ_g2, ŷ_g3, ŷ_g4</tspan></text>
+<rect x="328" y="160" width="120" height="254" rx="9" ry="9" class="gray"/>
+<text x="388" y="198" text-anchor="middle" class="boxtitle"><tspan x="388" dy="0">候选预测</tspan><tspan x="388" dy="28">结果</tspan></text>
+<text x="388" y="238" text-anchor="middle" class="math"><tspan x="388" dy="0">P = [ŷ_b,</tspan><tspan x="388" dy="30">ŷ_g1,</tspan><tspan x="388" dy="30">ŷ_g2,</tspan><tspan x="388" dy="30">ŷ_g3,</tspan><tspan x="388" dy="30">ŷ_g4]</tspan></text>
+<line x1="302" y1="219" x2="328" y2="219" class="line"/>
+<line x1="302" y1="355" x2="328" y2="355" class="line"/>
+<rect x="575" y="140" width="248" height="56" rx="9" ry="9" class="gray"/>
+<text x="699" y="176" text-anchor="middle" class="boxbody"><tspan x="699" dy="0">事件状态与因果可用特征</tspan></text>
+<polyline points="699,196 699,224" class="dashg"/>
+<polygon points="699,219.0 857.0,292 699,365.0 541.0,292" fill="#fff" stroke="#444" stroke-width="1.45"/>
+<text x="699" y="264" text-anchor="middle" class="boxtitle"><tspan x="699" dy="0">是否为</tspan><tspan x="699" dy="34">高置信事件窗口？</tspan></text>
+<text x="699" y="334" text-anchor="middle" class="math"><tspan x="699" dy="0">s(x) ≥ τ</tspan></text>
+<text x="699" y="390" text-anchor="middle" class="small"><tspan x="699" dy="0">仅使用预测时刻可见信息</tspan></text>
+<line x1="467" y1="292" x2="540" y2="292" class="line"/>
+<rect x="982" y="160" width="230" height="92" rx="9" ry="9" class="blue"/>
+<text x="1097" y="189" text-anchor="middle" class="boxtitle"><tspan x="1097" dy="0">稳定状态</tspan></text>
+<text x="1097" y="214" text-anchor="middle" class="boxbody"><tspan x="1097" dy="0">回退行为基线预测分支</tspan></text>
+<text x="1097" y="238" text-anchor="middle" class="math"><tspan x="1097" dy="0">ŷ = ŷ_b</tspan></text>
+<rect x="982" y="312" width="230" height="108" rx="9" ry="9" class="orange"/>
+<text x="1097" y="343" text-anchor="middle" class="boxtitle"><tspan x="1097" dy="0">事件状态</tspan></text>
+<text x="1097" y="368" text-anchor="middle" class="boxbody"><tspan x="1097" dy="0">选择图结构预测分支</tspan></text>
+<text x="1097" y="394" text-anchor="middle" class="math"><tspan x="1097" dy="0">ŷ = ŷ_gj</tspan></text>
+<polyline points="857,292 930,292 930,206 982,206" class="lineb"/>
+<polyline points="857,292 930,292 930,366 982,366" class="lineo"/>
+<text x="904" y="168" text-anchor="middle" class="boxtitle" fill="#2876d8"><tspan x="904" dy="0">否</tspan></text>
+<text x="904" y="346" text-anchor="middle" class="boxtitle" fill="#ef7f2e"><tspan x="904" dy="0">是</tspan></text>
+<rect x="1270" y="206" width="184" height="174" rx="9" ry="9" class="gray"/>
+<text x="1362" y="244" text-anchor="middle" class="boxtitle"><tspan x="1362" dy="0">事件触发式</tspan><tspan x="1362" dy="32">预测修正</tspan></text>
+<text x="1362" y="305" text-anchor="middle" class="math"><tspan x="1362" dy="0">m = 0：ŷ = ŷ_b</tspan></text>
+<text x="1362" y="345" text-anchor="middle" class="math"><tspan x="1362" dy="0">m = 1：ŷ = ŷ_gj</tspan></text>
+<rect x="1498" y="218" width="152" height="132" rx="9" ry="9" class="gray"/>
+<text x="1574" y="261" text-anchor="middle" class="boxtitle"><tspan x="1574" dy="0">最终充电负荷</tspan><tspan x="1574" dy="34">点预测</tspan></text>
+<text x="1574" y="320" text-anchor="middle" class="math"><tspan x="1574" dy="0">ŷ</tspan></text>
+<polyline points="1212,206 1240,206 1240,293 1270,293" class="line"/>
+<polyline points="1212,366 1240,366 1240,293 1270,293" class="line"/>
+<line x1="1454" y1="293" x2="1498" y2="293" class="line"/>
+<line x1="24" y1="468" x2="1669" y2="468" class="sep"/>
+<text x="955" y="500" text-anchor="middle" class="note"><tspan x="955" dy="0">预测修正机制输出支撑后续实验验证</tspan></text>
+<text x="1090" y="538" text-anchor="middle" class="title"><tspan x="1090" dy="0">B. 论文实验验证链条</tspan></text>
+<rect x="315" y="560" width="1330" height="170" rx="10" ry="10" class="frame"/>
+<rect x="315" y="768" width="1330" height="130" rx="10" ry="10" class="frame"/>
+<text x="140" y="593" text-anchor="middle" class="label"><tspan x="140" dy="0">预测性能验证</tspan></text>
+<text x="145" y="812" text-anchor="middle" class="label"><tspan x="145" dy="0">应用解释与</tspan><tspan x="145" dy="30">可靠性验证</tspan></text>
+<rect x="382" y="587" width="270" height="122" rx="4" ry="4" class="gray"/>
+<text x="517.0" y="617" text-anchor="middle" class="boxtitle"><tspan x="517.0" dy="0">数据基础与因果一致性</tspan></text>
+<text x="517.0" y="649" text-anchor="middle" class="boxbody"><tspan x="517.0" dy="0">样本构成、时间划分、</tspan><tspan x="517.0" dy="26">预测时刻可见特征</tspan></text>
+<rect x="707" y="587" width="270" height="122" rx="4" ry="4" class="gray"/>
+<text x="842.0" y="617" text-anchor="middle" class="boxtitle"><tspan x="842.0" dy="0">行为事件建模验证</tspan></text>
+<text x="842.0" y="649" text-anchor="middle" class="boxbody"><tspan x="842.0" dy="0">行为特征、事件状态、</tspan><tspan x="842.0" dy="26">图结构关系</tspan></text>
+<rect x="1032" y="587" width="280" height="122" rx="4" ry="4" class="blue"/>
+<text x="1172.0" y="617" text-anchor="middle" class="boxtitle"><tspan x="1172.0" dy="0">点预测主实验</tspan></text>
+<text x="1172.0" y="649" text-anchor="middle" class="boxbody"><tspan x="1172.0" dy="0">行为基线预测分支</tspan></text>
+<text x="1172.0" y="675" text-anchor="middle" class="boxbody"><tspan x="1172.0" dy="0">事件触发式预测修正</tspan></text>
+<text x="1172.0" y="701" text-anchor="middle" class="boxbody"><tspan x="1172.0" dy="0">评价：MAE、RMSE、WAPE</tspan></text>
+<rect x="1367" y="587" width="240" height="122" rx="4" ry="4" class="gray"/>
+<text x="1487.0" y="617" text-anchor="middle" class="boxtitle"><tspan x="1487.0" dy="0">预测区间校准</tspan></text>
+<text x="1487.0" y="649" text-anchor="middle" class="boxbody"><tspan x="1487.0" dy="0">覆盖率、区间宽度、</tspan><tspan x="1487.0" dy="26">区间评分</tspan></text>
+<line x1="517" y1="731" x2="517" y2="755" class="lineg"/>
+<line x1="1172" y1="731" x2="1172" y2="755" class="lineg"/>
+<line x1="1487" y1="731" x2="1487" y2="755" class="lineg"/>
+<rect x="395" y="790" width="405" height="90" rx="4" ry="4" class="orange"/>
+<text x="597.5" y="821" text-anchor="middle" class="boxtitle"><tspan x="597.5" dy="0">容量风险代理解释</tspan></text>
+<text x="597.5" y="853" text-anchor="middle" class="boxbody"><tspan x="597.5" dy="0">负荷压力、容量风险、运行提示</tspan></text>
+<rect x="900" y="790" width="405" height="90" rx="4" ry="4" class="gray"/>
+<text x="1102.5" y="821" text-anchor="middle" class="boxtitle"><tspan x="1102.5" dy="0">稳健性验证</tspan></text>
+<text x="1102.5" y="853" text-anchor="middle" class="boxbody"><tspan x="1102.5" dy="0">异常输入、事件扰动、结果稳定性</tspan></text>
+<rect x="1368" y="790" width="265" height="90" rx="4" ry="4" class="orange"/>
+<text x="1500.5" y="821" text-anchor="middle" class="boxtitle"><tspan x="1500.5" dy="0">降级决策</tspan></text>
+<text x="1500.5" y="853" text-anchor="middle" class="boxbody"><tspan x="1500.5" dy="0">稳定回退、保守触发、可用性保障</tspan></text></svg>

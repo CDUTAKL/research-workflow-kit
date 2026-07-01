@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="639.36pt" height="244.476pt" viewBox="0 0 639.36 244.476" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-06-30T10:47:39.651563</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 244.476 
+L 639.36 244.476 
+L 639.36 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 317.760043 121.668322 
+Q 214.996727 91.177006 113.198074 60.97192 
+" clip-path="url(#p407e27e41a)" style="fill: none; stroke: #b1bac6; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 116.463917 64.027123 
+L 113.198074 60.97192 
+L 117.601742 60.192367 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #b1bac6; stroke: #b1bac6; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 317.728097 122.667005 
+Q 214.999596 145.245513 113.253868 167.608019 
+" clip-path="url(#p407e27e41a)" style="fill: none; stroke: #b1bac6; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 117.589948 168.702737 
+L 113.253868 167.608019 
+L 116.73129 164.795986 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #b1bac6; stroke: #b1bac6; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 321.599957 121.668322 
+Q 424.363273 91.177006 526.161926 60.97192 
+" clip-path="url(#p407e27e41a)" style="fill: none; stroke: #b1bac6; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 521.758258 60.192367 
+L 526.161926 60.97192 
+L 522.896083 64.027123 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #b1bac6; stroke: #b1bac6; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 321.631903 122.667005 
+Q 424.360404 145.245513 526.106132 167.608019 
+" clip-path="url(#p407e27e41a)" style="fill: none; stroke: #b1bac6; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 522.62871 164.795986 
+L 526.106132 167.608019 
+L 521.770052 168.702737 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #b1bac6; stroke: #b1bac6; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 319.68 149.544921 
+Q 319.68 161.351351 319.68 172.095649 
+" clip-path="url(#p407e27e41a)" style="fill: none; stroke-dasharray: 3.515,1.52; stroke-dashoffset: 0; stroke: #7b8490; stroke-width: 0.95; stroke-linecap: round"/>
+    <path d="M 321.68 168.095649 
+L 319.68 172.095649 
+L 317.68 168.095649 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #7b8490; stroke-dasharray: 3.515,1.52; stroke-dashoffset: 0; stroke: #7b8490; stroke-width: 0.95; stroke-linecap: round"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 249.05952 147.086208 
+L 390.30048 147.086208 
+Q 405.92448 147.086208 405.92448 141.334308 
+L 405.92448 93.938652 
+Q 405.92448 88.186752 390.30048 88.186752 
+L 249.05952 88.186752 
+Q 233.43552 88.186752 233.43552 93.938652 
+L 233.43552 141.334308 
+Q 233.43552 147.086208 249.05952 147.086208 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #f3f5f8; stroke: #8e99a8; stroke-width: 1.05; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 42.82272 87.266448 
+L 177.81408 87.266448 
+Q 193.43808 87.266448 193.43808 81.514548 
+L 193.43808 34.118892 
+Q 193.43808 28.366992 177.81408 28.366992 
+L 42.82272 28.366992 
+Q 27.19872 28.366992 27.19872 34.118892 
+L 27.19872 81.514548 
+Q 27.19872 87.266448 42.82272 87.266448 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #eaf2fb; stroke: #2f6fae; stroke-width: 1.05; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 42.82272 195.402168 
+L 177.81408 195.402168 
+Q 193.43808 195.402168 193.43808 189.650268 
+L 193.43808 142.254612 
+Q 193.43808 136.502712 177.81408 136.502712 
+L 42.82272 136.502712 
+Q 27.19872 136.502712 27.19872 142.254612 
+L 27.19872 189.650268 
+Q 27.19872 195.402168 42.82272 195.402168 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #eaf2fb; stroke: #2f6fae; stroke-width: 1.05; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 461.54592 87.266448 
+L 596.53728 87.266448 
+Q 612.16128 87.266448 612.16128 81.514548 
+L 612.16128 34.118892 
+Q 612.16128 28.366992 596.53728 28.366992 
+L 461.54592 28.366992 
+Q 445.92192 28.366992 445.92192 34.118892 
+L 445.92192 81.514548 
+Q 445.92192 87.266448 461.54592 87.266448 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #f3f5f8; stroke: #8e99a8; stroke-width: 1.05; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 461.54592 195.402168 
+L 596.53728 195.402168 
+Q 612.16128 195.402168 612.16128 189.650268 
+L 612.16128 142.254612 
+Q 612.16128 136.502712 596.53728 136.502712 
+L 461.54592 136.502712 
+Q 445.92192 136.502712 445.92192 142.254612 
+L 445.92192 189.650268 
+Q 445.92192 195.402168 461.54592 195.402168 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #fff1e5; stroke: #e68a3a; stroke-width: 1.05; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 249.05952 225.312048 
+L 384.05088 225.312048 
+Q 399.67488 225.312048 399.67488 219.560148 
+L 399.67488 172.164492 
+Q 399.67488 166.412592 384.05088 166.412592 
+L 249.05952 166.412592 
+Q 233.43552 166.412592 233.43552 172.164492 
+L 233.43552 219.560148 
+Q 233.43552 225.312048 249.05952 225.312048 
+z
+" clip-path="url(#p407e27e41a)" style="fill: #f3f5f8; stroke: #8e99a8; stroke-width: 1.05; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 11.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="319.68" y="107.538434" transform="rotate(-0 319.68 107.538434)">评价目标</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 8.7px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(271.83 118.801111)">从预测精度、关键窗口、</text>
+    <text style="font-size: 8.7px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(280.53 129.146507)">不确定性与风险解释</text>
+    <text style="font-size: 8.7px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(280.53 139.349168)">综合评价方法有效性</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 10.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="110.3184" y="50.905778" transform="rotate(-0 110.3184 50.905778)">点预测误差</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(72.129306 63.558958)">MAE / RMSE / WAPE</text>
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(70.8184 73.082045)">衡量整体预测误差水平</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 10.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="110.3184" y="155.498328" transform="rotate(-0 110.3184 155.498328)">分窗口误差</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(84.861267 167.821957)">事件窗口 MAE</text>
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(84.861267 177.073482)">稳定窗口 MAE</text>
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(58.9684 186.355249)">检验关键窗口收益与稳定回退</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 10.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="529.0416" y="50.896216" transform="rotate(-0 529.0416 50.896216)">区间可靠性</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(489.977334 63.812005)">PICP / 区间宽度 / WIS</text>
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(481.6416 73.109201)">衡量覆盖率与不确定性表达</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 10.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="529.0416" y="155.463265" transform="rotate(-0 529.0416 155.463265)">风险代理指标</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(505.3416 163.181383)">高负荷召回率</text>
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(505.3416 172.465001)">严重度捕获率</text>
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(513.2416 181.735659)">误报代价</text>
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(489.5416 191.007551)">评估容量风险筛查能力</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 10.2px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #252525" x="316.5552" y="188.921894" transform="rotate(-0 316.5552 188.921894)">稳健性检查</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(274.421044 201.897722)">多种子 / 扰动 / 降级守门</text>
+    <text style="font-size: 7.9px; font-family: 'Arial Unicode MS', 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #252525" transform="translate(261.2552 211.128262)">检验结论在异常条件下的稳定性</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p407e27e41a">
+   <rect x="7.2" y="7.2" width="624.96" height="230.076"/>
+  </clipPath>
+ </defs>
+</svg>
