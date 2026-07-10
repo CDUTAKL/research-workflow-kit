@@ -1,0 +1,67 @@
+experiment_id: EXP-108-standard-baselines
+seed: 42
+seeds: [42, 2026, 3407]
+split: chronological_70_15_15
+metric: MAE
+output: outputs/EXP-108-standard-baselines
+execution_target: cloud_autodl_rtx5090
+methods: ['persistence', 'lightgbm', 'gru', 'stgcn']
+data:
+  source_path: data/processed/evcs_timeslice.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+cache:
+  tensor_cache_path: data/processed/evcs_tensor_cache_optimized.npz
+  split_path: data/processed/splits/chronological_70_15_15_optimized.json
+  manifest_path: data/processed/evcs_tensor_cache_optimized_manifest.json
+  history_steps: 96
+  horizon_steps: 4
+  split_rule: {'train': 0.7, 'validation': 0.15, 'test': 0.15}
+  auto_build: false
+features:
+  event_feature_fields: ['access_count', 'departure_count', 'active_count', 'occupancy_rate', 'demand_intensity', 'load_jump_flag']
+  include_time_context: true
+  include_enhanced_events: true
+  event_flag_as_input: false
+  causal_policy: prediction_origin_or_earlier_only
+graph:
+  baseline: stgcn
+  construction: training_load_positive_correlation
+  top_k: 5
+  self_loop: true
+  test_statistics_forbidden: true
+training:
+  epochs: 100
+  batch_size: 256
+  hidden_channels: 64
+  num_layers: 2
+  dropout: 0.1
+  optimizer: AdamW
+  lr: 0.001
+  loss: MAE
+  checkpoint_metric: validation_MAE_raw
+  early_stopping_patience: 10
+  num_workers: 8
+  amp: true
+  write_full_predictions: true
+lightgbm:
+  objective: regression_l1
+  metric: l1
+  num_leaves: [31, 63]
+  learning_rate: [0.03, 0.05]
+  n_estimators: 1000
+  early_stopping_rounds: 50
+  feature_fraction: 0.9
+  bagging_fraction: 0.9
+  bagging_freq: 1
+evaluation:
+  metrics: ['MAE', 'RMSE', 'WAPE']
+  strata: ['global', 'event_window', 'active_stable', 'inactive_zero_load', 'positive_load']
+  node_macro: true
+  horizons: [1, 2, 3, 4]
+  bootstrap_samples: 5000
+  bootstrap_primary_cluster: forecast_origin
+  bootstrap_sensitivity_cluster: timestamp
+  conditional_seed_escalation: true
+  escalation_rule: add_two_seeds_only_if_any_seed_reverses_or_ci_crosses_zero

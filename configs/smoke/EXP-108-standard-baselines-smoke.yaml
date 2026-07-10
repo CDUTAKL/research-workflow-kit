@@ -1,0 +1,64 @@
+experiment_id: EXP-108-standard-baselines
+seed: 42
+seeds: [42]
+split: smoke_chronological
+metric: MAE
+output: outputs/EXP-108-standard-baselines-smoke
+execution_target: local_mac
+methods: ['persistence', 'lightgbm', 'gru', 'stgcn']
+data:
+  source_path: tests/fixtures/evcs_timeslice_smoke.csv
+  timestamp_field: timestamp
+  node_field: node_id
+  target_field: load
+cache:
+  tensor_cache_path: outputs/EXP-108-standard-baselines-smoke/cache/evcs_tensor_cache.npz
+  split_path: outputs/EXP-108-standard-baselines-smoke/cache/chronological_70_15_15.json
+  manifest_path: outputs/EXP-108-standard-baselines-smoke/cache/evcs_tensor_cache_manifest.json
+  history_steps: 2
+  horizon_steps: 1
+  split_rule: {'train': 0.5, 'validation': 0.25, 'test': 0.25}
+  auto_build: true
+features:
+  event_feature_fields: ['access_count', 'departure_count', 'active_count', 'occupancy_rate', 'demand_intensity', 'load_jump_flag']
+  include_time_context: false
+  include_enhanced_events: false
+  event_flag_as_input: false
+  causal_policy: prediction_origin_or_earlier_only
+graph:
+  baseline: stgcn
+  construction: training_load_positive_correlation
+  top_k: 1
+  self_loop: true
+  test_statistics_forbidden: true
+training:
+  epochs: 1
+  batch_size: 2
+  hidden_channels: 8
+  num_layers: 1
+  dropout: 0.0
+  optimizer: AdamW
+  lr: 0.001
+  loss: MAE
+  checkpoint_metric: validation_MAE_raw
+  early_stopping_patience: 1
+  num_workers: 0
+  amp: false
+  write_full_predictions: true
+  max_train_batches: 2
+  max_eval_batches: 2
+lightgbm:
+  objective: regression_l1
+  metric: l1
+  num_leaves: [7]
+  learning_rate: [0.1]
+  n_estimators: 5
+  early_stopping_rounds: 2
+evaluation:
+  metrics: ['MAE', 'RMSE', 'WAPE']
+  strata: ['global', 'event_window', 'active_stable', 'inactive_zero_load', 'positive_load']
+  node_macro: true
+  horizons: [1]
+  bootstrap_samples: 20
+  bootstrap_primary_cluster: forecast_origin
+  bootstrap_sensitivity_cluster: timestamp
