@@ -26,6 +26,7 @@
 | `candidate_review` | Candidate experiment with warnings or anomalies to resolve |
 | `ready_to_run` | Architecture, config, and run command are defined |
 | `completed_unreviewed` | Outputs exist but have not been analyzed |
+| `reviewed_archived` | Archived outputs, hashes, and paired analysis have been reviewed and are eligible for thesis evidence under stated scope |
 
 ## Storage Model
 
@@ -42,6 +43,7 @@
 | Experiment ID | Research Question / Claim | Method / Config | Dataset / Split | Command / Notebook | Output Path | Key Metrics | Status | Date | Notes | Storage Backend | Remote Artifact URI | Remote Status | Artifact Hash / Manifest |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | EXP-001 | TBD | TBD | TBD | TBD | outputs/EXP-001 | TBD | planned | TBD |  | local_mac/remote_desktop_4060/cloud_autodl/archive/TBD | ssh://desktop-4060/research-runs/EXP-001/TBD | pending | outputs/EXP-001/manifest.json/TBD |
+| EXP-108-standard-baselines | External baseline comparison for the revised Chapter 5 main table | Persistence, LightGBM, GRU, and train-only static-graph STGCN under one frozen data, feature, budget, seed, and evaluation contract | DATA-102, DATA-103; `chronological_70_15_15`; history 96; horizon 4; seeds 42/2026/3407; no test-time graph statistics; target-time event evaluation | `python scripts/run_exp108_standard_baselines.py --config configs/experiment/EXP-108-standard-baselines.yaml --seed 42 --methods persistence,lightgbm,gru,stgcn --out outputs/EXP-108-standard-baselines/seed-42` | `outputs/EXP-108-standard-baselines` | aligned V6 comparison: Persistence 0.022746, LightGBM 0.022106, GRU 0.023477, STGCN 0.033495, V6 0.021128; forecast-origin and timestamp 5,000-repeat paired bootstrap support lower V6 global MAE against all four | reviewed_archived | 2026-07-12 | Prediction keys/targets are paired and metrics are frozen for Chapter 5 writeback. The three train-log hashes were recomputed and each seed archive passed `sha256sum -c`; this remediation changes no metric or prediction. Historical Average remains optional. | local_mac contract/smoke; AutoDL RTX 5090 formal; aligned analysis downloaded locally | `ssh://autodl-rtx5090/root/autodl-tmp/research-workflow-kit/outputs/EXP-108-standard-baselines`; local archive `/Users/xushuyuan/Downloads/EXP-108-standard-baselines`; local aligned analysis `/Users/xushuyuan/Downloads/EXP-108-v6-aligned` | result and archive checksums verified | `docs/thesis/EXP-108-frozen-protocol.md`; `docs/thesis/experiment-reports/EXP-108-standard-baselines-freeze.md`; `docs/thesis/experiment-reports/EXP-108-v6-evidence-boundary.md` |
 
 ## Promotion Rules
 
