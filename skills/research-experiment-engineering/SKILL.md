@@ -22,12 +22,13 @@ Use this skill before result analysis when a research project needs experiment c
 - Use the local-index plus remote-artifact model for formal runs: fetch lightweight `outputs/EXP-*` evidence to the Mac, keep full logs/checkpoints/predictions on `remote_desktop_4060` or another archive backend, and record URI/hash/status in `experiment-registry.md`.
 - Use `$research-code-quality` or `scripts/check_experiment_contract.py` before expensive remote GPU runs.
 - Use `$research-autoresearch-loop` when a run is part of iterative method improvement.
+- Freeze each confirmatory experiment's primary hypothesis, metric, baseline, analysis unit, selection/stopping rules, and planned test-set access before its first formal run; log later test exposure and deviations in `experiment-integrity-checklist.md`.
 - Never write SSH passwords, AutoDL account data, private-key contents, or long-lived credentials into project files.
 - Hand completed outputs to `$research-results-analysis`; do not make final paper claims inside this skill.
 
 ## Workflow
 
-Read `references/workflow.md` for the six-stage engineering flow. Read `references/code-architecture.md` for module and file conventions. Read `references/run-and-reproducibility.md` for run, output, and reproducibility checks. Read `references/source-map.md` for provenance.
+Read `references/workflow.md` for the six-stage engineering flow. Read `references/code-architecture.md` for module and file conventions. Read `references/run-and-reproducibility.md` for run, output, and reproducibility checks. Read `references/preregistration-and-test-access.md` before formal confirmatory runs. Read `references/source-map.md` for provenance.
 
 1. Identify the research question, planned claim, title phrase under test, and experiment type.
 2. Inspect or propose the project architecture.
@@ -35,13 +36,13 @@ Read `references/workflow.md` for the six-stage engineering flow. Read `referenc
 4. Define the model, algorithm, node/unit, edge/relation, or structure module contract.
 5. Define train, evaluate, and predict script interfaces.
 6. Define config, run naming, logging, metrics, checkpoints, predictions, and artifact outputs.
-7. Define the experiment contract: config, seed, split, metric, output path, registry row, and smoke config.
+7. Define the experiment contract: config, seed, split, metric, output path, registry row, and smoke config; freeze the confirmatory protocol and test-access plan in `experiment-integrity-checklist.md` before the first formal run.
 8. Choose execution target: `local_mac` for smoke tests/debugging, `remote_desktop_4060` for primary formal GPU training/evaluation, `cloud_autodl` as fallback, or another cloud target when specified.
 9. Define reproducibility requirements, remote artifact URI/hash policy, and local lightweight result recovery.
 10. Map runs to `docs/thesis` experiment IDs and runbook entries.
 11. Route code implementation, testing, and debugging through normal Codex coding workflows.
 12. For iterative runs, record verify/guard outcomes through `$research-autoresearch-loop`.
-13. Hand completed outputs to `$research-results-analysis`.
+13. Record each test-set exposure or post-freeze deviation in the access log, then hand completed outputs to `$research-results-analysis`.
 
 ## Output Contract
 

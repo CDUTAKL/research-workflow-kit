@@ -35,15 +35,17 @@
 
 | Tier | When To Run | Must Check | Output |
 |---|---|---|---|
-| quick | daily, after new experiment output, before continuing a branch | changed `CLM-*`, new `EXP-*`, new `DATA-*`, new `FIG-*`, broken citations, obvious overclaiming | short issue list and next action |
-| advisor | before supervisor meeting, milestone review, or chapter review | title survival, claim map, section citation coverage, figures/tables, data traceability, code contracts, 4060 snapshots, Mac-produced DOCX/PDF/PPTX candidate status, limitations | advisor-ready risk list |
-| final | before DOCX/PDF release, defense, or submission | all quick/advisor checks plus final title lock, formatting, bibliography, final data availability, defense slides, Windows compatibility paths, artifact checksums, ID lifecycle conflicts | final go/no-go decision |
+| quick | daily, after new experiment output, before continuing a branch | changed `CLM-*`, affected numeric values, new `EXP-*` / `DATA-*` / `FIG-*`, broken citations, obvious overclaiming | short issue list, affected checks, and next action |
+| advisor | before supervisor meeting, milestone review, or chapter review | title survival, contribution/evidence map, section citation coverage, figures/tables, data traceability, protocol/test-access record, code contracts, 4060 snapshots, limitations, and major review-finding closeout | advisor-ready risk list with unresolved findings |
+| final | before DOCX/PDF release, defense, or submission | all applicable quick/advisor checks plus independent recalculation of core quantitative claims, final title lock, formatting, bibliography, data availability, defense slides, Windows compatibility, artifact checksums, ID lifecycle, and verified closure or explicit disposition of every major finding | final go/no-go decision tied to the reviewed version |
 
 ## Issue Table
 
-| Issue ID | Priority | Area | Problem | Evidence | Fix | Status |
-|---|---|---|---|---|---|---|
-| AUD-001 | P1 | claim/citation/figure/format | TBD | TBD | TBD | open |
+| Issue ID | Priority | Area | Problem / manuscript locator | Evidence checked | Decision | Fix / changed locator | Recheck evidence | Status |
+|---|---|---|---|---|---|---|---|---|
+| AUD-001 | P1 | claim/citation/figure/format | TBD | TBD | accept / partial / reject with reason | TBD | TBD | open |
+
+Use statuses `open`, `in_progress`, `fixed_pending_recheck`, `verified_closed`, `rejected_with_reason`, or `not_verifiable`. A finding is closed only after the changed manuscript location and relevant evidence are rechecked against the same version named in the audit log. Rejected findings retain their reason; unverifiable findings remain visible as limitations or blockers.
 
 ## Claim Audit
 

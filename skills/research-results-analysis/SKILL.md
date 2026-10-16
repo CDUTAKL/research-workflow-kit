@@ -14,6 +14,7 @@ Use this skill to transform raw experiment artifacts into trustworthy summaries 
 - Distinguish main results, baselines, ablations, robustness checks, and error analysis.
 - Report uncertainty, missing baselines, failed runs, inconsistent metrics, and statistical limitations.
 - Audit experiment integrity before turning results into paper claims.
+- Independently recalculate core regression metrics from saved sample-level predictions before promoting headline quantitative claims; reconcile any differences with run-level metrics.
 - Convert results into conservative claims only when the evidence supports them.
 - Promote results according to `evidence-promotion-policy.md`: `EXP-*` evidence should map to `CLM-*`, `DATA-*`, and any `FIG-*` that visualizes the result.
 - Never average incompatible settings or compare runs with different data splits unless explicitly justified.
@@ -28,7 +29,7 @@ Use this skill to transform raw experiment artifacts into trustworthy summaries 
 
 ## Workflow
 
-Read `references/workflow.md` for result tables, claim classification, and audit checklists. Read `references/source-map.md` for source provenance.
+Read `references/workflow.md` for result tables, claim classification, and audit checklists. Read `references/independent-metric-recomputation.md` before verifying headline regression claims. Read `references/source-map.md` for source provenance.
 
 1. Inventory result files, run configs, metrics, figures, and logs.
 2. When a directory of mixed results is provided, optionally run the skill-local `scripts/scan_results.py` to create `docs/thesis/result-scan-summary.md` and `docs/thesis/result-scan-table.csv`.
@@ -36,7 +37,7 @@ Read `references/workflow.md` for result tables, claim classification, and audit
 4. Check data quality, split integrity, sample/label distributions, missing values, anomaly risks, and leakage risks; record formal checks in `data-quality-report.md` when the result supports a claim.
 5. Normalize metric names, datasets/splits, seeds, baselines, and model variants; record formal metric definitions and deltas in `metric-diagnostics.md`.
 6. Choose the right statistical summary or test before using words such as significant, robust, or consistent.
-7. Audit ground-truth provenance, metric computation, result file existence, scope, and dead-code risks.
+7. Audit ground-truth provenance, metric computation, result file existence, scope, and dead-code risks. For headline regression results, run `scripts/recompute_prediction_metrics.py` on prediction-level artifacts and reconcile the values and paired uncertainty interval with the frozen protocol.
 8. For advisor-facing or dashboard-facing result visuals, apply Build Web Data Visualization checks: truthful chart choice, readable labels, uncertainty or sample-size visibility when relevant, accessible contrast, and mobile/desktop layout sanity.
 9. Update `docs/thesis/experiment-registry.md`, `docs/thesis/claim-evidence-map.md`, `docs/thesis/autoresearch-results.tsv`, `docs/thesis/experiment-reports/`, `docs/thesis/benchmark-report-schema.md`, `docs/thesis/material-passport.md`, and `docs/thesis/data-availability.md` when a thesis console exists and the result is used as evidence; for remote/cloud runs, include storage backend, remote URI, remote status, and hash/manifest.
 10. Build a claim table with supported, weak, unsupported, and missing-evidence claims.

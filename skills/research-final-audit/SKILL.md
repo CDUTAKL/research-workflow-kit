@@ -26,15 +26,18 @@ Use this skill as the last quality gate before submission or defense. It checks 
 - Separate scientific issues from formatting issues.
 - Prioritize fixes by submission risk.
 - Do not silently rewrite claims to be stronger than the evidence.
+- For core regression claims, independently recalculate headline metrics from prediction-level artifacts and reconcile them against run summaries and manuscript values.
+- Resolve material reviewer findings through `references/finding-resolution-closure.md`; a fix is not closed until its changed location and evidence have been rechecked against the audited manuscript version.
+- For confirmatory experiment claims, inspect the frozen protocol and test-set access log in `experiment-integrity-checklist.md`; disclose result-informed changes and do not describe an exposed test set as untouched confirmation.
 
 ## Workflow
 
-Read `references/workflow.md` for audit tables and checklists. Read `references/source-map.md` for source provenance.
+Read `references/workflow.md` for audit tables and checklists. Read `references/finding-resolution-closure.md` for reviewer issue disposition and recheck rules. Read `references/source-map.md` for source provenance.
 
 1. Identify the target artifact: manuscript, thesis, references, figures, LaTeX/PDF, Word document, or slides.
 2. Extract quantitative claims, comparisons, scope wording, figure/table captions, and citation-backed statements.
 3. Audit the title and abstract against `project-scope-control.md`; flag title phrases that lack literature, experiment, data, figure, or citation evidence.
-4. Audit claims against raw result files, cited evidence, configs, and rendered figures/tables.
+4. Audit claims against raw result files, cited evidence, configs, and rendered figures/tables. For core regression results, independently recalculate metrics from prediction-level artifacts and reconcile repeated values across prose, tables, figures, captions, and conclusions.
 5. Audit citations for existence, metadata accuracy, claim support, provenance, Zotero hub/collection coverage, and export trace.
 6. Audit reproducibility and benchmark records, including run commands, configs, seeds, splits, code version, metric files, output directories, local output indexes, 4060/cloud environment snapshots, remote artifact URI/hash/status records, code contract checks, benchmark report schema, material passports, ID lifecycle records, final artifact handoff records, and autoresearch verify/guard records when the thesis console exists.
 7. Audit tool-layer records when available: task board sync, git version log, spreadsheet exports, and defense prep.
@@ -45,7 +48,7 @@ Read `references/workflow.md` for audit tables and checklists. Read `references/
 12. Check dashboard/evidence-graph views when they are used for advisor review, defense preparation, or project handoff.
 13. Check plugin gate records for Codex Security, Build Web Apps, Data Analytics, Product Design, or CodeRabbit when they were recommended or required by `plugin_gate_advisor.py`.
 14. For defense or paper-to-PPT work, check slide claims, selected figures, speaker notes, and paper-to-slide traceability.
-15. Route each issue to the right revision skill and return a prioritized fix list.
+15. Route each issue to the right revision skill, record disposition and changed manuscript locator, and recheck material fixes before marking them `verified_closed`.
 
 ## Output Contract
 
